@@ -42,7 +42,7 @@ const MENU_ITEMS = [
         id: "settings",
         title: "Cài đặt",
         icon: "settings",
-        route: "/settings",
+        route: "/profile/settings",
     },
 ];
 
@@ -69,7 +69,9 @@ export default function ProfileScreen() {
                         </View>
                         <Pressable
                             className="w-10 h-10 items-center justify-center rounded-full bg-gray-100"
-                            onPress={() => router.push("/profile/edit" as any)}
+                            onPress={() =>
+                                router.push("/profile/edit-profile" as any)
+                            }
                         >
                             <MaterialIcons
                                 name="edit"

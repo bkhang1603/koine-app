@@ -39,7 +39,7 @@ export default function EditProfileScreen() {
                             className="w-24 h-24 rounded-full"
                         />
                         <Pressable
-                            className="absolute bottom-0 right-0 w-8 h-8 bg-violet-500 rounded-full items-center justify-center"
+                            className="absolute bottom-0 right-0 w-8 h-8 bg-blue-500 rounded-full items-center justify-center"
                             onPress={pickImage}
                         >
                             <MaterialIcons
@@ -88,7 +88,7 @@ export default function EditProfileScreen() {
 
                 {/* Save Button */}
                 <Pressable
-                    className="bg-violet-500 p-4 rounded-xl mt-8"
+                    className="bg-blue-500 p-4 rounded-xl mt-8"
                     onPress={() => {
                         // Handle save changes
                         router.back();

@@ -107,6 +107,10 @@ export default function RootLayout() {
                     name="sub-accounts/edit/[id]"
                     options={{ headerShown: false }}
                 />
+                <Stack.Screen
+                    name="profile/edit-profile"
+                    options={{ headerShown: false }}
+                />
             </Stack>
         </>
     );
