@@ -275,6 +275,7 @@ export default function HomeScreen() {
                         </Link>
                     </View>
                 )}
+                <View className="h-20"></View>
             </SafeAreaView>
         </ScrollView>
     );
