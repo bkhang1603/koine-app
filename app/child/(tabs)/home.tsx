@@ -291,6 +291,7 @@ export default function HomeScreen() {
                                 </Pressable>
                             ))}
                         </View>
+                        <View className="h-20"></View>
                     </View>
                 </View>
             </ScrollView>

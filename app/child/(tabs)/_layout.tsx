@@ -30,7 +30,7 @@ export default function ChildTabsLayout() {
             }}
         >
             <Tabs.Screen
-                name="index"
+                name="home"
                 options={{
                     title: "",
                     tabBarIcon: ({ focused }) => (

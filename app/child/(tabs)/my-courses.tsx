@@ -143,6 +143,7 @@ export default function ChildMyCoursesScreen() {
                         </Pressable>
                     ))}
                 </View>
+                <View className="h-20"></View>
             </ScrollView>
 
             {/* Bottom SafeArea với background trắng */}

@@ -119,6 +119,7 @@ export default function GamesScreen() {
                         </Pressable>
                     ))}
                 </View>
+                <View className="h-20"></View>
             </SafeAreaView>
         </ScrollView>
     );
