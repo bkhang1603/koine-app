@@ -17,10 +17,10 @@ export default function HomeScreen() {
     const latestBlog = MOCK_BLOG_POSTS[0];
 
     return (
-        <ScrollView className="flex-1 bg-white">
+        <ScrollView className="flex-1 bg-gray-50">
             <SafeAreaView>
                 {/* Header with Avatar */}
-                <View className="px-4 pt-4 flex-row items-center justify-between">
+                <View className="px-4 flex-row items-center justify-between">
                     <View>
                         <Text className="text-2xl font-bold">
                             Hi, {MOCK_USER.name}!

@@ -16,7 +16,7 @@ export default function BlogScreen() {
         <ScrollView className="flex-1 bg-gray-50">
             <SafeAreaView>
                 {/* Header */}
-                <View className="px-4 pt-4">
+                <View className="px-4">
                     <Text className="text-2xl font-bold">Blog</Text>
                     <Text className="text-gray-600 mt-1">
                         Kiến thức hữu ích cho teen và phụ huynh

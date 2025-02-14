@@ -1,9 +1,9 @@
 import React from "react";
-import { View, Text, ScrollView, Image } from "react-native";
+import { View, Text, ScrollView } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import HeaderWithBack from "@/components/HeaderWithBack";
-import { useGame } from "@/app/lib/contexts/GameContext";
 import { MOCK_GAMES } from "@/constants/mock-data";
+import { useGame } from "@/contexts/GameContext";
 
 export default function LeaderboardScreen() {
     const { highScores } = useGame();
@@ -85,4 +85,4 @@ export default function LeaderboardScreen() {
             </ScrollView>
         </View>
     );
-} 
+}

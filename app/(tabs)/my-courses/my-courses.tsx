@@ -7,16 +7,16 @@ import { MOCK_MY_COURSES } from "@/constants/mock-data";
 
 export default function MyCoursesScreen() {
     return (
-        <ScrollView className="flex-1 bg-white">
+        <ScrollView className="flex-1 bg-gray-50">
             <SafeAreaView>
-                <View className="p-4">
+                <View className="px-4">
                     <Text className="text-2xl font-bold">Khóa học của tôi</Text>
                     <Text className="text-gray-600 mt-1">
                         Tiếp tục học tập nào!
                     </Text>
                 </View>
 
-                <View className="px-4">
+                <View className="px-4 pt-4">
                     {MOCK_MY_COURSES.map((course) => (
                         <Pressable
                             key={course.id}

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { View, Text, ScrollView } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import HeaderWithBack from "@/components/HeaderWithBack";
 
@@ -52,16 +52,26 @@ export default function AchievementsScreen() {
                     {/* Stats Overview */}
                     <View className="flex-row justify-between bg-blue-50 p-4 rounded-2xl mb-6">
                         <View className="items-center">
-                            <Text className="text-2xl font-bold text-blue-500">12</Text>
-                            <Text className="text-gray-600">Tổng thành tích</Text>
+                            <Text className="text-2xl font-bold text-blue-500">
+                                12
+                            </Text>
+                            <Text className="text-gray-600">
+                                Tổng thành tích
+                            </Text>
                         </View>
                         <View className="items-center">
-                            <Text className="text-2xl font-bold text-blue-500">5</Text>
+                            <Text className="text-2xl font-bold text-blue-500">
+                                5
+                            </Text>
                             <Text className="text-gray-600">Đã đạt được</Text>
                         </View>
                         <View className="items-center">
-                            <Text className="text-2xl font-bold text-blue-500">7</Text>
-                            <Text className="text-gray-600">Đang thực hiện</Text>
+                            <Text className="text-2xl font-bold text-blue-500">
+                                7
+                            </Text>
+                            <Text className="text-gray-600">
+                                Đang thực hiện
+                            </Text>
                         </View>
                     </View>
 
@@ -81,7 +91,9 @@ export default function AchievementsScreen() {
                             <View className="flex-row items-start">
                                 <View
                                     className="w-12 h-12 rounded-xl items-center justify-center"
-                                    style={{ backgroundColor: `${achievement.color}15` }}
+                                    style={{
+                                        backgroundColor: `${achievement.color}15`,
+                                    }}
                                 >
                                     <MaterialIcons
                                         name={achievement.icon as any}
@@ -101,16 +113,23 @@ export default function AchievementsScreen() {
 
                             <View className="mt-4">
                                 <View className="flex-row justify-between mb-2">
-                                    <Text className="text-gray-600">Tiến độ</Text>
+                                    <Text className="text-gray-600">
+                                        Tiến độ
+                                    </Text>
                                     <Text className="font-medium">
-                                        {achievement.progress}/{achievement.total}
+                                        {achievement.progress}/
+                                        {achievement.total}
                                     </Text>
                                 </View>
                                 <View className="h-2 bg-gray-100 rounded-full overflow-hidden">
                                     <View
                                         className="h-full rounded-full"
                                         style={{
-                                            width: `${(achievement.progress / achievement.total) * 100}%`,
+                                            width: `${
+                                                (achievement.progress /
+                                                    achievement.total) *
+                                                100
+                                            }%`,
                                             backgroundColor: achievement.color,
                                         }}
                                     />
@@ -122,4 +141,4 @@ export default function AchievementsScreen() {
             </ScrollView>
         </View>
     );
-} 
+}

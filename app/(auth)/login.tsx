@@ -4,72 +4,105 @@ import {
     Text,
     TextInput,
     Pressable,
+    ScrollView,
     KeyboardAvoidingView,
     Platform,
-    ScrollView,
 } from "react-native";
-import { Link } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useAuth } from "@/components/auth";
+import { router } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LoginScreen() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const insets = useSafeAreaInsets();
-    const { login } = useAuth();
+
+    const handleLogin = () => {
+        if (!email || !password) {
+            alert("Vui lòng điền đầy đủ thông tin");
+            return;
+        }
+        router.push("/(tabs)");
+    };
 
     return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={{ flex: 1 }}
-        >
-            <ScrollView
-                contentContainerStyle={{
-                    flexGrow: 1,
-                    paddingTop: insets.top,
-                    paddingBottom: insets.bottom,
-                }}
+        <SafeAreaView className="flex-1 bg-white">
+            <KeyboardAvoidingView
+                className="flex-1"
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
             >
-                <View className="flex-1 px-4 pt-12">
-                    {/* Header */}
-                    <View className="items-center mb-12">
-                        <Text className="text-3xl font-bold text-blue-500 mb-2">
-                            Chào mừng trở lại
+                <ScrollView
+                    className="flex-1"
+                    contentContainerStyle={{ padding: 16 }}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                    bounces={false}
+                >
+                    {/* Logo */}
+                    <View className="items-center my-8">
+                        <View className="w-20 h-20 bg-blue-100 rounded-full items-center justify-center">
+                            <MaterialIcons
+                                name="person"
+                                size={40}
+                                color="#2563EB"
+                            />
+                        </View>
+                    </View>
+
+                    {/* Title */}
+                    <View className="mb-8">
+                        <Text className="text-2xl font-bold text-gray-800">
+                            Đăng nhập
                         </Text>
-                        <Text className="text-gray-600 text-center">
-                            Đăng nhập để tiếp tục học tập và phát triển
+                        <Text className="text-gray-500 mt-2">
+                            Vui lòng đăng nhập để tiếp tục
                         </Text>
                     </View>
 
                     {/* Form */}
                     <View className="space-y-4">
+                        {/* Email Input */}
                         <View>
-                            <Text className="text-gray-700 mb-2">Email</Text>
-                            <TextInput
-                                className="bg-gray-50 p-4 rounded-xl border border-gray-200"
-                                placeholder="Nhập email của bạn"
-                                value={email}
-                                onChangeText={setEmail}
-                                keyboardType="email-address"
-                                autoCapitalize="none"
-                            />
+                            <Text className="text-gray-600 mb-1">Email</Text>
+                            <View className="flex-row items-center bg-gray-50 rounded-xl px-4">
+                                <MaterialIcons
+                                    name="email"
+                                    size={20}
+                                    color="#6B7280"
+                                />
+                                <TextInput
+                                    className="flex-1 py-3 px-2"
+                                    placeholder="Nhập email"
+                                    value={email}
+                                    onChangeText={setEmail}
+                                    keyboardType="email-address"
+                                    autoCapitalize="none"
+                                />
+                            </View>
                         </View>
 
+                        {/* Password Input */}
                         <View>
-                            <Text className="text-gray-700 mb-2">Mật khẩu</Text>
-                            <View className="relative">
+                            <Text className="text-gray-600 mb-1">Mật khẩu</Text>
+                            <View className="flex-row items-center bg-gray-50 rounded-xl px-4">
+                                <MaterialIcons
+                                    name="lock"
+                                    size={20}
+                                    color="#6B7280"
+                                />
                                 <TextInput
-                                    className="bg-gray-50 p-4 rounded-xl border border-gray-200"
+                                    className="flex-1 py-3 px-2"
                                     placeholder="Nhập mật khẩu"
                                     value={password}
                                     onChangeText={setPassword}
                                     secureTextEntry={!showPassword}
+                                    autoCapitalize="none"
                                 />
                                 <Pressable
-                                    className="absolute right-4 top-4"
-                                    onPress={() => setShowPassword(!showPassword)}
+                                    onPress={() =>
+                                        setShowPassword(!showPassword)
+                                    }
+                                    hitSlop={8}
                                 >
                                     <MaterialIcons
                                         name={
@@ -77,42 +110,65 @@ export default function LoginScreen() {
                                                 ? "visibility"
                                                 : "visibility-off"
                                         }
-                                        size={24}
+                                        size={20}
                                         color="#6B7280"
                                     />
                                 </Pressable>
                             </View>
                         </View>
 
-                        <Link href="/forgot-password" asChild>
-                            <Pressable>
-                                <Text className="text-blue-500 text-right">
-                                    Quên mật khẩu?
-                                </Text>
-                            </Pressable>
-                        </Link>
-
-                        <Pressable 
-                            className="bg-blue-500 p-4 rounded-xl"
-                            onPress={() => login(email, password)}
+                        {/* Forgot Password */}
+                        <Pressable
+                            className="self-end"
+                            hitSlop={{
+                                top: 10,
+                                bottom: 10,
+                                left: 10,
+                                right: 10,
+                            }}
                         >
-                            <Text className="text-white text-center font-bold text-lg">
-                                Đăng nhập
+                            <Text className="text-blue-500">
+                                Quên mật khẩu?
                             </Text>
                         </Pressable>
                     </View>
 
-                    {/* Footer */}
-                    <View className="mt-8">
+                    {/* Login Button */}
+                    <Pressable
+                        className="bg-blue-500 p-4 rounded-xl mt-8"
+                        onPress={handleLogin}
+                        hitSlop={{
+                            top: 10,
+                            bottom: 10,
+                            left: 10,
+                            right: 10,
+                        }}
+                    >
+                        <Text className="text-white font-bold text-center">
+                            Đăng nhập
+                        </Text>
+                    </Pressable>
+
+                    {/* Register Link */}
+                    <Pressable
+                        className="mt-4"
+                        onPress={() => router.push("/(auth)/register")}
+                        hitSlop={{
+                            top: 10,
+                            bottom: 10,
+                            left: 10,
+                            right: 10,
+                        }}
+                    >
                         <Text className="text-center text-gray-600">
                             Chưa có tài khoản?{" "}
-                            <Link href="/register" className="text-blue-500">
-                                Đăng ký ngay
-                            </Link>
+                            <Text className="text-blue-500 font-medium">
+                                Đăng ký
+                            </Text>
                         </Text>
-                    </View>
-                </View>
-            </ScrollView>
-        </KeyboardAvoidingView>
+                    </Pressable>
+                </ScrollView>
+            </KeyboardAvoidingView>
+        </SafeAreaView>
     );
-} 
+}

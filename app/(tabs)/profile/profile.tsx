@@ -50,10 +50,10 @@ export default function ProfileScreen() {
     const { signOut } = useAuth();
 
     return (
-        <ScrollView className="flex-1 bg-white">
+        <ScrollView className="flex-1 bg-gray-50">
             <SafeAreaView>
                 {/* Profile Header */}
-                <View className="px-4 pt-4">
+                <View className="px-4">
                     <View className="flex-row items-center">
                         <Image
                             source={{ uri: MOCK_USER.avatar }}

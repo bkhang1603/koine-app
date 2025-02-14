@@ -133,7 +133,7 @@ export default function SuccessScreen() {
                             : "bg-gray-100"
                     }`}
                     disabled={!selectedAccount}
-                    onPress={() => router.push("/my-courses")}
+                    onPress={() => router.push("/my-courses/my-courses")}
                 >
                     <Text
                         className={`text-center font-bold ${

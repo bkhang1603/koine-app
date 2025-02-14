@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, ScrollView, Pressable, Switch } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import HeaderWithBack from "@/components/HeaderWithBack";
-import { useGame } from "@/app/lib/contexts/GameContext";
+import { useGame } from "@/contexts/GameContext";
 
 const DIFFICULTY_OPTIONS = [
     { value: "easy", label: "Dễ", icon: "sentiment-satisfied" },
@@ -35,7 +35,9 @@ export default function GameSettingsScreen() {
                                         ? "border-b border-violet-100"
                                         : ""
                                 }`}
-                                onPress={() => handleDifficultyChange(option.value)}
+                                onPress={() =>
+                                    handleDifficultyChange(option.value)
+                                }
                             >
                                 <MaterialIcons
                                     name={option.icon}
@@ -103,4 +105,4 @@ export default function GameSettingsScreen() {
             </ScrollView>
         </View>
     );
-} 
+}

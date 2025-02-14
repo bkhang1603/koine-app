@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Pressable, Text, Animated, StyleSheet } from 'react-native';
+import React, { useEffect } from "react";
+import { Pressable, Text, Animated, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
 type AnimatedCardProps = {
@@ -19,16 +19,16 @@ export default function AnimatedCard({
     onPress,
     width,
     height = width,
-    style
+    style,
 }: AnimatedCardProps) {
     const animatedValue = new Animated.Value(isFlipped ? 180 : 0);
     const frontInterpolate = animatedValue.interpolate({
         inputRange: [0, 180],
-        outputRange: ['0deg', '180deg'],
+        outputRange: ["0deg", "180deg"],
     });
     const backInterpolate = animatedValue.interpolate({
         inputRange: [0, 180],
-        outputRange: ['180deg', '360deg'],
+        outputRange: ["180deg", "360deg"],
     });
 
     useEffect(() => {
@@ -48,19 +48,16 @@ export default function AnimatedCard({
     };
 
     return (
-        <Pressable
-            onPress={onPress}
-            style={[{ width, height }, style]}
-        >
+        <Pressable onPress={onPress} style={[{ width, height }, style]}>
             <Animated.View
                 style={[
                     styles.cardContainer,
                     frontAnimatedStyle,
                     { width, height },
-                    isMatched && styles.matchedCard
+                    isMatched && styles.matchedCard,
                 ]}
             >
-                <MaterialIcons name="help_outline" size={24} color="#7C3AED" />
+                <MaterialIcons name="memory" size={24} color="#7C3AED" />
             </Animated.View>
             <Animated.View
                 style={[
@@ -68,7 +65,7 @@ export default function AnimatedCard({
                     styles.cardBack,
                     backAnimatedStyle,
                     { width, height },
-                    isMatched && styles.matchedCard
+                    isMatched && styles.matchedCard,
                 ]}
             >
                 <Text style={styles.cardText}>{value}</Text>
@@ -79,25 +76,25 @@ export default function AnimatedCard({
 
 const styles = StyleSheet.create({
     cardContainer: {
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        backgroundColor: '#EDE9FE',
+        position: "absolute",
+        width: "100%",
+        height: "100%",
+        backgroundColor: "#EDE9FE",
         borderRadius: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backfaceVisibility: 'hidden',
+        alignItems: "center",
+        justifyContent: "center",
+        backfaceVisibility: "hidden",
     },
     cardBack: {
-        backgroundColor: '#7C3AED',
+        backgroundColor: "#7C3AED",
     },
     cardText: {
-        color: 'white',
+        color: "white",
         fontSize: 16,
-        fontWeight: 'bold',
+        fontWeight: "bold",
     },
     matchedCard: {
-        backgroundColor: '#10B981',
+        backgroundColor: "#10B981",
         opacity: 0.8,
     },
-}); 
+});

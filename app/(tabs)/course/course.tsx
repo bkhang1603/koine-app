@@ -12,10 +12,10 @@ export default function CourseScreen() {
     const [selectedCategory, setSelectedCategory] = useState("Tất cả");
 
     return (
-        <ScrollView className="flex-1 bg-white">
+        <ScrollView className="flex-1 bg-gray-50">
             <SafeAreaView>
                 {/* Header */}
-                <View className="px-4 pt-4 flex-row items-center justify-between">
+                <View className="px-4 flex-row items-center justify-between">
                     <View>
                         <Text className="text-2xl font-bold">Khóa học</Text>
                         <Text className="text-gray-600 mt-1">
