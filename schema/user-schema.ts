@@ -139,3 +139,23 @@ export const createProgressBody = z
   .strict()
 
 export type CreateProgressBodyType = z.TypeOf<typeof createProgressBody>
+
+export const userProfileRes = z.object({
+  data: z.object({
+    id: z.string(),
+    email: z.string().nullable(),
+    username: z.string(),
+    role: z.enum(['ADMIN', 'CONTENT_CREATOR', 'ADULT', 'ACCOUNTING', 'MANAGER', 'LECTURER', 'SUPPORTER']),
+    parentId: z.string().optional(),
+    phone: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
+    dob: z.string(),
+    address: z.string(),
+    gender: z.enum(['MALE', 'FEMALE', 'OTHER']),
+    avatarUrl: z.string().nullable()
+  }),
+  message: z.string()
+})
+
+export type GetUserProfileResType = z.TypeOf<typeof userProfileRes>

@@ -4,6 +4,7 @@ import {
   GetMyCourseDetailResType,
   GetMyCoursesResType,
   GetMyLessonDetailResType,
+  GetUserProfileResType,
   GetUserResType
 } from '@/schema/user-schema'
 import http from '@/util/http'
@@ -59,7 +60,13 @@ const userApiRequest = {
       headers: {
         Authorization: `Bearer ${token}` // Thêm token vào headers
       }
-    })
+    }),
+    getUserProfile: ({ token }: { token: string }) =>
+      http.get<GetUserProfileResType>(`users/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}` // Thêm token vào headers
+        }
+      })
 }
 
 export default userApiRequest

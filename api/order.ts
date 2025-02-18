@@ -1,14 +1,46 @@
-import { GetAllCartDetailResType, MessageResType, UpdateQuantityCartItemBodyType } from '@/schema/cart-schema'
-import { CreateOrderBodyType, CreateOrderResType } from '@/schema/order-schema'
-import http from '@/util/http'
+import {
+  GetAllCartDetailResType,
+  MessageResType,
+  UpdateQuantityCartItemBodyType,
+} from "@/schema/cart-schema";
+import {
+  CreateOrderBodyType,
+  CreateOrderResType,
+  GetAllOrderResType,
+  GetOrderDetailsResType,
+} from "@/schema/order-schema";
+import http from "@/util/http";
 
 const orderApiRequest = {
   createOrder: (body: CreateOrderBodyType, token: string) =>
     http.post<CreateOrderResType>(`orders`, body, {
       headers: {
-        Authorization: `Bearer ${token}` // Thêm token vào headers
+        Authorization: `Bearer ${token}`, // Thêm token vào headers
+      },
+    }),
+  getAll: ({
+    page_size,
+    page_index,
+    token, //để authen
+  }: {
+    page_size: number;
+    page_index: number;
+    token: string;
+  }) =>
+    http.get<GetAllOrderResType>(
+      `my-orders?page_size=${page_size}&page_index=${page_index}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    })
-}
+    ),
+  getOrderDetail: ({ orderId, token }: { orderId: string; token: string }) =>
+    http.get<GetOrderDetailsResType>(`orders/${orderId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+};
 
-export default orderApiRequest
+export default orderApiRequest;

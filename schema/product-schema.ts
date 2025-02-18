@@ -11,6 +11,9 @@ const CategorySchema = z.object({
 })
 
 export const productRes = z.object({
+  statusCode: z.number(),
+  info: z.string(),
+  message: z.string(),
   data: z.array(
     z.object({
       id: z.string(),
@@ -18,18 +21,28 @@ export const productRes = z.object({
       nameNoTone: z.string(),
       slug: z.string(),
       description: z.string(),
+      detail: z.string(),
+      guide: z.string(),
       price: z.number(),
-      discount: z.nullable(z.number()), // Có thể là null
+      discount: z.number().nullable(), 
       stockQuantity: z.number(),
       isDeleted: z.boolean(),
       createdAt: z.string(),
       updatedAt: z.string(),
       createdAtFormatted: z.string(),
       updatedAtFormatted: z.string(),
+      creatorId: z.string(),
       categories: z.array(CategorySchema),
       images: z.array(ImageSchema)
     })
-  )
+  ),
+  pagination: z.object({
+    pageSize: z.number(),
+    totalItem: z.number(),
+    currentPage: z.number(),
+    maxPageSize: z.number(),
+    totalPage: z.number()
+  })
 })
 
-export type GetAllProductResType = z.TypeOf<typeof productRes>
+export type GetAllProductResType = z.infer<typeof productRes>

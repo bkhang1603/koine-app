@@ -10,11 +10,70 @@ import {
     MOCK_MY_COURSES,
 } from "@/constants/mock-data";
 import CartButton from "@/components/CartButton";
+import { useCourses } from "@/queries/useCourse";
+import { useAppStore } from "@/components/app-provider";
+import { courseRes, GetAllCourseResType } from "@/schema/course-schema";
+import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
+import ErrorScreen from "@/components/ErrorScreen";
+import { useBlog } from "@/queries/useBlog";
+import { blogRes, GetAllBlogResType } from "@/schema/blog-schema";
 
 export default function HomeScreen() {
+
+    const accessToken = useAppStore((state) => state.accessToken)
+    const token = accessToken == undefined ? '' : accessToken.accessToken
+
+    const { data: coursesData, isLoading: coursesLoading, isError: coursesError } = useCourses({
+        keyword: '',
+        page_size: 10,
+        page_index: 1,
+        token: token
+      })
+
+    let courses: GetAllCourseResType['data'] = []
+
+    if (coursesData && !coursesError) {
+        if (coursesData.data.length === 0) {
+        } else {
+          const parsedResult = courseRes.safeParse(coursesData)
+          if (parsedResult.success) {
+            courses = parsedResult.data.data
+          } else {
+            console.error('Validation errors:', parsedResult.error.errors)
+          }
+        }
+      }
+
+      const { data: blogData, isLoading: blogLoading, isError: blogError } = useBlog({
+        keyword: '',
+        page_size: 10,
+        page_index: 1,
+        token: token
+      })
+
+    let blog: GetAllBlogResType['data'] = []
+
+    if (blogData && !blogError) {
+        if (blogData.data.length === 0) {
+        } else {
+          const parsedResult = blogRes.safeParse(blogData)
+          if (parsedResult.success) {
+            blog = parsedResult.data.data
+          } else {
+            console.error('Validation errors:', parsedResult.error.errors)
+          }
+        }
+      }
+
+      if (coursesLoading && blogLoading) return <ActivityIndicatorScreen />
+      if (coursesError && blogError) return <ErrorScreen message='Failed to load courses. Showing default courses.' />
+
+    console.log('Fetched course Data:', JSON.stringify(courses, null, 2))
+    console.log('Fetched blog Data:', JSON.stringify(blog, null, 2))
+
     const recentCourse = MOCK_MY_COURSES[0];
-    const featuredCourses = MOCK_COURSES.filter((course) => course.featured);
-    const latestBlog = MOCK_BLOG_POSTS[0];
+    const featuredCourses = courses
+    const latestBlog = blog[0];
 
     return (
         <ScrollView className="flex-1 bg-gray-50">
@@ -203,19 +262,19 @@ export default function HomeScreen() {
                                 }
                             >
                                 <Image
-                                    source={{ uri: course.thumbnail }}
+                                    source={{ uri: course.imageUrl }}
                                     className="w-full h-32 rounded-t-xl"
                                 />
                                 <View className="p-3">
                                     <View className="flex-row items-center">
                                         <Text className="text-blue-500 text-xs font-medium">
-                                            {course.category}
+                                            {/* {course.categories[0].name} */}aaaa
                                         </Text>
                                         <Text className="text-gray-400 mx-2">
                                             •
                                         </Text>
                                         <Text className="text-gray-500 text-xs">
-                                            {course.level}
+                                            {course.durations}
                                         </Text>
                                     </View>
                                     <Text
@@ -232,7 +291,7 @@ export default function HomeScreen() {
                                                 color="#FCD34D"
                                             />
                                             <Text className="ml-1 text-sm">
-                                                {course.rating}
+                                                {course.aveRating}
                                             </Text>
                                         </View>
                                         <Text className="text-blue-500 font-bold">
@@ -257,7 +316,7 @@ export default function HomeScreen() {
                         <Link href={`/blog/${latestBlog.id}` as any} asChild>
                             <Pressable className="mx-4">
                                 <Image
-                                    source={{ uri: latestBlog.thumbnail }}
+                                    source={{ uri: latestBlog.imageUrl }}
                                     className="w-full h-48 rounded-xl"
                                 />
                                 <View className="mt-3">
@@ -268,7 +327,7 @@ export default function HomeScreen() {
                                         className="text-gray-600 mt-1"
                                         numberOfLines={2}
                                     >
-                                        {latestBlog.excerpt}
+                                        {latestBlog.description}
                                     </Text>
                                 </View>
                             </Pressable>
