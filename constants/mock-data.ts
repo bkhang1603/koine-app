@@ -805,7 +805,7 @@ export const MOCK_CART_ITEMS = [
     {
         id: "1",
         title: "Hiểu về cơ thể trong giai đoạn dậy thì",
-        thumbnail: "https://example.com/course1.jpg",
+        thumbnail: "./../../../assets/images/default-my-course-banner.jpg",
         duration: "6 giờ",
         price: 299000,
         quantity: 2,

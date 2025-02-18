@@ -7,11 +7,15 @@ import * as SecureStore from "expo-secure-store";
 import { useEffect, useRef, useState } from "react";
 import { useAppStore } from "./app-provider";
 import { AppState, AppStateStatus } from "react-native";
+import { RoleValues } from "@/constants/type";
+import { useShippingInfos } from "@/queries/useShippingInfos";
+import { useCart } from "@/queries/useCart";
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [appState, setAppState] = useState<AppStateStatus>(
     AppState.currentState
   );
+  //có thể fetch luôn my course đồ ở đây luôn
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
@@ -32,10 +36,46 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     appStateRef.current = AppState.currentState;
   };
 
+  const state = useAppStore.getState();
+  const currentAccessToken = state.accessToken;
+  const currentUser = state.user;
+  const token = currentAccessToken?.accessToken ?? "";
+
+  // Gọi API shipping
+  const {
+    data: shippingData,
+    isLoading: isLoadingShipping,
+    isError: isErrorShipping,
+    error: shippingError
+  } = useShippingInfos(
+    token && currentUser?.role === RoleValues[0] ? { token } : { token: "" }
+  );
+
+  // Gọi API cart
+  const {
+    data: cartData,
+    isLoading: isLoadingCart,
+    isError: isErrorCart,
+    error: cartError
+  } = useCart(
+    token && currentUser?.role === RoleValues[0] ? { token } : { token: "" }
+  );
+ 
+
+  // Xử lý lỗi nếu có
+  if (isErrorShipping) {
+    console.error("Lỗi khi lấy thông tin shipping:", shippingError);
+  }
+
+  if (isErrorCart) {
+    console.error("Lỗi khi lấy giỏ hàng:", cartError);
+  }
+
   const getNewAccessToken = async () => {
     try {
       const state = useAppStore.getState(); // Lấy state mới nhất
       const currentRefreshToken = state.refreshToken;
+      console.log(currentRefreshToken?.refreshToken)
       if (currentRefreshToken) {
         const res = await refreshAccess.mutateAsync({
           refreshToken: currentRefreshToken.refreshToken,

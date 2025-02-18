@@ -198,13 +198,13 @@ export default function ProfileScreen() {
             ))}
           </View>
           {/* Logout Button cố định dưới cùng */}
-          <View className="p-2 border-t border-gray-200">
+          <View className="p-2 border-t border-gray-100">
             <Pressable
               className="flex-row items-center justify-center py-2"
               onPress={handleLogout}
             >
-              <MaterialIcons name="logout" size={24} color="#EF4444" />
-              <Text className="ml-2 text-red-500 font-medium">Đăng xuất</Text>
+              <MaterialIcons name="logout" size={24} color={isProcessing ? "#808080" : "#EF4444"} />
+              <Text className={isProcessing ? "ml-2 text-gray-500 font-medium" : "ml-2 text-red-500 font-medium"}>Đăng xuất</Text>
             </Pressable>
           </View>
           <View className="h-20" />

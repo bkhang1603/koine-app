@@ -2,14 +2,15 @@ import React from "react";
 import { Pressable, Text, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { MOCK_CART_ITEMS } from "@/constants/mock-data";
+import { useAppStore } from "./app-provider";
 
 export default function CartButton() {
-    const itemCount = MOCK_CART_ITEMS.length;
+    const cart = useAppStore((state) => state.cart);
+    const itemCount = cart ? cart?.cartDetails.length : 0
 
     return (
         <Pressable
-            onPress={() => router.push("/cart/cart")}
+            onPress={() => router.push("/(root)/cart/cart")}
             className="w-10 h-10 items-center justify-center rounded-full bg-gray-100"
             hitSlop={8}
         >
