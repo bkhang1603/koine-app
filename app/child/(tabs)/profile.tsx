@@ -149,9 +149,9 @@ export default function ProfileScreen() {
               onPress={handleLogout}
             >
               <View className="w-10 h-10 rounded-full bg-red-100 items-center justify-center">
-                <MaterialIcons name="logout" size={24} color="#EF4444" />
+                <MaterialIcons name="logout" size={24} color={isProcessing ? "#808080" : "#EF4444"} />
               </View>
-              <Text className="flex-1 ml-3 text-red-500 font-medium">
+              <Text className={isProcessing ? "flex-1 ml-3 text-gray-500 font-medium" : "flex-1 ml-3 text-red-500 font-medium"}>
                 Đăng xuất
               </Text>
             </Pressable>

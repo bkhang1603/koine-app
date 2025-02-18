@@ -10,6 +10,7 @@ import {
   ScrollView,
   Image,
   Keyboard,
+  TouchableOpacity,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -20,10 +21,12 @@ import { RoleValues } from "@/constants/type";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [isClicked, setIsClicked] = useState(false);
 
   const { showModal: queryShowModal, expired } = useLocalSearchParams();
 
@@ -57,6 +60,11 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     try {
+      if (email == "" || password == "") {
+        alert("Vui lòng nhập tài khoản, mật khẩu đầy đủ!");
+      }
+      if (isProcessing) return;
+      setIsProcessing(true);
       Keyboard.dismiss();
       const res = await signIn.mutateAsync({
         loginKey: email,
@@ -92,8 +100,20 @@ export default function LoginScreen() {
       } else {
         alert("Lỗi máy chủ. Vui lòng thử lại sau!");
       }
+      setTimeout(() => setIsProcessing(false), 1000);
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const handleLoginByGoogle = () => {
+    try {
+      if (isClicked) return;
+      setIsClicked(true);
+      alert("Login by google processing!");
+      setTimeout(() => setIsClicked(false), 1000);
+    } catch (error) {
+      console.log("Lỗi khi đăng nhập bằng google ", error);
     }
   };
 
@@ -110,6 +130,11 @@ export default function LoginScreen() {
           keyboardShouldPersistTaps="handled"
           bounces={false}
         >
+          {showModal && (
+            <View className="absolute top-12 bg-black bg-opacity-70 p-5 rounded-lg">
+              <Text className="text-white text-center">{modalMessage}</Text>
+            </View>
+          )}
           {/* Logo */}
           <View className="items-center my-8">
             <View className="w-20 h-20 bg-blue-100 rounded-full items-center justify-center">
@@ -185,7 +210,11 @@ export default function LoginScreen() {
 
           {/* Login Button */}
           <Pressable
-            className="bg-blue-500 p-4 rounded-xl mt-8"
+            className={
+              isProcessing
+                ? "bg-gray-500 p-4 rounded-xl mt-8"
+                : "bg-blue-500 p-4 rounded-xl mt-8"
+            }
             onPress={handleLogin}
             hitSlop={{
               top: 10,
@@ -213,6 +242,23 @@ export default function LoginScreen() {
               <Text className="text-blue-500 font-medium">Đăng ký</Text>
             </Text>
           </Pressable>
+
+          <TouchableOpacity
+            onPress={handleLoginByGoogle}
+            className={
+              isClicked
+                ? "flex-row bg-gray-400 items-center justify-center border border-[727272] rounded-lg p-4 mb-5 mt-10"
+                : "flex-row items-center justify-center border border-[727272] rounded-lg p-4 mb-5 mt-10"
+            }
+          >
+            <Image
+              source={require("../../assets/images/google-logo.png")}
+              className="w-6 h-6 mr-3"
+            />
+            <Text className="text-[14px] text-black">
+              Đăng nhập bằng Google
+            </Text>
+          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

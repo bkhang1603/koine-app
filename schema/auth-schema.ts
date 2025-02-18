@@ -25,7 +25,18 @@ export const loginRes = z.object({
   }),
   message: z.string(),
   statusCode: z.number()
-})
+}) 
+// || z.object({
+//   message: z.string(),
+//   statusCode: z.number()
+// }) || z.object({
+//   message: z.string(),
+//   statusCode: z.number(),
+//   info: z.string(),
+//   details: z.array(
+//     z.string()
+//   )
+// })
 
 export type LoginResType = z.TypeOf<typeof loginRes>
 

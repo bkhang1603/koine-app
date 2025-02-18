@@ -1,27 +1,29 @@
-import z from 'zod'
+import z from "zod";
 
-export const updateQuantityCartItem = z
-  .object({
+export const updateQuantityCartItem = z.array(
+  z.object({
     cartDetailId: z.string(),
-    quantity: z.number()
+    quantity: z.number(),
   })
-  .strict()
+);
 
-export type UpdateQuantityCartItemBodyType = z.TypeOf<typeof updateQuantityCartItem>
+export type UpdateQuantityCartItemBodyType = z.TypeOf<
+  typeof updateQuantityCartItem
+>;
 
 export const messageRes = z.object({
-  message: z.string()
-})
+  message: z.string(),
+});
 
-export type MessageResType = z.TypeOf<typeof messageRes>
+export type MessageResType = z.TypeOf<typeof messageRes>;
 
-export const deleteCartItem = z
+export const deleteCartItems = z
   .object({
-    cartDetailId: z.string()
+    arrayCartDetailIds: z.array(z.string().uuid()),
   })
-  .strict()
+  .strict();
 
-export type DeleteCartItemBodyType = z.TypeOf<typeof deleteCartItem>
+export type DeleteCartItemBodyType = z.TypeOf<typeof deleteCartItems>;
 
 export const cartItemList = z.object({
   message: z.string(),
@@ -51,10 +53,10 @@ export const cartItemList = z.object({
         updatedAt: z.string(),
         objectName: z.string(),
         objectDescription: z.string(),
-        objectImageUrl: z.string()
+        objectImageUrl: z.string(),
       })
-    )
-  })
-})
+    ),
+  }),
+});
 
-export type GetAllCartDetailResType = z.TypeOf<typeof cartItemList>
+export type GetAllCartDetailResType = z.TypeOf<typeof cartItemList>;
