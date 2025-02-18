@@ -58,9 +58,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 setRefreshExpired(true);
                 clearAuth();
                 await SecureStore.deleteItemAsync("loginData");
+                setIsCheckingRefreshToken(false);
               }
               //nếu giống nhau thì làm bth/ sai thì xóa và k chạy những logic dưới
-              console.log("tao dang chay 3");
               setIsCheckingRefreshToken(false);
             }
           } catch (error) {
@@ -73,6 +73,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setRefreshExpired(true);
         clearAuth();
         await SecureStore.deleteItemAsync("loginData");
+        setIsCheckingRefreshToken(false);
       }
     };
 
