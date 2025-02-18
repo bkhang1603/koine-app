@@ -46,26 +46,33 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const checkRefreshToken = async () => {
-      if (currentAccessToken && currentRefreshToken) {
-        try {
-          const res = await checkRefresh.mutateAsync({
-            accessToken: currentAccessToken.accessToken,
-          });
-          if (res?.data) {
-            const newestRefreshToken = res.data;
-            if (newestRefreshToken !== currentRefreshToken.refreshToken) {
-              setRefreshExpired(true);
-              clearAuth();
-              await SecureStore.deleteItemAsync("loginData");
+      if (currentAccessToken) {
+        if (currentRefreshToken) {
+          try {
+            const res = await checkRefresh.mutateAsync({
+              accessToken: currentAccessToken.accessToken,
+            });
+            if (res?.data) {
+              const newestRefreshToken = res.data;
+              if (newestRefreshToken !== currentRefreshToken.refreshToken) {
+                setRefreshExpired(true);
+                clearAuth();
+                await SecureStore.deleteItemAsync("loginData");
+              }
+              //nếu giống nhau thì làm bth/ sai thì xóa và k chạy những logic dưới
+              console.log("tao dang chay 3");
+              setIsCheckingRefreshToken(false);
             }
-            console.log("tao dang chay 3")
-            setIsCheckingRefreshToken(false);
+          } catch (error) {
+            console.error("Error checking refresh token:", error);
           }
-        } catch (error) {
-          console.error("Error checking refresh token:", error);
+        } else {
+          setIsCheckingRefreshToken(false); // Không có token thì cũng kết thúc kiểm tra
         }
       } else {
-        setIsCheckingRefreshToken(false); // Không có token thì cũng kết thúc kiểm tra
+        setRefreshExpired(true);
+        clearAuth();
+        await SecureStore.deleteItemAsync("loginData");
       }
     };
 
@@ -131,7 +138,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    if(!isCheckingRefreshToken){
+    if (!isCheckingRefreshToken) {
       const initializeAuth = async () => {
         console.log("initialize auth running at auth provider");
         try {
@@ -145,7 +152,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               const timeDifference =
                 expiresTime.getTime() - currentTime.getTime();
               const fiveMinutesInMs = 5 * 60 * 1000;
-  
+
               if (
                 (timeDifference > 0 && timeDifference < fiveMinutesInMs) ||
                 timeDifference <= 0
@@ -162,14 +169,14 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 };
                 setRefreshToken(refreshTk);
                 setUser(parsedData.account);
-  
+
                 const expiresAccess = parsedData.expiresAccess;
                 const expiresTime = new Date(expiresAccess.toString());
                 const currentTime = new Date();
                 const timeDifference =
                   expiresTime.getTime() - currentTime.getTime();
                 const fiveMinutesInMs = 5 * 60 * 1000;
-  
+
                 if (
                   (timeDifference > 0 && timeDifference < fiveMinutesInMs) ||
                   timeDifference <= 0
@@ -197,42 +204,49 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       };
       initializeAuth();
     }
- 
   }, [isCheckingRefreshToken]);
 
   useEffect(() => {
     if (isCheckingRefreshToken) return; // Chỉ chạy khi đã kiểm tra xong refresh token
-  
+
     const startInterval = () => {
       if (!intervalRef.current) {
         intervalRef.current = setInterval(async () => {
           const state = useAppStore.getState(); // Lấy state mới nhất
           const currentAccessToken = state.accessToken;
           const currentRefreshToken = state.refreshToken;
-  
+
           const checkExpiresAccessToken = async () => {
             if (currentAccessToken) {
               const expiresTime = new Date(currentAccessToken.expiresAccess);
               const currentTime = new Date();
-              const timeDifference = expiresTime.getTime() - currentTime.getTime();
+              const timeDifference =
+                expiresTime.getTime() - currentTime.getTime();
               const fiveMinutesInMs = 5 * 60 * 1000;
-  
-              if ((timeDifference > 0 && timeDifference < fiveMinutesInMs) || timeDifference <= 0) {
+
+              if (
+                (timeDifference > 0 && timeDifference < fiveMinutesInMs) ||
+                timeDifference <= 0
+              ) {
                 setAccessExpired(true);
                 console.log("Access token sắp/đã hết hạn, thực hiện refresh.");
                 await getNewAccessToken();
               }
             }
           };
-  
+
           const checkExpiresRefreshToken = async () => {
             if (currentRefreshToken) {
               const expiresTime = new Date(currentRefreshToken.expiresRefresh);
               const currentTime = new Date();
-              const timeDifference = expiresTime.getTime() - currentTime.getTime();
+              const timeDifference =
+                expiresTime.getTime() - currentTime.getTime();
               const fiveMinutesInMs = 5 * 60 * 1000;
-  
-              if ((timeDifference > 0 && timeDifference < fiveMinutesInMs) || timeDifference <= 0) {
+
+              if (
+                (timeDifference > 0 && timeDifference < fiveMinutesInMs) ||
+                timeDifference <= 0
+              ) {
                 setRefreshExpired(true);
                 console.log("Refresh token sắp/đã hết hạn, thực hiện refresh.");
                 clearAuth();
@@ -241,7 +255,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               }
             }
           };
-  
+
           const checkRefreshToken = async () => {
             if (currentAccessToken && currentRefreshToken) {
               const res = await checkRefresh.mutateAsync({
@@ -261,31 +275,30 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               }
             }
           };
-  
+
           await checkExpiresAccessToken();
           await checkExpiresRefreshToken();
           await checkRefreshToken();
         }, 4000);
       }
     };
-  
+
     const clearIntervalTask = () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
-  
+
     if (appState === "active") {
       clearIntervalTask(); // Xóa interval cũ trước khi tạo mới
       startInterval();
     } else if (appState === "inactive" || appState === "background") {
       clearIntervalTask();
     }
-  
+
     return () => clearIntervalTask();
   }, [appState, isCheckingRefreshToken]); // Thêm isCheckingRefreshToken vào dependencies
-  
 
   return <>{children}</>;
 };
