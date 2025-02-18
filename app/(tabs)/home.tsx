@@ -13,47 +13,43 @@ import CartButton from "@/components/CartButton";
 import { useAppStore } from "@/components/app-provider";
 import { useShippingInfos } from "@/queries/useShippingInfos";
 import { useCart } from "@/queries/useCart";
-import { useFocusEffect } from '@react-navigation/native'
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function HomeScreen() {
   const recentCourse = MOCK_MY_COURSES[0];
   const featuredCourses = MOCK_COURSES.filter((course) => course.featured);
   const latestBlog = MOCK_BLOG_POSTS[0];
-  
+
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken?.accessToken ?? "";
- 
+
   // Gọi API shipping
   const {
     data: shippingData,
     isLoading: isLoadingShipping,
     isError: isErrorShipping,
-    refetch: refetchShipping
-  } = useShippingInfos(
-    token  ? { token } : { token: "" }
-  );
+    refetch: refetchShipping,
+  } = useShippingInfos({ token: token ? token : "", enabled: true });
 
   // Gọi API cart
   const {
     data: cartData,
     isLoading: isLoadingCart,
     isError: isErrorCart,
-    refetch: refetchCart
-  } = useCart(
-    token ? { token } : { token: "" }
-  );
+    refetch: refetchCart,
+  } = useCart({ token: token ? token : "", enabled: true });
 
-  useEffect(() => {
-    console.log(token)
-  }, [token])
+  // useEffect(() => {
+  //   console.log(token);
+  // }, [token]);
 
   // Refetch data when focused
   useFocusEffect(
     useCallback(() => {
-      refetchShipping()
-      refetchCart()
+      refetchShipping();
+      refetchCart();
     }, [refetchShipping, refetchCart])
-  )
+  );
 
   return (
     <ScrollView className="flex-1 bg-gray-50">
