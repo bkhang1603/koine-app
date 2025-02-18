@@ -152,33 +152,33 @@ export default function CheckoutScreen() {
     try {
       if (isProcessing) return;
       setIsProcessing(true);
-      const arrayCartDetailIds = cartDetails.map((item) => item.id)
+      const arrayCartDetailIds = cartDetails.map((item) => item.id);
       const bodySchema = z.object({
         arrayCartDetailIds: z.array(z.string()),
-        deliveryInfoId: z.string()
+        deliveryInfoId: z.string(),
         //thêm 1 cái delivery method đây nữa
-      })
+      });
 
       const body = {
         arrayCartDetailIds: arrayCartDetailIds, // Mảng ID từ cartDetails
-        deliveryInfoId: chosenShippingAddress?.id // ID của địa chỉ giao hàng
+        deliveryInfoId: chosenShippingAddress?.id, // ID của địa chỉ giao hàng
         //thêm cái delivery method đây nữa
-      }
+      };
 
       // Validate body với schema
       // const parsedBody = bodySchema.parse(body)
       // const res = await payment.mutateAsync({ body: parsedBody, token })
       // if (res) {
-        //đây trả về 1 url để qua payment nó mở webview
-        const encodedUrl = encodeURIComponent("abcbaabcacbacba")
-        // const encodedUrl = encodeURIComponent(res.data)
-        router.push(`/(root)/cart/payment-screen?paymentUrl=${encodedUrl}`)
+      //đây trả về 1 url để qua payment nó mở webview
+      const encodedUrl = encodeURIComponent("abcbaabcacbacba");
+      // const encodedUrl = encodeURIComponent(res.data)
+      router.push(`/(root)/cart/payment-screen?paymentUrl=${encodedUrl}`);
       // }
       setTimeout(() => setIsProcessing(false), 1000);
     } catch (error) {
-      console.log('Lỗi ở khi tạo đơn hàng ', error)
+      console.log("Lỗi ở khi tạo đơn hàng ", error);
     }
-  }
+  };
 
   return (
     <View className="flex-1 bg-white">
@@ -334,34 +334,36 @@ export default function CheckoutScreen() {
       {/* Address Modal */}
       <Portal>
         <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)}>
-          <View className="bg-slate-200 p-5 rounded-lg">
-            <ScrollView
-              className="max-h-72"
-              showsVerticalScrollIndicator={false}
-            >
-              {shippingInfos?.data.map((address) => (
-                <TouchableOpacity
-                  key={address.id}
-                  className="p-2 border-b-2 border-b-cyan-300"
-                  onPress={() => handleAddressSelect(address)}
-                >
-                  <Text className="text-gray-600 font-bold p-1">
-                    {address.address}
-                  </Text>
-                  <Text className="text-gray-600 p-1">{address.phone}</Text>
-                  <Text className="text-gray-600 p-1">{address.name}</Text>
-                  <View className="self-start bg-cyan-200 p-1 mt-1 rounded">
-                    <Text className="text-gray-600">{address.tag}</Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            <TouchableOpacity
-              className="p-2 items-center mt-2"
-              onPress={() => setAddAddressModalVisible(true)}
-            >
-              <Text>Thêm địa chỉ mới</Text>
-            </TouchableOpacity>
+          <View className="mx-3">
+            <View className="bg-slate-200 p-5 rounded-lg">
+              <ScrollView
+                className="max-h-72"
+                showsVerticalScrollIndicator={false}
+              >
+                {shippingInfos?.data.map((address) => (
+                  <TouchableOpacity
+                    key={address.id}
+                    className="p-2 border-b-2 border-b-cyan-300"
+                    onPress={() => handleAddressSelect(address)}
+                  >
+                    <Text className="text-gray-600 font-bold p-1">
+                      {address.address}
+                    </Text>
+                    <Text className="text-gray-600 p-1">{address.phone}</Text>
+                    <Text className="text-gray-600 p-1">{address.name}</Text>
+                    <View className="self-start bg-cyan-200 p-1 mt-1 rounded">
+                      <Text className="text-gray-600">{address.tag}</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+              <TouchableOpacity
+                className="p-2 items-center mt-2"
+                onPress={() => setAddAddressModalVisible(true)}
+              >
+                <Text>Thêm địa chỉ mới</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </Modal>
       </Portal>
@@ -372,7 +374,7 @@ export default function CheckoutScreen() {
           visible={addAddressModalVisible}
           onDismiss={() => setAddAddressModalVisible(false)}
         >
-          <View className="bg-slate-100 p-5 rounded-lg">
+          <View className="bg-slate-100 p-5 rounded-lg mx-4">
             <IconButton
               icon="close"
               className="self-end"
@@ -440,7 +442,9 @@ export default function CheckoutScreen() {
           </Text>
         </View>
         <Pressable
-          className={`${isProcessing ? "bg-gray-500" : "bg-blue-500"} p-4 rounded-xl items-center`}
+          className={`${
+            isProcessing ? "bg-gray-500" : "bg-blue-500"
+          } p-4 rounded-xl items-center`}
           onPress={handlePayment}
           // chỗ này giờ redirect sao đây này
         >
