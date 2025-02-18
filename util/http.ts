@@ -14,9 +14,9 @@ interface HttpOptions {
 // const defaultBaseUrl = 'https://capstone-project-be-bqa5.onrender.com/api'
 
 //local may quan
-// const defaultBaseUrl = "http://10.0.114.191:8080/api";
+// const defaultBaseUrl = "http://10.0.116.249:8080/api";
 
-//local may Dao
+//local may dao
 const defaultBaseUrl = "http://192.168.1.15:8080/api";
 
 //mới
@@ -53,7 +53,7 @@ const request = async <Response>(
   const response = await fetch(fullUrl, {
     method,
     headers: combinedHeaders, // Đây là đối tượng headers hợp lệ
-    body: formattedBody,
+    body:  formattedBody, // Chỉ gửi body nếu là DELETE và có body
   });
 
   if (!response.ok) {
@@ -87,10 +87,11 @@ const http = {
   },
   delete<Response>(
     url: string,
-    options?: Omit<HttpOptions, "body">
+    body: any,
+    options?: Omit<HttpOptions, "body"> // Thêm body vào HttpOptions
   ): Promise<Response> {
-    return request<Response>("DELETE", url, options);
-  },
+    return request<Response>("DELETE", url, { ...options, body }); // Gửi cả body và headers
+  }
 };
 
 export default http;

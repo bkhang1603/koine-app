@@ -1,29 +1,37 @@
-import { GetAllCartDetailResType, MessageResType, UpdateQuantityCartItemBodyType } from '@/schema/cart-schema'
-import http from '@/util/http'
+import {
+  DeleteCartItemBodyType,
+  GetAllCartDetailResType,
+  MessageResType,
+  UpdateQuantityCartItemBodyType,
+} from "@/schema/cart-schema";
+import http from "@/util/http";
 
 const cartApiRequest = {
   getAll: ({
-    token //để authen
+    token, //để authen
   }: {
-    token: string
+    token: string;
   }) =>
     http.get<GetAllCartDetailResType>(`mobile/cart`, {
       headers: {
-        Authorization: `Bearer ${token}` // Thêm token vào headers
-      }
+        Authorization: `Bearer ${token}`, // Thêm token vào headers
+      },
     }),
-  updateCartItemQuantity: (body: UpdateQuantityCartItemBodyType, token: string) =>
-    http.put<MessageResType>('carts', body, {
+  updateCartItemQuantity: (
+    body: UpdateQuantityCartItemBodyType,
+    token: string
+  ) =>
+    http.put<MessageResType>("carts/update-multiple", body, {
       headers: {
-        Authorization: `Bearer ${token}` // Thêm token vào headers
-      }
+        Authorization: `Bearer ${token}`, // Thêm token vào headers
+      },
     }),
-  deleteCartItem: (cartDetailId: string, token: string) =>
-    http.delete<MessageResType>(`carts/${cartDetailId}`, {
+  deleteCartItem: (body: DeleteCartItemBodyType, token: string) =>
+    http.delete<MessageResType>("carts/delete-all", body, {
       headers: {
-        Authorization: `Bearer ${token}` // Thêm token vào headers
-      }
-    })
-}
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+};
 
-export default cartApiRequest
+export default cartApiRequest;

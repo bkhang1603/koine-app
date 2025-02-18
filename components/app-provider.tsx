@@ -6,6 +6,7 @@ import { RefreshTokenType } from '@/model/refresh-token'
 import React, { useEffect } from 'react'
 import { RoleValues } from '@/constants/type'
 import { ShippingAddressType } from '@/model/shipping-address'
+import { CartType } from '@/model/cart'
 
 const queryClient = new QueryClient()
 
@@ -29,22 +30,24 @@ type AppStoreType = {
   setShippingInfos: (shippingInfos: ShippingAddressType) => void
 
   // Courses
-  courses: any[]
-  setCourses: (courses: any[]) => void
+  // courses: any[]
+  // setCourses: (courses: any[]) => void
 
   // Cart
-  cart: any[]
-  addToCart: (product: any) => void
-  deleteCartItem: (id: number) => void
-  getAllCartItems: () => void
+  cart: CartType | null
+  setCart: (cart: CartType) => void
+  // cart: any[]
+  // addToCart: (product: any) => void
+  // deleteCartItem: (id: number) => void
+  // getAllCartItems: () => void
 
-  // Blogs
-  blogs: any[]
-  setBlogs: (blogs: any[]) => void
+  // // Blogs
+  // blogs: any[]
+  // setBlogs: (blogs: any[]) => void
 
-  // Products
-  products: any[]
-  setProducts: (products: any[]) => void
+  // // Products
+  // products: any[]
+  // setProducts: (products: any[]) => void
 }
 
 export const useAppStore = create<AppStoreType>((set) => ({
@@ -55,7 +58,7 @@ export const useAppStore = create<AppStoreType>((set) => ({
   setAccessToken: (accessToken) => set({ accessToken }),
   refreshToken: null,
   setRefreshToken: (refreshToken) => set({ refreshToken }),
-  clearAuth: () => set({ user: null, accessToken: null, refreshToken: null, shippingInfos: null }),
+  clearAuth: () => set({ user: null, accessToken: null, refreshToken: null, shippingInfos: null, cart: null }),
   isRefreshExpired: false,
   setRefreshExpired: (isRefreshExpired) => set({ isRefreshExpired }),
   isAccessExpired: false,
@@ -64,63 +67,66 @@ export const useAppStore = create<AppStoreType>((set) => ({
   shippingInfos: null,
   setShippingInfos: (shippingInfos) => set({ shippingInfos }),
 
+  cart: null,
+  setCart: (cart) => set({ cart }),
+
   // Courses
-  courses: [],
-  setCourses: (courses) => set({ courses }),
+  // courses: [],
+  // setCourses: (courses) => set({ courses }),
 
-  // Cart
-  cart: [],
-  addToCart: async (product) => {
-    set((state) => {
-      const existingProductIndex = state.cart.findIndex((item) => item.id === product.id)
-      let updatedCart
-      if (existingProductIndex !== -1) {
-        updatedCart = state.cart.map((item, index) =>
-          index === existingProductIndex ? { ...item, quantity: item.quantity + 1 } : item
-        )
-      } else {
-        updatedCart = [...state.cart, { ...product, quantity: 1 }]
-      }
-      return { cart: updatedCart }
-    })
+  // // Cart
+  // cart: [],
+  // addToCart: async (product) => {
+  //   set((state) => {
+  //     const existingProductIndex = state.cart.findIndex((item) => item.id === product.id)
+  //     let updatedCart
+  //     if (existingProductIndex !== -1) {
+  //       updatedCart = state.cart.map((item, index) =>
+  //         index === existingProductIndex ? { ...item, quantity: item.quantity + 1 } : item
+  //       )
+  //     } else {
+  //       updatedCart = [...state.cart, { ...product, quantity: 1 }]
+  //     }
+  //     return { cart: updatedCart }
+  //   })
 
-    const state = useAppStore.getState()
-    await AsyncStorage.setItem('cart', JSON.stringify(state.cart))
-  },
-  deleteCartItem: async (id) => {
-    set((state) => ({
-      cart: state.cart.filter((item) => item.id !== id)
-    }))
+  //   const state = useAppStore.getState()
+  //   await AsyncStorage.setItem('cart', JSON.stringify(state.cart))
+  // },
+  // deleteCartItem: async (id) => {
+  //   set((state) => ({
+  //     cart: state.cart.filter((item) => item.id !== id)
+  //   }))
 
-    const state = useAppStore.getState()
-    await AsyncStorage.setItem('cart', JSON.stringify(state.cart))
-  },
-  getAllCartItems: async () => {
-    const cart = await AsyncStorage.getItem('cart')
-    if (cart) {
-      set({ cart: JSON.parse(cart) })
-    }
-  },
+  //   const state = useAppStore.getState()
+  //   await AsyncStorage.setItem('cart', JSON.stringify(state.cart))
+  // },
+  // getAllCartItems: async () => {
+  //   const cart = await AsyncStorage.getItem('cart')
+  //   if (cart) {
+  //     set({ cart: JSON.parse(cart) })
+  //   }
+  // },
 
-  // Blogs
-  blogs: [],
-  setBlogs: (blogs) => set({ blogs }),
+  // // Blogs
+  // blogs: [],
+  // setBlogs: (blogs) => set({ blogs }),
 
-  // Products
-  products: [],
-  setProducts: (products) => set({ products })
+  // // Products
+  // products: [],
+  // setProducts: (products) => set({ products })
 }))
 
 const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
-    const initializeData = async () => {
-      const cart = await AsyncStorage.getItem('cart')
-      if (cart) {
-        useAppStore.setState({ cart: JSON.parse(cart) })
-      }
-    }
+    // const initializeData = async () => {
+    //   const cart = await AsyncStorage.getItem('cart')
+    //   if (cart) {
+    //     useAppStore.setState({ cart: JSON.parse(cart) })
+    //   }
+    // }
 
-    initializeData()
+    // initializeData()
   }, [])
 
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
