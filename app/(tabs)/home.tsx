@@ -39,9 +39,9 @@ export default function HomeScreen() {
     refetch: refetchCart,
   } = useCart({ token: token ? token : "", enabled: true });
 
-  // useEffect(() => {
-  //   console.log(token);
-  // }, [token]);
+  useEffect(() => {
+    console.log(token);
+  }, [token]);
 
   // Refetch data when focused
   useFocusEffect(

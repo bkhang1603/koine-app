@@ -19,7 +19,7 @@ export default function CancelFailScreen() {
                         />
                     </View>
                     <Text className="text-2xl font-bold text-center">
-                        Thanh toán thành công!
+                        Thanh toán thất bại!
                     </Text>
                     <Text className="text-gray-600 text-center mt-2">
                         Chọn người học để kích hoạt khóa học

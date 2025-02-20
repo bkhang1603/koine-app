@@ -36,18 +36,6 @@ type AppStoreType = {
   // Cart
   cart: CartType | null
   setCart: (cart: CartType) => void
-  // cart: any[]
-  // addToCart: (product: any) => void
-  // deleteCartItem: (id: number) => void
-  // getAllCartItems: () => void
-
-  // // Blogs
-  // blogs: any[]
-  // setBlogs: (blogs: any[]) => void
-
-  // // Products
-  // products: any[]
-  // setProducts: (products: any[]) => void
 }
 
 export const useAppStore = create<AppStoreType>((set) => ({
@@ -74,59 +62,10 @@ export const useAppStore = create<AppStoreType>((set) => ({
   // courses: [],
   // setCourses: (courses) => set({ courses }),
 
-  // // Cart
-  // cart: [],
-  // addToCart: async (product) => {
-  //   set((state) => {
-  //     const existingProductIndex = state.cart.findIndex((item) => item.id === product.id)
-  //     let updatedCart
-  //     if (existingProductIndex !== -1) {
-  //       updatedCart = state.cart.map((item, index) =>
-  //         index === existingProductIndex ? { ...item, quantity: item.quantity + 1 } : item
-  //       )
-  //     } else {
-  //       updatedCart = [...state.cart, { ...product, quantity: 1 }]
-  //     }
-  //     return { cart: updatedCart }
-  //   })
-
-  //   const state = useAppStore.getState()
-  //   await AsyncStorage.setItem('cart', JSON.stringify(state.cart))
-  // },
-  // deleteCartItem: async (id) => {
-  //   set((state) => ({
-  //     cart: state.cart.filter((item) => item.id !== id)
-  //   }))
-
-  //   const state = useAppStore.getState()
-  //   await AsyncStorage.setItem('cart', JSON.stringify(state.cart))
-  // },
-  // getAllCartItems: async () => {
-  //   const cart = await AsyncStorage.getItem('cart')
-  //   if (cart) {
-  //     set({ cart: JSON.parse(cart) })
-  //   }
-  // },
-
-  // // Blogs
-  // blogs: [],
-  // setBlogs: (blogs) => set({ blogs }),
-
-  // // Products
-  // products: [],
-  // setProducts: (products) => set({ products })
 }))
 
 const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
-    // const initializeData = async () => {
-    //   const cart = await AsyncStorage.getItem('cart')
-    //   if (cart) {
-    //     useAppStore.setState({ cart: JSON.parse(cart) })
-    //   }
-    // }
-
-    // initializeData()
   }, [])
 
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>

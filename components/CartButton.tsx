@@ -11,6 +11,7 @@ export default function CartButton() {
     return (
         <Pressable
             onPress={() => router.push("/(root)/cart/cart")}
+            // onPress={() => router.push("/(root)/cart/payment-screen")}
             className="w-10 h-10 items-center justify-center rounded-full bg-gray-100"
             hitSlop={8}
         >
