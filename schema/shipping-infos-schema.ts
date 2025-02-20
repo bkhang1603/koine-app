@@ -1,4 +1,4 @@
-import z from 'zod'
+import z from "zod";
 
 export const getAllShippingAddress = z.object({
   data: z.array(
@@ -11,21 +11,26 @@ export const getAllShippingAddress = z.object({
       name: z.string(),
       phone: z.string(),
       address: z.string(),
-      tag: z.string()
+      tag: z.string(),
+      deliAmount: z.number(),
     })
-  )
-})
+  ),
+});
 
-export type GetAllShippingAddressResType = z.TypeOf<typeof getAllShippingAddress>
+export type GetAllShippingAddressResType = z.TypeOf<
+  typeof getAllShippingAddress
+>;
 
 export const createShippingAddressBody = z.object({
   name: z.string(),
   phone: z.string(),
   address: z.string(),
-  tag: z.string()
-})
+  tag: z.string(),
+});
 
-export type CreateShippingAddressBodyType = z.TypeOf<typeof createShippingAddressBody>
+export type CreateShippingAddressBodyType = z.TypeOf<
+  typeof createShippingAddressBody
+>;
 
 export const createShippingAddressResType = z.object({
   data: z.object({
@@ -37,8 +42,11 @@ export const createShippingAddressResType = z.object({
     createdAt: z.string(),
     updatedAt: z.string(),
     id: z.string(),
-    userId: z.string()
-  })
-})
+    userId: z.string(),
+    deliAmount: z.number(),
+  }),
+});
 
-export type CreateShippingAddressResType = z.TypeOf<typeof createShippingAddressResType>
+export type CreateShippingAddressResType = z.TypeOf<
+  typeof createShippingAddressResType
+>;

@@ -12,6 +12,7 @@ export const shippingAddress = z.object({
       phone: z.string(),
       address: z.string(),
       tag: z.string(),
+      deliAmount: z.number(),
     })
   ),
 });
@@ -28,6 +29,7 @@ export const aShippingAddress = z.object({
   phone: z.string(),
   address: z.string(),
   tag: z.string(),
+  deliAmount: z.number(),
 });
 
 
