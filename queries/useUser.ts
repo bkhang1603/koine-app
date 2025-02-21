@@ -87,3 +87,15 @@ export const useCreateProgressMutation = (token: string) => {
     mutationFn: (body: CreateProgressBodyType) => userApiRequest.createProgress(body, token) // Truyền token vào khi gọi API
   })
 }
+
+export const useUserProfile = ({ token }: { token: string }) => {
+  return useQuery({
+    queryKey: ['users'],
+    queryFn: () =>
+      userApiRequest.getUserProfile({
+        token // Truyền token vào khi gọi API
+      }),
+    staleTime: 60 * 1000, // Cache 1 phút
+    //refetchOnWindowFocus: false
+  })
+}

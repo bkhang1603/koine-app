@@ -59,4 +59,20 @@ export const cartItemList = z.object({
   }),
 });
 
-export type GetAllCartDetailResType = z.TypeOf<typeof cartItemList>;
+export type GetAllCartDetailResType = z.TypeOf<typeof cartItemList>
+
+export const createCartDetailBody = z.object({
+  courseId: z.string().optional(),
+  quantity: z.number(),
+})
+
+
+export type CreateCartDetailBodyType = z.infer<typeof createCartDetailBody>;
+
+export const createCartDetailRes = z.object({
+    statusCode: z.number(),
+    info: z.string(),
+    message: z.string(),
+  });
+  
+export type CreateCartDetailResType = z.infer<typeof createCartDetailRes>;

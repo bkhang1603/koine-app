@@ -1,5 +1,5 @@
 
-import { GetAllBlogResType } from '@/schema/blog-schema'
+import { GetAllBlogResType, GetBlogDetailResType } from '@/schema/blog-schema'
 import http from '@/util/http'
 
 const blogApiRequest = {
@@ -21,7 +21,8 @@ const blogApiRequest = {
           Authorization: `Bearer ${token}` // Thêm token vào headers
         }
       }
-    )
+    ),
+    getBlogDetail: ({ blogId }: { blogId: string }) => http.get<GetBlogDetailResType>(`blogs/${blogId}`, {})
 }
 
 export default blogApiRequest

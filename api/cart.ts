@@ -1,4 +1,10 @@
 import {
+  createCartDetailBody,
+  CreateCartDetailBodyType,
+  createCartDetailRes,
+  CreateCartDetailResType,
+} from "./../schema/cart-schema";
+import {
   DeleteCartItemBodyType,
   GetAllCartDetailResType,
   MessageResType,
@@ -30,6 +36,12 @@ const cartApiRequest = {
     http.delete<MessageResType>("carts/delete-all", body, {
       headers: {
         Authorization: `Bearer ${token}`,
+      },
+    }),
+  createCartItem: (body: CreateCartDetailBodyType, token: string) =>
+    http.post<CreateCartDetailResType>("carts", body, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Thêm token vào headers
       },
     }),
 };
