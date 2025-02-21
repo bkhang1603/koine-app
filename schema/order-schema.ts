@@ -9,6 +9,12 @@ export const createOrderBody = z.object({
 
 export type CreateOrderBodyType = z.TypeOf<typeof createOrderBody>
 
+export const createOrderAtListBody = z.object({
+  orderId: z.string(),
+})
+
+export type CreateOrderBodyAtListType = z.TypeOf<typeof createOrderAtListBody>
+
 export const createOrderRes = z.object({
   data: z.string()
 })

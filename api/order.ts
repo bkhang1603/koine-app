@@ -1,4 +1,5 @@
 import {
+  CreateOrderBodyAtListType,
   CreateOrderBodyType,
   CreateOrderResType,
   GetAllOrderResType,
@@ -10,8 +11,15 @@ const orderApiRequest = {
   createOrder: (body: CreateOrderBodyType, token: string) =>
     http.post<CreateOrderResType>(`orders`, body, {
       headers: {
-        Authorization: `Bearer ${token}`, 
-        "User-Agent": "MobileKoine",// Thêm token vào headers
+        Authorization: `Bearer ${token}`,
+        "User-Agent": "MobileKoine", // Thêm token vào headers
+      },
+    }),
+  createOrderAtList: (body: CreateOrderBodyAtListType, token: string) =>
+    http.post<CreateOrderResType>(`orders/at-list`, body, { // 
+      headers: {// chỉnh lại url
+        Authorization: `Bearer ${token}`,
+        "User-Agent": "MobileKoine", // Thêm token vào headers
       },
     }),
   getAll: ({
