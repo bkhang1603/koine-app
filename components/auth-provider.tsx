@@ -12,6 +12,8 @@ import { useShippingInfos } from "@/queries/useShippingInfos";
 import { useCart } from "@/queries/useCart";
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [isCheckingRefreshToken, setIsCheckingRefreshToken] = useState(true);
+
   const [appState, setAppState] = useState<AppStateStatus>(
     AppState.currentState
   );
@@ -37,45 +39,82 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const state = useAppStore.getState();
+  const currentRefreshToken = state.refreshToken;
   const currentAccessToken = state.accessToken;
   const currentUser = state.user;
   const token = currentAccessToken?.accessToken ?? "";
 
-  // Gọi API shipping
+  useEffect(() => {
+    const checkRefreshToken = async () => {
+      if (currentAccessToken) {
+        if (currentRefreshToken) {
+          try {
+            const res = await checkRefresh.mutateAsync({
+              accessToken: currentAccessToken.accessToken,
+            });
+            if (res?.data) {
+              const newestRefreshToken = res.data;
+              if (newestRefreshToken !== currentRefreshToken.refreshToken) {
+                setRefreshExpired(true);
+                clearAuth();
+                await SecureStore.deleteItemAsync("loginData");
+                setIsCheckingRefreshToken(false);
+              }
+              //nếu giống nhau thì làm bth/ sai thì xóa và k chạy những logic dưới
+              setIsCheckingRefreshToken(false);
+            }
+          } catch (error) {
+            console.error("Error checking refresh token:", error);
+          }
+        } else {
+          setIsCheckingRefreshToken(false); // Không có token thì cũng kết thúc kiểm tra
+        }
+      } else {
+        setRefreshExpired(true);
+        clearAuth();
+        await SecureStore.deleteItemAsync("loginData");
+        setIsCheckingRefreshToken(false);
+      }
+    };
+
+    checkRefreshToken();
+  }, []);
+
+  // Gọi API shipping (chỉ chạy khi kiểm tra token xong)
   const {
     data: shippingData,
     isLoading: isLoadingShipping,
     isError: isErrorShipping,
-    error: shippingError
-  } = useShippingInfos(
-    token && currentUser?.role === RoleValues[0] ? { token } : { token: "" }
-  );
+    error: shippingError,
+  } = useShippingInfos({
+    token: token && currentUser?.role === RoleValues[0] ? token : "",
+    enabled: !isCheckingRefreshToken, // Chỉ chạy khi isCheckingToken = false
+  });
 
-  // Gọi API cart
+  // Gọi API cart (chỉ chạy khi kiểm tra token xong)
   const {
     data: cartData,
     isLoading: isLoadingCart,
     isError: isErrorCart,
-    error: cartError
-  } = useCart(
-    token && currentUser?.role === RoleValues[0] ? { token } : { token: "" }
-  );
- 
+    error: cartError,
+  } = useCart({
+    token: token && currentUser?.role === RoleValues[0] ? token : "",
+    enabled: !isCheckingRefreshToken, // Chỉ chạy khi isCheckingToken = false
+  });
 
-  // Xử lý lỗi nếu có
-  if (isErrorShipping) {
-    console.error("Lỗi khi lấy thông tin shipping:", shippingError);
-  }
+  // // Xử lý lỗi nếu có
+  // if (isErrorShipping) {
+  //   console.error("Lỗi khi lấy thông tin shipping:", shippingError);
+  // }
 
-  if (isErrorCart) {
-    console.error("Lỗi khi lấy giỏ hàng:", cartError);
-  }
+  // if (isErrorCart) {
+  //   console.error("Lỗi khi lấy giỏ hàng:", cartError);
+  // }
 
   const getNewAccessToken = async () => {
     try {
       const state = useAppStore.getState(); // Lấy state mới nhất
       const currentRefreshToken = state.refreshToken;
-      console.log(currentRefreshToken?.refreshToken)
       if (currentRefreshToken) {
         const res = await refreshAccess.mutateAsync({
           refreshToken: currentRefreshToken.refreshToken,
@@ -100,39 +139,16 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      console.log("initialize auth running at auth provider");
-      try {
-        const loginData = await SecureStore.getItemAsync("loginData");
-        if (loginData) {
-          const parsedData = JSON.parse(loginData);
-          if (parsedData) {
-            const expiresRefresh = parsedData.expiresRefresh;
-            const expiresTime = new Date(expiresRefresh.toString());
-            const currentTime = new Date();
-            const timeDifference =
-              expiresTime.getTime() - currentTime.getTime();
-            const fiveMinutesInMs = 5 * 60 * 1000;
-
-            if (
-              (timeDifference > 0 && timeDifference < fiveMinutesInMs) ||
-              timeDifference <= 0
-            ) {
-              setRefreshExpired(true);
-              clearAuth();
-              await SecureStore.deleteItemAsync("loginData");
-              return;
-            } else {
-              setRefreshExpired(false);
-              const refreshTk = {
-                refreshToken: parsedData.refreshToken,
-                expiresRefresh: parsedData.expiresRefresh,
-              };
-              setRefreshToken(refreshTk);
-              setUser(parsedData.account);
-
-              const expiresAccess = parsedData.expiresAccess;
-              const expiresTime = new Date(expiresAccess.toString());
+    if (!isCheckingRefreshToken) {
+      const initializeAuth = async () => {
+        console.log("initialize auth running at auth provider");
+        try {
+          const loginData = await SecureStore.getItemAsync("loginData");
+          if (loginData) {
+            const parsedData = JSON.parse(loginData);
+            if (parsedData) {
+              const expiresRefresh = parsedData.expiresRefresh;
+              const expiresTime = new Date(expiresRefresh.toString());
               const currentTime = new Date();
               const timeDifference =
                 expiresTime.getTime() - currentTime.getTime();
@@ -142,33 +158,58 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 (timeDifference > 0 && timeDifference < fiveMinutesInMs) ||
                 timeDifference <= 0
               ) {
-                await getNewAccessToken();
+                setRefreshExpired(true);
+                clearAuth();
+                await SecureStore.deleteItemAsync("loginData");
+                return;
               } else {
-                setAccessExpired(false);
-                const accessTk = {
-                  accessToken: parsedData.accessToken,
-                  expiresAccess: parsedData.expiresAccess,
+                setRefreshExpired(false);
+                const refreshTk = {
+                  refreshToken: parsedData.refreshToken,
+                  expiresRefresh: parsedData.expiresRefresh,
                 };
-                setAccessToken(accessTk);
+                setRefreshToken(refreshTk);
+                setUser(parsedData.account);
+
+                const expiresAccess = parsedData.expiresAccess;
+                const expiresTime = new Date(expiresAccess.toString());
+                const currentTime = new Date();
+                const timeDifference =
+                  expiresTime.getTime() - currentTime.getTime();
+                const fiveMinutesInMs = 5 * 60 * 1000;
+
+                if (
+                  (timeDifference > 0 && timeDifference < fiveMinutesInMs) ||
+                  timeDifference <= 0
+                ) {
+                  await getNewAccessToken();
+                } else {
+                  setAccessExpired(false);
+                  const accessTk = {
+                    accessToken: parsedData.accessToken,
+                    expiresAccess: parsedData.expiresAccess,
+                  };
+                  setAccessToken(accessTk);
+                }
               }
             }
+          } else {
+            setRefreshExpired(true);
           }
-        } else {
-          setRefreshExpired(true);
+        } catch (error) {
+          console.error(
+            "Failed to load token and user from secure storage: ",
+            error
+          );
         }
-      } catch (error) {
-        console.error(
-          "Failed to load token and user from secure storage: ",
-          error
-        );
-      }
-    };
-    initializeAuth();
-    //trước đây thì để refresh và access token trong dependencies nhưng tạm thời thấy k cần nữa
-    //có thể back lại
-  }, []);
+      };
+      initializeAuth();
+    }
+  }, [isCheckingRefreshToken]);
 
   useEffect(() => {
+    if (isCheckingRefreshToken) return; // Chỉ chạy khi đã kiểm tra xong refresh token
+
     const startInterval = () => {
       if (!intervalRef.current) {
         intervalRef.current = setInterval(async () => {
@@ -258,7 +299,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     return () => clearIntervalTask();
-  }, [appState]);
+  }, [appState, isCheckingRefreshToken]); // Thêm isCheckingRefreshToken vào dependencies
 
   return <>{children}</>;
 };

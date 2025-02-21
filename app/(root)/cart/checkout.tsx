@@ -11,6 +11,7 @@ import {
   FontAwesome6,
   Foundation,
   Ionicons,
+  MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -42,6 +43,7 @@ export default function CheckoutScreen() {
 
   const [showQR, setShowQR] = useState(false);
   const shippingInfos = useAppStore((state) => state.shippingInfos);
+  const [deliveryPace, setDeliveryPace] = useState("STANDARD");
 
   const { itemsToCheckout } = useLocalSearchParams();
   // Kiểm tra và giải mã
@@ -67,7 +69,11 @@ export default function CheckoutScreen() {
   // Kiểm tra xem có ít nhất một phần tử có productId khác null không
   useEffect(() => {
     const hasProduct = cartDetails.some((item) => item.productId !== null);
-    setIsProduct(hasProduct); // Nếu có, setIsProduct(true)
+  
+    setIsProduct(hasProduct);
+    if (!hasProduct) {
+      setDeliveryPace("NONESHIP");
+    }
   }, [cartDetails]); // Chạy khi cartDetails thay đổi
 
   const total = cartDetails.reduce(
@@ -75,6 +81,7 @@ export default function CheckoutScreen() {
     0
   );
 
+  const [totalToPay, setTotalToPay] = useState(total);
   const createShippingInfos = useCreateShippingInfos();
   const [modalVisible, setModalVisible] = useState(false);
   const [addAddressModalVisible, setAddAddressModalVisible] = useState(false);
@@ -83,6 +90,19 @@ export default function CheckoutScreen() {
       ? shippingInfos.data[0]
       : null
   );
+
+  useEffect(() => {
+    let extraFee = 0;
+    if (deliveryPace === "STANDARD") {
+      extraFee = 25000;
+    } else if (deliveryPace === "EXPEDITED") {
+      extraFee = chosenShippingAddress?.deliAmount || 0;
+    } else {
+      extraFee = 0;
+    }
+    console.log("fee ", extraFee);
+    setTotalToPay(total + extraFee);
+  }, [deliveryPace, total, chosenShippingAddress]);
 
   const [newAddress, setNewAddress] = useState({
     name: "",
@@ -152,33 +172,36 @@ export default function CheckoutScreen() {
     try {
       if (isProcessing) return;
       setIsProcessing(true);
-      const arrayCartDetailIds = cartDetails.map((item) => item.id)
+      const arrayCartDetailIds = cartDetails.map((item) => item.id);
       const bodySchema = z.object({
         arrayCartDetailIds: z.array(z.string()),
-        deliveryInfoId: z.string()
+        deliveryInfoId: z.string(),
         //thêm 1 cái delivery method đây nữa
-      })
+        deliMethod: z.string(),
+      });
 
       const body = {
         arrayCartDetailIds: arrayCartDetailIds, // Mảng ID từ cartDetails
-        deliveryInfoId: chosenShippingAddress?.id // ID của địa chỉ giao hàng
+        deliveryInfoId: chosenShippingAddress?.id, // ID của địa chỉ giao hàng
         //thêm cái delivery method đây nữa
-      }
+        deliMethod: deliveryPace,
+      };
 
       // Validate body với schema
-      // const parsedBody = bodySchema.parse(body)
-      // const res = await payment.mutateAsync({ body: parsedBody, token })
-      // if (res) {
+      const parsedBody = bodySchema.parse(body);
+
+      const res = await payment.mutateAsync({ body: parsedBody, token });
+      if (res) {
+        console.log("thanhf coong")
         //đây trả về 1 url để qua payment nó mở webview
-        const encodedUrl = encodeURIComponent("abcbaabcacbacba")
-        // const encodedUrl = encodeURIComponent(res.data)
-        router.push(`/(root)/cart/payment-screen?paymentUrl=${encodedUrl}`)
-      // }
+        const encodedUrl = encodeURIComponent(res.data);
+        router.push(`/(root)/cart/payment-screen?paymentUrl=${encodedUrl}`);
+      }
       setTimeout(() => setIsProcessing(false), 1000);
     } catch (error) {
-      console.log('Lỗi ở khi tạo đơn hàng ', error)
+      console.log("Lỗi ở khi tạo đơn hàng ", error);
     }
-  }
+  };
 
   return (
     <View className="flex-1 bg-white">
@@ -272,7 +295,7 @@ export default function CheckoutScreen() {
               className="border border-gray-400 rounded-xl p-4 flex-row items-center"
               onPress={() => setModalVisible(true)}
             >
-              <FontAwesome6 name="address-card" size={24} color="#374151" />
+              <FontAwesome6 name="address-card" size={24} color="#6B7280" />
               <View className="ml-3 flex-1">
                 <Text className="text-gray-600 font-bold">
                   Địa chỉ: {chosenShippingAddress?.address}
@@ -296,6 +319,85 @@ export default function CheckoutScreen() {
           <></>
         )}
 
+        {isProduct ? (
+          <View className="p-4">
+            <Text className="font-bold text-lg mb-3">Tốc độ giao hàng</Text>
+            <RadioButton.Group
+              onValueChange={(value) => setDeliveryPace(value)}
+              value={deliveryPace}
+            >
+              <View className="border rounded-xl border-gray-400">
+                <View className="flex-row items-center ml-2 mt-3">
+                  <RadioButton value="STANDARD" />
+                  <MaterialCommunityIcons
+                    name="truck-outline"
+                    size={24}
+                    color="#6B7280"
+                  />
+                  <Text> Tiêu chuẩn: 25.000 ₫</Text>
+                </View>
+                <View className="flex-row items-center ml-2 mb-3">
+                  <RadioButton value="EXPEDITED" />
+                  <MaterialCommunityIcons
+                    name="truck-fast-outline"
+                    size={24}
+                    color="#6B7280"
+                  />
+                  <Text>
+                    {" "}
+                    Hỏa tốc:{" "}
+                    {chosenShippingAddress?.deliAmount?.toLocaleString(
+                      "vi-VN"
+                    )}{" "}
+                    ₫
+                  </Text>
+                </View>
+              </View>
+            </RadioButton.Group>
+          </View>
+        ) : (
+          <></>
+        )}
+
+        {/* 
+        <View className="p-4">
+              <Text className="font-bold text-lg mb-3">Tốc độ giao hàng</Text>
+              <RadioButton.Group
+                onValueChange={(value) => setDeliveryPace(value)}
+                value={deliveryPace}
+              >
+                <View>
+                  <View className="flex-row items-center mb-2">
+                    <RadioButton
+                      value="STANDARD"
+                      status={
+                        deliveryPace === "STANDARD" ? "checked" : "unchecked"
+                      }
+                      onPress={() => setDeliveryPace("STANDARD")}
+                    />
+                    <Text>Tiêu chuẩn phí 25.000 ₫</Text>
+                  </View>
+                  <View className="flex-row items-center mb-2">
+                    <RadioButton
+                      value="EXPEDITED"
+                      status={
+                        deliveryPace === "EXPEDITED" ? "checked" : "unchecked"
+                      }
+                      onPress={() => setDeliveryPace("EXPEDITED")}
+                    />
+                    <Text>
+                      Hỏa tốc phí{" "}
+                      {chosenShippingAddress?.deliAmount?.toLocaleString(
+                        "vi-VN"
+                      )}{" "}
+                      ₫
+                    </Text>
+                  </View>
+                </View>
+              </RadioButton.Group>
+            </View>
+          </View> */}
+
         {/* Payment Method */}
         {/* tắt bật để COD hoặc QR */}
         <View className="p-4">
@@ -313,55 +415,42 @@ export default function CheckoutScreen() {
             {/* <MaterialIcons name="chevron-right" size={24} color="#9CA3AF" /> */}
             {/* vì không có options khác nên là bỏ đi để ngta không nghĩ là nút */}
           </Pressable>
-
-          {/* {showQR && (
-            <View className="mt-4 items-center">
-              <Image
-                source={{ uri: "https://example.com/qr-code.png" }}
-                className="w-64 h-64"
-              />
-              <Text className="text-center mt-4 text-gray-600">
-                Quét mã QR để thanh toán số tiền:{"\n"}
-                <Text className="font-bold text-blue-500">
-                  {total.toLocaleString("vi-VN")} ₫
-                </Text>
-              </Text>
-            </View>
-          )} */}
         </View>
       </ScrollView>
 
       {/* Address Modal */}
       <Portal>
         <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)}>
-          <View className="bg-slate-200 p-5 rounded-lg">
-            <ScrollView
-              className="max-h-72"
-              showsVerticalScrollIndicator={false}
-            >
-              {shippingInfos?.data.map((address) => (
-                <TouchableOpacity
-                  key={address.id}
-                  className="p-2 border-b-2 border-b-cyan-300"
-                  onPress={() => handleAddressSelect(address)}
-                >
-                  <Text className="text-gray-600 font-bold p-1">
-                    {address.address}
-                  </Text>
-                  <Text className="text-gray-600 p-1">{address.phone}</Text>
-                  <Text className="text-gray-600 p-1">{address.name}</Text>
-                  <View className="self-start bg-cyan-200 p-1 mt-1 rounded">
-                    <Text className="text-gray-600">{address.tag}</Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            <TouchableOpacity
-              className="p-2 items-center mt-2"
-              onPress={() => setAddAddressModalVisible(true)}
-            >
-              <Text>Thêm địa chỉ mới</Text>
-            </TouchableOpacity>
+          <View className="mx-3">
+            <View className="bg-slate-200 p-5 rounded-lg">
+              <ScrollView
+                className="max-h-72"
+                showsVerticalScrollIndicator={false}
+              >
+                {shippingInfos?.data.map((address) => (
+                  <TouchableOpacity
+                    key={address.id}
+                    className="p-2 border-b-2 border-b-cyan-300"
+                    onPress={() => handleAddressSelect(address)}
+                  >
+                    <Text className="text-gray-600 font-bold p-1">
+                      {address.address}
+                    </Text>
+                    <Text className="text-gray-600 p-1">{address.phone}</Text>
+                    <Text className="text-gray-600 p-1">{address.name}</Text>
+                    <View className="self-start bg-cyan-200 p-1 mt-1 rounded">
+                      <Text className="text-gray-600">{address.tag}</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+              <TouchableOpacity
+                className="p-2 items-center mt-2"
+                onPress={() => setAddAddressModalVisible(true)}
+              >
+                <Text>Thêm địa chỉ mới</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </Modal>
       </Portal>
@@ -372,7 +461,7 @@ export default function CheckoutScreen() {
           visible={addAddressModalVisible}
           onDismiss={() => setAddAddressModalVisible(false)}
         >
-          <View className="bg-slate-100 p-5 rounded-lg">
+          <View className="bg-slate-100 p-5 rounded-lg mx-4">
             <IconButton
               icon="close"
               className="self-end"
@@ -434,13 +523,17 @@ export default function CheckoutScreen() {
       {/* Bottom Bar */}
       <View className="p-4 border-t border-gray-100">
         <View className="flex-row justify-between mb-4">
-          <Text className="text-gray-600">Tổng thanh toán</Text>
+          <Text className="text-gray-600">
+            Tổng thanh toán <Text className="italic">(đơn và vận chuyển)</Text>
+          </Text>
           <Text className="font-bold text-lg">
-            {total.toLocaleString("vi-VN")} ₫
+            {totalToPay.toLocaleString("vi-VN")} ₫
           </Text>
         </View>
         <Pressable
-          className={`${isProcessing ? "bg-gray-500" : "bg-blue-500"} p-4 rounded-xl items-center`}
+          className={`${
+            isProcessing ? "bg-gray-500" : "bg-blue-500"
+          } p-4 rounded-xl items-center`}
           onPress={handlePayment}
           // chỗ này giờ redirect sao đây này
         >

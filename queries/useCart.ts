@@ -10,13 +10,13 @@ import { useAppStore } from "@/components/app-provider";
 import { useEffect } from "react";
 import { RoleValues } from "@/constants/type";
 
-export const useCart = ({ token }: { token: string }) => {
+export const useCart = ({ token, enabled }: { token: string; enabled: boolean }) => {
   const setCart = useAppStore((state) => state.setCart); // Lấy setCart từ Zustand
   const currentUser = useAppStore((state) => state.user);
   const query = useQuery<GetAllCartDetailResType>({
     queryKey: ["carts"],
     queryFn: () => cartApiRequest.getAll({ token }),
-    enabled: !!token && currentUser?.role === RoleValues[0],
+    enabled: enabled && !!token && currentUser?.role === RoleValues[0],
   });
 
   useEffect(() => {

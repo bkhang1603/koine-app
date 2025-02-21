@@ -131,10 +131,13 @@ export default function LoginScreen() {
           bounces={false}
         >
           {showModal && (
-            <View className="absolute top-12 bg-black bg-opacity-70 p-5 rounded-lg">
-              <Text className="text-white text-center">{modalMessage}</Text>
+            <View  style={{ zIndex: 999 }} className="absolute top-8 left-5 right-5 bg-gray-400 bg-opacity-70 p-5 rounded-lg">
+              <Text className="text-blue-600 text-center font-semibold h-15">
+                {modalMessage}
+              </Text>
             </View>
           )}
+
           {/* Logo */}
           <View className="items-center my-8">
             <View className="w-20 h-20 bg-blue-100 rounded-full items-center justify-center">

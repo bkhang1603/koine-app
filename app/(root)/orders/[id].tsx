@@ -21,6 +21,9 @@ export default function OrderDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelError, setCancelError] = useState("");
 
   const {
     data: orderDetailsData,
@@ -31,19 +34,24 @@ export default function OrderDetailScreen() {
     token,
   });
 
-  let orderDetails: GetOrderDetailsResType["data"] | null = null;
-
-  if (orderDetailsData && !orderDetailsError) {
-    if (orderDetailsData.data === null) {
-    } else {
-      const parsedResult = orderDetailsRes.safeParse(orderDetailsData);
-      if (parsedResult.success) {
-        orderDetails = parsedResult.data.data;
-      } else {
-        console.error("Validation errors:", parsedResult.error.errors);
-      }
+  // Move this logic into a useMemo hook to prevent re-renders
+  const orderDetails = React.useMemo(() => {
+    if (!orderDetailsData || orderDetailsError) {
+      return null;
     }
-  }
+
+    if (orderDetailsData.data === null) {
+      return null;
+    }
+
+    const parsedResult = orderDetailsRes.safeParse(orderDetailsData);
+    if (parsedResult.success) {
+      return parsedResult.data.data;
+    }
+
+    console.error("Validation errors:", parsedResult.error.errors);
+    return null;
+  }, [orderDetailsData, orderDetailsError]);
 
   if (orderDetailsLoading) return <ActivityIndicatorScreen />;
   if (orderDetailsError)
@@ -85,10 +93,6 @@ export default function OrderDetailScreen() {
   };
 
   const status = getStatusColor(order.status);
-
-  const [showCancelModal, setShowCancelModal] = useState(false);
-  const [cancelReason, setCancelReason] = useState("");
-  const [cancelError, setCancelError] = useState("");
 
   const handleCancel = () => {
     if (!cancelReason.trim()) {
@@ -161,10 +165,10 @@ export default function OrderDetailScreen() {
       <ScrollView>
         {/* Order Info */}
         <View className="p-4 border-b border-gray-100">
-          <View className="flex-row justify-between items-center">
+          <View className="flex justify-between">
             <Text className="text-lg font-bold">Đơn hàng #{order.id}</Text>
             <View
-              className={`${status.bg} px-3 py-1 rounded-full flex-row items-center`}
+              className={`${status.bg} py-1 rounded-full flex-row items-center`}
             >
               <MaterialIcons
                 name={status.icon as any}
@@ -173,8 +177,9 @@ export default function OrderDetailScreen() {
               />
               <Text className={`${status.text} ml-1`}>{status.label}</Text>
             </View>
+            <Text className="text-gray-600 mt-1">{order.orderDate}</Text>
           </View>
-          <Text className="text-gray-600 mt-1">{order.orderDate}</Text>
+          
         </View>
 
         {/* Course Info */}

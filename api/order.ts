@@ -10,7 +10,8 @@ const orderApiRequest = {
   createOrder: (body: CreateOrderBodyType, token: string) =>
     http.post<CreateOrderResType>(`orders`, body, {
       headers: {
-        Authorization: `Bearer ${token}`, // Thêm token vào headers
+        Authorization: `Bearer ${token}`, 
+        "User-Agent": "MobileKoine",// Thêm token vào headers
       },
     }),
   getAll: ({

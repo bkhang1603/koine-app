@@ -30,7 +30,7 @@ export default function HomeScreen() {
     isLoading: isLoadingShipping,
     isError: isErrorShipping,
     refetch: refetchShipping,
-  } = useShippingInfos(token ? { token } : { token: "" });
+  } = useShippingInfos({ token: token ? token : "", enabled: true });
 
   // Gọi API cart
   const {
@@ -38,7 +38,7 @@ export default function HomeScreen() {
     isLoading: isLoadingCart,
     isError: isErrorCart,
     refetch: refetchCart,
-  } = useCart(token ? { token } : { token: "" });
+  } = useCart({ token: token ? token : "", enabled: true });
 
   useEffect(() => {
     console.log(token);
@@ -266,9 +266,11 @@ export default function HomeScreen() {
                 />
                 <View className="p-3">
                   <View className="flex-row items-center">
-                    <Text className="text-blue-500 text-xs font-medium">
-                      {/* {course.categories[0].name} */}aaaa
-                    </Text>
+                    <View className="self-start bg-cyan-200 p-1 mt-1 rounded">
+                      <Text className="text-blue-500 text-xs font-medium">
+                        {courses[0]?.categories?.[0]?.name || "Tiêu biểu"}
+                      </Text>
+                    </View>
                     <Text className="text-gray-400 mx-2">•</Text>
                     <Text className="text-gray-500 text-xs">
                       {course.durations}

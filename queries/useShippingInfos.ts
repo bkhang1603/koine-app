@@ -8,7 +8,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-export const useShippingInfos = ({ token }: { token: string }) => {
+export const useShippingInfos = ({ token, enabled }: { token: string; enabled: boolean }) => {
   const setShippingInfos = useAppStore((state) => state.setShippingInfos);
   const currentUser = useAppStore((state) => state.user);
   const query = useQuery<GetAllShippingAddressResType>({
@@ -17,7 +17,7 @@ export const useShippingInfos = ({ token }: { token: string }) => {
       shippingAddressApiRequest.getAllShippingAddress({
         token, // Truyền token vào khi gọi API
       }),
-    enabled: !!token && currentUser?.role === RoleValues[0],
+    enabled: enabled && !!token && currentUser?.role === RoleValues[0],
   });
 
   useEffect(() => {
