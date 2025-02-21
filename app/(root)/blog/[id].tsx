@@ -4,35 +4,66 @@ import { useLocalSearchParams } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import HeaderWithBack from "@/components/HeaderWithBack";
 import { WebView } from "react-native-webview";
-import { MOCK_BLOG_POSTS } from "@/constants/mock-data";
+import { useBlogDetail } from "@/queries/useBlog";
+import { blogDetailRes, GetBlogDetailResType } from "@/schema/blog-schema";
+import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
+import ErrorScreen from "@/components/ErrorScreen";
 
 export default function BlogDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
-    const post = MOCK_BLOG_POSTS.find((p) => p.id === id);
 
-    if (!post) return null;
+    const {
+        data: blogData,
+        isLoading: blogLoading,
+        isError: blogError,
+      } = useBlogDetail({
+        blogId: id as string,
+      });
+    
+      let blog: GetBlogDetailResType["data"] | null = null;
+    
+      if (blogData && !blogError) {
+        if (blogData.data === null) {
+        } else {
+          const parsedResult = blogDetailRes.safeParse(blogData);
+          if (parsedResult.success) {
+            blog = parsedResult.data.data;
+          } else {
+            console.error("Validation errors:", parsedResult.error.errors);
+          }
+        }
+      }
+    
+      if (blogLoading) return <ActivityIndicatorScreen />;
+      if (blogError)
+        return (
+          <ErrorScreen message="Failed to load blogs. Showing default blogs." />
+        );
+    
+      if (blog == null)
+        return <ErrorScreen message="Failed to load blogs. Course is null." />;
 
     return (
         <View className="flex-1 bg-white">
             <HeaderWithBack title="Blog" />
             <ScrollView>
                 <Image
-                    source={{ uri: post.thumbnail }}
+                    source={{ uri: blog.imageUrl }}
                     className="w-full h-48"
                 />
                 <View className="p-4">
                     <View className="flex-row items-center">
                         <Text className="text-blue-500 text-sm font-medium">
-                            {post.category}
+                            {blog.categories[0].name}
                         </Text>
                         <Text className="text-gray-400 mx-2">•</Text>
                         <Text className="text-gray-500 text-sm">
-                            {post.readTime}
+                            {blog.createdAtFormatted}
                         </Text>
                     </View>
 
                     <Text className="text-2xl font-bold mt-2">
-                        {post.title}
+                        {blog.title}
                     </Text>
 
                     <View className="flex-row items-center mt-4">
@@ -42,10 +73,10 @@ export default function BlogDetailScreen() {
                             color="#6B7280"
                         />
                         <Text className="text-gray-600 ml-1">
-                            {post.author}
+                            {blog.creatorInfo.firstName}
                         </Text>
                         <Text className="text-gray-400 mx-2">•</Text>
-                        <Text className="text-gray-500">{post.date}</Text>
+                        <Text className="text-gray-500">{blog.createdAtFormatted}</Text>
                     </View>
 
                     <View className="mt-6">
@@ -79,7 +110,7 @@ export default function BlogDetailScreen() {
                                             </style>
                                         </head>
                                         <body>
-                                            ${post.content || ""}
+                                            ${blog.content || ""}
                                         </body>
                                     </html>
                                 `,

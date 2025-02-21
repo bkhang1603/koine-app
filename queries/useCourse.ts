@@ -23,3 +23,15 @@ export const useCourses = ({
       })
   })
 }
+
+export const useCourseDetail = ({ courseId }: { courseId: string }) => {
+  return useQuery({
+    queryKey: ['course-detail', courseId],
+    queryFn: () =>
+      courseApiRequest.getCourseDetail({
+        courseId
+      }),
+    staleTime: 60 * 1000,
+    enabled: !!courseId
+  })
+}

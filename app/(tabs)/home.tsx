@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import { View, Text, ScrollView, Image, Pressable } from "react-native";
-import { Link, router } from "expo-router";
+import { Link, router, useFocusEffect } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -10,18 +10,19 @@ import {
   MOCK_MY_COURSES,
 } from "@/constants/mock-data";
 import CartButton from "@/components/CartButton";
+import { useCourses } from "@/queries/useCourse";
 import { useAppStore } from "@/components/app-provider";
+import { courseRes, GetAllCourseResType } from "@/schema/course-schema";
+import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
+import ErrorScreen from "@/components/ErrorScreen";
+import { useBlog } from "@/queries/useBlog";
+import { blogRes, GetAllBlogResType } from "@/schema/blog-schema";
 import { useShippingInfos } from "@/queries/useShippingInfos";
 import { useCart } from "@/queries/useCart";
-import { useFocusEffect } from "@react-navigation/native";
 
 export default function HomeScreen() {
-  const recentCourse = MOCK_MY_COURSES[0];
-  const featuredCourses = MOCK_COURSES.filter((course) => course.featured);
-  const latestBlog = MOCK_BLOG_POSTS[0];
-
   const accessToken = useAppStore((state) => state.accessToken);
-  const token = accessToken?.accessToken ?? "";
+  const token = accessToken == undefined ? "" : accessToken.accessToken;
 
   // Gọi API shipping
   const {
@@ -50,6 +51,69 @@ export default function HomeScreen() {
       refetchCart();
     }, [refetchShipping, refetchCart])
   );
+
+  const {
+    data: coursesData,
+    isLoading: coursesLoading,
+    isError: coursesError,
+  } = useCourses({
+    keyword: "",
+    page_size: 10,
+    page_index: 1,
+    token: token,
+  });
+
+  let courses: GetAllCourseResType["data"] = [];
+
+  if (coursesData && !coursesError) {
+    if (coursesData.data.length === 0) {
+    } else {
+      const parsedResult = courseRes.safeParse(coursesData);
+      if (parsedResult.success) {
+        courses = parsedResult.data.data;
+      } else {
+        console.error("Validation errors:", parsedResult.error.errors);
+      }
+    }
+  }
+
+  const {
+    data: blogData,
+    isLoading: blogLoading,
+    isError: blogError,
+  } = useBlog({
+    keyword: "",
+    page_size: 10,
+    page_index: 1,
+    token: token,
+  });
+
+  let blog: GetAllBlogResType["data"] = [];
+
+  if (blogData && !blogError) {
+    if (blogData.data.length === 0) {
+    } else {
+      const parsedResult = blogRes.safeParse(blogData);
+      if (parsedResult.success) {
+        blog = parsedResult.data.data;
+      } else {
+        console.error("Validation errors:", parsedResult.error.errors);
+      }
+    }
+  }
+
+  if (coursesLoading && blogLoading) return <ActivityIndicatorScreen />;
+  if (coursesError && blogError)
+    return (
+      <ErrorScreen message="Failed to load courses. Showing default courses." />
+    );
+
+  // console.log("Fetched Data:", JSON.stringify(courses, null, 2));
+  // console.log("Fetched Data:", JSON.stringify(blog, null, 2));
+
+  const recentCourse = MOCK_MY_COURSES[0];
+  const featuredCourses = courses;
+  const latestBlog = blog[0];
 
   return (
     <ScrollView className="flex-1 bg-gray-50">
@@ -197,17 +261,19 @@ export default function HomeScreen() {
                 }
               >
                 <Image
-                  source={{ uri: course.thumbnail }}
+                  source={{ uri: course.imageUrl }}
                   className="w-full h-32 rounded-t-xl"
                 />
                 <View className="p-3">
                   <View className="flex-row items-center">
-                    <Text className="text-blue-500 text-xs font-medium">
-                      {course.category}
-                    </Text>
+                    <View className="self-start bg-cyan-200 p-1 mt-1 rounded">
+                      <Text className="text-blue-500 text-xs font-medium">
+                        {courses[0]?.categories?.[0]?.name || "Tiêu biểu"}
+                      </Text>
+                    </View>
                     <Text className="text-gray-400 mx-2">•</Text>
                     <Text className="text-gray-500 text-xs">
-                      {course.level}
+                      {course.durations}
                     </Text>
                   </View>
                   <Text className="font-bold mt-2" numberOfLines={2}>
@@ -216,7 +282,7 @@ export default function HomeScreen() {
                   <View className="flex-row items-center justify-between mt-2">
                     <View className="flex-row items-center">
                       <MaterialIcons name="star" size={14} color="#FCD34D" />
-                      <Text className="ml-1 text-sm">{course.rating}</Text>
+                      <Text className="ml-1 text-sm">{course.aveRating}</Text>
                     </View>
                     <Text className="text-blue-500 font-bold">
                       {course.price.toLocaleString("vi-VN")} ₫
@@ -235,13 +301,13 @@ export default function HomeScreen() {
             <Link href={`/blog/${latestBlog.id}` as any} asChild>
               <Pressable className="mx-4">
                 <Image
-                  source={{ uri: latestBlog.thumbnail }}
+                  source={{ uri: latestBlog.imageUrl }}
                   className="w-full h-48 rounded-xl"
                 />
                 <View className="mt-3">
                   <Text className="font-bold text-lg">{latestBlog.title}</Text>
                   <Text className="text-gray-600 mt-1" numberOfLines={2}>
-                    {latestBlog.excerpt}
+                    {latestBlog.description}
                   </Text>
                 </View>
               </Pressable>
