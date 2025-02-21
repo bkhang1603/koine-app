@@ -38,47 +38,50 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     appStateRef.current = AppState.currentState;
   };
 
-  const state = useAppStore.getState();
-  const currentRefreshToken = state.refreshToken;
-  const currentAccessToken = state.accessToken;
-  const currentUser = state.user;
-  const token = currentAccessToken?.accessToken ?? "";
-
+  //nó lỗi validation error
   useEffect(() => {
     const checkRefreshToken = async () => {
-      if (currentAccessToken) {
-        if (currentRefreshToken) {
-          try {
-            const res = await checkRefresh.mutateAsync({
-              accessToken: currentAccessToken.accessToken,
-            });
-            if (res?.data) {
-              const newestRefreshToken = res.data;
-              if (newestRefreshToken !== currentRefreshToken.refreshToken) {
-                setRefreshExpired(true);
-                clearAuth();
-                await SecureStore.deleteItemAsync("loginData");
-                setIsCheckingRefreshToken(false);
-              }
-              //nếu giống nhau thì làm bth/ sai thì xóa và k chạy những logic dưới
+      try {
+        const loginData = await SecureStore.getItemAsync("loginData");
+        if (loginData) {
+          const parsedData = JSON.parse(loginData);
+          const accessTk = parsedData.accessToken;
+          const refreshTk = parsedData.refreshToken;
+          const res = await checkRefresh.mutateAsync({
+            accessToken: accessTk,
+          });
+          if (res) {
+            const newestRefreshToken = res.data;
+            if (newestRefreshToken != refreshTk) {
+              setRefreshExpired(true);
+              clearAuth();
+              await SecureStore.deleteItemAsync("loginData");
+              setIsCheckingRefreshToken(false);
+            } else {
               setIsCheckingRefreshToken(false);
             }
-          } catch (error) {
-            console.error("Error checking refresh token:", error);
+          } else {
+            setRefreshExpired(true);
+            clearAuth();
+            await SecureStore.deleteItemAsync("loginData");
+            setIsCheckingRefreshToken(false);
           }
-        } else {
-          setIsCheckingRefreshToken(false); // Không có token thì cũng kết thúc kiểm tra
+        }else{
+          setRefreshExpired(true)
         }
-      } else {
-        setRefreshExpired(true);
-        clearAuth();
-        await SecureStore.deleteItemAsync("loginData");
-        setIsCheckingRefreshToken(false);
+      } catch (error) {
+        console.error("Error checking refresh token:", error);
       }
     };
 
     checkRefreshToken();
   }, []);
+
+  const state = useAppStore.getState();
+  const currentRefreshToken = state.refreshToken;
+  const currentAccessToken = state.accessToken;
+  const currentUser = state.user;
+  const token = currentAccessToken?.accessToken ?? "";
 
   // Gọi API shipping (chỉ chạy khi kiểm tra token xong)
   const {
@@ -101,15 +104,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     token: token && currentUser?.role === RoleValues[0] ? token : "",
     enabled: !isCheckingRefreshToken, // Chỉ chạy khi isCheckingToken = false
   });
-
-  // // Xử lý lỗi nếu có
-  // if (isErrorShipping) {
-  //   console.error("Lỗi khi lấy thông tin shipping:", shippingError);
-  // }
-
-  // if (isErrorCart) {
-  //   console.error("Lỗi khi lấy giỏ hàng:", cartError);
-  // }
 
   const getNewAccessToken = async () => {
     try {
