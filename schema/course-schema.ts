@@ -26,6 +26,7 @@ export const courseRes = z.object({
       createdAtFormatted: z.string(),
       updatedAtFormatted: z.string(),
       durationsDisplay: z.string(),
+      level: z.string(),
       prerequisiteId: z.string().nullable(),
       creatorId: z.string(),
       creator: z.object({
@@ -65,11 +66,11 @@ export const courseDetailRes = z.object({
     titleNoTone: z.string(),
     slug: z.string(),
     description: z.string(),
-    durations: z.number(),
+    durations: z.number().optional(),
     imageUrl: z.string(),
     imageBanner: z.string(),
     price: z.number(),
-    discount: z.number(),
+    discount: z.number().optional(),
     totalEnrollment: z.number(),
     aveRating: z.number(),
     isBanned: z.boolean(),
@@ -105,7 +106,7 @@ export const courseDetailRes = z.object({
           })
         )
       })
-    )
+    ).optional()
   })
 })
 

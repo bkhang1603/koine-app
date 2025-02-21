@@ -23,6 +23,7 @@ import { useCart } from "@/queries/useCart";
 export default function HomeScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
+
   // Gọi API shipping
   const {
     data: shippingData,
@@ -107,8 +108,8 @@ export default function HomeScreen() {
       <ErrorScreen message="Failed to load courses. Showing default courses." />
     );
 
-  console.log("Fetched Data:", JSON.stringify(courses, null, 2));
-  console.log("Fetched Data:", JSON.stringify(blog, null, 2));
+  // console.log("Fetched Data:", JSON.stringify(courses, null, 2));
+  // console.log("Fetched Data:", JSON.stringify(blog, null, 2));
 
   const recentCourse = MOCK_MY_COURSES[0];
   const featuredCourses = courses;

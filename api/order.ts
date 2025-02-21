@@ -1,9 +1,4 @@
 import {
-  GetAllCartDetailResType,
-  MessageResType,
-  UpdateQuantityCartItemBodyType,
-} from "@/schema/cart-schema";
-import {
   CreateOrderBodyType,
   CreateOrderResType,
   GetAllOrderResType,
@@ -27,15 +22,12 @@ const orderApiRequest = {
     page_index: number;
     token: string;
   }) =>
-    http.get<GetAllOrderResType>(
-      `my-orders?page_size=${page_size}&page_index=${page_index}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    ),
-  getOrderDetail: ({ orderId, token }: { orderId: string; token: string }) =>
+    http.get<GetAllOrderResType>(`orders/my-orders`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Thêm token vào headers
+      },
+    }),
+  getOrderDetails: ({ orderId, token }: { orderId: string; token: string }) =>
     http.get<GetOrderDetailsResType>(`orders/${orderId}`, {
       headers: {
         Authorization: `Bearer ${token}`,

@@ -31,10 +31,13 @@ export const useOrder = ({
         page_index,
         token,
       }),
+    enabled: !!token,
+    retry: 2,
+    staleTime: 30 * 1000,
   });
 };
 
-export const useOrderDetail = ({
+export const useOrderDetails = ({
   orderId,
   token,
 }: {
@@ -44,7 +47,7 @@ export const useOrderDetail = ({
   return useQuery({
     queryKey: ["order", orderId],
     queryFn: () =>
-      orderApiRequest.getOrderDetail({
+      orderApiRequest.getOrderDetails({
         orderId,
         token,
       }),

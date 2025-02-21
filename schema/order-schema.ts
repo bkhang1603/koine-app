@@ -40,9 +40,9 @@ export const orderRes = z.object({
           courseId: z.string().nullable(),
           comboId: z.string().nullable(),
           quantity: z.number(),
-          unitPrice: z.number(),
-          discount: z.number(),
-          totalPrice: z.number()
+          unitPrice: z.number().optional(),
+          discount: z.number().optional(),
+          totalPrice: z.number().optional()
         })
       ),
       deliveryInfo: z.object({
@@ -60,7 +60,7 @@ export const orderRes = z.object({
     maxPageSize: z.number(),
     totalPage: z.number()
   })
-})
+});
 
 export type GetAllOrderResType = z.infer<typeof orderRes>
 

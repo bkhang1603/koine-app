@@ -62,14 +62,10 @@ export const cartItemList = z.object({
 export type GetAllCartDetailResType = z.TypeOf<typeof cartItemList>
 
 export const createCartDetailBody = z.object({
-  productId: z.string().optional(),
   courseId: z.string().optional(),
-  comboId: z.string().optional(),
   quantity: z.number(),
-}).refine((data) => {
-    const count = Object.values(data).filter(value => value !== null && value !== undefined).length; // chỉ cấp nhận quantity và 1 trường Id
-    return count === 2;
-});
+})
+
 
 export type CreateCartDetailBodyType = z.infer<typeof createCartDetailBody>;
 
