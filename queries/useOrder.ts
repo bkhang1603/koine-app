@@ -1,8 +1,9 @@
 import orderApiRequest from "@/api/order";
-import { CreateOrderBodyType } from "@/schema/order-schema";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { CreateOrderBodyAtListType, CreateOrderBodyType } from "@/schema/order-schema";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useCreateOrder = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
       body,
@@ -11,6 +12,33 @@ export const useCreateOrder = () => {
       body: CreateOrderBodyType;
       token: string;
     }) => orderApiRequest.createOrder(body, token),
+    onSuccess: () => {
+      // Invalidate queries liên quan đến giỏ hàng sau khi delete
+      queryClient.invalidateQueries({
+        queryKey: ["order"],
+        exact: true, // Tùy chọn, nếu bạn muốn invalidate chỉ những query khớp chính xác
+      });
+    },
+  });
+};
+
+export const useCreateOrderAtList = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      body,
+      token,
+    }: {
+      body: CreateOrderBodyAtListType;
+      token: string;
+    }) => orderApiRequest.createOrderAtList(body, token),
+    onSuccess: () => {
+      // Invalidate queries liên quan đến giỏ hàng sau khi delete
+      queryClient.invalidateQueries({
+        queryKey: ["order"],
+        exact: true, // Tùy chọn, nếu bạn muốn invalidate chỉ những query khớp chính xác
+      });
+    },
   });
 };
 
