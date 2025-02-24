@@ -10,6 +10,7 @@ import { AppState, AppStateStatus } from "react-native";
 import { RoleValues } from "@/constants/type";
 import { useShippingInfos } from "@/queries/useShippingInfos";
 import { useCart } from "@/queries/useCart";
+import { dataTagErrorSymbol } from "@tanstack/react-query";
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isCheckingRefreshToken, setIsCheckingRefreshToken] = useState(true);
@@ -40,41 +41,67 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   //nó lỗi validation error
   useEffect(() => {
-    const checkRefreshToken = async () => {
+    const checkToken = async () => {
       try {
+        console.log("initial data");
         const loginData = await SecureStore.getItemAsync("loginData");
         if (loginData) {
           const parsedData = JSON.parse(loginData);
-          const accessTk = parsedData.accessToken;
           const refreshTk = parsedData.refreshToken;
-          const res = await checkRefresh.mutateAsync({
-            accessToken: accessTk,
-          });
-          if (res) {
-            const newestRefreshToken = res.data;
-            if (newestRefreshToken != refreshTk) {
-              setRefreshExpired(true);
-              clearAuth();
-              await SecureStore.deleteItemAsync("loginData");
+          if (refreshTk) {
+            const res = await refreshAccess.mutateAsync({
+              refreshToken: refreshTk,
+            });
+            if (res) {
+              const newAccess = {
+                accessToken: res.data.accessToken,
+                expiresAccess: res.data.expiresAccess,
+              };
+
+              setAccessToken(newAccess);
+              setAccessExpired(false);
+              state.setAccessToken(newAccess);
+              state.setAccessExpired(false);
+
+              setRefreshToken({
+                refreshToken: refreshTk,
+                expiresRefresh: parsedData.expiresRefresh,
+              });
+              setRefreshExpired(false);
+              state.setRefreshToken({
+                refreshToken: refreshTk,
+                expiresRefresh: parsedData.expiresRefresh,
+              });
+              state.setRefreshExpired(false);
+              setUser(parsedData.account);
+              state.setUser(parsedData.account);
               setIsCheckingRefreshToken(false);
-            } else {
-              setIsCheckingRefreshToken(false);
+              console.log("get new access token success");
             }
           } else {
+            console.log("refresh token not found");
             setRefreshExpired(true);
             clearAuth();
             await SecureStore.deleteItemAsync("loginData");
             setIsCheckingRefreshToken(false);
           }
-        }else{
-          setRefreshExpired(true)
+        } else {
+          console.log("Login data not found");
+          setRefreshExpired(true);
+          clearAuth();
+          await SecureStore.deleteItemAsync("loginData");
+          setIsCheckingRefreshToken(false);
         }
       } catch (error) {
-        console.error("Error checking refresh token:", error);
+        console.log("call api get new access failed, ", error);
+        setRefreshExpired(true);
+        clearAuth();
+        await SecureStore.deleteItemAsync("loginData");
+        setIsCheckingRefreshToken(false);
       }
     };
 
-    checkRefreshToken();
+    checkToken();
   }, []);
 
   const state = useAppStore.getState();
@@ -131,75 +158,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("Error when get new access token: ", error);
     }
   };
-
-  useEffect(() => {
-    if (!isCheckingRefreshToken) {
-      const initializeAuth = async () => {
-        console.log("initialize auth running at auth provider");
-        try {
-          const loginData = await SecureStore.getItemAsync("loginData");
-          if (loginData) {
-            const parsedData = JSON.parse(loginData);
-            if (parsedData) {
-              const expiresRefresh = parsedData.expiresRefresh;
-              const expiresTime = new Date(expiresRefresh.toString());
-              const currentTime = new Date();
-              const timeDifference =
-                expiresTime.getTime() - currentTime.getTime();
-              const fiveMinutesInMs = 5 * 60 * 1000;
-
-              if (
-                (timeDifference > 0 && timeDifference < fiveMinutesInMs) ||
-                timeDifference <= 0
-              ) {
-                setRefreshExpired(true);
-                clearAuth();
-                await SecureStore.deleteItemAsync("loginData");
-                return;
-              } else {
-                setRefreshExpired(false);
-                const refreshTk = {
-                  refreshToken: parsedData.refreshToken,
-                  expiresRefresh: parsedData.expiresRefresh,
-                };
-                setRefreshToken(refreshTk);
-                setUser(parsedData.account);
-
-                const expiresAccess = parsedData.expiresAccess;
-                const expiresTime = new Date(expiresAccess.toString());
-                const currentTime = new Date();
-                const timeDifference =
-                  expiresTime.getTime() - currentTime.getTime();
-                const fiveMinutesInMs = 5 * 60 * 1000;
-
-                if (
-                  (timeDifference > 0 && timeDifference < fiveMinutesInMs) ||
-                  timeDifference <= 0
-                ) {
-                  await getNewAccessToken();
-                } else {
-                  setAccessExpired(false);
-                  const accessTk = {
-                    accessToken: parsedData.accessToken,
-                    expiresAccess: parsedData.expiresAccess,
-                  };
-                  setAccessToken(accessTk);
-                }
-              }
-            }
-          } else {
-            setRefreshExpired(true);
-          }
-        } catch (error) {
-          console.error(
-            "Failed to load token and user from secure storage: ",
-            error
-          );
-        }
-      };
-      initializeAuth();
-    }
-  }, [isCheckingRefreshToken]);
 
   useEffect(() => {
     if (isCheckingRefreshToken) return; // Chỉ chạy khi đã kiểm tra xong refresh token
