@@ -55,7 +55,8 @@ export const refreshAccessRes = z.object({
     expiresAccess: z.string(),
     refreshToken: z.string()
   }),
-  message: z.string()
+  message: z.string(),
+  statusCode: z.number()
 })
 
 export type RefreshAccessResType = z.TypeOf<typeof refreshAccessRes>
