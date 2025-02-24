@@ -97,7 +97,7 @@ export default function OrdersScreen() {
   return (
     <View className="flex-1 bg-white">
       {/* Header */}
-      <HeaderWithBack title="Đơn hàng của tôi" />
+      <HeaderWithBack title="Đơn hàng của tôi" isNotBackable={true} />
 
       <ScrollView>
         {/* Status Filters */}
