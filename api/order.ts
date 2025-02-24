@@ -2,24 +2,28 @@ import {
   CreateOrderBodyAtListType,
   CreateOrderBodyType,
   CreateOrderResType,
+  DeleteOrderBodyType,
+  DeleteOrderResType,
   GetAllOrderResType,
   GetOrderDetailsResType,
-} from "@/schema/order-schema";
-import http from "@/util/http";
+} from '@/schema/order-schema'
+import http from '@/util/http'
 
 const orderApiRequest = {
   createOrder: (body: CreateOrderBodyType, token: string) =>
     http.post<CreateOrderResType>(`orders`, body, {
       headers: {
         Authorization: `Bearer ${token}`,
-        "User-Agent": "MobileKoine", // Thêm token vào headers
+        'User-Agent': 'MobileKoine', // Thêm token vào headers
       },
     }),
   createOrderAtList: (body: CreateOrderBodyAtListType, token: string) =>
-    http.post<CreateOrderResType>(`orders/at-list`, body, { // 
-      headers: {// chỉnh lại url
+    http.post<CreateOrderResType>(`orders/at-list`, body, {
+      //
+      headers: {
+        // chỉnh lại url
         Authorization: `Bearer ${token}`,
-        "User-Agent": "MobileKoine", // Thêm token vào headers
+        'User-Agent': 'MobileKoine', // Thêm token vào headers
       },
     }),
   getAll: ({
@@ -27,9 +31,9 @@ const orderApiRequest = {
     page_index,
     token, //để authen
   }: {
-    page_size: number;
-    page_index: number;
-    token: string;
+    page_size: number
+    page_index: number
+    token: string
   }) =>
     http.get<GetAllOrderResType>(`orders/my-orders`, {
       headers: {
@@ -42,6 +46,12 @@ const orderApiRequest = {
         Authorization: `Bearer ${token}`,
       },
     }),
-};
+  deleteOrder: (orderId: string, body: DeleteOrderBodyType, token: string) =>
+    http.delete<DeleteOrderResType>(`orders/${orderId}`, body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+}
 
-export default orderApiRequest;
+export default orderApiRequest

@@ -59,8 +59,7 @@ export default function HomeScreen() {
   } = useCourses({
     keyword: "",
     page_size: 10,
-    page_index: 1,
-    token: token,
+    page_index: 1
   });
 
   let courses: GetAllCourseResType["data"] = [];
