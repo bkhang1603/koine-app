@@ -68,7 +68,7 @@ const QUICK_ACTIONS = [
 export default function SubAccountsScreen() {
     return (
         <View className="flex-1 bg-white">
-            <HeaderWithBack title="Quản lý tài khoản con" />
+            <HeaderWithBack title="Quản lý tài khoản con" isNotBackable={true}/>
             <ScrollView>
                 {/* Stats */}
                 <ScrollView

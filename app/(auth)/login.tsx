@@ -90,18 +90,15 @@ export default function LoginScreen() {
 
         if (account.role == RoleValues[0]) {
           router.push("/(tabs)/home");
+          setTimeout(() => setIsProcessing(false), 1000);
         } else if (account.role == RoleValues[3]) {
           router.push("/child/(tabs)/home");
+          setTimeout(() => setIsProcessing(false), 1000);
         }
-      } else if (res?.statusCode == 400) {
-        alert("Tài khoản chưa được kích hoạt");
-      } else if (res?.statusCode == 404) {
-        alert("Tài khoản không tồn tại hoặc sai tài khoản mật khẩu");
-      } else {
-        alert("Lỗi máy chủ. Vui lòng thử lại sau!");
-      }
-      setTimeout(() => setIsProcessing(false), 1000);
+      } 
     } catch (error) {
+      alert("Lỗi: Sai tên đăng nhập hoặc mật khẩu");
+      setIsProcessing(false)
       console.log(error);
     }
   };

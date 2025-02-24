@@ -39,7 +39,7 @@ export default function PurchasedCoursesScreen() {
 
     return (
         <View className="flex-1 bg-white">
-            <HeaderWithBack title="Khóa học chờ kích hoạt" />
+            <HeaderWithBack title="Khóa học chờ kích hoạt" isNotBackable={true}/>
 
             <ScrollView>
                 {/* Stats */}

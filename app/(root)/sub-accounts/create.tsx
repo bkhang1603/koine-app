@@ -18,7 +18,7 @@ export default function CreateSubAccountScreen() {
 
     return (
         <View className="flex-1 bg-white">
-            <HeaderWithBack title="Thêm tài khoản con" />
+            <HeaderWithBack title="Thêm tài khoản con" isNotBackable={true}/>
             <ScrollView className="flex-1 p-4">
                 {/* Form Fields */}
                 <View className="space-y-4">

@@ -23,7 +23,6 @@ export default function Index() {
         router.push("/child/(tabs)/home");
       }
     }
-
     setTimeout(() => setIsProcessing(false), 1000);
   };
 
@@ -31,10 +30,10 @@ export default function Index() {
     <View className="flex-1">
       <Image
         source={require("./../assets/images/login.jpg")}
-        className="w-full h-[600px]"
+        className="w-full h-2/3"
       />
 
-      <View className="p-6 mt-[-20px] bg-white h-[600px] rounded-t-3xl">
+      <View className="p-6 mt-[-20px] bg-white h-2/3 rounded-t-3xl">
         <Text className="text-2xl font-bold text-center">
           Chào mừng đến với Koine
         </Text>
