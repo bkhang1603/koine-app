@@ -10,6 +10,7 @@ import { AppState, AppStateStatus } from "react-native";
 import { RoleValues } from "@/constants/type";
 import { useShippingInfos } from "@/queries/useShippingInfos";
 import { useCart } from "@/queries/useCart";
+import { dataTagErrorSymbol } from "@tanstack/react-query";
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isCheckingRefreshToken, setIsCheckingRefreshToken] = useState(true);
@@ -38,38 +39,61 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     appStateRef.current = AppState.currentState;
   };
 
-  const state = useAppStore.getState();
-  const currentRefreshToken = state.refreshToken;
-  const currentAccessToken = state.accessToken;
-  const currentUser = state.user;
-  const token = currentAccessToken?.accessToken ?? "";
-
+  //nó lỗi validation error
   useEffect(() => {
-    const checkRefreshToken = async () => {
-      if (currentAccessToken) {
-        if (currentRefreshToken) {
-          try {
-            const res = await checkRefresh.mutateAsync({
-              accessToken: currentAccessToken.accessToken,
+    const checkToken = async () => {
+      try {
+        console.log("initial data");
+        const loginData = await SecureStore.getItemAsync("loginData");
+        if (loginData) {
+          const parsedData = JSON.parse(loginData);
+          const refreshTk = parsedData.refreshToken;
+          if (refreshTk) {
+            const res = await refreshAccess.mutateAsync({
+              refreshToken: refreshTk,
             });
-            if (res?.data) {
-              const newestRefreshToken = res.data;
-              if (newestRefreshToken !== currentRefreshToken.refreshToken) {
-                setRefreshExpired(true);
-                clearAuth();
-                await SecureStore.deleteItemAsync("loginData");
-                setIsCheckingRefreshToken(false);
-              }
-              //nếu giống nhau thì làm bth/ sai thì xóa và k chạy những logic dưới
+            if (res) {
+              const newAccess = {
+                accessToken: res.data.accessToken,
+                expiresAccess: res.data.expiresAccess,
+              };
+
+              setAccessToken(newAccess);
+              setAccessExpired(false);
+              state.setAccessToken(newAccess);
+              state.setAccessExpired(false);
+
+              setRefreshToken({
+                refreshToken: refreshTk,
+                expiresRefresh: parsedData.expiresRefresh,
+              });
+              setRefreshExpired(false);
+              state.setRefreshToken({
+                refreshToken: refreshTk,
+                expiresRefresh: parsedData.expiresRefresh,
+              });
+              state.setRefreshExpired(false);
+              setUser(parsedData.account);
+              state.setUser(parsedData.account);
               setIsCheckingRefreshToken(false);
+              console.log("get new access token success");
             }
-          } catch (error) {
-            console.error("Error checking refresh token:", error);
+          } else {
+            console.log("refresh token not found");
+            setRefreshExpired(true);
+            clearAuth();
+            await SecureStore.deleteItemAsync("loginData");
+            setIsCheckingRefreshToken(false);
           }
         } else {
-          setIsCheckingRefreshToken(false); // Không có token thì cũng kết thúc kiểm tra
+          console.log("Login data not found");
+          setRefreshExpired(true);
+          clearAuth();
+          await SecureStore.deleteItemAsync("loginData");
+          setIsCheckingRefreshToken(false);
         }
-      } else {
+      } catch (error) {
+        console.log("call api get new access failed, ", error);
         setRefreshExpired(true);
         clearAuth();
         await SecureStore.deleteItemAsync("loginData");
@@ -77,8 +101,14 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     };
 
-    checkRefreshToken();
+    checkToken();
   }, []);
+
+  const state = useAppStore.getState();
+  const currentRefreshToken = state.refreshToken;
+  const currentAccessToken = state.accessToken;
+  const currentUser = state.user;
+  const token = currentAccessToken?.accessToken ?? "";
 
   // Gọi API shipping (chỉ chạy khi kiểm tra token xong)
   const {
@@ -101,15 +131,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     token: token && currentUser?.role === RoleValues[0] ? token : "",
     enabled: !isCheckingRefreshToken, // Chỉ chạy khi isCheckingToken = false
   });
-
-  // // Xử lý lỗi nếu có
-  // if (isErrorShipping) {
-  //   console.error("Lỗi khi lấy thông tin shipping:", shippingError);
-  // }
-
-  // if (isErrorCart) {
-  //   console.error("Lỗi khi lấy giỏ hàng:", cartError);
-  // }
 
   const getNewAccessToken = async () => {
     try {
@@ -137,75 +158,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("Error when get new access token: ", error);
     }
   };
-
-  useEffect(() => {
-    if (!isCheckingRefreshToken) {
-      const initializeAuth = async () => {
-        console.log("initialize auth running at auth provider");
-        try {
-          const loginData = await SecureStore.getItemAsync("loginData");
-          if (loginData) {
-            const parsedData = JSON.parse(loginData);
-            if (parsedData) {
-              const expiresRefresh = parsedData.expiresRefresh;
-              const expiresTime = new Date(expiresRefresh.toString());
-              const currentTime = new Date();
-              const timeDifference =
-                expiresTime.getTime() - currentTime.getTime();
-              const fiveMinutesInMs = 5 * 60 * 1000;
-
-              if (
-                (timeDifference > 0 && timeDifference < fiveMinutesInMs) ||
-                timeDifference <= 0
-              ) {
-                setRefreshExpired(true);
-                clearAuth();
-                await SecureStore.deleteItemAsync("loginData");
-                return;
-              } else {
-                setRefreshExpired(false);
-                const refreshTk = {
-                  refreshToken: parsedData.refreshToken,
-                  expiresRefresh: parsedData.expiresRefresh,
-                };
-                setRefreshToken(refreshTk);
-                setUser(parsedData.account);
-
-                const expiresAccess = parsedData.expiresAccess;
-                const expiresTime = new Date(expiresAccess.toString());
-                const currentTime = new Date();
-                const timeDifference =
-                  expiresTime.getTime() - currentTime.getTime();
-                const fiveMinutesInMs = 5 * 60 * 1000;
-
-                if (
-                  (timeDifference > 0 && timeDifference < fiveMinutesInMs) ||
-                  timeDifference <= 0
-                ) {
-                  await getNewAccessToken();
-                } else {
-                  setAccessExpired(false);
-                  const accessTk = {
-                    accessToken: parsedData.accessToken,
-                    expiresAccess: parsedData.expiresAccess,
-                  };
-                  setAccessToken(accessTk);
-                }
-              }
-            }
-          } else {
-            setRefreshExpired(true);
-          }
-        } catch (error) {
-          console.error(
-            "Failed to load token and user from secure storage: ",
-            error
-          );
-        }
-      };
-      initializeAuth();
-    }
-  }, [isCheckingRefreshToken]);
 
   useEffect(() => {
     if (isCheckingRefreshToken) return; // Chỉ chạy khi đã kiểm tra xong refresh token
