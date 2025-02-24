@@ -73,3 +73,46 @@ export const blogDetailRes = z.object({
 });
 
 export type GetBlogDetailResType = z.infer<typeof blogDetailRes>;
+
+export const blogCommentRes = z.object({
+  statusCode: z.number(),
+  info: z.string(),
+  message: z.string(),
+  data: z.object({
+    totalComments: z.number(),
+    commentsWithReplies: z
+      .array(
+        z.object({
+          isDeleted: z.boolean(),
+          createdAt: z.string(),
+          updatedAt: z.string(),
+          id: z.string(),
+          userId: z.string(),
+          blogId: z.string(),
+          replyId: z.string().nullable(),
+          content: z.string(),
+          createdAtFormatted: z.string(),
+          updatedAtFormatted: z.string(),
+          user: z.object({
+            id: z.string(),
+            firstName: z.string(),
+            avatarUrl: z.string(),
+            username: z.string(),
+          }),
+          replies: z.array(z.any()).optional(),
+        })
+      )
+      .optional(),
+  }),
+  pagination: z
+    .object({
+      pageSize: z.number(),
+      totalItem: z.number(),
+      currentPage: z.number(),
+      maxPageSize: z.number(),
+      totalPage: z.number(),
+    })
+    .optional(),
+})
+
+export type GetAllBlogCommentsResType = z.infer<typeof blogCommentRes>

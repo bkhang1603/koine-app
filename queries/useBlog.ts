@@ -5,12 +5,10 @@ export const useBlog = ({
   keyword,
   page_size,
   page_index,
-  token,
 }: {
   keyword: string;
   page_size: number;
   page_index: number;
-  token: string;
 }) => {
   return useQuery({
     queryKey: ["blogs"],
@@ -18,20 +16,41 @@ export const useBlog = ({
       blogApiRequest.getAll({
         keyword,
         page_size,
-        page_index,
-        token, // Truyền token vào khi gọi API
+        page_index
       }),
   });
 };
 
-export const useBlogDetail = ({ blogId }: { blogId: string }) => {
+export const useBlogDetail = ({ blogId, token }: { blogId: string; token: string }) => {
   return useQuery({
-    queryKey: ["blog-detail", blogId],
+    queryKey: ["blogs-detail", blogId],
     queryFn: () =>
       blogApiRequest.getBlogDetail({
         blogId,
+        token,
       }),
     staleTime: 60 * 1000,
     enabled: !!blogId,
   });
 };
+
+export const useBlogComments = ({
+  blogId,
+  page_size,
+  page_index,
+}: {
+  blogId: string
+  page_size: number
+  page_index: number
+}) => {
+  return useQuery({
+    queryKey: ['blogs-comments', blogId],
+    queryFn: () =>
+      blogApiRequest.getAllBlogComments({
+        blogId,
+        page_size,
+        page_index,
+      }),
+    enabled: !!blogId,
+  })
+}
