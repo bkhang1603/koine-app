@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react'
 import {
   View,
   Text,
@@ -6,24 +6,24 @@ import {
   Modal,
   TextInput,
   Pressable,
-} from "react-native";
-import { useLocalSearchParams } from "expo-router";
-import { MaterialIcons } from "@expo/vector-icons";
-import HeaderWithBack from "@/components/HeaderWithBack";
-import { MOCK_ORDERS } from "@/constants/mock-data";
-import { useOrderDetails } from "@/queries/useOrder";
-import { useAppStore } from "@/components/app-provider";
-import { GetOrderDetailsResType, orderDetailsRes } from "@/schema/order-schema";
-import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
-import ErrorScreen from "@/components/ErrorScreen";
+} from 'react-native'
+import { useLocalSearchParams, router } from 'expo-router'
+import { MaterialIcons } from '@expo/vector-icons'
+import HeaderWithBack from '@/components/HeaderWithBack'
+import { MOCK_ORDERS } from '@/constants/mock-data'
+import { useOrderDetails, useDeleteOrderMutation } from '@/queries/useOrder'
+import { useAppStore } from '@/components/app-provider'
+import { GetOrderDetailsResType, orderDetailsRes } from '@/schema/order-schema'
+import ActivityIndicatorScreen from '@/components/ActivityIndicatorScreen'
+import ErrorScreen from '@/components/ErrorScreen'
 
 export default function OrderDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const accessToken = useAppStore((state) => state.accessToken);
-  const token = accessToken == undefined ? "" : accessToken.accessToken;
-  const [showCancelModal, setShowCancelModal] = useState(false);
-  const [cancelReason, setCancelReason] = useState("");
-  const [cancelError, setCancelError] = useState("");
+  const { id } = useLocalSearchParams<{ id: string }>()
+  const accessToken = useAppStore((state) => state.accessToken)
+  const token = accessToken == undefined ? '' : accessToken.accessToken
+  const [showCancelModal, setShowCancelModal] = useState(false)
+  const [cancelReason, setCancelReason] = useState('')
+  const [cancelError, setCancelError] = useState('')
 
   const {
     data: orderDetailsData,
@@ -32,88 +32,105 @@ export default function OrderDetailScreen() {
   } = useOrderDetails({
     orderId: id as string,
     token,
-  });
+  })
+
+  const deleteOrderMutation = useDeleteOrderMutation()
 
   // Move this logic into a useMemo hook to prevent re-renders
   const orderDetails = React.useMemo(() => {
     if (!orderDetailsData || orderDetailsError) {
-      return null;
+      return null
     }
 
     if (orderDetailsData.data === null) {
-      return null;
+      return null
     }
 
-    const parsedResult = orderDetailsRes.safeParse(orderDetailsData);
+    const parsedResult = orderDetailsRes.safeParse(orderDetailsData)
     if (parsedResult.success) {
-      return parsedResult.data.data;
+      return parsedResult.data.data
     }
 
-    console.error("Validation errors:", parsedResult.error.errors);
-    return null;
-  }, [orderDetailsData, orderDetailsError]);
+    console.error('Validation errors:', parsedResult.error.errors)
+    return null
+  }, [orderDetailsData, orderDetailsError])
 
-  if (orderDetailsLoading) return <ActivityIndicatorScreen />;
+  if (orderDetailsLoading) return <ActivityIndicatorScreen />
   if (orderDetailsError)
     return (
       <ErrorScreen message="Failed to load orderDetailss. Showing default orderDetailss." />
-    );
+    )
 
   if (orderDetails == null)
     return (
       <ErrorScreen message="Failed to load orderDetailss. Course is null." />
-    );
+    )
 
-  const order = orderDetails;
+  const order = orderDetails
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "completed":
+      case 'completed':
         return {
-          bg: "bg-green-50",
-          text: "text-green-600",
-          label: "Đã hoàn thành",
-          icon: "check-circle",
-        };
-      case "processing":
+          bg: 'bg-green-50',
+          text: 'text-green-600',
+          label: 'Đã hoàn thành',
+          icon: 'check-circle',
+        }
+      case 'processing':
         return {
-          bg: "bg-blue-50",
-          text: "text-blue-600",
-          label: "Đang xử lý",
-          icon: "hourglass-empty",
-        };
+          bg: 'bg-blue-50',
+          text: 'text-blue-600',
+          label: 'Đang xử lý',
+          icon: 'hourglass-empty',
+        }
       default:
         return {
-          bg: "bg-gray-50",
-          text: "text-gray-600",
-          label: "Chưa xác định",
-          icon: "info",
-        };
+          bg: 'bg-gray-50',
+          text: 'text-gray-600',
+          label: 'Chưa xác định',
+          icon: 'info',
+        }
     }
-  };
+  }
 
-  const status = getStatusColor(order.status);
+  const status = getStatusColor(order.status)
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     if (!cancelReason.trim()) {
-      setCancelError("Vui lòng nhập lý do hủy đơn hàng");
-      return;
+      setCancelError('Vui lòng nhập lý do hủy đơn hàng')
+      return
     }
-    // TODO: Call your API to cancel order with reason
-    console.log("Cancelling order with reason:", cancelReason);
-    setShowCancelModal(false);
-    setCancelReason("");
-    setCancelError("");
-  };
+
+    try {
+      await deleteOrderMutation.mutateAsync({
+        orderId: id as string,
+        body: {
+          deletedNote: cancelReason,
+        },
+        token,
+      })
+
+      setShowCancelModal(false)
+      setCancelReason('')
+      setCancelError('')
+
+      // Quay về màn hình danh sách order
+      router.back()
+    } catch (error) {
+      console.error('Error cancelling order:', error)
+      setCancelError('Có lỗi xảy ra khi hủy đơn hàng. Vui lòng thử lại sau.')
+    }
+  }
 
   const handleCheckout = () => {
     // TODO: Implement checkout logic
-    console.log("Proceeding to checkout");
-  };
+    console.log('Proceeding to checkout')
+  }
 
   const renderActionButtons = () => {
     // Only show buttons for processing status
-    if (order.status.toLowerCase() === "processing") {
+    if (order.status.toLowerCase() === 'processing') {
       return (
         <View className="p-4 flex-row space-x-4">
           <Pressable
@@ -130,8 +147,8 @@ export default function OrderDetailScreen() {
             <Text className="text-white font-medium">Hủy đơn</Text>
           </Pressable>
         </View>
-      );
-    } else if (order.status.toLowerCase() === "completed") {
+      )
+    } else if (order.status.toLowerCase() === 'completed') {
       return (
         <View className="p-4">
           <View className="bg-gray-100 py-3 rounded-xl items-center">
@@ -140,10 +157,10 @@ export default function OrderDetailScreen() {
             </Text>
           </View>
         </View>
-      );
+      )
     } else if (
-      order.status.toLowerCase() === "cancelled" ||
-      order.status.toLowerCase() === "canceled"
+      order.status.toLowerCase() === 'cancelled' ||
+      order.status.toLowerCase() === 'canceled'
     ) {
       return (
         <View className="p-4">
@@ -153,11 +170,11 @@ export default function OrderDetailScreen() {
             </Text>
           </View>
         </View>
-      );
+      )
     }
 
-    return null;
-  };
+    return null
+  }
 
   return (
     <View className="flex-1 bg-white">
@@ -173,20 +190,19 @@ export default function OrderDetailScreen() {
               <MaterialIcons
                 name={status.icon as any}
                 size={16}
-                color={status.text.replace("text-", "")}
+                color={status.text.replace('text-', '')}
               />
               <Text className={`${status.text} ml-1`}>{status.label}</Text>
             </View>
             <Text className="text-gray-600 mt-1">{order.orderDate}</Text>
           </View>
-          
         </View>
 
         {/* Course Info */}
         <View className="p-4 border-b border-gray-100">
           <Text className="font-bold mb-3">Thông tin khóa học</Text>
           <Text className="text-lg">
-            {new Date(order.orderDate).toLocaleDateString("vi-VN")}
+            {new Date(order.orderDate).toLocaleDateString('vi-VN')}
           </Text>
         </View>
 
@@ -201,7 +217,7 @@ export default function OrderDetailScreen() {
             </View>
             <View className="flex-row justify-between">
               <Text className="text-gray-600">Giá khóa học</Text>
-              <Text>{order.totalAmount.toLocaleString("vi-VN")} ₫</Text>
+              <Text>{order.totalAmount.toLocaleString('vi-VN')} ₫</Text>
             </View>
             <View className="flex-row justify-between">
               <Text className="text-gray-600">Giảm giá</Text>
@@ -211,7 +227,7 @@ export default function OrderDetailScreen() {
               <View className="flex-row justify-between">
                 <Text className="font-bold">Tổng cộng</Text>
                 <Text className="font-bold text-blue-500">
-                  {order.totalAmount.toLocaleString("vi-VN")} ₫
+                  {order.totalAmount.toLocaleString('vi-VN')} ₫
                 </Text>
               </View>
             </View>
@@ -257,7 +273,7 @@ export default function OrderDetailScreen() {
 
             <TextInput
               className={`border h-32 rounded-xl p-3 mb-2 ${
-                cancelError ? "border-red-500" : "border-gray-200"
+                cancelError ? 'border-red-500' : 'border-gray-200'
               }`}
               placeholder="Nhập lý do hủy đơn hàng"
               multiline
@@ -265,8 +281,8 @@ export default function OrderDetailScreen() {
               numberOfLines={6}
               value={cancelReason}
               onChangeText={(text) => {
-                setCancelReason(text);
-                setCancelError("");
+                setCancelReason(text)
+                setCancelError('')
               }}
             />
 
@@ -278,9 +294,9 @@ export default function OrderDetailScreen() {
               <Pressable
                 className="flex-1 bg-gray-100 py-3 rounded-xl items-center"
                 onPress={() => {
-                  setShowCancelModal(false);
-                  setCancelReason("");
-                  setCancelError("");
+                  setShowCancelModal(false)
+                  setCancelReason('')
+                  setCancelError('')
                 }}
               >
                 <Text className="text-gray-700 font-medium">Đóng</Text>
@@ -297,5 +313,5 @@ export default function OrderDetailScreen() {
         </View>
       </Modal>
     </View>
-  );
+  )
 }
