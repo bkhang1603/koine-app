@@ -16,7 +16,7 @@ export default function SubAccountDetailScreen() {
 
     return (
         <View className="flex-1 bg-white">
-            <HeaderWithBack title="Chi tiết tài khoản" />
+            <HeaderWithBack title="Chi tiết tài khoản" isNotBackable={true}/>
             <ScrollView>
                 {/* Profile Header */}
                 <View className="p-4 items-center border-b border-gray-100">

@@ -41,7 +41,7 @@ export default function SearchScreen() {
 
     return (
         <View className="flex-1 bg-white">
-            <HeaderWithBack title="Tìm kiếm" showMoreOptions={false} />
+            <HeaderWithBack title="Tìm kiếm" showMoreOptions={false} isNotBackable={true}/>
 
             <View className="p-4">
                 <View className="flex-row items-center bg-gray-100 rounded-xl px-4">
