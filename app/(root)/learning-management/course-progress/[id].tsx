@@ -18,7 +18,7 @@ export default function CourseProgressScreen() {
 
     return (
         <View className="flex-1 bg-white">
-            <HeaderWithBack title="Chi tiết tiến độ" />
+            <HeaderWithBack title="Chi tiết tiến độ"/>
             <ScrollView>
                 {/* Course Info */}
                 <View className="p-4 border-b border-gray-100">

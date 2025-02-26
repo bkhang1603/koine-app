@@ -1,5 +1,6 @@
 import authApiRequest from '@/api/auth'
-import { useMutation } from '@tanstack/react-query'
+import { CreateChildBodyType } from '@/schema/auth-schema'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 export const useLoginMutation = () => {
   return useMutation({
@@ -45,3 +46,24 @@ export const useCheckRefreshMutation = () => {
 
 //tất cả method khác thì viết như trên còn get thì dùng useQuery + 1 cái query key
 //để những api chung 1 query key sẽ tự gọi nhau lúc 1 thg trigger
+
+export const useCreateChildMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      body,
+      token,
+    }: {
+      body: CreateChildBodyType;
+      token: string;
+    }) => authApiRequest.registerForChild(body, token),
+
+    onSuccess: () => {
+      // Invalidate queries liên quan đến giỏ hàng sau khi delete
+      queryClient.invalidateQueries({
+        queryKey: ["my-childs"],
+        exact: true, // Tùy chọn, nếu bạn muốn invalidate chỉ những query khớp chính xác
+      });
+    },
+  });
+};

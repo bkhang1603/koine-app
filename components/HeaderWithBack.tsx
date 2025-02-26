@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, Modal } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router} from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type HeaderWithBackProps = {
   title: string;
   showMoreOptions?: boolean;
-  isNotBackable?: boolean;
+  returnTab?: string;
 };
 
 const MENU_OPTIONS = [
@@ -46,14 +46,19 @@ const MENU_OPTIONS = [
 export default function HeaderWithBack({
   title,
   showMoreOptions = true,
-  isNotBackable: isNotBackable,
+  returnTab: returnTab,
 }: HeaderWithBackProps) {
   const [showMenu, setShowMenu] = useState(false);
   const insets = useSafeAreaInsets();
 
   const handleBack = () => {
     try {
-      router.push("/(tabs)/home");
+      if(!returnTab){
+        router.replace("/(tabs)/home");
+      }else{
+        router.replace(returnTab as any)
+      }
+      
     } catch (error) {
       console.log("error at header with back component ", error);
     }
@@ -67,16 +72,13 @@ export default function HeaderWithBack({
       >
         <View className="px-4 py-3 flex-row items-center justify-between">
           <View className="flex-row items-center flex-1">
-            {!isNotBackable ? (
-              <Pressable
-                onPress={handleBack}
-                className="w-10 h-10 items-center justify-center rounded-full bg-gray-100"
-              >
-                <MaterialIcons name="arrow-back" size={24} color="#374151" />
-              </Pressable>
-            ) : (
-              <></>
-            )}
+            <Pressable
+              onPress={handleBack}
+              className="w-10 h-10 items-center justify-center rounded-full bg-gray-100"
+            >
+              <MaterialIcons name="arrow-back" size={24} color="#374151" />
+            </Pressable>
+
             <Text
               className="text-xl font-bold ml-4 flex-1"
               numberOfLines={1}
@@ -122,7 +124,7 @@ export default function HeaderWithBack({
                 key={option.id}
                 onPress={() => {
                   setShowMenu(false);
-                  router.push(option.route as any);
+                  router.replace(option.route as any);
                 }}
                 className={`flex-row items-center p-4 ${
                   index !== MENU_OPTIONS.length - 1

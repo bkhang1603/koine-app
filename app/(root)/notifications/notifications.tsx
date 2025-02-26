@@ -18,7 +18,7 @@ const getNotificationIcon = (type: string) => {
 export default function NotificationsScreen() {
     return (
         <View className="flex-1 bg-white">
-            <HeaderWithBack title="Thông báo" />
+            <HeaderWithBack title="Thông báo" returnTab={"/(tabs)/profile/profile"}/>
 
             <ScrollView>
                 <View className="p-4">

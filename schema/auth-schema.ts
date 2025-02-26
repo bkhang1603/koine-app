@@ -98,3 +98,18 @@ export const checkRefreshRes = z.object({
 })
 
 export type CheckRefreshResType = z.TypeOf<typeof checkRefreshRes>
+
+export const createChildBodyType = z.object({
+  username: z.string(),
+  password: z.string(),
+  gender: z.string(),
+  dob: z.string()
+})
+
+export type CreateChildBodyType = z.TypeOf<typeof createChildBodyType>
+
+export const createChildResType = z.object({
+  message: z.string()
+})
+
+export type CreateChildResType = z.TypeOf<typeof createChildResType>

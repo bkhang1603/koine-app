@@ -10,7 +10,7 @@ import {
   MOCK_MY_COURSES,
 } from "@/constants/mock-data";
 import CartButton from "@/components/CartButton";
-import { useCourses } from "@/queries/useCourse";
+import { useCourses, useMyCourseStore } from "@/queries/useCourse";
 import { useAppStore } from "@/components/app-provider";
 import { courseRes, GetAllCourseResType } from "@/schema/course-schema";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
@@ -19,10 +19,12 @@ import { useBlog } from "@/queries/useBlog";
 import { blogRes, GetAllBlogResType } from "@/schema/blog-schema";
 import { useShippingInfos } from "@/queries/useShippingInfos";
 import { useCart } from "@/queries/useCart";
+import { useMyChilds, useUserProfile } from "@/queries/useUser";
 
 export default function HomeScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
+  const profile = useAppStore(state => state.profile)
 
   // Gọi API shipping
   const {
@@ -40,17 +42,39 @@ export default function HomeScreen() {
     refetch: refetchCart,
   } = useCart({ token: token ? token : "", enabled: true });
 
+  const {
+    data: childData,
+    isLoading: isLoadingChild,
+    isError: isErrorChild,
+    refetch: refetchChild,
+  } = useMyChilds({ token: token ? token : "", enabled: true });
+
+  const {
+    data: myCourseData,
+    isLoading: isLoadingMyCourse,
+    isError: isErrorMyCourse,
+    refetch: refetchMyCourse,
+  } = useMyCourseStore({ token: token ? token : "", enabled: true });
+
+  const {
+    data: profileData,
+    isError: isProfileError,
+    refetch: refetchProfile,
+  } = useUserProfile({ token: token ? token : "", enabled: true });
+
   useEffect(() => {
     console.log(token);
+    refetchShipping();
+    refetchChild();
+    refetchMyCourse();
+    refetchProfile();
   }, [token]);
 
   // Refetch data when focused
-  useFocusEffect(
-    useCallback(() => {
-      refetchShipping();
-      refetchCart();
-    }, [refetchShipping, refetchCart])
-  );
+  useFocusEffect(() => {
+    console.log("effect ",token);
+    refetchCart();
+  });
 
   const {
     data: coursesData,
@@ -119,7 +143,7 @@ export default function HomeScreen() {
         {/* Header with Avatar */}
         <View className="px-4 flex-row items-center justify-between">
           <View>
-            <Text className="text-2xl font-bold">Hi, {MOCK_USER.name}!</Text>
+            <Text className="text-2xl font-bold">Xin chào, {profile?.data.firstName}!</Text>
             <Text className="text-gray-600 mt-1">Hôm nay bạn muốn học gì?</Text>
           </View>
           {/* Cart and Notifications */}

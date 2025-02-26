@@ -26,7 +26,7 @@ export default function MyCoursesScreen() {
 
     return (
         <View className="flex-1 bg-white">
-            <HeaderWithBack title="Khóa học đã mua" isNotBackable={true}/>
+            <HeaderWithBack title="Khóa học đã mua" returnTab={"/(tabs)/profile/profile"}/>
             
             {/* Status Filters */}
             <ScrollView

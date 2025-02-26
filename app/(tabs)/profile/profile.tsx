@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, ScrollView, Image, Pressable } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -8,6 +8,8 @@ import { MOCK_USER } from "@/constants/mock-data";
 import { useState } from "react";
 import { useAppStore } from "@/components/app-provider";
 import * as SecureStore from "expo-secure-store";
+import { useUserProfile } from "@/queries/useUser";
+import { RoleValues } from "@/constants/type";
 
 const MENU_ITEMS = [
   {
@@ -50,9 +52,17 @@ const MENU_ITEMS = [
 ];
 
 export default function ProfileScreen() {
+  const accessToken = useAppStore((state) => state.accessToken);
+  const token = accessToken == undefined ? "" : accessToken.accessToken;
+
+  const childs = useAppStore((state) => state.childs);
   const user = useAppStore((state) => state.user);
+
+  const profile = useAppStore((state) => state.profile);
   const setRefreshExpired = useAppStore((state) => state.setRefreshExpired);
   const clearAuth = useAppStore((state) => state.clearAuth);
+  const myCourse = useAppStore((state) => state.myCourses);
+  const totalPurchased = myCourse?.data.totalItem;
 
   const [isProcessing, setIsProcessing] = useState(false); // Trạng thái nút
 
@@ -79,12 +89,15 @@ export default function ProfileScreen() {
           <View className="px-4 pt-4">
             <View className="flex-row items-center">
               <Image
-                source={{ uri: MOCK_USER.avatar }}
+                source={{ uri: profile?.data.avatarUrl }}
                 className="w-20 h-20 rounded-full"
               />
               <View className="ml-4 flex-1">
-                <Text className="text-xl font-bold">{MOCK_USER.name}</Text>
-                <Text className="text-gray-600">{MOCK_USER.email}</Text>
+                <Text className="text-xl font-bold">
+                  {profile?.data.lastName + " " + profile?.data.firstName}
+                </Text>
+
+                <Text className="text-gray-600">{profile?.data.email}</Text>
               </View>
               <Pressable
                 className="w-10 h-10 items-center justify-center rounded-full bg-gray-100"
@@ -101,18 +114,14 @@ export default function ProfileScreen() {
               <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center mb-2">
                 <MaterialIcons name="people" size={24} color="#3B82F6" />
               </View>
-              <Text className="text-2xl font-bold">
-                {MOCK_USER.subAccounts.length}
-              </Text>
+              <Text className="text-2xl font-bold">{childs?.length}</Text>
               <Text className="text-gray-600">Tài khoản con</Text>
             </View>
             <View className="flex-1 bg-green-50 rounded-xl p-4 ml-2">
               <View className="w-10 h-10 bg-green-100 rounded-full items-center justify-center mb-2">
                 <MaterialIcons name="school" size={24} color="#059669" />
               </View>
-              <Text className="text-2xl font-bold">
-                {MOCK_USER.purchasedCourses.length}
-              </Text>
+              <Text className="text-2xl font-bold">{totalPurchased}</Text>
               <Text className="text-gray-600">Khóa học đã mua</Text>
             </View>
           </View>
@@ -146,7 +155,7 @@ export default function ProfileScreen() {
               </Pressable>
 
               {/* Sub Accounts */}
-              {MOCK_USER.subAccounts.map((account) => (
+              {childs?.map((account) => (
                 <Pressable
                   key={account.id}
                   className="w-24 items-center mr-3"
@@ -158,14 +167,18 @@ export default function ProfileScreen() {
                   }
                 >
                   <Image
-                    source={{ uri: account.avatar }}
+                    source={{ uri: account.userDetail.avatarUrl }}
                     className="w-24 h-24 rounded-xl"
                   />
                   <Text className="font-medium mt-2 text-center">
-                    {account.name}
+                    {account.userDetail.lastName +
+                      " " +
+                      account.userDetail.firstName}
                   </Text>
-                  <Text className="text-gray-500 text-sm">
-                    {2024 - account.birthYear} tuổi
+                  <Text className="text-gray-600">
+                    {new Date().getFullYear() -
+                      new Date(account.userDetail.dob).getFullYear()}{" "}
+                    tuổi
                   </Text>
                 </Pressable>
               ))}
@@ -190,7 +203,9 @@ export default function ProfileScreen() {
                 <Text className="flex-1 font-medium ml-3">{item.title}</Text>
                 {item.badge && (
                   <View className="bg-blue-100 px-2 py-1 rounded-full mr-2">
-                    <Text className="text-blue-600 text-sm">{item.badge}</Text>
+                    <Text className="text-blue-600 text-sm">
+                      {childs?.length}
+                    </Text>
                   </View>
                 )}
                 <MaterialIcons name="chevron-right" size={24} color="#9CA3AF" />
@@ -203,8 +218,20 @@ export default function ProfileScreen() {
               className="flex-row items-center justify-center py-2"
               onPress={handleLogout}
             >
-              <MaterialIcons name="logout" size={24} color={isProcessing ? "#808080" : "#EF4444"} />
-              <Text className={isProcessing ? "ml-2 text-gray-500 font-medium" : "ml-2 text-red-500 font-medium"}>Đăng xuất</Text>
+              <MaterialIcons
+                name="logout"
+                size={24}
+                color={isProcessing ? "#808080" : "#EF4444"}
+              />
+              <Text
+                className={
+                  isProcessing
+                    ? "ml-2 text-gray-500 font-medium"
+                    : "ml-2 text-red-500 font-medium"
+                }
+              >
+                Đăng xuất
+              </Text>
             </Pressable>
           </View>
           <View className="h-20" />

@@ -80,14 +80,6 @@ export default function RootLayout() {
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen
-                    name="cart/success"
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="cart/cancel-fail"
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
                     name="sub-accounts/sub-accounts"
                     options={{ headerShown: false }}
                 />

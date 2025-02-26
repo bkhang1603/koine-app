@@ -71,23 +71,23 @@ export default function OrderDetailScreen() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "completed":
+      case "COMPLETED":
         return {
-          bg: "bg-green-50",
+          bg: "bg-green-100",
           text: "text-green-600",
           label: "Đã hoàn thành",
           icon: "check-circle",
         };
-      case "processing":
+      case "PROCESSING":
         return {
-          bg: "bg-blue-50",
+          bg: "bg-blue-100",
           text: "text-blue-600",
           label: "Đang xử lý",
           icon: "hourglass-empty",
         };
       default:
         return {
-          bg: "bg-gray-50",
+          bg: "bg-gray-100",
           text: "text-gray-600",
           label: "Chưa xác định",
           icon: "info",
@@ -184,21 +184,21 @@ export default function OrderDetailScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      <HeaderWithBack title="Chi tiết đơn hàng" showMoreOptions={false} />
+      <HeaderWithBack title="Chi tiết đơn hàng" returnTab={"/(root)/orders/orders"} showMoreOptions={false} />
       <ScrollView>
         {/* Order Info */}
         <View className="p-4 border-b border-gray-100">
           <View className="flex justify-between">
             <Text className="text-lg font-bold">Đơn hàng #{order.id}</Text>
             <View
-              className={`${status.bg} py-1 rounded-full flex-row items-center`}
+              className={`${status.bg} self-start py-1 px-2 rounded-xl flex-row items-center`}
             >
               <MaterialIcons
                 name={status.icon as any}
                 size={16}
                 color={status.text.replace("text-", "")}
               />
-              <Text className={`${status.text} ml-1`}>{status.label}</Text>
+              <Text className={`${status.text} ml-1 pr-1`}>{status.label}</Text>
             </View>
             <Text className="text-gray-600 mt-1">{order.orderDate}</Text>
           </View>

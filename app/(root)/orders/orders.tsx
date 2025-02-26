@@ -95,10 +95,30 @@ export default function OrdersScreen() {
   //     (order) => selectedStatus === "all" || order.status === selectedStatus
   // );
 
+  if (orders.length == 0) {
+    return (
+      <View className="flex-1 bg-white">
+        <HeaderWithBack title="Đơn hàng của tôi" returnTab={"/(tabs)/profile/profile"} showMoreOptions={false}/>
+        <View className="flex-1 items-center justify-center p-4">
+          <MaterialIcons name="receipt-long" size={64} color="#9CA3AF" />
+          <Text className="text-gray-500 text-lg mt-4 text-center">
+            Bạn chưa có lịch sử giao dịch
+          </Text>
+          <Pressable
+            className="mt-4 bg-blue-500 px-6 py-3 rounded-xl"
+            onPress={() => router.push("/(tabs)/home")}
+          >
+            <Text className="text-white font-bold">Mua ngay!</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1 bg-white">
       {/* Header */}
-      <HeaderWithBack title="Đơn hàng của tôi" isNotBackable={true} />
+      <HeaderWithBack title="Đơn hàng của tôi" returnTab={"/(tabs)/profile/profile"} showMoreOptions={false}/>
 
       <ScrollView>
         {/* Status Filters */}
