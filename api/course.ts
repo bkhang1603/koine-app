@@ -1,6 +1,7 @@
 import {
   GetAllCourseResType,
   GetCourseDetailResType,
+  GetMyCourseStoreResType,
 } from "@/schema/course-schema";
 import http from "@/util/http";
 
@@ -19,6 +20,12 @@ const courseApiRequest = {
     ),
   getCourseDetail: ({ courseId }: { courseId: string }) =>
     http.get<GetCourseDetailResType>(`courses/${courseId}`, {}),
+  getCourseInStorage: (token: string) =>
+    http.get<GetMyCourseStoreResType>("courses/my-store", {
+      headers: {
+        Authorization: `Bearer ${token}`, // Thêm token vào headers
+      },
+    }),
 };
 
 export default courseApiRequest;

@@ -34,7 +34,7 @@ export default function LearningManagementScreen() {
 
     return (
         <View className="flex-1 bg-white">
-            <HeaderWithBack title="Quản lý học tập" />
+            <HeaderWithBack title="Quản lý học tập" returnTab={"/(tabs)/profile/profile"}/>
             <ScrollView>
                 {/* Account Selection */}
                 <View className="p-4">

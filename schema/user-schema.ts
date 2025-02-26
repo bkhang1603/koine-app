@@ -1,5 +1,5 @@
-import { GenderValues, RoleValues } from '@/constants/type'
-import z from 'zod'
+import { GenderValues, RoleValues } from "@/constants/type";
+import z from "zod";
 
 export const userRes = z.object({
   data: z.array(
@@ -7,7 +7,15 @@ export const userRes = z.object({
       id: z.string(),
       email: z.string(),
       username: z.string(),
-      role: z.enum(['ADMIN', 'CONTENT_CREATOR', 'ADULT', 'ACCOUNTING', 'MANAGER', 'LECTURER', 'SUPPORTER']),
+      role: z.enum([
+        "ADMIN",
+        "CONTENT_CREATOR",
+        "ADULT",
+        "ACCOUNTING",
+        "MANAGER",
+        "LECTURER",
+        "SUPPORTER",
+      ]),
       accountType: z.string(),
       isActive: z.boolean(),
       userDetail: z.object({
@@ -16,17 +24,17 @@ export const userRes = z.object({
         phone: z.string().nullable().optional(),
         dob: z.string(),
         address: z.string().nullable().optional(),
-        gender: z.enum(['MALE', 'FEMALE', 'OTHER']),
-        avatarUrl: z.string().nullable().optional()
+        gender: z.enum(["MALE", "FEMALE", "OTHER"]),
+        avatarUrl: z.string().nullable().optional(),
       }),
       createAtFormatted: z.string(),
-      updateAtFormatted: z.string()
+      updateAtFormatted: z.string(),
     })
   ),
-  message: z.string()
-})
+  message: z.string(),
+});
 
-export type GetUserResType = z.TypeOf<typeof userRes>
+export type GetUserResType = z.TypeOf<typeof userRes>;
 
 export const myCourseRes = z.object({
   data: z.array(
@@ -38,20 +46,20 @@ export const myCourseRes = z.object({
       categories: z.array(
         z.object({
           id: z.string(),
-          name: z.string()
+          name: z.string(),
         })
       ),
       completionRate: z.number(),
       author: z.string(),
       imageUrl: z.string(),
       createdAtFormatted: z.string(),
-      updatedAtFormatted: z.string()
+      updatedAtFormatted: z.string(),
     })
   ),
-  message: z.string()
-})
+  message: z.string(),
+});
 
-export type GetMyCoursesResType = z.TypeOf<typeof myCourseRes>
+export type GetMyCoursesResType = z.TypeOf<typeof myCourseRes>;
 
 export const myCourseDetailRes = z.object({
   data: z.object({
@@ -64,7 +72,7 @@ export const myCourseDetailRes = z.object({
       z.object({
         id: z.string(),
         name: z.string(),
-        status: z.string()
+        status: z.string(),
       })
     ),
     completionRate: z.string(),
@@ -79,14 +87,14 @@ export const myCourseDetailRes = z.object({
         id: z.string(),
         title: z.string(),
         sequence: z.string(),
-        status: z.string()
+        status: z.string(),
       })
-    )
+    ),
   }),
-  message: z.string()
-})
+  message: z.string(),
+});
 
-export type GetMyCourseDetailResType = z.TypeOf<typeof myCourseDetailRes>
+export type GetMyCourseDetailResType = z.TypeOf<typeof myCourseDetailRes>;
 
 export const myChapterDetailRes = z.object({
   data: z.object({
@@ -103,15 +111,15 @@ export const myChapterDetailRes = z.object({
         id: z.string(),
         title: z.string(),
         status: z.string(),
-        sequence: z.string()
+        sequence: z.string(),
       })
-    )
+    ),
   }),
 
-  message: z.string()
-})
+  message: z.string(),
+});
 
-export type GetMyChapterDetailResType = z.TypeOf<typeof myChapterDetailRes>
+export type GetMyChapterDetailResType = z.TypeOf<typeof myChapterDetailRes>;
 
 export const myLessonDetailRes = z.object({
   data: z.object({
@@ -125,37 +133,83 @@ export const myLessonDetailRes = z.object({
     type: z.string(),
     content: z.string(),
     videoUrl: z.string(),
-    status: z.string()
+    status: z.string(),
   }),
-  message: z.string()
-})
+  message: z.string(),
+});
 
-export type GetMyLessonDetailResType = z.TypeOf<typeof myLessonDetailRes>
+export type GetMyLessonDetailResType = z.TypeOf<typeof myLessonDetailRes>;
 
 export const createProgressBody = z
   .object({
-    lessonId: z.string()
+    lessonId: z.string(),
   })
-  .strict()
+  .strict();
 
-export type CreateProgressBodyType = z.TypeOf<typeof createProgressBody>
+export type CreateProgressBodyType = z.TypeOf<typeof createProgressBody>;
 
 export const userProfileRes = z.object({
   data: z.object({
     id: z.string(),
     email: z.string().nullable(),
     username: z.string(),
-    role: z.enum(['ADMIN', 'CONTENT_CREATOR', 'ADULT', 'ACCOUNTING', 'MANAGER', 'LECTURER', 'SUPPORTER']),
+    role: z.enum([
+      "ADMIN",
+      "CONTENT_CREATOR",
+      "ADULT",
+      "ACCOUNTING",
+      "MANAGER",
+      "LECTURER",
+      "SUPPORTER",
+    ]),
     parentId: z.string().optional(),
     phone: z.string(),
     firstName: z.string(),
     lastName: z.string(),
     dob: z.string(),
     address: z.string(),
-    gender: z.enum(['MALE', 'FEMALE', 'OTHER']),
-    avatarUrl: z.string().nullable()
+    gender: z.enum(["MALE", "FEMALE", "OTHER"]),
+    avatarUrl: z.string(),
   }),
-  message: z.string()
-})
+  message: z.string(),
+});
 
-export type GetUserProfileResType = z.TypeOf<typeof userProfileRes>
+export type GetUserProfileResType = z.TypeOf<typeof userProfileRes>;
+
+export const getMyChild = z.object({
+  message: z.string(),
+  data: z.array(
+    z.object({
+      id: z.string(),
+      role: z.string(),
+      parentId: z.string(),
+      userDetail: z.object({
+        firstName: z.string(),
+        lastName: z.string(),
+        dob: z.string(),
+        avatarUrl: z.string(),
+      }),
+    })
+  ),
+});
+
+export type GetMyChildsResType = z.TypeOf<typeof getMyChild>;
+
+export const editProfileBodyType = z.object({
+  parentId: z.string().optional(),
+  phone: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  dob: z.string().optional(),
+  address: z.string(),
+  gender: z.enum(["MALE", "FEMALE", "OTHER"]).optional(),
+  avatarUrl: z.string(),
+});
+export type EditProfileBodyType = z.TypeOf<typeof editProfileBodyType>;
+
+export const editProfileResType = z.object({
+  statusCode: z.number(),
+  message: z.string(),
+});
+
+export type EditProfileResType = z.TypeOf<typeof editProfileResType>;

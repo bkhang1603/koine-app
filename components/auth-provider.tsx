@@ -11,6 +11,8 @@ import { RoleValues } from "@/constants/type";
 import { useShippingInfos } from "@/queries/useShippingInfos";
 import { useCart } from "@/queries/useCart";
 import { dataTagErrorSymbol } from "@tanstack/react-query";
+import { useMyChilds, useUserProfile } from "@/queries/useUser";
+import { useMyCourseStore } from "@/queries/useCourse";
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isCheckingRefreshToken, setIsCheckingRefreshToken] = useState(true);
@@ -132,6 +134,35 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     enabled: !isCheckingRefreshToken, // Chỉ chạy khi isCheckingToken = false
   });
 
+  const {
+    data: childData,
+    isLoading: isLoadingChild,
+    isError: isErrorChild,
+    error: childError,
+  } = useMyChilds({
+    token: token && currentUser?.role === RoleValues[0] ? token : "",
+    enabled: !isCheckingRefreshToken, // Chỉ chạy khi isCheckingToken = false
+  });
+
+  const {
+    data: myCourseData,
+    isLoading: isLoadingMyCourse,
+    isError: isErrorMyCourse,
+    error: myCourseError,
+  } = useMyCourseStore({
+    token: token && currentUser?.role === RoleValues[0] ? token : "",
+    enabled: !isCheckingRefreshToken, // Chỉ chạy khi isCheckingToken = false
+  });
+
+  const {
+    data: profile,
+    isError,
+    refetch,
+  } = useUserProfile({
+    token: token ? token : "",
+    enabled: !isCheckingRefreshToken,
+  });
+
   const getNewAccessToken = async () => {
     try {
       const state = useAppStore.getState(); // Lấy state mới nhất
@@ -150,11 +181,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           state.setAccessToken(newAccess);
           state.setAccessExpired(false);
           console.log("get new access token success");
-        } else {
-          throw new Error("Failed to refresh access token");
         }
       }
     } catch (error) {
+      setRefreshExpired(true);
+      clearAuth();
+      await SecureStore.deleteItemAsync("loginData");
+      router.push("/(auth)/login?showModal=true&expired=true");
       console.log("Error when get new access token: ", error);
     }
   };

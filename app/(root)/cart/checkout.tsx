@@ -205,7 +205,7 @@ export default function CheckoutScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      <HeaderWithBack title="Thanh toán" showMoreOptions={false} />
+      <HeaderWithBack title="Thanh toán" showMoreOptions={false} returnTab={"/(root)/cart/cart"}/>
       <ScrollView>
         {/* Order Summary */}
         <View className="p-4 border-b border-gray-100">

@@ -88,7 +88,7 @@ export default function LoginScreen() {
         const userString = JSON.stringify(res.data)
         await SecureStore.setItemAsync('loginData', userString) // Lưu trữ vào SecureStore
 
-        if (account.role == RoleValues[0]) {
+        if (account.role == RoleValues[0]) { 
           router.push("/(tabs)/home");
           setTimeout(() => setIsProcessing(false), 1000);
         } else if (account.role == RoleValues[3]) {

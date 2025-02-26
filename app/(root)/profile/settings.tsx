@@ -131,7 +131,7 @@ export default function SettingsScreen() {
                     type: "button",
                     color: "text-red-500",
                     onPress: () => {
-                        router.replace("/auth/login");
+                        router.replace("/(auth)/login");
                     },
                 },
             ],
@@ -140,7 +140,7 @@ export default function SettingsScreen() {
 
     return (
         <View className="flex-1 bg-white">
-            <HeaderWithBack title="Cài đặt" />
+            <HeaderWithBack title="Cài đặt" returnTab={"/(tabs)/profile/profile"}/>
 
             <ScrollView className="flex-1">
                 {settingSections.map((section) => (
