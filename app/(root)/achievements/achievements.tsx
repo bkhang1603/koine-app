@@ -45,7 +45,7 @@ const ACHIEVEMENTS = [
 export default function AchievementsScreen() {
     return (
         <View className="flex-1 bg-white">
-            <HeaderWithBack title="Thành tích" isNotBackable={true}/>
+            <HeaderWithBack title="Thành tích" returnTab={"/(tabs)/profile/profile"}/>
 
             <ScrollView>
                 <View className="p-4">

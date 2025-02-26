@@ -15,7 +15,7 @@ export const useCreateOrder = () => {
     onSuccess: () => {
       // Invalidate queries liên quan đến giỏ hàng sau khi delete
       queryClient.invalidateQueries({
-        queryKey: ["order"],
+        queryKey: ["order", "my-courses-store"],
         exact: true, // Tùy chọn, nếu bạn muốn invalidate chỉ những query khớp chính xác
       });
     },
@@ -35,7 +35,7 @@ export const useCreateOrderAtList = () => {
     onSuccess: () => {
       // Invalidate queries liên quan đến giỏ hàng sau khi delete
       queryClient.invalidateQueries({
-        queryKey: ["order"],
+        queryKey: ["order", "my-courses-store"],
         exact: true, // Tùy chọn, nếu bạn muốn invalidate chỉ những query khớp chính xác
       });
     },

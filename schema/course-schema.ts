@@ -1,4 +1,4 @@
-import z from 'zod'
+import z from "zod";
 
 export const courseRes = z.object({
   statusCode: z.number(),
@@ -31,14 +31,14 @@ export const courseRes = z.object({
       creatorId: z.string(),
       creator: z.object({
         id: z.string(),
-        username: z.string()
+        username: z.string(),
       }),
       categories: z.array(
         z.object({
           id: z.string(),
-          name: z.string()
+          name: z.string(),
         })
-      )
+      ),
     })
   ),
   pagination: z.object({
@@ -46,11 +46,11 @@ export const courseRes = z.object({
     totalItem: z.number(),
     currentPage: z.number(),
     maxPageSize: z.number(),
-    totalPage: z.number()
-  })
-})
+    totalPage: z.number(),
+  }),
+});
 
-export type GetAllCourseResType = z.infer<typeof courseRes>
+export type GetAllCourseResType = z.infer<typeof courseRes>;
 
 export const courseDetailRes = z.object({
   statusCode: z.number(),
@@ -81,34 +81,71 @@ export const courseDetailRes = z.object({
     categories: z.array(
       z.object({
         id: z.string(),
-        name: z.string()
+        name: z.string(),
       })
     ),
-    chapters: z.array(
+    chapters: z
+      .array(
+        z.object({
+          id: z.string(),
+          title: z.string(),
+          description: z.string(),
+          durations: z.number(),
+          durationsDisplay: z.string(),
+          sequence: z.number(),
+          lessons: z.array(
+            z.object({
+              id: z.string(),
+              type: z.enum(["DOCUMENT", "VIDEO", "BOTH"]),
+              title: z.string(),
+              description: z.string(),
+              durations: z.number(),
+              content: z.string().nullable(),
+              videoUrl: z.string().nullable(),
+              sequence: z.number(),
+              durationsDisplay: z.string(),
+            })
+          ),
+        })
+      )
+      .optional(),
+  }),
+});
+
+export type GetCourseDetailResType = z.infer<typeof courseDetailRes>;
+
+export const myCourseStore = z.object({
+  message: z.string(),
+  data: z.object({
+    totalItem: z.number(),
+    details: z.array(
       z.object({
-        id: z.string(),
-        title: z.string(),
-        description: z.string(),
-        durations: z.number(),
-        durationsDisplay: z.string(),
-        sequence: z.number(),
-        lessons: z.array(
+        course: z.object({
+          id: z.string(),
+          title: z.string(),
+          level: z.string(),
+          durationDisplay: z.string(),
+          categories: z.array(
+            z.object({
+              id: z.string(),
+              name: z.string(),
+            })
+          ),
+          createAtFormatted: z.string(),
+          imageUrl: z.string(),
+        }),
+        quantityAtPurchase: z.number(),
+        unusedQuantity: z.number(),
+        assignedTo: z.array(
           z.object({
             id: z.string(),
-            type: z.enum(['DOCUMENT', 'VIDEO', 'BOTH']),
-            title: z.string(),
-            description: z.string(),
-            durations: z.number(),
-            content: z.string().nullable(),
-            videoUrl: z.string().nullable(),
-            sequence: z.number(),
-            durationsDisplay: z.string()
+            name: z.string(),
+            imageUrl: z.string(),
           })
-        )
+        ),
       })
-    ).optional()
-  })
-})
+    ),
+  }),
+});
 
-export type GetCourseDetailResType = z.infer<typeof courseDetailRes>
-
+export type GetMyCourseStoreResType = z.infer<typeof myCourseStore>;

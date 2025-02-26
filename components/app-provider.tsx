@@ -7,6 +7,10 @@ import React, { useEffect } from 'react'
 import { RoleValues } from '@/constants/type'
 import { ShippingAddressType } from '@/model/shipping-address'
 import { CartType } from '@/model/cart'
+import { Childs } from '@/model/child'
+import { ZodNotMultipleOfIssue } from 'zod'
+import { MyCourseType } from '@/model/course'
+import { GetUserProfileResType } from '@/schema/user-schema'
 
 const queryClient = new QueryClient()
 
@@ -36,6 +40,15 @@ type AppStoreType = {
   // Cart
   cart: CartType | null
   setCart: (cart: CartType) => void
+
+  childs: Childs | null
+  setChilds: (childs: Childs) => void
+
+  myCourses : MyCourseType | null,
+  setMyCourse: (myCourses: MyCourseType) => void
+
+  profile: GetUserProfileResType | null,
+  setProfile: (profile: GetUserProfileResType) => void
 }
 
 export const useAppStore = create<AppStoreType>((set) => ({
@@ -46,7 +59,7 @@ export const useAppStore = create<AppStoreType>((set) => ({
   setAccessToken: (accessToken) => set({ accessToken }),
   refreshToken: null,
   setRefreshToken: (refreshToken) => set({ refreshToken }),
-  clearAuth: () => set({ user: null, accessToken: null, refreshToken: null, shippingInfos: null, cart: null }),
+  clearAuth: () => set({ user: null, accessToken: null, refreshToken: null, shippingInfos: null, cart: null, childs: null, myCourses: null }),
   isRefreshExpired: false,
   setRefreshExpired: (isRefreshExpired) => set({ isRefreshExpired }),
   isAccessExpired: false,
@@ -58,6 +71,14 @@ export const useAppStore = create<AppStoreType>((set) => ({
   cart: null,
   setCart: (cart) => set({ cart }),
 
+  childs: null,
+  setChilds: (childs) => set({ childs }),
+
+  myCourses : null,
+  setMyCourse: (myCourses) => set({myCourses}),
+
+  profile: null,
+  setProfile: (profile) => set({profile})
   // Courses
   // courses: [],
   // setCourses: (courses) => set({ courses }),
