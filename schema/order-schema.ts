@@ -112,3 +112,17 @@ export const orderDetailsRes = z.object({
 })
 
 export type GetOrderDetailsResType = z.infer<typeof orderDetailsRes>
+
+export const deleteOrderBody = z.object({
+  deletedNote: z.string()
+})
+
+export type DeleteOrderBodyType = z.infer<typeof deleteOrderBody>
+
+export const deleteOrderRes = z.object({
+    statusCode: z.number(),
+    info: z.string().optional(),
+    message: z.string(),
+  });
+  
+export type DeleteOrderResType = z.infer<typeof deleteOrderRes>;

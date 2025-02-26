@@ -10,20 +10,13 @@ const courseApiRequest = {
     keyword,
     page_size,
     page_index,
-    token, //để authen
   }: {
     keyword: string;
     page_size: number;
     page_index: number;
-    token: string;
   }) =>
     http.get<GetAllCourseResType>(
-      `courses?keyword=${keyword}&page_size=${page_size}&page_index=${page_index}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // Thêm token vào headers
-        },
-      }
+      `courses?keyword=${keyword}&page_size=${page_size}&page_index=${page_index}`
     ),
   getCourseDetail: ({ courseId }: { courseId: string }) =>
     http.get<GetCourseDetailResType>(`courses/${courseId}`, {}),
