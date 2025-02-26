@@ -1,4 +1,4 @@
-import { GetAllBlogCommentsResType, GetAllBlogResType, GetBlogDetailResType } from '@/schema/blog-schema'
+import { CreateBlogCommentBodyType, CreateBlogCommentResType, CreateBlogReactBodyType, CreateBlogReactResType, GetAllBlogCommentsResType, GetAllBlogResType, GetBlogDetailResType } from '@/schema/blog-schema'
 import http from '@/util/http'
 
 const blogApiRequest = {
@@ -32,6 +32,18 @@ const blogApiRequest = {
     http.get<GetAllBlogCommentsResType>(
       `blog-comments/${blogId}?page_size=${page_size}&page_index=${page_index}`
     ),
+  createBlogComment: (body: CreateBlogCommentBodyType, token: string) =>
+    http.post<CreateBlogCommentResType>("blog-comments", body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+  createBlogReact: (body: CreateBlogReactBodyType, token: string) =>
+    http.post<CreateBlogReactResType>("blog-reacts", body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
 }
 
 export default blogApiRequest

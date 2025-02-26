@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,30 +7,39 @@ import {
   TouchableOpacity,
   Modal,
   TextInput,
-} from 'react-native'
-import { useLocalSearchParams } from 'expo-router'
-import { MaterialIcons } from '@expo/vector-icons'
-import HeaderWithBack from '@/components/HeaderWithBack'
-import { WebView } from 'react-native-webview'
-import { useBlogComments, useBlogDetail } from '@/queries/useBlog'
+} from "react-native";
+import { useLocalSearchParams } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
+import HeaderWithBack from "@/components/HeaderWithBack";
+import { WebView } from "react-native-webview";
+import {
+  useBlogComments,
+  useBlogDetail,
+  useCreateBlogComment,
+  useCreateBlogReact,
+} from "@/queries/useBlog";
 import {
   blogCommentRes,
   blogDetailRes,
   GetAllBlogCommentsResType,
   GetBlogDetailResType,
-} from '@/schema/blog-schema'
-import ActivityIndicatorScreen from '@/components/ActivityIndicatorScreen'
-import ErrorScreen from '@/components/ErrorScreen'
-import { useAppStore } from '@/components/app-provider'
+} from "@/schema/blog-schema";
+import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
+import ErrorScreen from "@/components/ErrorScreen";
+import { useAppStore } from "@/components/app-provider";
+import { formatTimeAgo } from "@/util/date";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function BlogDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>()
-  const [webViewHeight, setWebViewHeight] = useState(0)
-  const [showComments, setShowComments] = useState(false)
-  const [commentText, setCommentText] = useState('')
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const [webViewHeight, setWebViewHeight] = useState(0);
+  const [showComments, setShowComments] = useState(false);
+  const [commentText, setCommentText] = useState("");
+  const [lastCommentTime, setLastCommentTime] = useState<Date | null>(null);
+  const [showValidationMessage, setShowValidationMessage] = useState(false);
 
-  const accessToken = useAppStore((state) => state.accessToken)
-  const token = accessToken == undefined ? '' : accessToken.accessToken
+  const accessToken = useAppStore((state) => state.accessToken);
+  const token = accessToken == undefined ? "" : accessToken.accessToken;
 
   const {
     data: blogData,
@@ -39,7 +48,7 @@ export default function BlogDetailScreen() {
   } = useBlogDetail({
     blogId: id as string,
     token: token as string,
-  })
+  });
 
   const {
     data: commentsData,
@@ -49,48 +58,111 @@ export default function BlogDetailScreen() {
     blogId: id as string,
     page_size: 10,
     page_index: 1,
-  })
+  });
 
-  let blog: GetBlogDetailResType['data'] | null = null
+  const { mutate: createComment, isPending: isCreatingComment } =
+    useCreateBlogComment({
+      token: token as string,
+      blogId: id as string,
+    });
+
+  const queryClient = useQueryClient();
+
+  const { mutate: createReact, isPending: isCreatingReact } =
+    useCreateBlogReact({
+      token: token as string,
+      blogId: id as string,
+    });
+
+  let blog: GetBlogDetailResType["data"] | null = null;
 
   if (blogData && !blogError) {
     if (blogData.data === null) {
     } else {
-      const parsedResult = blogDetailRes.safeParse(blogData)
+      const parsedResult = blogDetailRes.safeParse(blogData);
       if (parsedResult.success) {
-        blog = parsedResult.data.data
+        blog = parsedResult.data.data;
       } else {
-        console.error('Validation errors:', parsedResult.error.errors)
+        console.error("Validation errors:", parsedResult.error.errors);
       }
     }
   }
 
-  let blogComments: GetAllBlogCommentsResType['data'] | null = null
+  let blogComments: GetAllBlogCommentsResType["data"] | null = null;
 
   if (commentsData && !commentsError) {
     if (commentsData.data === null) {
     } else {
-      const parsedResult = blogCommentRes.safeParse(commentsData)
+      const parsedResult = blogCommentRes.safeParse(commentsData);
       if (parsedResult.success) {
-        blogComments = parsedResult.data.data
+        blogComments = parsedResult.data.data;
       } else {
-        console.error('Validation errors:', parsedResult.error.errors)
+        console.error("Validation errors:", parsedResult.error.errors);
       }
     }
   }
 
-  if (blogLoading && commentsLoading) return <ActivityIndicatorScreen />
-  if (blogError) return <ErrorScreen message="Failed to load blogs" />
+  if (blogLoading && commentsLoading) return <ActivityIndicatorScreen />;
+  if (blogError) return <ErrorScreen message="Failed to load blogs" />;
 
   if (blog == null)
-    return <ErrorScreen message="Failed to load blogs. Course is null." />
+    return <ErrorScreen message="Failed to load blogs. Course is null." />;
 
-  if (commentsError) return <ErrorScreen message="Failed to load comment" />
+  if (commentsError) return <ErrorScreen message="Failed to load comment" />;
 
   if (blogComments == null)
-    return <ErrorScreen message="Failed to load comment. comment is null." />
+    return <ErrorScreen message="Failed to load comment. comment is null." />;
 
-  console.log('Fetched Data:', JSON.stringify(blogComments, null, 2))
+  const canComment = () => {
+    if (!commentText.trim() || commentText.trim().length < 2) {
+      return false;
+    }
+
+    if (lastCommentTime) {
+      const timeSinceLastComment =
+        new Date().getTime() - lastCommentTime.getTime();
+      const cooldownPeriod = 10 * 1000;
+      if (timeSinceLastComment < cooldownPeriod) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const getRemainingCooldownTime = () => {
+    if (!lastCommentTime) return 0;
+    const timeSinceLastComment =
+      new Date().getTime() - lastCommentTime.getTime();
+    const cooldownPeriod = 10 * 1000; // 10 seconds
+    return Math.max(
+      0,
+      Math.ceil((cooldownPeriod - timeSinceLastComment) / 1000)
+    );
+  };
+
+  const handleCommentSubmit = () => {
+    setShowValidationMessage(true);
+
+    if (canComment()) {
+      createComment(
+        {
+          identifier: id as string,
+          content: commentText.trim(),
+        },
+        {
+          onSuccess: () => {
+            setCommentText("");
+            setLastCommentTime(new Date());
+            setShowValidationMessage(false);
+          },
+          onError: (error) => {
+            console.error("Failed to post comment:", error);
+          },
+        }
+      );
+    }
+  };
 
   return (
     <View className="flex-1 bg-gray-50">
@@ -187,7 +259,7 @@ export default function BlogDetailScreen() {
                           </script>
                       </head>
                       <body>
-                          ${blog.content || ''}
+                          ${blog.content || ""}
                       </body>
                   </html>
                 `,
@@ -197,7 +269,7 @@ export default function BlogDetailScreen() {
               showsVerticalScrollIndicator={false}
               scalesPageToFit={false}
               onMessage={(event) => {
-                setWebViewHeight(parseInt(event.nativeEvent.data))
+                setWebViewHeight(parseInt(event.nativeEvent.data));
               }}
             />
           </View>
@@ -208,17 +280,58 @@ export default function BlogDetailScreen() {
       <View className="h-[70px] bg-white border-t border-gray-100 px-6 flex-row items-center justify-center space-x-12">
         <TouchableOpacity
           className="flex-row items-center justify-center"
+          disabled={isCreatingReact}
           onPress={() => {
-            /* Handle like */
+            queryClient.setQueryData(["blog-detail", id], (oldData: any) => {
+              if (!oldData) return oldData;
+              return {
+                ...oldData,
+                data: {
+                  ...oldData.data,
+                  isReact: !oldData.data.isReact,
+                  totalReact: oldData.data.isReact
+                    ? oldData.data.totalReact - 1
+                    : oldData.data.totalReact + 1,
+                },
+              };
+            });
+
+            createReact(
+              {
+                identifier: id as string,
+                isReact: !blog.isReact,
+              },
+              {
+                onError: (error) => {
+                  console.error("Failed to update reaction:", error);
+                  queryClient.setQueryData(
+                    ["blog-detail", id],
+                    (oldData: any) => {
+                      if (!oldData) return oldData;
+                      return {
+                        ...oldData,
+                        data: {
+                          ...oldData.data,
+                          isReact: !oldData.data.isReact,
+                          totalReact: !oldData.data.isReact
+                            ? oldData.data.totalReact - 1
+                            : oldData.data.totalReact + 1,
+                        },
+                      };
+                    }
+                  );
+                },
+              }
+            );
           }}
         >
           <MaterialIcons
-            name={blog.isReact ? 'favorite' : 'favorite-border'}
+            name={blog.isReact ? "favorite" : "favorite-border"}
             size={28}
-            color={blog.isReact ? '#E0245E' : '#657786'}
+            color={blog.isReact ? "#E0245E" : "#657786"}
           />
           <Text className="ml-2 text-base font-medium text-gray-700">
-            {blog.totalReact}
+            {blog.totalReact} Tương tác
           </Text>
         </TouchableOpacity>
 
@@ -228,7 +341,7 @@ export default function BlogDetailScreen() {
         >
           <MaterialIcons name="chat-bubble-outline" size={28} color="#657786" />
           <Text className="ml-2 text-base font-medium text-gray-700">
-            {blog.totalComment}
+            {blog.totalComment} Bình luận
           </Text>
         </TouchableOpacity>
       </View>
@@ -263,7 +376,7 @@ export default function BlogDetailScreen() {
                       {comment.content}
                     </Text>
                     <Text className="text-gray-400 text-sm mt-2">
-                      {comment.createdAtFormatted}
+                      {formatTimeAgo(comment.createdAt)}
                     </Text>
                   </View>
                 </View>
@@ -271,25 +384,47 @@ export default function BlogDetailScreen() {
             ))}
           </ScrollView>
 
-          <View className="min-h-[50px] border-t border-gray-200 px-4 py-2">
+          <View className="min-h-[80px] border-t border-gray-200 px-4 py-2">
+            {/* Validation Messages Container - Moved above the input */}
+            {showValidationMessage && (
+              <View className="mb-2 px-2">
+                {commentText.trim().length < 2 && (
+                  <Text className="text-xs text-red-500">
+                    Bình luận phải có ít nhất 2 ký tự
+                  </Text>
+                )}
+                {lastCommentTime && getRemainingCooldownTime() > 0 && (
+                  <Text className="text-xs text-red-500">
+                    Làm ơn chờ {getRemainingCooldownTime()} giây trước khi tiếp
+                    tục bình luận
+                  </Text>
+                )}
+              </View>
+            )}
+
+            {/* Comment Input Container */}
             <View className="flex-row items-center bg-gray-50 rounded-full px-4">
               <TextInput
                 className="flex-1 py-2"
                 placeholder="Write a comment..."
                 value={commentText}
-                onChangeText={setCommentText}
+                onChangeText={(text) => {
+                  setCommentText(text);
+                  if (showValidationMessage && text.trim().length >= 2) {
+                    setShowValidationMessage(false);
+                  }
+                }}
                 multiline
+                maxLength={500}
               />
               <TouchableOpacity
-                disabled={!commentText.trim()}
-                onPress={() => {
-                  /* Handle comment submit */
-                }}
+                disabled={isCreatingComment}
+                onPress={handleCommentSubmit}
               >
                 <MaterialIcons
                   name="send"
                   size={20}
-                  color={commentText.trim() ? '#1DA1F2' : '#657786'}
+                  color={!isCreatingComment ? "#1DA1F2" : "#657786"}
                 />
               </TouchableOpacity>
             </View>
@@ -297,5 +432,5 @@ export default function BlogDetailScreen() {
         </View>
       </Modal>
     </View>
-  )
+  );
 }

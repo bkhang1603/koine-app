@@ -1,4 +1,4 @@
-import z from 'zod';
+import z from "zod";
 
 export const blogRes = z.object({
   statusCode: z.number(),
@@ -113,6 +113,47 @@ export const blogCommentRes = z.object({
       totalPage: z.number(),
     })
     .optional(),
-})
+});
 
-export type GetAllBlogCommentsResType = z.infer<typeof blogCommentRes>
+export type GetAllBlogCommentsResType = z.infer<typeof blogCommentRes>;
+
+export const createBlogCommentBody = z.object({
+  identifier: z.string(),
+  content: z.string(),
+});
+
+export type CreateBlogCommentBodyType = z.infer<typeof createBlogCommentBody>;
+
+export const createBlogCommentRes = z.object({
+  statusCode: z.number(),
+  info: z.string(),
+  message: z.string(),
+  data: z.object({
+    userId: z.string(),
+    blogId: z.string(),
+    replyId: z.string().nullable(),
+    content: z.string(),
+    isDeleted: z.boolean(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    id: z.string(),
+  }),
+});
+
+export type CreateBlogCommentResType = z.infer<typeof createBlogCommentRes>;
+
+export const createBlogReactBody = z.object({
+  identifier: z.string(),
+  isReact: z.boolean(),
+});
+
+export type CreateBlogReactBodyType = z.infer<typeof createBlogReactBody>;
+
+export const createBlogReactRes = z.object({
+  statusCode: z.number(),
+  info: z.string(),
+  message: z.string()
+});
+
+export type CreateBlogReactResType = z.infer<typeof createBlogReactRes>;
+
