@@ -124,6 +124,7 @@ export const myCourseStore = z.object({
           id: z.string(),
           title: z.string(),
           level: z.string(),
+          price: z.number(),
           durationDisplay: z.string(),
           categories: z.array(
             z.object({
@@ -149,3 +150,20 @@ export const myCourseStore = z.object({
 });
 
 export type GetMyCourseStoreResType = z.infer<typeof myCourseStore>;
+
+//assigncourse cho con là api/courses/active-course
+
+
+export const assignCourse = z.object({
+  childId: z.string(),
+  courseId: z.string()
+})
+
+export type AssignCourseStoreBodyType = z.infer<typeof assignCourse>;
+
+export const assignCourseResType = z.object({
+  statusCode: z.number(),
+  message: z.string()
+})
+
+export type AssignCourseStoreResType = z.infer<typeof assignCourseResType>;

@@ -11,6 +11,7 @@ export const myCourseType = z.object({
           title: z.string(),
           level: z.string(),
           durationDisplay: z.string(),
+          price: z.number(),
           categories: z.array(
             z.object({
               id: z.string(),
@@ -35,3 +36,25 @@ export const myCourseType = z.object({
 });
 
 export type MyCourseType = z.infer<typeof myCourseType>;
+
+export const myChildCourseType = z.array(
+  z.object({
+    course: z.object({
+      id: z.string(),
+      title: z.string(),
+      level: z.string(),
+      durationDisplay: z.string(),
+      price: z.number(),
+      categories: z.array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+        })
+      ),
+      createAtFormatted: z.string(),
+      imageUrl: z.string(),
+    }),
+  })
+);
+
+export type MyChildCourseType = z.infer<typeof myChildCourseType>;

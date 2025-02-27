@@ -188,6 +188,7 @@ export const getMyChild = z.object({
         lastName: z.string(),
         dob: z.string(),
         avatarUrl: z.string(),
+        gender: z.string()
       }),
     })
   ),

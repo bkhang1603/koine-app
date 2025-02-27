@@ -1,4 +1,6 @@
 import {
+  AssignCourseStoreBodyType,
+  AssignCourseStoreResType,
   GetAllCourseResType,
   GetCourseDetailResType,
   GetMyCourseStoreResType,
@@ -22,6 +24,18 @@ const courseApiRequest = {
     http.get<GetCourseDetailResType>(`courses/${courseId}`, {}),
   getCourseInStorage: (token: string) =>
     http.get<GetMyCourseStoreResType>("courses/my-store", {
+      headers: {
+        Authorization: `Bearer ${token}`, // Thêm token vào headers
+      },
+    }),
+  assignCourse: ({
+    body,
+    token,
+  }: {
+    body: AssignCourseStoreBodyType;
+    token: string;
+  }) =>
+    http.post<AssignCourseStoreResType>("courses/active-course-enroll", body, {
       headers: {
         Authorization: `Bearer ${token}`, // Thêm token vào headers
       },
