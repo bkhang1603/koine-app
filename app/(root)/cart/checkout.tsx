@@ -69,7 +69,7 @@ export default function CheckoutScreen() {
   // Kiểm tra xem có ít nhất một phần tử có productId khác null không
   useEffect(() => {
     const hasProduct = cartDetails.some((item) => item.productId !== null);
-  
+
     setIsProduct(hasProduct);
     if (!hasProduct) {
       setDeliveryPace("NONESHIP");
@@ -192,7 +192,7 @@ export default function CheckoutScreen() {
 
       const res = await payment.mutateAsync({ body: parsedBody, token });
       if (res) {
-        console.log("thanhf coong")
+        console.log("thanhf coong");
         //đây trả về 1 url để qua payment nó mở webview
         const encodedUrl = encodeURIComponent(res.data);
         router.push(`/(root)/cart/payment-screen?paymentUrl=${encodedUrl}`);
@@ -205,7 +205,11 @@ export default function CheckoutScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      <HeaderWithBack title="Thanh toán" showMoreOptions={false} returnTab={"/(root)/cart/cart"}/>
+      <HeaderWithBack
+        title="Thanh toán"
+        showMoreOptions={false}
+        returnTab={"/(root)/cart/cart"}
+      />
       <ScrollView>
         {/* Order Summary */}
         <View className="p-4 border-b border-gray-100">
@@ -359,61 +363,55 @@ export default function CheckoutScreen() {
           <></>
         )}
 
-        {/* 
-        <View className="p-4">
-              <Text className="font-bold text-lg mb-3">Tốc độ giao hàng</Text>
-              <RadioButton.Group
-                onValueChange={(value) => setDeliveryPace(value)}
-                value={deliveryPace}
-              >
-                <View>
-                  <View className="flex-row items-center mb-2">
-                    <RadioButton
-                      value="STANDARD"
-                      status={
-                        deliveryPace === "STANDARD" ? "checked" : "unchecked"
-                      }
-                      onPress={() => setDeliveryPace("STANDARD")}
-                    />
-                    <Text>Tiêu chuẩn phí 25.000 ₫</Text>
-                  </View>
-                  <View className="flex-row items-center mb-2">
-                    <RadioButton
-                      value="EXPEDITED"
-                      status={
-                        deliveryPace === "EXPEDITED" ? "checked" : "unchecked"
-                      }
-                      onPress={() => setDeliveryPace("EXPEDITED")}
-                    />
-                    <Text>
-                      Hỏa tốc phí{" "}
-                      {chosenShippingAddress?.deliAmount?.toLocaleString(
-                        "vi-VN"
-                      )}{" "}
-                      ₫
-                    </Text>
-                  </View>
+        {isProduct ? (
+          <View className="p-4">
+            <Text className="font-bold text-lg mb-3">Tốc độ giao hàng</Text>
+            <RadioButton.Group
+              onValueChange={(value) => setDeliveryPace(value)}
+              value={deliveryPace}
+            >
+              <View>
+                <View className="flex-row items-center mb-2">
+                  <RadioButton
+                    value="STANDARD"
+                    status={
+                      deliveryPace === "STANDARD" ? "checked" : "unchecked"
+                    }
+                    onPress={() => setDeliveryPace("STANDARD")}
+                  />
+                  <Text>Tiêu chuẩn phí 25.000 ₫</Text>
                 </View>
-              </RadioButton.Group>
-            </View>
-          </View> */}
+                <View className="flex-row items-center mb-2">
+                  <RadioButton
+                    value="EXPEDITED"
+                    status={
+                      deliveryPace === "EXPEDITED" ? "checked" : "unchecked"
+                    }
+                    onPress={() => setDeliveryPace("EXPEDITED")}
+                  />
+                  <Text>
+                    Hỏa tốc phí{" "}
+                    {chosenShippingAddress?.deliAmount?.toLocaleString("vi-VN")}{" "}
+                    ₫
+                  </Text>
+                </View>
+              </View>
+            </RadioButton.Group>
+          </View>
+        ) : (
+          <></>
+        )}
 
         {/* Payment Method */}
         {/* tắt bật để COD hoặc QR */}
         <View className="p-4">
           <Text className="font-bold text-lg mb-3">Phương thức thanh toán</Text>
-          <Pressable
-            className="border border-gray-400 rounded-xl p-4 flex-row items-center"
-            onPress={() => {}}
-            // () => setShowQR(true) //cái cũ nó như này
-          >
+          <Pressable className="border border-gray-400 rounded-xl p-4 flex-row items-center">
             <MaterialIcons name="qr-code" size={24} color="#374151" />
             <View className="ml-3 flex-1">
               <Text className="font-medium">Chuyển khoản qua QR</Text>
               <Text className="text-gray-500">Quét mã QR để thanh toán</Text>
             </View>
-            {/* <MaterialIcons name="chevron-right" size={24} color="#9CA3AF" /> */}
-            {/* vì không có options khác nên là bỏ đi để ngta không nghĩ là nút */}
           </Pressable>
         </View>
       </ScrollView>

@@ -72,7 +72,6 @@ export default function HomeScreen() {
 
   // Refetch data when focused
   useFocusEffect(() => {
-    console.log("effect ",token);
     refetchCart();
   });
 
