@@ -92,8 +92,21 @@ const userApiRequest = {
       },
     }),
 
-  editProfile: ({ body, token }: { body: EditProfileBodyType; token: string }) =>
+  editProfile: ({
+    body,
+    token,
+  }: {
+    body: EditProfileBodyType;
+    token: string;
+  }) =>
     http.put<EditProfileResType>("users/profile", body, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Thêm token vào headers
+      },
+    }),
+
+  getMyChildCourse: ({ childId, token }: { childId: string; token: string }) =>
+    http.get<GetMyCoursesResType>(`users/my-child-course/${childId}`, {
       headers: {
         Authorization: `Bearer ${token}`, // Thêm token vào headers
       },

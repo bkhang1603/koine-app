@@ -4,6 +4,7 @@ import {
   CreateProgressBodyType,
   EditProfileBodyType,
   GetMyChildsResType,
+  GetMyCoursesResType,
   GetUserProfileResType,
 } from "@/schema/user-schema";
 import { useAppStore } from "@/components/app-provider";
@@ -181,5 +182,18 @@ export const useEditProfileMutation = () => {
         exact: true,
       });
     },
+  });
+};
+
+export const useMyChildCourses = ({
+  childId,
+  token,
+}: {
+  childId: string;
+  token: string;
+}) => {
+  return useQuery<GetMyCoursesResType>({
+    queryKey: ["my-childs-courses"],
+    queryFn: () => userApiRequest.getMyChildCourse({childId, token}),
   });
 };

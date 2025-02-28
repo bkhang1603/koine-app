@@ -1,25 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, ScrollView, Image, Pressable } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import HeaderWithBack from "@/components/HeaderWithBack";
-import { MOCK_USER, MOCK_COURSES } from "@/constants/mock-data";
 import { useAppStore } from "@/components/app-provider";
+import { useMyChildCourses } from "@/queries/useUser";
 
 export default function SubAccountDetailScreen() {
   const { id } = useLocalSearchParams();
   const childs = useAppStore((state) => state.childs);
   const account = childs?.find((child) => child.id == id);
-  const myCourses = useAppStore((state) => state.myCourses);
-  const childCourse = myCourses?.data.details
-    ?.filter((detail) =>
-      detail.assignedTo.some((assign) => assign.id === account?.id)
-    )
-    .map((detail) => detail.course);
+  const accessToken = useAppStore((state) => state.accessToken);
+  const token = accessToken == undefined ? "" : accessToken.accessToken;
 
   if (!account) return null;
+  const {
+    data: childCourse,
+    isError,
+    refetch,
+  } = useMyChildCourses({ childId: account.id, token: token });
 
-  if (!childCourse || childCourse.length == 0) {
+  useFocusEffect(() => {
+    refetch();
+  });
+
+  if (!childCourse || childCourse.data.length == 0) {
     return (
       <View className="flex-1 bg-white">
         <HeaderWithBack
@@ -48,7 +53,7 @@ export default function SubAccountDetailScreen() {
     <View className="flex-1 bg-white">
       <HeaderWithBack
         title="Chi tiết tài khoản"
-        returnTab={"/(root)/purchased-courses/purchases-courses"}
+        returnTab={"/(root)/purchased-courses/purchased-courses"}
       />
       <ScrollView>
         {/* Profile Header */}
@@ -67,8 +72,14 @@ export default function SubAccountDetailScreen() {
               tuổi
             </Text>
             <Text className="text-gray-400 mx-2">•</Text>
-            <Text className={`${true ? "text-blue-600" : "text-pink-600"}`}>
-              {true ? "Nam" : "Nữ"}
+            <Text
+              className={`${
+                account?.userDetail.gender == "MALE"
+                  ? "text-blue-600"
+                  : "text-pink-600"
+              }`}
+            >
+              {account?.userDetail.gender == "MALE" ? "Nam" : "Nữ"}
             </Text>
           </View>
         </View>
@@ -84,7 +95,7 @@ export default function SubAccountDetailScreen() {
                     <MaterialIcons name="school" size={24} color="#3B82F6" />
                   </View>
                   <Text className="text-2xl font-bold ml-4">
-                    {childCourse?.length}
+                    {childCourse.data.length}
                   </Text>
                 </View>
                 <Text className="text-gray-600">Khóa học đang học</Text>
@@ -101,13 +112,13 @@ export default function SubAccountDetailScreen() {
                     />
                   </View>
                   <Text className="text-2xl font-bold ml-2">
-                    {/* {Math.round(
-                    activeCourses.reduce(
-                      (sum, course) => sum + (course.progress || 0),
-                      0
-                    ) / (activeCourses.length || 1)
-                  )} */}{" "}
-                    11 %
+                    {Math.round(
+                      childCourse.data.reduce(
+                        (sum, course) => sum + (course.completionRate || 0),
+                        0
+                      ) / (childCourse.data.length || 1)
+                    )}{" "}
+                    %
                   </Text>
                 </View>
 
@@ -134,7 +145,7 @@ export default function SubAccountDetailScreen() {
             </Pressable>
           </View>
 
-          {childCourse.map((course) => (
+          {childCourse.data.map((course) => (
             <Pressable
               key={course.id}
               className="bg-white rounded-xl border border-gray-100 p-4 mb-4"
@@ -171,7 +182,40 @@ export default function SubAccountDetailScreen() {
                     </Text>
                     <Text className="text-gray-400 mx-2">•</Text>
                     <MaterialIcons name="bar-chart" size={16} color="#6B7280" />
-                    <Text className="text-gray-600 ml-1">{course.level}</Text>
+                    {/* <Text className="text-gray-600 ml-1">{course.level}</Text> bug day ne*/}
+                    <View className="flex-row items-center">
+                      <MaterialCommunityIcons
+                        name="tag-outline"
+                        size={16}
+                        color="#6B7280"
+                      />
+                      {!course.categories.length ? (
+                        <View className="bg-orange-200 px-1 rounded-2xl ml-2">
+                          <Text className="text-gray-500 px-1 py-1 rounded-md">
+                            --
+                          </Text>
+                        </View>
+                      ) : (
+                        <View className="flex-row flex-wrap">
+                          {course.categories.slice(0, 3).map((category) => (
+                            <View
+                              key={category.id}
+                              className="bg-orange-200 px-2 py-1 rounded-2xl ml-2"
+                            >
+                              <Text className="text-gray-500">
+                                {category.name}
+                              </Text>
+                            </View>
+                          ))}
+
+                          {course.categories.length > 3 && (
+                            <View className="bg-orange-200 px-2 py-1 rounded-2xl ml-2">
+                              <Text className="text-gray-500">...</Text>
+                            </View>
+                          )}
+                        </View>
+                      )}
+                    </View>
                   </View>
                 </View>
               </View>
@@ -180,15 +224,16 @@ export default function SubAccountDetailScreen() {
               <View className="mt-3">
                 <View className="flex-row justify-between mb-1">
                   <Text className="text-gray-600">Tiến độ học tập</Text>
-                  {/* <Text className="font-medium">{course.progress || 0}%</Text> */}
+                  <Text className="font-medium">
+                    {course.completionRate || 0}%
+                  </Text>
                   <Text className="font-medium"> 5 %</Text>
                 </View>
                 <View className="bg-gray-100 h-2 rounded-full overflow-hidden">
                   <View
                     className="bg-blue-500 h-full rounded-full"
                     style={{
-                      //   width: `${course.progress || 0}%`,
-                      width: `${5}%`,
+                      width: `${course.completionRate || 0}%`,
                     }}
                   />
                 </View>
