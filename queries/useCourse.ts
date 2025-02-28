@@ -1,6 +1,6 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import courseApiRequest from "@/api/course";
-import { GetMyCourseStoreResType } from "@/schema/course-schema";
+import { AssignCourseStoreBodyType, GetMyCourseStoreResType } from "@/schema/course-schema";
 import { useAppStore } from "@/components/app-provider";
 import { RoleValues } from "@/constants/type";
 import { useEffect } from "react";
@@ -57,3 +57,22 @@ export const useMyCourseStore = ({token, enabled}:{token: string, enabled: boole
 
   return query;
 };
+
+export const useAssignCourse = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      body,
+      token,
+    }: {
+      body: AssignCourseStoreBodyType;
+      token: string;
+    }) => courseApiRequest.assignCourse({body, token}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["my-courses-store"],
+        exact: true
+      })
+    }
+  })
+}
