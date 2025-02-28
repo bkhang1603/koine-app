@@ -103,15 +103,14 @@ export default function BlogDetailScreen() {
   }
 
   if (blogLoading && commentsLoading) return <ActivityIndicatorScreen />;
-  if (blogError) return <ErrorScreen message="Failed to load blogs" />;
 
-  if (blog == null)
-    return <ErrorScreen message="Failed to load blogs. Course is null." />;
+  if (blogError) return null;
 
-  if (commentsError) return <ErrorScreen message="Failed to load comment" />;
+  if (blog == null) return null;
 
-  if (blogComments == null)
-    return <ErrorScreen message="Failed to load comment. comment is null." />;
+  if (commentsError) return null;
+
+  if (blogComments == null) return null
 
   const canComment = () => {
     if (!commentText.trim() || commentText.trim().length < 2) {
@@ -385,19 +384,20 @@ export default function BlogDetailScreen() {
           </ScrollView>
 
           <View className="min-h-[80px] border-t border-gray-200 px-4 py-2">
-            {/* Validation Messages Container - Moved above the input */}
+            {/* Validation Messages Container */}
             {showValidationMessage && (
               <View className="mb-2 px-2">
-                {commentText.trim().length < 2 && (
-                  <Text className="text-xs text-red-500">
-                    Bình luận phải có ít nhất 2 ký tự
-                  </Text>
-                )}
-                {lastCommentTime && getRemainingCooldownTime() > 0 && (
+                {lastCommentTime && getRemainingCooldownTime() > 0 ? (
                   <Text className="text-xs text-red-500">
                     Làm ơn chờ {getRemainingCooldownTime()} giây trước khi tiếp
                     tục bình luận
                   </Text>
+                ) : (
+                  commentText.trim().length < 2 && (
+                    <Text className="text-xs text-red-500">
+                      Bình luận phải có ít nhất 2 ký tự
+                    </Text>
+                  )
                 )}
               </View>
             )}
