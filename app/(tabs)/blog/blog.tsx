@@ -13,8 +13,6 @@ import ErrorScreen from '@/components/ErrorScreen'
 const BLOG_CATEGORIES = ['Tất cả', 'Tâm lý', 'Sức khỏe', 'Kỹ năng', 'Giáo dục']
 
 export default function BlogScreen() {
-  const accessToken = useAppStore((state) => state.accessToken)
-  const token = accessToken == undefined ? '' : accessToken.accessToken
 
   const {
     data: blogData,
@@ -24,7 +22,6 @@ export default function BlogScreen() {
     keyword: '',
     page_size: 10,
     page_index: 1,
-    token: token,
   })
 
   let blog: GetAllBlogResType['data'] = []

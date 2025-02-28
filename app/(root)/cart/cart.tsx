@@ -206,148 +206,155 @@ export default function CartScreen() {
         )}
       </View>
 
-      <ScrollView>
-        {items.map((item, index) => (
-          <View
-            key={item.id}
-            className={`flex-row items-center rounded-xl p-4 mt-1 border-b border-gray-100 ${
-              index % 2 === 0 ? "bg-pink-200" : "bg-gray-200"
-            }`}
-          >
-            <Pressable onPress={() => toggleSelectItem(item.id)} hitSlop={8}>
-              <MaterialIcons
-                name={
-                  selectedItems.includes(item.id)
-                    ? "check-box"
-                    : "check-box-outline-blank"
-                }
-                size={24}
-                color={selectedItems.includes(item.id) ? "#3B82F6" : "#9CA3AF"}
-              />
-            </Pressable>
-            <Image
-              source={{ uri: item.objectImageUrl }}
-              className="w-24 h-24 rounded-xl ml-3"
-            />
-            <View className="flex-1 ml-3">
-              {/* tiêu đề */}
-              <Text className="font-bold" numberOfLines={1}>
-                {item.objectName}
-              </Text>
-
-              {/* mô tả */}
-              <View className="flex-row items-center mt-1">
-                <MaterialIcons name="info-outline" size={16} color="#6B7280" />
-                <Text className="text-gray-600 ml-1" numberOfLines={1}>
-                  {item.objectDescription}
-                </Text>
-              </View>
-
-              {/* thời hạn học */}
-              <View className="flex-row items-center mt-1">
+      <ScrollView className="bg-gray-100">
+        <View className="p-3">
+          {items.map((item, index) => (
+            <View
+              key={item.id}
+              className={`flex-row items-center py-2 px-2 mb-3 rounded-2xl border-2 shadow-md ${
+                selectedItems.includes(item.id)
+                  ? "bg-blue-50 border-blue-200"
+                  : "bg-white border-gray-200"
+              }`}
+            >
+              <Pressable
+                onPress={() => toggleSelectItem(item.id)}
+                hitSlop={8}
+                className="self-center"
+              >
                 <MaterialIcons
-                  name="calendar-month"
-                  size={16}
-                  color="#6B7280"
+                  name={
+                    selectedItems.includes(item.id)
+                      ? "check-box"
+                      : "check-box-outline-blank"
+                  }
+                  size={24}
+                  color={
+                    selectedItems.includes(item.id) ? "#3B82F6" : "#9CA3AF"
+                  }
                 />
-                <Text className="text-gray-600 ml-1" numberOfLines={1}>
-                  30/02/2025
-                </Text>
-              </View>
-
-              {/* đơn giá */}
-              <View className="flex-row items-center mt-1">
-                <Ionicons name="cash-outline" size={16} color="#6B7280" />
-                <Text className="text-gray-600 ml-1" numberOfLines={2}>
-                  {item.unitPrice.toLocaleString("vi-VN")} ₫
-                </Text>
-              </View>
-
-              {/* giảm giá */}
-              <View className="flex-row items-center mt-1">
-                <Foundation name="burst-sale" size={21} color="#6B7280" />
-                <Text className="text-gray-600 ml-1" numberOfLines={2}>
-                  {item.discount * 100}%
-                </Text>
-              </View>
-
-              {/* tương tác số lượng */}
-              <View className="flex-row items-center mt-3">
-                <Pressable
-                  className="w-8 h-8 items-center justify-center rounded-full bg-gray-100"
-                  onPress={() =>
-                    handleUpdateQuantity(item.id, item.quantity - 1)
-                  }
-                  disabled={item.quantity <= 1}
+              </Pressable>
+              <Image
+                source={{ uri: item.objectImageUrl }}
+                className="w-28 h-28 rounded-xl ml-1"
+              />
+              <View className="flex-1 ml-3">
+                <Text
+                  className="font-semibold text-gray-800 text-base"
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
                 >
+                  {item.objectName}
+                </Text>
+
+                {/* Mô tả */}
+                <View className="flex-row items-center mt-1.5">
                   <MaterialIcons
-                    name="remove"
-                    size={20}
-                    color={item.quantity <= 1 ? "#9CA3AF" : "#374151"}
+                    name="info-outline"
+                    size={16}
+                    color="#6B7280"
                   />
-                </Pressable>
-                <Text className="mx-4 font-medium">{item.quantity}</Text>
-                <Pressable
-                  className="w-8 h-8 items-center justify-center rounded-full bg-gray-100"
-                  onPress={() =>
-                    handleUpdateQuantity(item.id, item.quantity + 1)
-                  }
-                >
-                  <MaterialIcons name="add" size={20} color="#374151" />
-                </Pressable>
-              </View>
-
-              {/* tổng tiền 1 item */}
-              <View>
-                {item.discount == 0 ? (
-                  <Text className="text-blue-500 font-bold mt-2">
-                    Tổng:{" "}
-                    {(item.unitPrice * item.quantity).toLocaleString("vi-VN")} ₫
+                  <Text
+                    className="text-gray-600 ml-1 text-sm flex-1"
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {item.objectDescription}
                   </Text>
-                ) : (
-                  <View className="flex-row items-center space-x-2 mt-2">
-                    <Text className="text-gray-500 font-bold mt-2 line-through">
-                      {(item.unitPrice * item.quantity).toLocaleString("vi-VN")}
-                    </Text>
-                    <Text className="text-blue-500 font-bold mt-2">
-                      {" "}
+                </View>
+
+                {/* Đơn giá */}
+                <View className="flex-row items-center mt-1.5">
+                  <MaterialIcons
+                    name="receipt-long"
+                    size={16}
+                    color="#6B7280"
+                  />
+                  <View className="flex-row items-center ml-1">
+                    {item.discount > 0 ? (
+                      <>
+                        <Text className="text-blue-600 font-bold text-sm">
+                          {(
+                            item.unitPrice *
+                            (1 - item.discount)
+                          ).toLocaleString("vi-VN")} đ
+                        </Text>
+                        <Text className="text-gray-400 line-through text-xs ml-2">
+                          {item.unitPrice.toLocaleString("vi-VN")} đ
+                        </Text>
+                      </>
+                    ) : (
+                      <Text className="text-gray-600 text-sm">
+                        {item.unitPrice.toLocaleString("vi-VN")} đ
+                      </Text>
+                    )}
+                  </View>
+                </View>
+
+                {/* Giá và Số lượng */}
+                <View className="flex-row items-center justify-between mt-2">
+                  <View className="flex-row items-center">
+                    <Text className="text-blue-600 font-bold text-base ml-1">
                       Tổng:{" "}
                       {(
                         item.unitPrice *
-                        item.quantity *
-                        (1 - item.discount)
-                      ).toLocaleString("vi-VN")}
+                        (1 - item.discount) *
+                        item.quantity
+                      ).toLocaleString("vi-VN")} đ
                     </Text>
                   </View>
-                )}
+
+                  <View className="flex-row items-center bg-gray-50 rounded-lg border border-gray-200">
+                    <Pressable
+                      className="w-7 h-7 items-center justify-center"
+                      onPress={() =>
+                        handleUpdateQuantity(item.id, item.quantity - 1)
+                      }
+                      disabled={item.quantity <= 1}
+                    >
+                      <MaterialIcons
+                        name="remove"
+                        size={18}
+                        color={item.quantity <= 1 ? "#9CA3AF" : "#374151"}
+                      />
+                    </Pressable>
+                    <Text className="mx-2 font-medium">{item.quantity}</Text>
+                    <Pressable
+                      className="w-7 h-7 items-center justify-center"
+                      onPress={() =>
+                        handleUpdateQuantity(item.id, item.quantity + 1)
+                      }
+                    >
+                      <MaterialIcons name="add" size={18} color="#374151" />
+                    </Pressable>
+                  </View>
+                </View>
               </View>
             </View>
-          </View>
-        ))}
+          ))}
+        </View>
       </ScrollView>
 
       {/* Bottom Bar */}
-      <View className="p-4 border-t border-gray-100">
-        <View className="flex-row justify-between mb-4">
+      <View className="p-5 border-t border-gray-100 bg-white">
+        <View className="flex-row justify-between items-center">
           <View>
-            <Text className="text-gray-600">
-              Đã chọn: {selectedItems.length}
+            <Text className="text-gray-600 text-base">
+              Đã chọn: {selectedItems.length} sản phẩm
             </Text>
-            <Text className="text-gray-600">
-              Tổng tiền:
-              <Text className="text-blue-500 font-bold">
-                {" "}
+            <Text className="text-gray-800 font-semibold text-lg mt-2">
+              Tổng tiền:{" "}
+              <Text className="text-blue-600 font-bold text-xl">
                 {total.toLocaleString("vi-VN")} ₫
               </Text>
             </Text>
           </View>
           <Pressable
-            className={`px-6 py-3 rounded-xl ${
-              selectedItems.length > 0 ? "bg-blue-500" : "bg-gray-300"
+            className={`px-8 py-4 rounded-2xl ${
+              selectedItems.length > 0 ? "bg-blue-600" : "bg-gray-300"
             }`}
             onPress={() => {
               if (selectedItems.length > 0) {
-                // Chuyển itemsToCheckout dưới dạng query parameter
                 const itemsQueryString = JSON.stringify(itemsToCheckout);
                 router.push(
                   `/cart/checkout?itemsToCheckout=${encodeURIComponent(
@@ -359,7 +366,7 @@ export default function CartScreen() {
             disabled={selectedItems.length === 0}
           >
             <Text
-              className={`font-bold ${
+              className={`font-bold text-lg ${
                 selectedItems.length > 0 ? "text-white" : "text-gray-500"
               }`}
             >

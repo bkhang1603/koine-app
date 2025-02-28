@@ -1,5 +1,4 @@
-
-import { GetAllBlogResType, GetBlogDetailResType } from '@/schema/blog-schema'
+import { CreateBlogCommentBodyType, CreateBlogCommentResType, CreateBlogReactBodyType, CreateBlogReactResType, GetAllBlogCommentsResType, GetAllBlogResType, GetBlogDetailResType } from '@/schema/blog-schema'
 import http from '@/util/http'
 
 const blogApiRequest = {
@@ -7,22 +6,44 @@ const blogApiRequest = {
     keyword,
     page_size,
     page_index,
-    token //để authen
   }: {
     keyword: string
     page_size: number
     page_index: number
-    token: string
   }) =>
     http.get<GetAllBlogResType>(
-      `blogs?keyword=${keyword}&page_size=${page_size}&page_index=${page_index}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}` // Thêm token vào headers
-        }
-      }
+      `blogs?keyword=${keyword}&page_size=${page_size}&page_index=${page_index}`
     ),
-    getBlogDetail: ({ blogId }: { blogId: string }) => http.get<GetBlogDetailResType>(`blogs/${blogId}`, {})
+  getBlogDetail: ({ blogId, token }: { blogId: string; token: string }) =>
+    http.get<GetBlogDetailResType>(`blogs/${blogId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+  getAllBlogComments: ({
+    blogId,
+    page_size,
+    page_index,
+  }: {
+    blogId: string
+    page_size: number
+    page_index: number
+  }) =>
+    http.get<GetAllBlogCommentsResType>(
+      `blog-comments/${blogId}?page_size=${page_size}&page_index=${page_index}`
+    ),
+  createBlogComment: (body: CreateBlogCommentBodyType, token: string) =>
+    http.post<CreateBlogCommentResType>("blog-comments", body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+  createBlogReact: (body: CreateBlogReactBodyType, token: string) =>
+    http.post<CreateBlogReactResType>("blog-reacts", body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
 }
 
 export default blogApiRequest

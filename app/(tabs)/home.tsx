@@ -107,7 +107,6 @@ export default function HomeScreen() {
     keyword: "",
     page_size: 10,
     page_index: 1,
-    token: token,
   });
 
   let blog: GetAllBlogResType["data"] = [];
