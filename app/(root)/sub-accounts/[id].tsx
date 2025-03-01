@@ -5,6 +5,7 @@ import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import HeaderWithBack from "@/components/HeaderWithBack";
 import { useAppStore } from "@/components/app-provider";
 import { useMyChildCourses } from "@/queries/useUser";
+import { Alert } from "react-native";
 
 export default function SubAccountDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -29,22 +30,80 @@ export default function SubAccountDetailScreen() {
       <View className="flex-1 bg-white">
         <HeaderWithBack
           title="Chi tiết tài khoản"
-          returnTab={"/(root)/purchased-courses/purchased-courses"}
+          returnTab={"/(root)/sub-accounts/sub-accounts"}
         />
-        <View className="flex-1 items-center justify-center p-4">
-          <MaterialIcons name="school" size={64} color="#9CA3AF" />
-          <Text className="text-gray-500 text-lg mt-4 text-center">
-            Chưa gán cho {account.userDetail.firstName} khóa học nào
-          </Text>
-          <Pressable
-            className="mt-4 bg-blue-500 px-6 py-3 rounded-xl"
-            onPress={() =>
-              router.push("/(root)/purchased-courses/purchased-courses")
-            }
-          >
-            <Text className="text-white font-bold">Gán ngay?</Text>
-          </Pressable>
-        </View>
+        <ScrollView>
+          <View className="p-4 items-center border-b border-gray-100">
+            <Image
+              source={{ uri: account?.userDetail.avatarUrl }}
+              className="w-24 h-24 rounded-full"
+            />
+            <Text className="text-xl font-bold mt-3">
+              {account?.userDetail.lastName +
+                " " +
+                account?.userDetail.firstName}
+            </Text>
+            <View className="flex-row items-center mt-1">
+              <Text className="text-gray-600">
+                {new Date().getFullYear() -
+                  new Date(account?.userDetail.dob).getFullYear()}{" "}
+                tuổi
+              </Text>
+              <Text className="text-gray-400 mx-2">•</Text>
+              <Text
+                className={`${
+                  account?.userDetail.gender == "MALE"
+                    ? "text-blue-600"
+                    : "text-pink-600"
+                }`}
+              >
+                {account?.userDetail.gender == "MALE" ? "Nam" : "Nữ"}
+              </Text>
+              {/* Action Buttons */}
+            </View>
+            <View className="flex-row px-2 mt-1">
+              <Pressable
+                className="bg-blue-500 p-1 mx-2 rounded-xl flex-row items-center justify-center"
+                onPress={() =>
+                  router.push("/purchased-courses/purchased-courses" as any)
+                }
+              >
+                <MaterialIcons name="school" size={24} color="#fff" />
+                {/* <Text className="text-white font-bold ml-2">
+                  Kích hoạt khóa học mới
+                </Text> */}
+              </Pressable>
+              <Pressable
+                className="bg-gray-100 p-1 mx-2 rounded-xl flex-row items-center justify-center"
+                onPress={() =>
+                  router.push({
+                    pathname: "/sub-accounts/edit/[id]",
+                    params: { id: account.id },
+                  })
+                }
+              >
+                <MaterialIcons name="edit" size={24} color="#374151" />
+                {/* <Text className="text-gray-700 font-bold ml-2">
+                  Chỉnh sửa thông tin
+                </Text> */}
+              </Pressable>
+            </View>
+          </View>
+          <View className="flex-1 items-center justify-center p-4">
+            <MaterialIcons name="school" size={64} color="#9CA3AF" />
+            <Text className="text-gray-500 text-lg mt-4 text-center">
+              Chưa gán cho {account.userDetail.firstName} khóa học nào
+            </Text>
+            <Pressable
+              className="mt-4 bg-blue-500 px-6 py-3 rounded-xl"
+              onPress={() =>
+                router.push("/(root)/purchased-courses/purchased-courses")
+              }
+            >
+              <Text className="text-white font-bold">Gán ngay?</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
       </View>
     );
   }
@@ -53,7 +112,7 @@ export default function SubAccountDetailScreen() {
     <View className="flex-1 bg-white">
       <HeaderWithBack
         title="Chi tiết tài khoản"
-        returnTab={"/(root)/purchased-courses/purchased-courses"}
+        returnTab={"/(root)/sub-accounts/sub-accounts"}
       />
       <ScrollView>
         {/* Profile Header */}
@@ -81,6 +140,34 @@ export default function SubAccountDetailScreen() {
             >
               {account?.userDetail.gender == "MALE" ? "Nam" : "Nữ"}
             </Text>
+            {/* Action Buttons */}
+          </View>
+          <View className="flex-row px-2 mt-1">
+            <Pressable
+              className="bg-blue-500 p-1 mx-2 rounded-xl flex-row items-center justify-center"
+              onPress={() =>
+                router.push("/purchased-courses/purchased-courses" as any)
+              }
+            >
+              <MaterialIcons name="school" size={24} color="#fff" />
+              {/* <Text className="text-white font-bold ml-2">
+                  Kích hoạt khóa học mới
+                </Text> */}
+            </Pressable>
+            <Pressable
+              className="bg-gray-100 p-1 mx-2 rounded-xl flex-row items-center justify-center"
+              onPress={() =>
+                router.push({
+                  pathname: "/sub-accounts/edit/[id]",
+                  params: { id: account.id },
+                })
+              }
+            >
+              <MaterialIcons name="edit" size={24} color="#374151" />
+              {/* <Text className="text-gray-700 font-bold ml-2">
+                  Chỉnh sửa thông tin
+                </Text> */}
+            </Pressable>
           </View>
         </View>
 
@@ -156,14 +243,21 @@ export default function SubAccountDetailScreen() {
                 shadowRadius: 4,
                 elevation: 3,
               }}
-              onPress={() =>
-                router.push({
-                  pathname: "/learning-management/course-progress/[id]",
-                  params: {
-                    id: course.id,
-                    accountId: account.id,
-                  },
-                })
+              onPress={
+                () =>
+                  Alert.alert("Thông báo", "Chuyển đến quản lí khóa học", [
+                    {
+                      text: "tắt",
+                      style: "cancel",
+                    },
+                  ])
+                // router.push({
+                //   pathname: "/learning-management/course-progress/[id]",
+                //   params: {
+                //     id: course.id,
+                //     accountId: account.id,
+                //   },
+                // })
               }
             >
               <View className="flex-row">
@@ -175,47 +269,47 @@ export default function SubAccountDetailScreen() {
                   <Text className="font-bold" numberOfLines={2}>
                     {course.title}
                   </Text>
-                  <View className="flex-row items-center mt-1">
+                  <View className="flex-row items-center my-2">
                     <MaterialIcons name="schedule" size={16} color="#6B7280" />
                     <Text className="text-gray-600 ml-1">
                       {course.durationDisplay}
                     </Text>
                     <Text className="text-gray-400 mx-2">•</Text>
-                    <MaterialIcons name="bar-chart" size={16} color="#6B7280" />
+                    {/* <MaterialIcons name="bar-chart" size={16} color="#6B7280" /> */}
                     {/* <Text className="text-gray-600 ml-1">{course.level}</Text> bug day ne*/}
-                    <View className="flex-row items-center">
-                      <MaterialCommunityIcons
-                        name="tag-outline"
-                        size={16}
-                        color="#6B7280"
-                      />
-                      {!course.categories.length ? (
-                        <View className="bg-orange-200 px-1 rounded-2xl ml-2">
-                          <Text className="text-gray-500 px-1 py-1 rounded-md">
-                            --
-                          </Text>
-                        </View>
-                      ) : (
-                        <View className="flex-row flex-wrap">
-                          {course.categories.slice(0, 3).map((category) => (
-                            <View
-                              key={category.id}
-                              className="bg-orange-200 px-2 py-1 rounded-2xl ml-2"
-                            >
-                              <Text className="text-gray-500">
-                                {category.name}
-                              </Text>
-                            </View>
-                          ))}
+                  </View>
+                  <View className="flex-row items-center">
+                    <MaterialCommunityIcons
+                      name="tag-outline"
+                      size={16}
+                      color="#6B7280"
+                    />
+                    {!course.categories.length ? (
+                      <View className="bg-orange-200 px-1 rounded-2xl ml-2">
+                        <Text className="text-gray-500 px-1 py-1 rounded-md">
+                          --
+                        </Text>
+                      </View>
+                    ) : (
+                      <View className="flex-row flex-wrap">
+                        {course.categories.slice(0, 2).map((category) => (
+                          <View
+                            key={category.id}
+                            className="bg-orange-200 px-2 py-1 rounded-2xl ml-2"
+                          >
+                            <Text className="text-gray-500">
+                              {category.name}
+                            </Text>
+                          </View>
+                        ))}
 
-                          {course.categories.length > 3 && (
-                            <View className="bg-orange-200 px-2 py-1 rounded-2xl ml-2">
-                              <Text className="text-gray-500">...</Text>
-                            </View>
-                          )}
-                        </View>
-                      )}
-                    </View>
+                        {course.categories.length > 2 && (
+                          <View className="bg-orange-200 px-2 py-1 rounded-2xl ml-2">
+                            <Text className="text-gray-500">...</Text>
+                          </View>
+                        )}
+                      </View>
+                    )}
                   </View>
                 </View>
               </View>
@@ -227,7 +321,6 @@ export default function SubAccountDetailScreen() {
                   <Text className="font-medium">
                     {course.completionRate || 0}%
                   </Text>
-                  <Text className="font-medium"> 5 %</Text>
                 </View>
                 <View className="bg-gray-100 h-2 rounded-full overflow-hidden">
                   <View
@@ -240,35 +333,6 @@ export default function SubAccountDetailScreen() {
               </View>
             </Pressable>
           ))}
-        </View>
-
-        {/* Action Buttons */}
-        <View className="p-4 border-t border-gray-100">
-          <Pressable
-            className="bg-blue-500 p-4 rounded-xl flex-row items-center justify-center mb-3"
-            onPress={() =>
-              router.push("/purchased-courses/purchased-courses" as any)
-            }
-          >
-            <MaterialIcons name="school" size={24} color="#fff" />
-            <Text className="text-white font-bold ml-2">
-              Kích hoạt khóa học mới
-            </Text>
-          </Pressable>
-          <Pressable
-            className="bg-gray-100 p-4 rounded-xl flex-row items-center justify-center"
-            onPress={() =>
-              router.push({
-                pathname: "/sub-accounts/edit/[id]",
-                params: { id: account.id },
-              })
-            }
-          >
-            <MaterialIcons name="edit" size={24} color="#374151" />
-            <Text className="text-gray-700 font-bold ml-2">
-              Chỉnh sửa thông tin
-            </Text>
-          </Pressable>
         </View>
       </ScrollView>
     </View>

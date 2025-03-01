@@ -6,6 +6,7 @@ import {
   Pressable,
   Image,
   TextInput,
+  Alert,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -13,7 +14,6 @@ import HeaderWithBack from "@/components/HeaderWithBack";
 import * as ImagePicker from "expo-image-picker";
 import { useAppStore } from "@/components/app-provider";
 import { useUploadImage } from "@/queries/useS3";
-import * as FileSystem from "expo-file-system";
 import { useEditProfileMutation } from "@/queries/useUser";
 
 export default function EditProfileScreen() {
@@ -50,7 +50,16 @@ export default function EditProfileScreen() {
       const { status: newStatus } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (newStatus !== "granted") {
-        alert("Bạn cần cấp quyền truy cập thư viện ảnh trong cài đặt!");
+        Alert.alert(
+          "Lỗi",
+          "Bạn cần cấp quyền truy cập thư viện ảnh trong cài đặt!",
+          [
+            {
+              text: "tắt",
+              style: "cancel",
+            },
+          ]
+        );
         return;
       }
     }
@@ -98,14 +107,28 @@ export default function EditProfileScreen() {
         !phone.trim() ||
         !address.trim()
       ) {
-        alert("Vui lòng nhập đầy đủ thông tin, không được để trống!");
+        Alert.alert(
+          "Lỗi",
+          "Vui lòng nhập đầy đủ thông tin, không được để trống!",
+          [
+            {
+              text: "tắt",
+              style: "cancel",
+            },
+          ]
+        );
         return;
       }
 
       // Kiểm tra số điện thoại Việt Nam hợp lệ
       const phoneRegex = /^(0[3|5|7|8|9])([0-9]{8})$/;
       if (!phoneRegex.test(phone)) {
-        alert("Số điện thoại không hợp lệ!");
+        Alert.alert("Lỗi", "Số điện thoại không hợp lệ!", [
+          {
+            text: "tắt",
+            style: "cancel",
+          },
+        ]);
         return;
       }
       const newInfo = {
@@ -123,22 +146,39 @@ export default function EditProfileScreen() {
         token: token,
       });
       if (res) {
-        alert("Cập nhật thông tin thành công!");
+        Alert.alert("Thông báo", "Cập nhật thông tin thành công!", [
+          {
+            text: "tắt",
+            style: "cancel",
+          },
+        ]);
         setIsProcessing(false);
       } else {
-        alert("Cập nhật thông tin thất bại!");
+        Alert.alert("Thông báo", "Cập nhật thông tin thất bại!", [
+          {
+            text: "tắt",
+            style: "cancel",
+          },
+        ]);
         setIsProcessing(false);
       }
     } catch (error) {
-      alert(`Cập nhật thông tin thất bại! Lỗi: ${error}`);
+      Alert.alert("Lỗi", `${error}`, [
+        {
+          text: "tắt",
+          style: "cancel",
+        },
+      ]);
       setIsProcessing(false);
-      console.log("Lỗi khi cập nhật hồ sơ: ", error);
     }
   };
 
   return (
     <View className="flex-1 bg-white">
-      <HeaderWithBack title="Chỉnh sửa hồ sơ" returnTab={"/(tabs)/profile/profile"}/>
+      <HeaderWithBack
+        title="Chỉnh sửa hồ sơ"
+        returnTab={"/(tabs)/profile/profile"}
+      />
 
       <ScrollView className="flex-1 p-4">
         {/* Avatar Section */}
@@ -203,7 +243,9 @@ export default function EditProfileScreen() {
 
         {/* Save Button */}
         <Pressable
-          className={`${(isUpdatable && !isProcessing) ? "bg-blue-500" : "bg-gray-500"} p-4 rounded-xl mt-8`}
+          className={`${
+            isUpdatable && !isProcessing ? "bg-blue-500" : "bg-gray-500"
+          } p-4 rounded-xl mt-8`}
           onPress={handleUpdate}
         >
           <Text className="text-white font-bold text-center">Lưu thay đổi</Text>

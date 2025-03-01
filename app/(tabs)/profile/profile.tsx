@@ -146,7 +146,7 @@ export default function ProfileScreen() {
               {/* Add Account Button */}
               <Pressable
                 className="w-24 h-32 bg-gray-50 rounded-xl items-center justify-center mr-3 border-2 border-dashed border-gray-200"
-                onPress={() => router.push("/sub-accounts/create" as any)}
+                onPress={() => router.push("/(root)/sub-accounts/create")}
               >
                 <MaterialIcons name="person-add" size={24} color="#3B82F6" />
                 <Text className="text-blue-500 text-center mt-2 text-sm">
