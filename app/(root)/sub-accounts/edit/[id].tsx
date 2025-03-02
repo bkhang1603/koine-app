@@ -14,6 +14,7 @@ import HeaderWithBack from "@/components/HeaderWithBack";
 import * as ImagePicker from "expo-image-picker";
 import { useUploadImage } from "@/queries/useS3";
 import { useAppStore } from "@/components/app-provider";
+import { useEditChildProfile } from "@/queries/useUser";
 
 export default function EditSubAccountScreen() {
   const { id } = useLocalSearchParams();
@@ -22,6 +23,7 @@ export default function EditSubAccountScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
   const myCourse = useAppStore((state) => state.myCourses);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
+  const editChild = useEditChildProfile();
 
   const uploadToS3 = useUploadImage();
 
@@ -63,8 +65,8 @@ export default function EditSubAccountScreen() {
   const [lastName, setLastName] = useState(account?.userDetail.lastName || "");
   const [dob, setDob] = useState(account?.userDetail.dob || "");
   const [gender, setGender] = useState(
-    account?.userDetail.gender || ("" as "MALE" | "FEMALE" | "")
-  ); // Thêm vào mock data
+    account?.userDetail.gender || ("" as "MALE" | "FEMALE" | "OTHER")
+  );
 
   useEffect(() => {
     if (!account) return;
@@ -160,15 +162,16 @@ export default function EditSubAccountScreen() {
         dob: dob,
         firstName: firstName,
         lastName: lastName,
-        gender: account.userDetail.gender || "MALE",
+        gender: account.userDetail.gender,
       };
       console.log("Dữ liệu hợp lệ, tiến hành cập nhật...");
-      //   const res = await uploadNewProfile.mutateAsync({
-      //     body: newInfo,
-      //     token: token,
-      //   });
-      if (true) {
-        Alert.alert("Thông báo", "Cập nhật thông tin thành công!", [
+      const res = await editChild.mutateAsync({
+        childId: account.id,
+        body: newInfo,
+        token: token,
+      });
+      if (res) {
+        Alert.alert("Thông báo", "Cập nhật thông tin con thành công!", [
           {
             text: "tắt",
             style: "cancel",
@@ -176,7 +179,7 @@ export default function EditSubAccountScreen() {
         ]);
         setIsProcessing(false);
       } else {
-        Alert.alert("Thông báo", "Cập nhật thông tin thất bại!", [
+        Alert.alert("Thông báo", "Cập nhật thông tin con thất bại!", [
           {
             text: "tắt",
             style: "cancel",
@@ -185,6 +188,7 @@ export default function EditSubAccountScreen() {
         setIsProcessing(false);
       }
     } catch (error) {
+      console.log("error ", error)
       Alert.alert("Lỗi", `${error}`, [
         {
           text: "tắt",
@@ -322,14 +326,16 @@ export default function EditSubAccountScreen() {
               <Text className="text-gray-600">Khóa học đang học</Text>
               <Text className="font-medium">{childCourseLength}</Text>
             </View>
-            {/* <View className="flex-row justify-between">
+            <View className="flex-row justify-between">
               <Text className="text-gray-600">Ngày tạo tài khoản</Text>
-              <Text className="font-medium">{account.userDetail.createdAtFormatted}</Text>
-            </View> */}
+              <Text className="font-medium">
+                {account.userDetail.createdAtFormatted}
+              </Text>
+            </View>
           </View>
 
           {/* Danger Zone */}
-          <View className="mt-8">
+          {/* <View className="mt-8">
             <Text className="text-red-500 font-bold mb-3">Vùng nguy hiểm</Text>
             <Pressable
               className="border border-red-200 p-4 rounded-xl"
@@ -351,7 +357,7 @@ export default function EditSubAccountScreen() {
                 </View>
               </View>
             </Pressable>
-          </View>
+          </View> */}
         </View>
       </ScrollView>
       {/* Bottom Bar */}
@@ -366,7 +372,7 @@ export default function EditSubAccountScreen() {
         </Pressable>
       </View>
       {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
+      {/* {showDeleteConfirm && (
         <View className="absolute inset-0 bg-black/50 items-center justify-center">
           <View className="bg-white m-4 p-4 rounded-2xl w-full max-w-sm">
             <Text className="text-lg font-bold mb-2">
@@ -396,7 +402,7 @@ export default function EditSubAccountScreen() {
             </View>
           </View>
         </View>
-      )}
+      )} */}
     </View>
   );
 }

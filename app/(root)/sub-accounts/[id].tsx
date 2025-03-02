@@ -144,18 +144,18 @@ export default function SubAccountDetailScreen() {
           </View>
           <View className="flex-row px-2 mt-1">
             <Pressable
-              className="bg-blue-500 p-1 mx-2 rounded-xl flex-row items-center justify-center"
+              className="bg-gray-200 p-1 mx-2 rounded-xl flex-row items-center justify-center"
               onPress={() =>
                 router.push("/purchased-courses/purchased-courses" as any)
               }
             >
-              <MaterialIcons name="school" size={24} color="#fff" />
+              <MaterialIcons name="school" size={24} color="#374151" />
               {/* <Text className="text-white font-bold ml-2">
                   Kích hoạt khóa học mới
                 </Text> */}
             </Pressable>
             <Pressable
-              className="bg-gray-100 p-1 mx-2 rounded-xl flex-row items-center justify-center"
+              className="bg-gray-200 p-1 mx-2 rounded-xl flex-row items-center justify-center"
               onPress={() =>
                 router.push({
                   pathname: "/sub-accounts/edit/[id]",
@@ -243,21 +243,14 @@ export default function SubAccountDetailScreen() {
                 shadowRadius: 4,
                 elevation: 3,
               }}
-              onPress={
-                () =>
-                  Alert.alert("Thông báo", "Chuyển đến quản lí khóa học", [
-                    {
-                      text: "tắt",
-                      style: "cancel",
-                    },
-                  ])
-                // router.push({
-                //   pathname: "/learning-management/course-progress/[id]",
-                //   params: {
-                //     id: course.id,
-                //     accountId: account.id,
-                //   },
-                // })
+              onPress={() =>
+                router.push({
+                  pathname: "/learning-management/course-progress/[id]",
+                  params: {
+                    id: course.id,
+                    accountId: account.id,
+                  },
+                })
               }
             >
               <View className="flex-row">
@@ -275,8 +268,8 @@ export default function SubAccountDetailScreen() {
                       {course.durationDisplay}
                     </Text>
                     <Text className="text-gray-400 mx-2">•</Text>
-                    {/* <MaterialIcons name="bar-chart" size={16} color="#6B7280" /> */}
-                    {/* <Text className="text-gray-600 ml-1">{course.level}</Text> bug day ne*/}
+                    <MaterialIcons name="bar-chart" size={16} color="#6B7280" />
+                    <Text className="text-gray-600 ml-1">{course.level}</Text>
                   </View>
                   <View className="flex-row items-center">
                     <MaterialCommunityIcons

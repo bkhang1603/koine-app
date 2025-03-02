@@ -10,7 +10,8 @@ export const childs = z.array(
       lastName: z.string(),
       dob: z.string(),
       avatarUrl: z.string(),
-      gender: z.string()
+      gender: z.string(),
+      createdAtFormatted: z.string()
     }),
   })
 );

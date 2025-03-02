@@ -3,12 +3,14 @@ import {
   EditProfileBodyType,
   EditProfileResType,
   GetMyChapterDetailResType,
+  GetMyChildCourseProgressResType,
   GetMyChildsResType,
   GetMyCourseDetailResType,
   GetMyCoursesResType,
   GetMyLessonDetailResType,
   GetUserProfileResType,
   GetUserResType,
+  UpdateChildProfileByParent,
 } from "@/schema/user-schema";
 import http from "@/util/http";
 
@@ -111,6 +113,38 @@ const userApiRequest = {
         Authorization: `Bearer ${token}`, // Thêm token vào headers
       },
     }),
+  editChildProfile: ({
+    childId,
+    body,
+    token,
+  }: {
+    childId: string;
+    body: UpdateChildProfileByParent;
+    token: string;
+  }) =>
+    http.put<EditProfileResType>(`users/profile/${childId}`, body, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Thêm token vào headers
+      },
+    }),
+    
+  getMyChildCourseProgress: ({
+    childId,
+    courseId,
+    token,
+  }: {
+    childId: string;
+    courseId: string;
+    token: string;
+  }) =>
+    http.get<GetMyChildCourseProgressResType>(
+      `users/my-child-course-progress/${childId}/course/${courseId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Thêm token vào headers
+        },
+      }
+    ),
 };
 
 export default userApiRequest;

@@ -3,11 +3,6 @@ import { View, Text, ScrollView, Image, Pressable } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import HeaderWithBack from "@/components/HeaderWithBack";
-import {
-  MOCK_USER,
-  MOCK_COURSES,
-  MOCK_PURCHASED_COURSES,
-} from "@/constants/mock-data";
 import { useAppStore } from "@/components/app-provider";
 
 const QUICK_ACTIONS = [
@@ -63,6 +58,17 @@ export default function SubAccountsScreen() {
       </View>
     );
   }
+
+  const totalDetails = myCourse?.data.details.length ?? 0;
+  const emptyAssignedCount =
+    myCourse?.data.details.filter((item) => item.assignedTo.length === 0)
+      .length ?? 0;
+  const totalLearnedCourse =
+    myCourse?.data.details?.reduce(
+      (sum, item) => sum + item.assignedTo.length,
+      0
+    ) ?? 0;
+
   const STATS = [
     {
       id: "total",
@@ -73,22 +79,15 @@ export default function SubAccountsScreen() {
     },
     {
       id: "active",
-      label: "Đang học",
-      value:
-        myCourse?.data.details
-          .map((item) => item.assignedTo.length)
-          .reduce((max, length) => Math.max(max, length), 0) ?? 0,
+      label: "Tổng số khóa học",
+      value: totalDetails || 0,
       icon: "school",
       color: "green",
     },
     {
       id: "available",
       label: "Khóa học chờ kích hoạt",
-      value: myCourse?.data.details.reduce(
-        (sum, course) =>
-          sum + (course.quantityAtPurchase - course.assignedTo.length),
-        0
-      ),
+      value: emptyAssignedCount || 0,
       icon: "pending-actions",
       color: "yellow",
     },
@@ -109,25 +108,28 @@ export default function SubAccountsScreen() {
           {STATS.map((stat) => (
             <View
               key={stat.id}
-              className={`bg-${stat.color}-50 rounded-xl p-4 mr-3`}
+              className={`bg-${stat.color}-500 rounded-xl p-4 mr-3`}
               style={{ minWidth: 150 }}
             >
-              <View
-                className={`w-10 h-10 bg-${stat.color}-100 rounded-full items-center justify-center mb-2`}
-              >
-                <MaterialIcons
-                  name={stat.icon as any}
-                  size={24}
-                  color={`#${
-                    stat.color === "blue"
-                      ? "3B82F6"
-                      : stat.color === "green"
-                      ? "059669"
-                      : "EAB308"
-                  }`}
-                />
+              <View className="flex-row">
+                <View
+                  className={`w-10 h-10 bg-${stat.color}-100 rounded-full items-center justify-center mb-2`}
+                >
+                  <MaterialIcons
+                    name={stat.icon as any}
+                    size={24}
+                    color={`#${
+                      stat.color === "blue"
+                        ? "3B82F6"
+                        : stat.color === "green"
+                        ? "059669"
+                        : "EAB308"
+                    }`}
+                  />
+                </View>
+                <Text className="text-2xl font-bold ml-3">{stat.value}</Text>
               </View>
-              <Text className="text-2xl font-bold">{stat.value}</Text>
+
               <Text className="text-gray-600">{stat.label}</Text>
             </View>
           ))}
@@ -260,14 +262,14 @@ export default function SubAccountsScreen() {
 
                 {/* Learning Stats */}
                 <View className="flex-row mt-4 pt-4 border-t border-gray-100">
-                  {/* <View className="flex-1 border-r border-gray-100">
+                  <View className="flex-1 border-r border-gray-100">
                     <Text className="text-center text-gray-600">
-                      Khóa học đã gán
+                        Tổng số lượng khóa học đã gán 
                     </Text>
                     <Text className="text-center font-bold text-lg mt-1">
-                      {activeCourses.length}
+                      {totalLearnedCourse}
                     </Text>
-                  </View> */}
+                  </View>
                   {/* <View className="flex-1 border-r border-gray-100">
                     <Text className="text-center text-gray-600">Thời gian</Text>
                     <Text className="text-center font-bold text-lg mt-1">
@@ -277,9 +279,9 @@ export default function SubAccountsScreen() {
                       )}{" "}
                       5 giờ
                     </Text>
-                  </View> */}
+                  </View>
 
-                  {/* <View className="flex-1">
+                  <View className="flex-1">
                     <Text className="text-center text-gray-600">Tiến độ</Text>
                     <Text className="text-center font-bold text-lg mt-1">
                       {Math.round(
@@ -294,11 +296,13 @@ export default function SubAccountsScreen() {
                   </View>  */}
                 </View>
 
-                {/* Quick Actions */}
-                {/* <View className="flex-row mt-4 pt-4 border-t border-gray-100">
+                {/* Quick Actions logic chỗ này đưa qua bên sub/sub/id rồi hợp lí hơn */}
+                <View className="flex-row mt-4 pt-4 border-t border-gray-100">
                   <Pressable
                     className="flex-1 flex-row items-center justify-center"
-                    onPress={() => {router.push("/(root)/sub-accounts/edit/[childId]")}}
+                    onPress={() => {
+                      router.push("/(root)/sub-accounts/edit/[childId]");
+                    }}
                   >
                     <MaterialIcons name="edit" size={20} color="#374151" />
                   </Pressable>
@@ -327,7 +331,7 @@ export default function SubAccountsScreen() {
                   >
                     <MaterialIcons name="insights" size={20} color="#374151" />
                   </Pressable>
-                </View> */}
+                </View>
               </Pressable>
             );
           })}
