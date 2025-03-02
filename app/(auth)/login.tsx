@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,65 +11,71 @@ import {
   Image,
   Keyboard,
   TouchableOpacity,
-} from 'react-native'
-import { MaterialIcons } from '@expo/vector-icons'
-import { router, useLocalSearchParams } from 'expo-router'
-import { useLoginMutation } from '@/queries/useAuth'
-import { useAppStore } from '@/components/app-provider'
-import * as SecureStore from 'expo-secure-store'
-import { RoleValues } from '@/constants/type'
+} from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
+import { useLoginMutation } from "@/queries/useAuth";
+import { useAppStore } from "@/components/app-provider";
+import * as SecureStore from "expo-secure-store";
+import { RoleValues } from "@/constants/type";
+import { Alert } from "react-native";
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('')
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [showModal, setShowModal] = useState(false)
-  const [modalMessage, setModalMessage] = useState('')
-  const [isClicked, setIsClicked] = useState(false)
+  const [email, setEmail] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [isClicked, setIsClicked] = useState(false);
 
-  const { showModal: queryShowModal, expired } = useLocalSearchParams()
+  const { showModal: queryShowModal, expired } = useLocalSearchParams();
 
-  const signIn = useLoginMutation()
-  const setUser = useAppStore((state) => state.setUser)
-  const setAccessToken = useAppStore((state) => state.setAccessToken)
-  const setAccessExpired = useAppStore((state) => state.setAccessExpired)
-  const setRefreshToken = useAppStore((state) => state.setRefreshToken)
-  const setRefreshExpired = useAppStore((state) => state.setRefreshExpired)
+  const signIn = useLoginMutation();
+  const setUser = useAppStore((state) => state.setUser);
+  const setAccessToken = useAppStore((state) => state.setAccessToken);
+  const setAccessExpired = useAppStore((state) => state.setAccessExpired);
+  const setRefreshToken = useAppStore((state) => state.setRefreshToken);
+  const setRefreshExpired = useAppStore((state) => state.setRefreshExpired);
 
   useEffect(() => {
-    if (queryShowModal === 'true') {
-      if (expired === 'true') {
-        setModalMessage('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.')
-      } else if (expired === 'false') {
-        setModalMessage('Tài khoản đã được đăng nhập ở nơi khác.')
+    if (queryShowModal === "true") {
+      if (expired === "true") {
+        setModalMessage("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+      } else if (expired === "false") {
+        setModalMessage("Tài khoản đã được đăng nhập ở nơi khác.");
       } else {
-        setModalMessage('Vui lòng đăng nhập lại.')
+        setModalMessage("Vui lòng đăng nhập lại.");
       }
 
-      setShowModal(true)
+      setShowModal(true);
 
       // Tự động đóng modal sau 5 giây
       const timeout = setTimeout(() => {
-        setShowModal(false)
-      }, 5000)
+        setShowModal(false);
+      }, 5000);
 
-      return () => clearTimeout(timeout)
+      return () => clearTimeout(timeout);
     }
-  }, [queryShowModal, expired])
+  }, [queryShowModal, expired]);
 
   const handleLogin = async () => {
     try {
-      if (email == '' || password == '') {
-        alert('Vui lòng nhập tài khoản, mật khẩu đầy đủ!')
+      if (email == "" || password == "") {
+        Alert.alert("Thông báo", "Vui lòng nhập tài khoản, mật khẩu đầy đủ!", [
+          {
+            text: "tắt",
+            style: "cancel",
+          },
+        ]);
       }
-      if (isProcessing) return
-      setIsProcessing(true)
-      Keyboard.dismiss()
+      if (isProcessing) return;
+      setIsProcessing(true);
+      Keyboard.dismiss();
       const res = await signIn.mutateAsync({
         loginKey: email,
         password: password,
-      })
+      });
       if (res?.statusCode == 200) {
         const {
           accessToken,
@@ -77,48 +83,58 @@ export default function LoginScreen() {
           expiresAccess,
           expiresRefresh,
           account,
-        } = res.data
-        setUser(account)
-        setAccessToken({ accessToken, expiresAccess })
-        setRefreshToken({ refreshToken, expiresRefresh })
-        setAccessExpired(false)
-        setRefreshExpired(false)
+        } = res.data;
+        setUser(account);
+        setAccessToken({ accessToken, expiresAccess });
+        setRefreshToken({ refreshToken, expiresRefresh });
+        setAccessExpired(false);
+        setRefreshExpired(false);
 
         // Lưu thông tin người dùng vào SecureStore
-        const userString = JSON.stringify(res.data)
-        await SecureStore.setItemAsync('loginData', userString) // Lưu trữ vào SecureStore
+        const userString = JSON.stringify(res.data);
+        await SecureStore.setItemAsync("loginData", userString); // Lưu trữ vào SecureStore
 
-        if (account.role == RoleValues[0]) { 
+        if (account.role == RoleValues[0]) {
           router.push("/(tabs)/home");
           setTimeout(() => setIsProcessing(false), 1000);
         } else if (account.role == RoleValues[3]) {
           router.push("/child/(tabs)/home");
           setTimeout(() => setIsProcessing(false), 1000);
         }
-      } 
+      }
     } catch (error) {
-      alert("Lỗi: Sai tên đăng nhập hoặc mật khẩu");
-      setIsProcessing(false)
+      Alert.alert("Lỗi", "Sai tên đăng nhập hoặc mật khẩu", [
+        {
+          text: "tắt",
+          style: "cancel",
+        },
+      ]);
+      setIsProcessing(false);
       console.log(error);
     }
-  }
+  };
 
   const handleLoginByGoogle = () => {
     try {
-      if (isClicked) return
-      setIsClicked(true)
-      alert('Login by google processing!')
-      setTimeout(() => setIsClicked(false), 1000)
+      if (isClicked) return;
+      setIsClicked(true);
+      Alert.alert("Thông báo", "Đăng nhập bằng google đang chạy", [
+        {
+          text: "tắt",
+          style: "cancel",
+        },
+      ]);
+      setTimeout(() => setIsClicked(false), 1000);
     } catch (error) {
-      console.log('Lỗi khi đăng nhập bằng google ', error)
+      console.log("Lỗi khi đăng nhập bằng google ", error);
     }
-  }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView
         className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView
           className="flex-1"
@@ -190,7 +206,7 @@ export default function LoginScreen() {
                   />
                   <Pressable onPress={() => setShowPassword(!showPassword)}>
                     <MaterialIcons
-                      name={showPassword ? 'visibility' : 'visibility-off'}
+                      name={showPassword ? "visibility" : "visibility-off"}
                       size={20}
                       color="#6B7280"
                     />
@@ -209,14 +225,14 @@ export default function LoginScreen() {
               <Pressable
                 className={`${
                   isProcessing
-                    ? 'bg-gray-400'
-                    : 'bg-blue-600 active:bg-blue-700'
+                    ? "bg-gray-400"
+                    : "bg-blue-600 active:bg-blue-700"
                 } py-4 rounded-xl mt-4`}
                 onPress={handleLogin}
                 disabled={isProcessing}
               >
                 <Text className="text-white font-semibold text-center text-base">
-                  {isProcessing ? 'Đang xử lý...' : 'Đăng nhập'}
+                  {isProcessing ? "Đang xử lý..." : "Đăng nhập"}
                 </Text>
               </Pressable>
 
@@ -232,25 +248,25 @@ export default function LoginScreen() {
                 onPress={handleLoginByGoogle}
                 disabled={isClicked}
                 className={`flex-row items-center justify-center border border-gray-200 rounded-xl py-4 ${
-                  isClicked ? 'bg-gray-100' : 'bg-white'
+                  isClicked ? "bg-gray-100" : "bg-white"
                 }`}
               >
                 <Image
-                  source={require('../../assets/images/google-logo.png')}
+                  source={require("../../assets/images/google-logo.png")}
                   className="w-5 h-5 mr-3"
                 />
                 <Text className="text-gray-700 font-medium">
-                  {isClicked ? 'Đang xử lý...' : 'Tiếp tục với Google'}
+                  {isClicked ? "Đang xử lý..." : "Tiếp tục với Google"}
                 </Text>
               </TouchableOpacity>
 
               {/* Register Link - Moved to bottom */}
               <Pressable
                 className="mt-4"
-                onPress={() => router.push('/(auth)/register')}
+                onPress={() => router.push("/(auth)/register")}
               >
                 <Text className="text-center text-gray-600">
-                  Chưa có tài khoản?{' '}
+                  Chưa có tài khoản?{" "}
                   <Text className="text-blue-600 font-medium">
                     Đăng ký ngay
                   </Text>
@@ -264,5 +280,5 @@ export default function LoginScreen() {
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
-  )
+  );
 }

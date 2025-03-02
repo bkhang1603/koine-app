@@ -4,7 +4,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import HeaderWithBack from "@/components/HeaderWithBack";
 import { MOCK_USER, MOCK_COURSES } from "@/constants/mock-data";
-
+//cái này cũng cân nhắc bỏ
 const STATUS_FILTERS = [
     { id: "all", label: "Tất cả" },
     { id: "in-progress", label: "Đang học" },
