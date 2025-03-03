@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -37,6 +37,10 @@ export default function BlogDetailScreen() {
   const [commentText, setCommentText] = useState("");
   const [lastCommentTime, setLastCommentTime] = useState<Date | null>(null);
   const [showValidationMessage, setShowValidationMessage] = useState(false);
+  const [localIsReact, setLocalIsReact] = useState(false);
+  const [localTotalReact, setLocalTotalReact] = useState(0);
+  const [pendingReactUpdate, setPendingReactUpdate] =
+    useState<NodeJS.Timeout | null>(null);
 
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
@@ -102,6 +106,14 @@ export default function BlogDetailScreen() {
     }
   }
 
+  // Initialize local states when blog data is loaded
+  useEffect(() => {
+    if (blogData?.data) {
+      setLocalIsReact(blogData.data.isReact);
+      setLocalTotalReact(blogData.data.totalReact);
+    }
+  }, [blogData?.data]);
+
   if (blogLoading && commentsLoading) return <ActivityIndicatorScreen />;
 
   if (blogError) return null;
@@ -110,7 +122,7 @@ export default function BlogDetailScreen() {
 
   if (commentsError) return null;
 
-  if (blogComments == null) return null
+  if (blogComments == null) return null;
 
   const canComment = () => {
     if (!commentText.trim() || commentText.trim().length < 2) {
@@ -281,56 +293,45 @@ export default function BlogDetailScreen() {
           className="flex-row items-center justify-center"
           disabled={isCreatingReact}
           onPress={() => {
-            queryClient.setQueryData(["blog-detail", id], (oldData: any) => {
-              if (!oldData) return oldData;
-              return {
-                ...oldData,
-                data: {
-                  ...oldData.data,
-                  isReact: !oldData.data.isReact,
-                  totalReact: oldData.data.isReact
-                    ? oldData.data.totalReact - 1
-                    : oldData.data.totalReact + 1,
-                },
-              };
-            });
+            // Update local state immediately
+            setLocalIsReact(!localIsReact);
+            setLocalTotalReact((prev) => (!localIsReact ? prev + 1 : prev - 1));
 
-            createReact(
-              {
-                identifier: id as string,
-                isReact: !blog.isReact,
-              },
-              {
-                onError: (error) => {
-                  console.error("Failed to update reaction:", error);
-                  queryClient.setQueryData(
-                    ["blog-detail", id],
-                    (oldData: any) => {
-                      if (!oldData) return oldData;
-                      return {
-                        ...oldData,
-                        data: {
-                          ...oldData.data,
-                          isReact: !oldData.data.isReact,
-                          totalReact: !oldData.data.isReact
-                            ? oldData.data.totalReact - 1
-                            : oldData.data.totalReact + 1,
-                        },
-                      };
-                    }
-                  );
+            // Clear any pending update
+            if (pendingReactUpdate) {
+              clearTimeout(pendingReactUpdate);
+            }
+
+            // Set new pending update
+            const timeoutId = setTimeout(() => {
+              createReact(
+                {
+                  identifier: id as string,
+                  isReact: !localIsReact,
                 },
-              }
-            );
+                {
+                  onError: (error) => {
+                    console.error("Failed to update reaction:", error);
+                    // Revert local state on error
+                    setLocalIsReact(!localIsReact);
+                    setLocalTotalReact((prev) =>
+                      localIsReact ? prev + 1 : prev - 1
+                    );
+                  },
+                }
+              );
+            }, 3000);
+
+            setPendingReactUpdate(timeoutId);
           }}
         >
           <MaterialIcons
-            name={blog.isReact ? "favorite" : "favorite-border"}
+            name={localIsReact ? "favorite" : "favorite-border"}
             size={28}
-            color={blog.isReact ? "#E0245E" : "#657786"}
+            color={localIsReact ? "#E0245E" : "#657786"}
           />
           <Text className="ml-2 text-base font-medium text-gray-700">
-            {blog.totalReact} Tương tác
+            {localTotalReact} Tương tác
           </Text>
         </TouchableOpacity>
 

@@ -136,7 +136,7 @@ export default function PurchasedCoursesScreen() {
       }
       //call api ở đây để đăng kí nếu thành công thì đẩy qua
       const data = {
-        childId: "",
+        childId: null,
         courseId: selectedCourse.course.id,
       };
       console.log(data);
@@ -353,17 +353,21 @@ export default function PurchasedCoursesScreen() {
                   </View>
                 )}
 
-                {course.unusedQuantity > 0 && (
-                  <Pressable
-                    className="bg-blue-500 p-4 rounded-xl flex-row items-center justify-center"
-                    onPress={() => handleActivate(course)}
-                  >
-                    <MaterialIcons name="person-add" size={20} color="#fff" />
-                    <Text className="text-white font-bold ml-2">
-                      Kích hoạt khóa học
-                    </Text>
-                  </Pressable>
-                )}
+                {/* Activation Button - Always show but conditionally style and disable */}
+                <Pressable
+                  className={`p-4 rounded-xl flex-row items-center justify-center ${
+                    course.unusedQuantity > 0 ? "bg-blue-500" : "bg-gray-300"
+                  }`}
+                  onPress={() =>
+                    course.unusedQuantity > 0 && handleActivate(course)
+                  }
+                  disabled={course.unusedQuantity === 0}
+                >
+                  <MaterialIcons name="person-add" size={20} color="#fff" />
+                  <Text className="text-white font-bold ml-2">
+                    Kích hoạt khóa học
+                  </Text>
+                </Pressable>
               </View>
             </View>
           ))}
