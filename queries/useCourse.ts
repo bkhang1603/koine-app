@@ -76,3 +76,17 @@ export const useAssignCourse = () => {
     }
   })
 }
+
+export const useEnrollFreeCourse = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ token, courseId }: { token: string; courseId: string }) =>
+      courseApiRequest.enrollFreeCourse({ token, courseId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["my-courses-store"],
+        exact: true
+      })
+    }
+  });
+};

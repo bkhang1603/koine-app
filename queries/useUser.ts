@@ -109,9 +109,17 @@ export const useMyLessonDetail = ({
 };
 
 export const useCreateProgressMutation = (token: string) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: CreateProgressBodyType) =>
-      userApiRequest.createProgress(body, token), // Truyền token vào khi gọi API
+      userApiRequest.createProgress(body, token),
+    onSuccess: () => {
+      // Invalidate all related queries
+      queryClient.invalidateQueries({ queryKey: ["my-courses"] });
+      queryClient.invalidateQueries({ queryKey: ["my-course"] });
+      queryClient.invalidateQueries({ queryKey: ["my-chapter"] });
+      queryClient.invalidateQueries({ queryKey: ["my-lesson"] });
+    },
   });
 };
 

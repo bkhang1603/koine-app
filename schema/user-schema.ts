@@ -62,6 +62,9 @@ export const myCourseRes = z.object({
 export type GetMyCoursesResType = z.TypeOf<typeof myCourseRes>;
 
 export const myCourseDetailRes = z.object({
+  statusCode: z.number(),
+  info: z.string(),
+  message: z.string(),
   data: z.object({
     //course
     id: z.string(),
@@ -72,70 +75,69 @@ export const myCourseDetailRes = z.object({
       z.object({
         id: z.string(),
         name: z.string(),
-        status: z.string(),
       })
     ),
-    completionRate: z.string(),
+    completionRate: z.number(),
     author: z.string(),
     imageUrl: z.string(),
-    createAtFormatted: z.string(),
-    updateAtFormatted: z.string(),
+    createdAtFormatted: z.string(),
+    updatedAtFormatted: z.string(),
 
     //chapter
     chapters: z.array(
       z.object({
         id: z.string(),
         title: z.string(),
-        sequence: z.string(),
+        sequence: z.number(),
         status: z.string(),
       })
     ),
   }),
-  message: z.string(),
 });
 
 export type GetMyCourseDetailResType = z.TypeOf<typeof myCourseDetailRes>;
 
 export const myChapterDetailRes = z.object({
+  statusCode: z.number(),
+  info: z.string(),
+  message: z.string(),
   data: z.object({
-    //chapter
     id: z.string(),
     title: z.string(),
     description: z.string(),
     durationDisplay: z.string(),
     status: z.string(),
-    sequence: z.string(),
-    //lesson
+    sequence: z.number(),
     lessons: z.array(
       z.object({
         id: z.string(),
         title: z.string(),
         status: z.string(),
-        sequence: z.string(),
+        sequence: z.number(),
+        durationDisplay: z.string(),
       })
     ),
   }),
-
-  message: z.string(),
 });
 
 export type GetMyChapterDetailResType = z.TypeOf<typeof myChapterDetailRes>;
 
 export const myLessonDetailRes = z.object({
+  statusCode: z.number(),
+  info: z.string(),
+  message: z.string(),
   data: z.object({
-    //lesson
     id: z.string(),
     title: z.string(),
     description: z.string(),
     durationDisplay: z.string(),
-    sequence: z.string(),
+    sequence: z.number(),
     chapterId: z.string(),
-    type: z.string(),
-    content: z.string(),
-    videoUrl: z.string(),
+    type: z.enum(["DOCUMENT", "VIDEO", "BOTH"]),
+    content: z.string().nullable(),
+    videoUrl: z.string().nullable(),
     status: z.string(),
   }),
-  message: z.string(),
 });
 
 export type GetMyLessonDetailResType = z.TypeOf<typeof myLessonDetailRes>;
@@ -188,7 +190,7 @@ export const getMyChild = z.object({
         lastName: z.string(),
         dob: z.string(),
         avatarUrl: z.string(),
-        gender: z.string()
+        gender: z.string(),
       }),
     })
   ),

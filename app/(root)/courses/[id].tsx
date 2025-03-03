@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,28 +7,31 @@ import {
   Pressable,
   ActivityIndicator,
   Animated,
-} from 'react-native'
-import { MaterialIcons } from '@expo/vector-icons'
-import { router, useLocalSearchParams } from 'expo-router'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { MOCK_COURSES } from '@/constants/mock-data'
-import CartButton from '@/components/CartButton'
-import { useBlogDetail } from '@/queries/useBlog'
-import { useCourseDetail } from '@/queries/useCourse'
-import ActivityIndicatorScreen from '@/components/ActivityIndicatorScreen'
-import ErrorScreen from '@/components/ErrorScreen'
-import { courseDetailRes, GetCourseDetailResType } from '@/schema/course-schema'
-import { useCreateCartItemMutation } from '@/queries/useCart'
-import { useAppStore } from '@/components/app-provider'
+} from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { MOCK_COURSES } from "@/constants/mock-data";
+import CartButton from "@/components/CartButton";
+import { useBlogDetail } from "@/queries/useBlog";
+import { useCourseDetail, useEnrollFreeCourse } from "@/queries/useCourse";
+import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
+import ErrorScreen from "@/components/ErrorScreen";
+import {
+  courseDetailRes,
+  GetCourseDetailResType,
+} from "@/schema/course-schema";
+import { useCreateCartItemMutation } from "@/queries/useCart";
+import { useAppStore } from "@/components/app-provider";
 
 export default function CourseDetailScreen() {
-  const { id } = useLocalSearchParams()
-  const insets = useSafeAreaInsets()
+  const { id } = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
   const [selectedTab, setSelectedTab] = useState<
-    'overview' | 'content' | 'reviews'
-  >('overview')
-  const [quantity, setQuantity] = useState(1)
-  const shakeAnimation = new Animated.Value(0)
+    "overview" | "content" | "reviews"
+  >("overview");
+  const [quantity, setQuantity] = useState(1);
+  const shakeAnimation = new Animated.Value(0);
 
   const {
     data: courseData,
@@ -36,30 +39,31 @@ export default function CourseDetailScreen() {
     isError: courseError,
   } = useCourseDetail({
     courseId: id as string,
-  })
+  });
 
-  const accessToken = useAppStore((state) => state.accessToken)
-  const token = accessToken?.accessToken
+  const accessToken = useAppStore((state) => state.accessToken);
+  const token = accessToken?.accessToken;
 
-  const createCartItemMutation = useCreateCartItemMutation()
+  const createCartItemMutation = useCreateCartItemMutation();
+  const enrollFreeMutation = useEnrollFreeCourse();
 
-  let course: GetCourseDetailResType['data'] | null = null
+  let course: GetCourseDetailResType["data"] | null = null;
 
   if (courseData && !courseError) {
     if (courseData.data === null) {
     } else {
-      const parsedResult = courseDetailRes.safeParse(courseData)
+      const parsedResult = courseDetailRes.safeParse(courseData);
       if (parsedResult.success) {
-        course = parsedResult.data.data
+        course = parsedResult.data.data;
       } else {
-        console.error('Validation errors:', parsedResult.error.errors)
+        console.error("Validation errors:", parsedResult.error.errors);
       }
     }
   }
 
   const handleAddToCart = async () => {
     if (!token) {
-      return
+      return;
     }
 
     try {
@@ -69,9 +73,26 @@ export default function CourseDetailScreen() {
           quantity: quantity,
         },
         token,
-      })
+      });
     } catch (error) {}
-  }
+  };
+
+  const handleEnrollFreeCourse = async () => {
+    if (!token) {
+      return;
+    }
+
+    try {
+      await enrollFreeMutation.mutateAsync({
+        token,
+        courseId: id as string,
+      });
+      // After successful enrollment, navigate back or show success message
+      router.back();
+    } catch (error) {
+      console.error("Failed to enroll:", error);
+    }
+  };
 
   const shake = () => {
     Animated.sequence([
@@ -90,17 +111,17 @@ export default function CourseDetailScreen() {
         duration: 100,
         useNativeDriver: true,
       }),
-    ]).start()
-  }
+    ]).start();
+  };
 
-  if (courseLoading) return <ActivityIndicatorScreen />
+  if (courseLoading) return <ActivityIndicatorScreen />;
   if (courseError)
     return (
       <ErrorScreen message="Failed to load courses. Showing default courses." />
-    )
+    );
 
   if (course == null)
-    return <ErrorScreen message="Failed to load courses. Course is null." />
+    return <ErrorScreen message="Failed to load courses. Course is null." />;
 
   return (
     <View className="flex-1 bg-white">
@@ -159,24 +180,24 @@ export default function CourseDetailScreen() {
 
         {/* Tabs */}
         <View className="flex-row border-b border-gray-200">
-          {(['overview', 'content', 'reviews'] as const).map((tab) => (
+          {(["overview", "content", "reviews"] as const).map((tab) => (
             <Pressable
               key={tab}
               onPress={() => setSelectedTab(tab)}
               className={`flex-1 py-3 ${
-                selectedTab === tab ? 'border-b-2 border-blue-500' : ''
+                selectedTab === tab ? "border-b-2 border-blue-500" : ""
               }`}
             >
               <Text
                 className={`text-center font-medium ${
-                  selectedTab === tab ? 'text-blue-500' : 'text-gray-600'
+                  selectedTab === tab ? "text-blue-500" : "text-gray-600"
                 }`}
               >
-                {tab === 'overview'
-                  ? 'Tổng quan'
-                  : tab === 'content'
-                  ? 'Nội dung'
-                  : 'Đánh giá'}
+                {tab === "overview"
+                  ? "Tổng quan"
+                  : tab === "content"
+                  ? "Nội dung"
+                  : "Đánh giá"}
               </Text>
             </Pressable>
           ))}
@@ -184,7 +205,7 @@ export default function CourseDetailScreen() {
 
         {/* Tab Content */}
         <View className="p-4">
-          {selectedTab === 'overview' && course && course.chapters && (
+          {selectedTab === "overview" && course && course.chapters && (
             <View>
               <Text className="text-lg font-bold mb-3">
                 Bạn sẽ học được gì?
@@ -204,7 +225,7 @@ export default function CourseDetailScreen() {
             </View>
           )}
 
-          {selectedTab === 'overview' && course && course.chapters && (
+          {selectedTab === "overview" && course && course.chapters && (
             <View>
               <Text className="text-lg font-bold mb-3">Nội dung khóa học</Text>
               {course.chapters.map((chapter) => (
@@ -217,7 +238,7 @@ export default function CourseDetailScreen() {
                     <Text
                       className="text-gray-600 mt-1"
                       numberOfLines={2}
-                      style={{ flexWrap: 'wrap' }}
+                      style={{ flexWrap: "wrap" }}
                     >
                       {chapter.description}
                     </Text>
@@ -241,7 +262,7 @@ export default function CourseDetailScreen() {
             </View>
           )}
 
-          {selectedTab === 'reviews' && (
+          {selectedTab === "reviews" && (
             <View>
               <Text className="text-center text-gray-600">
                 Chưa có đánh giá nào
@@ -260,68 +281,92 @@ export default function CourseDetailScreen() {
           <View>
             <Text className="text-gray-500 text-sm mb-1">Học phí</Text>
             <Text className="text-2xl font-bold text-blue-500">
-              {course.price.toLocaleString('vi-VN')} ₫
+              {course.price === 0
+                ? "Miễn phí"
+                : `${course.price.toLocaleString("vi-VN")} ₫`}
             </Text>
           </View>
 
-          <View>
-            <Text className="text-gray-500 text-sm mb-2 text-center">
-              Số lượng
-            </Text>
-            <View className="flex-row items-center">
-              <Pressable
-                className="w-9 h-9 items-center justify-center rounded-lg bg-gray-100"
-                onPress={() => setQuantity(Math.max(1, quantity - 1))}
-              >
-                <MaterialIcons
-                  name="remove"
-                  size={20}
-                  color={quantity <= 1 ? '#9CA3AF' : '#374151'}
-                />
-              </Pressable>
-              <Animated.Text
-                className="mx-4 font-semibold text-lg"
-                style={{ transform: [{ translateX: shakeAnimation }] }}
-              >
-                {quantity}
-              </Animated.Text>
-              <Pressable
-                className="w-9 h-9 items-center justify-center rounded-lg bg-gray-100"
-                onPress={() => {
-                  if (quantity >= 3) {
-                    shake()
-                  } else {
-                    setQuantity(quantity + 1)
-                  }
-                }}
-              >
-                <MaterialIcons
-                  name="add"
-                  size={20}
-                  color={quantity >= 3 ? '#9CA3AF' : '#374151'}
-                />
-              </Pressable>
+          {course.price > 0 && (
+            <View>
+              <Text className="text-gray-500 text-sm mb-2 text-center">
+                Số lượng
+              </Text>
+              <View className="flex-row items-center">
+                <Pressable
+                  className="w-9 h-9 items-center justify-center rounded-lg bg-gray-100"
+                  onPress={() => setQuantity(Math.max(1, quantity - 1))}
+                >
+                  <MaterialIcons
+                    name="remove"
+                    size={20}
+                    color={quantity <= 1 ? "#9CA3AF" : "#374151"}
+                  />
+                </Pressable>
+                <Animated.Text
+                  className="mx-4 font-semibold text-lg"
+                  style={{ transform: [{ translateX: shakeAnimation }] }}
+                >
+                  {quantity}
+                </Animated.Text>
+                <Pressable
+                  className="w-9 h-9 items-center justify-center rounded-lg bg-gray-100"
+                  onPress={() => {
+                    if (quantity >= 3) {
+                      shake();
+                    } else {
+                      setQuantity(quantity + 1);
+                    }
+                  }}
+                >
+                  <MaterialIcons
+                    name="add"
+                    size={20}
+                    color={quantity >= 3 ? "#9CA3AF" : "#374151"}
+                  />
+                </Pressable>
+              </View>
             </View>
-          </View>
+          )}
         </View>
 
         <Pressable
           className={`py-4 bg-blue-500 rounded-xl items-center ${
-            createCartItemMutation.isPending ? 'opacity-70' : ''
+            (
+              course.price === 0
+                ? enrollFreeMutation.isPending
+                : createCartItemMutation.isPending
+            )
+              ? "opacity-70"
+              : ""
           }`}
-          onPress={handleAddToCart}
-          disabled={createCartItemMutation.isPending}
+          onPress={
+            course.price === 0 ? handleEnrollFreeCourse : handleAddToCart
+          }
+          disabled={
+            course.price === 0
+              ? enrollFreeMutation.isPending
+              : createCartItemMutation.isPending
+          }
         >
-          {createCartItemMutation.isPending ? (
+          {course.price === 0 ? (
+            enrollFreeMutation.isPending ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text className="text-white font-bold text-base">
+                Đăng ký khóa học
+              </Text>
+            )
+          ) : createCartItemMutation.isPending ? (
             <ActivityIndicator color="white" />
           ) : (
             <Text className="text-white font-bold text-base">
-              Thêm vào giỏ hàng •{' '}
-              {(course.price * quantity).toLocaleString('vi-VN')} ₫
+              Thêm vào giỏ hàng •{" "}
+              {(course.price * quantity).toLocaleString("vi-VN")} ₫
             </Text>
           )}
         </Pressable>
       </View>
     </View>
-  )
+  );
 }

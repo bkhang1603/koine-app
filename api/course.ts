@@ -1,6 +1,7 @@
 import {
   AssignCourseStoreBodyType,
   AssignCourseStoreResType,
+  EnrollFreeCourseResType,
   GetAllCourseResType,
   GetCourseDetailResType,
   GetMyCourseStoreResType,
@@ -40,6 +41,22 @@ const courseApiRequest = {
         Authorization: `Bearer ${token}`, // Thêm token vào headers
       },
     }),
+  enrollFreeCourse: ({
+    token,
+    courseId,
+  }: {
+    token: string;
+    courseId: string;
+  }) =>
+    http.post<EnrollFreeCourseResType>(
+      `courses/${courseId}/enroll-free`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    ),
 };
 
 export default courseApiRequest;
