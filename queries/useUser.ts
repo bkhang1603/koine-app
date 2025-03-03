@@ -3,8 +3,11 @@ import userApiRequest from "@/api/user";
 import {
   CreateProgressBodyType,
   EditProfileBodyType,
+  GetMyChildCourseProgressResType,
   GetMyChildsResType,
+  GetMyCoursesResType,
   GetUserProfileResType,
+  UpdateChildProfileByParent,
 } from "@/schema/user-schema";
 import { useAppStore } from "@/components/app-provider";
 import { RoleValues } from "@/constants/type";
@@ -132,7 +135,7 @@ export const useUserProfile = ({
 }) => {
   const setProfile = useAppStore((state) => state.setProfile);
   const query = useQuery<GetUserProfileResType>({
-    queryKey: ["users-profile"],
+    queryKey: ["users-profile", "my-courses-store"],
     queryFn: () =>
       userApiRequest.getUserProfile({
         token, // Truyền token vào khi gọi API
@@ -159,7 +162,7 @@ export const useMyChilds = ({
   const setChilds = useAppStore((state) => state.setChilds);
   const currentUser = useAppStore((state) => state.user);
   const query = useQuery<GetMyChildsResType>({
-    queryKey: ["my-childs"],
+    queryKey: ["my-childs", "my-courses-store"],
     queryFn: () => userApiRequest.getMyChilds(token),
     enabled: enabled && !!token && currentUser?.role === RoleValues[0],
   });
@@ -189,5 +192,56 @@ export const useEditProfileMutation = () => {
         exact: true,
       });
     },
+  });
+};
+
+export const useMyChildCourses = ({
+  childId,
+  token,
+}: {
+  childId: string;
+  token: string;
+}) => {
+  return useQuery<GetMyCoursesResType>({
+    queryKey: ["my-childs-courses"],
+    queryFn: () => userApiRequest.getMyChildCourse({ childId, token }),
+  });
+};
+
+export const useEditChildProfile = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      childId,
+      body,
+      token,
+    }: {
+      childId: string;
+      body: UpdateChildProfileByParent;
+      token: string;
+    }) => userApiRequest.editChildProfile({ childId, body, token }),
+    onSuccess: () => {
+      // Invalidate queries liên quan đến giỏ hàng sau khi update
+      queryClient.invalidateQueries({
+        queryKey: ["my-childs"],
+        exact: true, // Tùy chọn, nếu bạn muốn invalidate chỉ những query khớp chính xác
+      });
+    },
+  });
+};
+
+export const useMyChildCoursesProgress = ({
+  childId,
+  courseId,
+  token,
+}: {
+  childId: string;
+  courseId: string;
+  token: string;
+}) => {
+  return useQuery({
+    queryKey: ["my-childs-courses-progress"],
+    queryFn: () =>
+      userApiRequest.getMyChildCourseProgress({ childId, courseId, token }),
   });
 };

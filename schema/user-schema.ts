@@ -52,6 +52,7 @@ export const myCourseRes = z.object({
       completionRate: z.number(),
       author: z.string(),
       imageUrl: z.string(),
+      level: z.string(),
       createdAtFormatted: z.string(),
       updatedAtFormatted: z.string(),
     })
@@ -191,6 +192,7 @@ export const getMyChild = z.object({
         dob: z.string(),
         avatarUrl: z.string(),
         gender: z.string(),
+        createdAtFormatted: z.string(),
       }),
     })
   ),
@@ -216,3 +218,55 @@ export const editProfileResType = z.object({
 });
 
 export type EditProfileResType = z.TypeOf<typeof editProfileResType>;
+
+export const myChildCourseProgressResType = z.object({
+  statusCode: z.number(),
+  message: z.string(),
+  data: z.object({
+    courseId: z.string(),
+    courseTitle: z.string(),
+    courseImageUrl: z.string(),
+    isAccessibleByChild: z.boolean(),
+    courseCompletionRate: z.number(),
+    totalLesson: z.number(),
+    totalLessonFinished: z.number(),
+    totalLearningTime: z.number(),
+    enrollmentDate: z.string(),
+    completionDate: z.string(),
+    chapters: z.array(
+      z.object({
+        chapterId: z.string(),
+        chapterTitle: z.string(),
+        chapterDescription: z.string(),
+        chapterSequence: z.number(),
+        chapterStatus: z.string(),
+        chapterCompletionRate: z.number(),
+        lessons: z.array(
+          z.object({
+            lessonId: z.string(),
+            lessonTitle: z.string(),
+            lessonType: z.string(),
+            lessonDurationDisplay: z.string(),
+            lessonSequence: z.number(),
+            lessonStatus: z.string(),
+          })
+        ),
+      })
+    ),
+  }),
+});
+
+export type GetMyChildCourseProgressResType = z.TypeOf<
+  typeof myChildCourseProgressResType
+>;
+
+export const editChildProfileByParentBodyType = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  dob: z.string(),
+  gender: z.string(),
+  avatarUrl: z.string(),
+});
+export type UpdateChildProfileByParent = z.TypeOf<
+  typeof editChildProfileByParentBodyType
+>;

@@ -4,9 +4,6 @@ import { Link, router, useFocusEffect } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
-  MOCK_COURSES,
-  MOCK_USER,
-  MOCK_BLOG_POSTS,
   MOCK_MY_COURSES,
 } from "@/constants/mock-data";
 import CartButton from "@/components/CartButton";

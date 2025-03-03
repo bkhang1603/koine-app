@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, Image, Pressable, Modal } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  Pressable,
+  Modal,
+  Alert,
+} from "react-native";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import HeaderWithBack from "@/components/HeaderWithBack";
@@ -60,13 +68,23 @@ export default function PurchasedCoursesScreen() {
       if (isProcessing) return;
       setIsProcessing(true);
       if (!chosenChild) {
-        alert("Chọn một con để gán khóa học!");
+        Alert.alert("Lỗi", "Chọn một tài khoản con để gán!", [
+          {
+            text: "tắt",
+            style: "cancel",
+          },
+        ]);
         setIsProcessing(false);
         return;
       }
 
       if (!selectedCourse) {
-        alert("Chọn một khóa học để gán!");
+        Alert.alert("Lỗi", "Chọn một khóa học để gán!", [
+          {
+            text: "tắt",
+            style: "cancel",
+          },
+        ]);
         setIsProcessing(false);
         return;
       }
@@ -91,8 +109,12 @@ export default function PurchasedCoursesScreen() {
       }
     } catch (error) {
       setIsProcessing(false);
-      alert("Lỗi xảy ra khi gán khóa học cho con");
-      console.log("Error when assign course to child ", error);
+      Alert.alert("Lỗi", `${error}`, [
+        {
+          text: "tắt",
+          style: "cancel",
+        },
+      ]);
     }
   };
 
@@ -103,7 +125,12 @@ export default function PurchasedCoursesScreen() {
       setIsProcessing(true);
 
       if (!selectedCourse) {
-        alert("Chọn một khóa học để gán!");
+        Alert.alert("Lỗi", "Chọn một khóa học để gán!", [
+          {
+            text: "tắt",
+            style: "cancel",
+          },
+        ]);
         setIsProcessing(false);
         return;
       }
@@ -123,8 +150,12 @@ export default function PurchasedCoursesScreen() {
       }
     } catch (error) {
       setIsProcessing(false);
-      alert("Lỗi xảy ra khi gán khóa học cho tài khoản chính");
-      console.log("Error when assign course to parent ", error);
+      Alert.alert("Lỗi", `${error}`, [
+        {
+          text: "tắt",
+          style: "cancel",
+        },
+      ]);
     }
   };
 
