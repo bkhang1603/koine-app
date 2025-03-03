@@ -24,7 +24,7 @@ export default function EditSubAccountScreen() {
   const myCourse = useAppStore((state) => state.myCourses);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
   const editChild = useEditChildProfile();
-
+  
   const uploadToS3 = useUploadImage();
 
   if (!account) {
@@ -329,7 +329,7 @@ export default function EditSubAccountScreen() {
             <View className="flex-row justify-between">
               <Text className="text-gray-600">Ngày tạo tài khoản</Text>
               <Text className="font-medium">
-                {account.userDetail.createdAtFormatted}
+                {account.createdAtFormatted}
               </Text>
             </View>
           </View>

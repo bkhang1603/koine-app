@@ -11,8 +11,8 @@ export const childs = z.array(
       dob: z.string(),
       avatarUrl: z.string(),
       gender: z.string(),
-      createdAtFormatted: z.string()
     }),
+    createdAtFormatted: z.string(),
   })
 );
 
