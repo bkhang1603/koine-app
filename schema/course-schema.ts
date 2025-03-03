@@ -155,7 +155,7 @@ export type GetMyCourseStoreResType = z.infer<typeof myCourseStore>;
 
 
 export const assignCourse = z.object({
-  childId: z.string(),
+  childId: z.string().nullable(),
   courseId: z.string()
 })
 
@@ -167,3 +167,11 @@ export const assignCourseResType = z.object({
 })
 
 export type AssignCourseStoreResType = z.infer<typeof assignCourseResType>;
+
+export const enrollFreeCourseResType = z.object({
+  statusCode: z.number(),
+  info: z.string(),
+  message: z.string()
+})
+
+export type EnrollFreeCourseResType = z.infer<typeof enrollFreeCourseResType>;

@@ -277,7 +277,8 @@ export default function CartScreen() {
                           {(
                             item.unitPrice *
                             (1 - item.discount)
-                          ).toLocaleString("vi-VN")} đ
+                          ).toLocaleString("vi-VN")}{" "}
+                          đ
                         </Text>
                         <Text className="text-gray-400 line-through text-xs ml-2">
                           {item.unitPrice.toLocaleString("vi-VN")} đ
@@ -300,7 +301,8 @@ export default function CartScreen() {
                         item.unitPrice *
                         (1 - item.discount) *
                         item.quantity
-                      ).toLocaleString("vi-VN")} đ
+                      ).toLocaleString("vi-VN")}{" "}
+                      đ
                     </Text>
                   </View>
 

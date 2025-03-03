@@ -16,12 +16,14 @@ import { useBlog } from "@/queries/useBlog";
 import { blogRes, GetAllBlogResType } from "@/schema/blog-schema";
 import { useShippingInfos } from "@/queries/useShippingInfos";
 import { useCart } from "@/queries/useCart";
-import { useMyChilds, useUserProfile } from "@/queries/useUser";
+import { useMyChilds, useMyCourse, useUserProfile } from "@/queries/useUser";
+import { myCourseRes } from "@/schema/user-schema";
+import { GetMyCoursesResType } from "@/schema/user-schema";
 
 export default function HomeScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
-  const profile = useAppStore(state => state.profile)
+  const profile = useAppStore((state) => state.profile);
 
   // Gọi API shipping
   const {
@@ -47,23 +49,14 @@ export default function HomeScreen() {
   } = useMyChilds({ token: token ? token : "", enabled: true });
 
   const {
-    data: myCourseData,
-    isLoading: isLoadingMyCourse,
-    isError: isErrorMyCourse,
-    refetch: refetchMyCourse,
-  } = useMyCourseStore({ token: token ? token : "", enabled: true });
-
-  const {
     data: profileData,
     isError: isProfileError,
     refetch: refetchProfile,
   } = useUserProfile({ token: token ? token : "", enabled: true });
 
   useEffect(() => {
-    console.log(token);
     refetchShipping();
     refetchChild();
-    refetchMyCourse();
     refetchProfile();
   }, [token]);
 
@@ -79,13 +72,14 @@ export default function HomeScreen() {
   } = useCourses({
     keyword: "",
     page_size: 10,
-    page_index: 1
+    page_index: 1,
   });
 
   let courses: GetAllCourseResType["data"] = [];
 
   if (coursesData && !coursesError) {
     if (coursesData.data.length === 0) {
+      console.log("No courses found in coursesData");
     } else {
       const parsedResult = courseRes.safeParse(coursesData);
       if (parsedResult.success) {
@@ -121,15 +115,10 @@ export default function HomeScreen() {
   }
 
   if (coursesLoading && blogLoading) return <ActivityIndicatorScreen />;
-  if (coursesError && blogError)
-    return (
-      <ErrorScreen message="Failed to load courses. Showing default courses." />
-    );
 
-  // console.log("Fetched Data:", JSON.stringify(courses, null, 2));
-  // console.log("Fetched Data:", JSON.stringify(blog, null, 2));
+  if (coursesError || blogError)
+    return <ErrorScreen message="Failed to load courses." />;
 
-  const recentCourse = MOCK_MY_COURSES[0];
   const featuredCourses = courses;
   const latestBlog = blog[0];
 
@@ -139,7 +128,9 @@ export default function HomeScreen() {
         {/* Header with Avatar */}
         <View className="px-4 flex-row items-center justify-between">
           <View>
-            <Text className="text-2xl font-bold">Xin chào, {profile?.data.firstName}!</Text>
+            <Text className="text-2xl font-bold">
+              Xin chào, {profile?.data.firstName}!
+            </Text>
             <Text className="text-gray-600 mt-1">Hôm nay bạn muốn học gì?</Text>
           </View>
           {/* Cart and Notifications */}
@@ -194,59 +185,6 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Continue Learning */}
-        {recentCourse && (
-          <View className="mt-6">
-            <View className="px-4 flex-row justify-between items-center mb-3">
-              <Text className="text-lg font-bold">Tiếp tục học</Text>
-              <Pressable onPress={() => router.push("/my-courses/my-courses")}>
-                <Text className="text-blue-500">Xem tất cả</Text>
-              </Pressable>
-            </View>
-            <Link href={`/learn/${recentCourse.id}` as any} asChild>
-              <Pressable className="bg-white rounded-2xl p-3 mx-4 border border-gray-100">
-                <View className="flex-row">
-                  <Image
-                    source={{
-                      uri: recentCourse.thumbnail,
-                    }}
-                    className="w-20 h-20 rounded-xl"
-                  />
-                  <View className="flex-1 ml-3">
-                    <Text className="font-bold" numberOfLines={2}>
-                      {recentCourse.title}
-                    </Text>
-                    <View className="flex-row items-center mt-1">
-                      <MaterialIcons
-                        name="schedule"
-                        size={14}
-                        color="#6B7280"
-                      />
-                      <Text className="text-gray-500 text-sm ml-1">
-                        {recentCourse.duration}
-                      </Text>
-                    </View>
-                    {/* Progress Bar */}
-                    <View className="mt-2">
-                      <View className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <View
-                          className="h-full bg-blue-500 rounded-full"
-                          style={{
-                            width: `${recentCourse.progress || 0}%`,
-                          }}
-                        />
-                      </View>
-                      <Text className="text-gray-500 text-xs mt-1">
-                        {recentCourse.progress || 0}% hoàn thành
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              </Pressable>
-            </Link>
-          </View>
-        )}
-
         {/* Featured Courses */}
         <View className="mt-6">
           <View className="px-4 flex-row justify-between items-center mb-3">
@@ -283,17 +221,31 @@ export default function HomeScreen() {
                   className="w-full h-32 rounded-t-xl"
                 />
                 <View className="p-3">
-                  <View className="flex-row items-center">
-                    <View className="self-start bg-cyan-200 p-1 mt-1 rounded">
-                      <Text className="text-blue-500 text-xs font-medium">
-                        {courses[0]?.categories?.[0]?.name || "Tiêu biểu"}
-                      </Text>
-                    </View>
-                    <Text className="text-gray-400 mx-2">•</Text>
-                    <Text className="text-gray-500 text-xs">
-                      {course.durations}
-                    </Text>
+                  <View className="flex-row items-center flex-wrap">
+                    {course.categories && course.categories.length > 0 ? (
+                      course.categories.map((category, index) => (
+                        <React.Fragment key={category.id}>
+                          <View className="self-start bg-cyan-200 p-1 mt-1 rounded">
+                            <Text className="text-blue-500 text-xs font-medium">
+                              {category.name}
+                            </Text>
+                          </View>
+                          {index < course.categories.length - 1 && (
+                            <Text className="text-gray-400 mx-2">•</Text>
+                          )}
+                        </React.Fragment>
+                      ))
+                    ) : (
+                      <View className="self-start bg-cyan-200 p-1 mt-1 rounded">
+                        <Text className="text-blue-500 text-xs font-medium">
+                          Tiêu biểu
+                        </Text>
+                      </View>
+                    )}
                   </View>
+                  <Text className="text-gray-500 text-xs">
+                    {course.totalEnrollment} học viên
+                  </Text>
                   <Text className="font-bold mt-2" numberOfLines={2}>
                     {course.title}
                   </Text>
