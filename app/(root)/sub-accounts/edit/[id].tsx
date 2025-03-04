@@ -7,6 +7,7 @@ import {
   Pressable,
   Image,
   Alert,
+  Platform,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -15,6 +16,9 @@ import * as ImagePicker from "expo-image-picker";
 import { useUploadImage } from "@/queries/useS3";
 import { useAppStore } from "@/components/app-provider";
 import { useEditChildProfile } from "@/queries/useUser";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 
 export default function EditSubAccountScreen() {
   const { id } = useLocalSearchParams();
@@ -24,7 +28,7 @@ export default function EditSubAccountScreen() {
   const myCourse = useAppStore((state) => state.myCourses);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
   const editChild = useEditChildProfile();
-  
+
   const uploadToS3 = useUploadImage();
 
   if (!account) {
@@ -63,10 +67,48 @@ export default function EditSubAccountScreen() {
     account?.userDetail.firstName || ""
   );
   const [lastName, setLastName] = useState(account?.userDetail.lastName || "");
-  const [dob, setDob] = useState(account?.userDetail.dob || "");
+  const [dob, setDob] = useState(convertToDisplay(account?.userDetail.dob) || "");
   const [gender, setGender] = useState(
     account?.userDetail.gender || ("" as "MALE" | "FEMALE" | "OTHER")
   );
+  const [date, setDate] = useState(convertDateFormat(dob) || new Date());
+
+  function convertDateFormat(dateStr: string) {
+    const [day, month, year] = dateStr.split("-");
+
+    // Đảm bảo có đúng 2 chữ số cho tháng và ngày
+    const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(
+      2,
+      "0"
+    )}T00:00:00.000Z`;
+
+    // Trả về Date object với giá trị UTC chuẩn
+    return new Date(formattedDate);
+  }
+
+  function convertDateFormatToSubmit(dateStr: string): string {
+    // Tạo Date object từ chuỗi ISO 8601
+    const [month, day, year] = dateStr.split("/");
+    return `${day}-${month}-${year}`;
+  }
+
+  function convertToDisplay(dateStr: string): string{
+    const [year, month, day] = dateStr.split("-");
+    return `${day}-${month}-${year}`;
+  }
+
+  
+  const [show, setShow] = useState(false);
+
+  const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    setShow(Platform.OS === "ios"); // Ẩn picker nếu là Android
+    if (!selectedDate) return;
+    setDate(selectedDate);
+    const submitDate = convertDateFormatToSubmit(
+      selectedDate.toLocaleDateString()
+    );
+    setDob(submitDate);
+  };
 
   useEffect(() => {
     if (!account) return;
@@ -138,10 +180,10 @@ export default function EditSubAccountScreen() {
       setIsProcessing(true);
       // Trim() để loại bỏ khoảng trắng đầu & cuối
       if (
-        !avatar.trim() ||
-        !lastName.trim() ||
-        !firstName.trim() ||
-        !gender.trim() ||
+        !avatar.trim() &&
+        !lastName.trim() &&
+        !firstName.trim() &&
+        !gender.trim() &&
         !dob.trim()
       ) {
         Alert.alert(
@@ -154,15 +196,17 @@ export default function EditSubAccountScreen() {
             },
           ]
         );
+        setIsProcessing(false);
         return;
       }
-
+      const [day, month, year] = dob.split("-");
+      const finalDob = `${month}/${day}/${year}`;
       const newInfo = {
-        avatarUrl: avatar,
-        dob: dob,
-        firstName: firstName,
-        lastName: lastName,
-        gender: account.userDetail.gender,
+        avatarUrl: avatar.trim(),
+        dob: finalDob.trim(),
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        gender: gender.trim(),
       };
       console.log("Dữ liệu hợp lệ, tiến hành cập nhật...");
       const res = await editChild.mutateAsync({
@@ -188,7 +232,7 @@ export default function EditSubAccountScreen() {
         setIsProcessing(false);
       }
     } catch (error) {
-      console.log("error ", error)
+      console.log("error ", error);
       Alert.alert("Lỗi", `${error}`, [
         {
           text: "tắt",
@@ -199,21 +243,21 @@ export default function EditSubAccountScreen() {
     }
   };
 
-  const handleDelete = () => {
-    try {
-      if (isProcessing) return;
-      setIsProcessing(true);
+  // const handleDelete = () => {
+  //   try {
+  //     if (isProcessing) return;
+  //     setIsProcessing(true);
 
-      console.log("đang chạy api xóa");
-      setTimeout(() => {
-        setIsProcessing(false);
-      }, 2000);
-    } catch (error) {
-      //call api xóa con
-      // TODO: Delete account
-      router.back();
-    }
-  };
+  //     console.log("đang chạy api xóa");
+  //     setTimeout(() => {
+  //       setIsProcessing(false);
+  //     }, 2000);
+  //   } catch (error) {
+  //     //call api xóa con
+  //     // TODO: Delete account
+  //     router.back();
+  //   }
+  // };
 
   return (
     <View className="flex-1 bg-white">
@@ -251,7 +295,7 @@ export default function EditSubAccountScreen() {
           </View>
 
           <View>
-            <Text className="text-gray-700 mb-2">Nhập Tên</Text>
+            <Text className="text-gray-700 mb-2">Tên</Text>
             <TextInput
               className="border border-gray-200 rounded-xl p-4 bg-white"
               placeholder="Nhập tên"
@@ -261,14 +305,27 @@ export default function EditSubAccountScreen() {
           </View>
 
           <View>
-            <Text className="text-gray-700 mb-2">Năm sinh</Text>
-            <TextInput
-              className="border border-gray-200 rounded-xl p-4 bg-white"
-              placeholder="Nhập năm sinh"
-              keyboardType="number-pad"
-              value={dob}
-              onChangeText={setDob}
-            />
+            <Text className="text-gray-700 mb-2">Ngày sinh</Text>
+            <View className="flex-row items-center">
+              <View className="border border-gray-200 p-4 rounded-xl">
+                <Text className="text-black font-bold text-center">{dob}</Text>
+              </View>
+              <Pressable
+                className="bg-cyan-200 p-2 rounded-xl ml-3"
+                onPress={() => setShow(true)}
+              >
+                <MaterialIcons name="calendar-month" size={24} color="black" />
+              </Pressable>
+            </View>
+
+            {show && (
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display="default"
+                onChange={onChange}
+              />
+            )}
           </View>
 
           <View>
@@ -328,9 +385,7 @@ export default function EditSubAccountScreen() {
             </View>
             <View className="flex-row justify-between">
               <Text className="text-gray-600">Ngày tạo tài khoản</Text>
-              <Text className="font-medium">
-                {account.createdAtFormatted}
-              </Text>
+              <Text className="font-medium">{account.createdAtFormatted}</Text>
             </View>
           </View>
 

@@ -1,11 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, ScrollView, Pressable, Image } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { MOCK_CHILD } from "@/constants/mock-data";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAppStore } from "@/components/app-provider";
+import { useUserProfile } from "@/queries/useUser";
 
 export default function HomeScreen() {
+  const accessToken = useAppStore((state) => state.accessToken);
+  const token = accessToken == undefined ? "" : accessToken.accessToken;
+  const {
+    data: profileData,
+    isError: isProfileError,
+    refetch: refetchProfile,
+  } = useUserProfile({ token: token ? token : "", enabled: true });
+
+  useEffect(() => {
+    refetchProfile();
+  }, [token]);
+
   return (
     <View className="flex-1 bg-gray-50">
       {/* Top SafeArea với background violet */}

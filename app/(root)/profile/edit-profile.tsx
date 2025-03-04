@@ -100,11 +100,11 @@ export default function EditProfileScreen() {
       setIsProcessing(true);
       // Trim() để loại bỏ khoảng trắng đầu & cuối
       if (
-        !avatar.trim() ||
-        !lastName.trim() ||
-        !firstName.trim() ||
-        !email.trim() ||
-        !phone.trim() ||
+        !avatar.trim() &&
+        !lastName.trim() &&
+        !firstName.trim() &&
+        !email.trim() &&
+        !phone.trim() &&
         !address.trim()
       ) {
         Alert.alert(
@@ -117,6 +117,7 @@ export default function EditProfileScreen() {
             },
           ]
         );
+        setIsProcessing(false);
         return;
       }
 
@@ -129,16 +130,17 @@ export default function EditProfileScreen() {
             style: "cancel",
           },
         ]);
+        setIsProcessing(false);
         return;
       }
       const newInfo = {
-        avatarUrl: avatar,
-        phone: phone,
-        firstName: firstName,
-        lastName: lastName,
-        address: address,
+        avatarUrl: avatar.trim(),
+        phone: phone.trim(),
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        address: address.trim(),
         gender: profile?.data.gender || "MALE",
-        dob: profile?.data.dob,
+        dob: profile?.data.dob.trim(),
       };
       console.log("Dữ liệu hợp lệ, tiến hành cập nhật...");
       const res = await uploadNewProfile.mutateAsync({

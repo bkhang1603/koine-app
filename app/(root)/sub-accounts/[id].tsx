@@ -5,7 +5,7 @@ import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import HeaderWithBack from "@/components/HeaderWithBack";
 import { useAppStore } from "@/components/app-provider";
 import { useMyChildCourses } from "@/queries/useUser";
-import { Alert } from "react-native";
+import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 
 export default function SubAccountDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -18,13 +18,14 @@ export default function SubAccountDetailScreen() {
   const {
     data: childCourse,
     isError,
+    isLoading,
     refetch,
   } = useMyChildCourses({ childId: account.id, token: token });
 
   useFocusEffect(() => {
     refetch();
   });
-
+  if(isLoading) return <ActivityIndicatorScreen />;
   if (!childCourse || childCourse.data.length == 0) {
     return (
       <View className="flex-1 bg-white">
@@ -327,6 +328,7 @@ export default function SubAccountDetailScreen() {
             </Pressable>
           ))}
         </View>
+
       </ScrollView>
     </View>
   );

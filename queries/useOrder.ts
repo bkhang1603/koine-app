@@ -1,5 +1,9 @@
 import orderApiRequest from "@/api/order";
-import { CreateOrderBodyAtListType, CreateOrderBodyType, DeleteOrderBodyType } from "@/schema/order-schema";
+import {
+  CreateOrderBodyAtListType,
+  CreateOrderBodyType,
+  DeleteOrderBodyType,
+} from "@/schema/order-schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useCreateOrder = () => {
@@ -15,8 +19,10 @@ export const useCreateOrder = () => {
     onSuccess: () => {
       // Invalidate queries liên quan đến giỏ hàng sau khi delete
       queryClient.invalidateQueries({
-        queryKey: ["order", "my-courses-store"],
-        exact: true, // Tùy chọn, nếu bạn muốn invalidate chỉ những query khớp chính xác
+        queryKey: ["order"], // Tùy chọn, nếu bạn muốn invalidate chỉ những query khớp chính xác
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["my-courses-store"], // Tùy chọn, nếu bạn muốn invalidate chỉ những query khớp chính xác
       });
     },
   });
@@ -35,8 +41,10 @@ export const useCreateOrderAtList = () => {
     onSuccess: () => {
       // Invalidate queries liên quan đến giỏ hàng sau khi delete
       queryClient.invalidateQueries({
-        queryKey: ["order", "my-courses-store"],
-        exact: true, // Tùy chọn, nếu bạn muốn invalidate chỉ những query khớp chính xác
+        queryKey: ["order"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["my-courses-store"],
       });
     },
   });
@@ -85,22 +93,22 @@ export const useOrderDetails = ({
 };
 
 export const useDeleteOrderMutation = () => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
       orderId,
       body,
       token,
     }: {
-      orderId : string
-      body: DeleteOrderBodyType
-      token: string
+      orderId: string;
+      body: DeleteOrderBodyType;
+      token: string;
     }) => orderApiRequest.deleteOrder(orderId, body, token),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['order'],
+        queryKey: ["order"],
         exact: true,
-      })
+      });
     },
-  })
-}
+  });
+};

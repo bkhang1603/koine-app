@@ -10,9 +10,9 @@ import { useAppStore } from "@/components/app-provider";
 
 export default function ProfileScreen() {
   const user = useAppStore((state) => state.user);
+  const profile = useAppStore(state => state.profile)
   const setRefreshExpired = useAppStore((state) => state.setRefreshExpired);
   const clearAuth = useAppStore((state) => state.clearAuth);
-
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleLogout = async () => {
@@ -59,10 +59,10 @@ export default function ProfileScreen() {
           <View className="bg-white rounded-3xl p-6 shadow-lg shadow-violet-100">
             <View className="items-center">
               <Image
-                source={{ uri: MOCK_CHILD.avatar }}
+                source={{ uri: profile?.data.avatarUrl }}
                 className="w-24 h-24 rounded-full border-4 border-white"
               />
-              <Text className="text-xl font-bold mt-4">{MOCK_CHILD.name}</Text>
+              <Text className="text-xl font-bold mt-4">{profile?.data.lastName + " " + profile?.data.firstName}</Text>
               <View className="flex-row items-center mt-1">
                 <MaterialIcons name="school" size={16} color="#7C3AED" />
                 <Text className="text-violet-600 ml-1 font-medium">
@@ -145,7 +145,13 @@ export default function ProfileScreen() {
             </Pressable>
 
             <Pressable
-              className="flex-row items-center p-4 bg-red-50 rounded-2xl mt-6"
+              className="flex-row items-center p-4 bg-red-50 border border-slate-200 rounded-2xl mt-6"style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.05,
+                shadowRadius: 4,
+                elevation: 3,
+              }}
               onPress={handleLogout}
             >
               <View className="w-10 h-10 rounded-full bg-red-100 items-center justify-center">

@@ -62,7 +62,6 @@ export default function ProfileScreen() {
   const setRefreshExpired = useAppStore((state) => state.setRefreshExpired);
   const clearAuth = useAppStore((state) => state.clearAuth);
   const myCourse = useAppStore((state) => state.myCourses);
-  console.log(myCourse?.data.totalItem)
   const totalPurchased = myCourse?.data.totalItem;
 
   const [isProcessing, setIsProcessing] = useState(false); // Trạng thái nút
@@ -169,7 +168,7 @@ export default function ProfileScreen() {
                 >
                   <Image
                     source={{ uri: account.userDetail.avatarUrl }}
-                    className="w-24 h-24 rounded-xl"
+                    className="w-24 h-24 rounded-full"
                   />
                   <Text className="font-medium mt-2 text-center">
                     {account.userDetail.lastName +
