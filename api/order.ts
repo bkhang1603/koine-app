@@ -17,11 +17,9 @@ const orderApiRequest = {
         'User-Agent': 'MobileKoine', // Thêm token vào headers
       },
     }),
-  createOrderAtList: (body: CreateOrderBodyAtListType, token: string) =>
-    http.post<CreateOrderResType>(`orders/at-list`, body, {
-      //
+  createOrderAtList: (token: string, orderId: string) =>
+    http.post<CreateOrderResType>(`orders/re-purchase/${orderId}`, {}, {
       headers: {
-        // chỉnh lại url
         Authorization: `Bearer ${token}`,
         'User-Agent': 'MobileKoine', // Thêm token vào headers
       },

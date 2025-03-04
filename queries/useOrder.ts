@@ -26,17 +26,16 @@ export const useCreateOrderAtList = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
-      body,
+      orderId,
       token,
     }: {
-      body: CreateOrderBodyAtListType;
+      orderId: string;
       token: string;
-    }) => orderApiRequest.createOrderAtList(body, token),
+    }) => orderApiRequest.createOrderAtList(token, orderId),
     onSuccess: () => {
-      // Invalidate queries liên quan đến giỏ hàng sau khi delete
       queryClient.invalidateQueries({
         queryKey: ["order", "my-courses-store"],
-        exact: true, // Tùy chọn, nếu bạn muốn invalidate chỉ những query khớp chính xác
+        exact: true,
       });
     },
   });
