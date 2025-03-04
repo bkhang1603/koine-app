@@ -135,7 +135,7 @@ export const useUserProfile = ({
 }) => {
   const setProfile = useAppStore((state) => state.setProfile);
   const query = useQuery<GetUserProfileResType>({
-    queryKey: ["users-profile", "my-courses-store"],
+    queryKey: ["users-profile"],
     queryFn: () =>
       userApiRequest.getUserProfile({
         token, // Truyền token vào khi gọi API
@@ -188,9 +188,9 @@ export const useEditProfileMutation = () => {
     }) => userApiRequest.editProfile({ body, token }), // Truyền token vào khi gọi API
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["users-profile"],
+        queryKey: ['users-profile', 'my-courses-store'],
         exact: true,
-      });
+      })
     },
   });
 };
@@ -223,9 +223,9 @@ export const useEditChildProfile = () => {
     onSuccess: () => {
       // Invalidate queries liên quan đến giỏ hàng sau khi update
       queryClient.invalidateQueries({
-        queryKey: ["my-childs"],
+        queryKey: ['my-childs', 'my-courses-store'],
         exact: true, // Tùy chọn, nếu bạn muốn invalidate chỉ những query khớp chính xác
-      });
+      })
     },
   });
 };

@@ -1,11 +1,11 @@
 import {
-  CreateOrderBodyAtListType,
   CreateOrderBodyType,
   CreateOrderResType,
   DeleteOrderBodyType,
   DeleteOrderResType,
   GetAllOrderResType,
   GetOrderDetailsResType,
+  RePurchaseOrderResType,
 } from '@/schema/order-schema'
 import http from '@/util/http'
 
@@ -17,13 +17,17 @@ const orderApiRequest = {
         'User-Agent': 'MobileKoine', // Thêm token vào headers
       },
     }),
-  createOrderAtList: (token: string, orderId: string) =>
-    http.post<CreateOrderResType>(`orders/re-purchase/${orderId}`, {}, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'User-Agent': 'MobileKoine', // Thêm token vào headers
-      },
-    }),
+  rePurchaseOrder: (token: string, orderId: string) =>
+    http.post<RePurchaseOrderResType>(
+      `orders/re-purchase/${orderId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'User-Agent': 'MobileKoine',
+        },
+      }
+    ),
   getAll: ({
     page_size,
     page_index,

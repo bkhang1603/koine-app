@@ -34,6 +34,7 @@ const QUICK_ACTIONS = [
 
 export default function SubAccountsScreen() {
   const childs = useAppStore((state) => state.childs);
+  const profile = useAppStore((state) => state.profile);
   const myCourse = useAppStore((state) => state.myCourses);
 
   if (!childs || childs.length == 0) {
@@ -68,6 +69,12 @@ export default function SubAccountsScreen() {
       (sum, item) => sum + item.assignedTo.length,
       0
     ) ?? 0;
+  const totalDifferentAssigned =
+    myCourse?.data.details?.reduce(
+      (sum, item) =>
+        sum + item.assignedTo.filter((a) => a.id !== profile?.data.id).length,
+      0
+    ) ?? 0
 
   const STATS = [
     {
@@ -197,7 +204,7 @@ export default function SubAccountsScreen() {
                 key={account.id}
                 className="bg-white rounded-xl border border-gray-100 p-4 mb-4"
                 style={{
-                  shadowColor: "#000",
+                  shadowColor: '#000',
                   shadowOffset: { width: 0, height: 2 },
                   shadowOpacity: 0.05,
                   shadowRadius: 4,
@@ -205,7 +212,7 @@ export default function SubAccountsScreen() {
                 }}
                 onPress={() =>
                   router.push({
-                    pathname: "/sub-accounts/[id]",
+                    pathname: '/sub-accounts/[id]',
                     params: { id: account.id },
                   })
                 }
@@ -219,42 +226,42 @@ export default function SubAccountsScreen() {
                     <View className="flex-row items-center justify-between">
                       <Text className="font-bold text-lg">
                         {account.userDetail.lastName +
-                          " " +
+                          ' ' +
                           account.userDetail.firstName}
                       </Text>
                       <View
                         className={`px-3 py-1 rounded-full ${
                           activeCourses.length > 0
-                            ? "bg-green-100"
-                            : "bg-gray-100"
+                            ? 'bg-green-100'
+                            : 'bg-gray-100'
                         }`}
                       >
                         <Text
                           className={
                             activeCourses.length > 0
-                              ? "text-green-700"
-                              : "text-gray-600"
+                              ? 'text-green-700'
+                              : 'text-gray-600'
                           }
                         >
-                          {activeCourses.length > 0 ? "Đang học" : "Chưa học"}
+                          {activeCourses.length > 0 ? 'Đang học' : 'Chưa học'}
                         </Text>
                       </View>
                     </View>
                     <View className="flex-row items-center mt-1">
                       <Text className="text-gray-600">
                         {new Date().getFullYear() -
-                          new Date(account.userDetail.dob).getFullYear()}{" "}
+                          new Date(account.userDetail.dob).getFullYear()}{' '}
                         tuổi
                       </Text>
                       <Text className="text-gray-400 mx-2">•</Text>
                       <Text
                         className={`${
-                          account.userDetail.gender === "MALE"
-                            ? "text-blue-600"
-                            : "text-pink-600"
+                          account.userDetail.gender === 'MALE'
+                            ? 'text-blue-600'
+                            : 'text-pink-600'
                         }`}
                       >
-                        {account.userDetail.gender === "MALE" ? "Nam" : "Nữ"}
+                        {account.userDetail.gender === 'MALE' ? 'Nam' : 'Nữ'}
                       </Text>
                     </View>
                   </View>
@@ -264,10 +271,10 @@ export default function SubAccountsScreen() {
                 <View className="flex-row mt-4 pt-4 border-t border-gray-100">
                   <View className="flex-1 border-r border-gray-100">
                     <Text className="text-center text-gray-600">
-                        Tổng số lượng khóa học đã gán 
+                      Tổng số lượng khóa học đã gán
                     </Text>
                     <Text className="text-center font-bold text-lg mt-1">
-                      {totalLearnedCourse}
+                      {totalDifferentAssigned}
                     </Text>
                   </View>
                   {/* <View className="flex-1 border-r border-gray-100">
@@ -301,7 +308,7 @@ export default function SubAccountsScreen() {
                   <Pressable
                     className="flex-1 flex-row items-center justify-center"
                     onPress={() => {
-                      router.push("/(root)/sub-accounts/edit/[childId]");
+                      router.push('/(root)/sub-accounts/edit/[childId]')
                     }}
                   >
                     <MaterialIcons name="edit" size={20} color="#374151" />
@@ -311,7 +318,7 @@ export default function SubAccountsScreen() {
                   <Pressable
                     className="flex-1 flex-row items-center justify-center"
                     onPress={() =>
-                      router.push("/purchased-courses/purchased-courses" as any)
+                      router.push('/purchased-courses/purchased-courses' as any)
                     }
                   >
                     <MaterialIcons name="school" size={20} color="#374151" />
@@ -322,7 +329,7 @@ export default function SubAccountsScreen() {
                     className="flex-1 flex-row items-center justify-center"
                     onPress={() =>
                       router.push({
-                        pathname: "/learning-management/learning-management",
+                        pathname: '/learning-management/learning-management',
                         params: {
                           selectedAccount: account.id,
                         },
@@ -333,7 +340,7 @@ export default function SubAccountsScreen() {
                   </Pressable>
                 </View>
               </Pressable>
-            );
+            )
           })}
         </View>
       </ScrollView>

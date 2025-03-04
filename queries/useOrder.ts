@@ -1,5 +1,5 @@
 import orderApiRequest from "@/api/order";
-import { CreateOrderBodyAtListType, CreateOrderBodyType, DeleteOrderBodyType } from "@/schema/order-schema";
+import { CreateOrderBodyType, DeleteOrderBodyType } from "@/schema/order-schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useCreateOrder = () => {
@@ -22,7 +22,7 @@ export const useCreateOrder = () => {
   });
 };
 
-export const useCreateOrderAtList = () => {
+export const useRePurchaseOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
@@ -31,7 +31,7 @@ export const useCreateOrderAtList = () => {
     }: {
       orderId: string;
       token: string;
-    }) => orderApiRequest.createOrderAtList(token, orderId),
+    }) => orderApiRequest.rePurchaseOrder(token, orderId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["order", "my-courses-store"],

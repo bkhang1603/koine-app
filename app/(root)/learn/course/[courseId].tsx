@@ -10,6 +10,7 @@ import {
 } from "@/schema/user-schema";
 import { useAppStore } from "@/components/app-provider";
 import { useMyCourseDetail } from "@/queries/useUser";
+import blog from "@/app/(tabs)/blog/blog";
 
 export default function CourseLearnScreen() {
   const { courseId } = useLocalSearchParams<{ courseId: string }>();
@@ -48,8 +49,12 @@ export default function CourseLearnScreen() {
   return (
     <View className="flex-1 bg-white">
       <HeaderWithBack
-        title="Chi tiết khoá học"
-        returnTab={"/(tabs)/my-courses/my-courses"}
+        title={
+          course.title.length > 30
+            ? course.title.substring(0, 30) + '...'
+            : course.title
+        }
+        returnTab={'/(tabs)/my-courses/my-courses'}
         showMoreOptions={false}
       />
       <ScrollView>
@@ -96,7 +101,7 @@ export default function CourseLearnScreen() {
           <View className="bg-gray-200 h-2.5 rounded-full overflow-hidden">
             <View
               className={`h-full rounded-full ${
-                course.completionRate === 100 ? "bg-green-500" : "bg-blue-500"
+                course.completionRate === 100 ? 'bg-green-500' : 'bg-blue-500'
               }`}
               style={{
                 width: `${Math.max(2, course.completionRate)}%`,
@@ -110,38 +115,38 @@ export default function CourseLearnScreen() {
             <MaterialIcons name="schedule" size={20} color="#3B82F6" />
             <Text className="text-gray-600 ml-2">
               {(() => {
-                const duration = course.durationDisplay;
-                const hours = parseInt(duration.split("h")[0]) || 0;
+                const duration = course.durationDisplay
+                const hours = parseInt(duration.split('h')[0]) || 0
                 const minutes =
-                  parseInt(duration.split("h")[1].replace("p", "")) || 0;
+                  parseInt(duration.split('h')[1].replace('p', '')) || 0
 
-                const totalMinutes = hours * 60 + minutes;
-                const completionRate = Number(course.completionRate);
+                const totalMinutes = hours * 60 + minutes
+                const completionRate = Number(course.completionRate)
                 const learnedMinutes = Math.round(
                   (totalMinutes * completionRate) / 100
-                );
-                const learnedHours = Math.floor(learnedMinutes / 60);
-                const remainingMinutes = learnedMinutes % 60;
+                )
+                const learnedHours = Math.floor(learnedMinutes / 60)
+                const remainingMinutes = learnedMinutes % 60
 
-                let learned = "";
+                let learned = ''
                 if (learnedHours > 0) {
-                  learned += `${learnedHours} giờ `;
+                  learned += `${learnedHours} giờ `
                 }
-                if (remainingMinutes > 0 || learned === "") {
-                  learned += `${remainingMinutes} phút`;
+                if (remainingMinutes > 0 || learned === '') {
+                  learned += `${remainingMinutes} phút`
                 }
-                if (learned === "") learned = "0 phút";
+                if (learned === '') learned = '0 phút'
 
-                let total = "";
+                let total = ''
                 if (hours > 0) {
-                  total += `${hours} giờ `;
+                  total += `${hours} giờ `
                 }
-                if (minutes > 0 || total === "") {
-                  total += `${minutes} phút`;
+                if (minutes > 0 || total === '') {
+                  total += `${minutes} phút`
                 }
-                if (total === "") total = "0 phút";
+                if (total === '') total = '0 phút'
 
-                return `Đã học ${learned} / ${total}`;
+                return `Đã học ${learned} / ${total}`
               })()}
             </Text>
           </View>
@@ -152,62 +157,62 @@ export default function CourseLearnScreen() {
             {course.chapters.map((chapter, index) => {
               // Kiểm tra xem chương trước đó đã hoàn thành chưa
               const previousChapter =
-                index > 0 ? course.chapters[index - 1] : null;
+                index > 0 ? course.chapters[index - 1] : null
               const isLocked =
-                previousChapter && previousChapter.status !== "YET";
+                previousChapter && previousChapter.status !== 'YET'
 
               return (
                 <View key={chapter.id}>
                   <Text
                     className={`font-bold mb-2 ${
-                      isLocked ? "text-gray-400" : "text-gray-900"
+                      isLocked ? 'text-gray-400' : 'text-gray-900'
                     }`}
                   >
                     Chương {chapter.sequence}: {chapter.title}
                   </Text>
                   <Pressable
                     className={`flex-row items-center bg-gray-50 p-4 rounded-xl mb-4 ${
-                      isLocked ? "opacity-60" : ""
+                      isLocked ? 'opacity-60' : ''
                     }`}
                     onPress={() => {
                       if (!isLocked) {
                         router.push({
-                          pathname: "/learn/chapter/[chapterId]" as any,
+                          pathname: '/learn/chapter/[chapterId]' as any,
                           params: {
                             chapterId: chapter.id,
                             courseId: course.id,
                           },
-                        });
+                        })
                       }
                     }}
                     disabled={isLocked}
                   >
                     <MaterialIcons
                       name={
-                        chapter.status === "YET"
-                          ? "check-circle"
-                          : "play-circle-outline"
+                        chapter.status === 'YET'
+                          ? 'check-circle'
+                          : 'play-circle-outline'
                       }
                       size={24}
                       color={
                         isLocked
-                          ? "#9CA3AF"
-                          : chapter.status === "YET"
-                          ? "#10B981"
-                          : "#3B82F6"
+                          ? '#9CA3AF'
+                          : chapter.status === 'YET'
+                          ? '#10B981'
+                          : '#3B82F6'
                       }
                     />
                     <View className="flex-1 ml-3">
                       <Text
                         className={`font-medium ${
-                          isLocked ? "text-gray-400" : "text-gray-900"
+                          isLocked ? 'text-gray-400' : 'text-gray-900'
                         }`}
                       >
                         {chapter.title}
                       </Text>
                       <Text
                         className={`text-sm ${
-                          isLocked ? "text-gray-400" : "text-gray-600"
+                          isLocked ? 'text-gray-400' : 'text-gray-600'
                         }`}
                       >
                         Chương {chapter.sequence}
@@ -216,16 +221,16 @@ export default function CourseLearnScreen() {
                     <MaterialIcons
                       name="chevron-right"
                       size={24}
-                      color={isLocked ? "#9CA3AF" : "#6B7280"}
+                      color={isLocked ? '#9CA3AF' : '#6B7280'}
                     />
                   </Pressable>
                 </View>
-              );
+              )
             })}
           </View>
         </View>
         <View className="h-20" />
       </ScrollView>
     </View>
-  );
+  )
 }

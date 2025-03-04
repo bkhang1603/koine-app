@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react'
 import {
   View,
   Text,
@@ -7,43 +7,44 @@ import {
   TouchableOpacity,
   Modal,
   TextInput,
-} from "react-native";
-import { useLocalSearchParams } from "expo-router";
-import { MaterialIcons } from "@expo/vector-icons";
-import HeaderWithBack from "@/components/HeaderWithBack";
-import { WebView } from "react-native-webview";
+} from 'react-native'
+import { useLocalSearchParams } from 'expo-router'
+import { MaterialIcons } from '@expo/vector-icons'
+import HeaderWithBack from '@/components/HeaderWithBack'
+import { WebView } from 'react-native-webview'
 import {
   useBlogComments,
   useBlogDetail,
   useCreateBlogComment,
   useCreateBlogReact,
-} from "@/queries/useBlog";
+} from '@/queries/useBlog'
 import {
   blogCommentRes,
   blogDetailRes,
   GetAllBlogCommentsResType,
   GetBlogDetailResType,
-} from "@/schema/blog-schema";
-import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
-import ErrorScreen from "@/components/ErrorScreen";
-import { useAppStore } from "@/components/app-provider";
-import { formatTimeAgo } from "@/util/date";
-import { useQueryClient } from "@tanstack/react-query";
+} from '@/schema/blog-schema'
+import ActivityIndicatorScreen from '@/components/ActivityIndicatorScreen'
+import ErrorScreen from '@/components/ErrorScreen'
+import { useAppStore } from '@/components/app-provider'
+import { formatTimeAgo } from '@/util/date'
+import { useQueryClient } from '@tanstack/react-query'
+import course from '@/app/(tabs)/course/course'
 
 export default function BlogDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const [webViewHeight, setWebViewHeight] = useState(0);
-  const [showComments, setShowComments] = useState(false);
-  const [commentText, setCommentText] = useState("");
-  const [lastCommentTime, setLastCommentTime] = useState<Date | null>(null);
-  const [showValidationMessage, setShowValidationMessage] = useState(false);
-  const [localIsReact, setLocalIsReact] = useState(false);
-  const [localTotalReact, setLocalTotalReact] = useState(0);
+  const { id } = useLocalSearchParams<{ id: string }>()
+  const [webViewHeight, setWebViewHeight] = useState(0)
+  const [showComments, setShowComments] = useState(false)
+  const [commentText, setCommentText] = useState('')
+  const [lastCommentTime, setLastCommentTime] = useState<Date | null>(null)
+  const [showValidationMessage, setShowValidationMessage] = useState(false)
+  const [localIsReact, setLocalIsReact] = useState(false)
+  const [localTotalReact, setLocalTotalReact] = useState(0)
   const [pendingReactUpdate, setPendingReactUpdate] =
-    useState<NodeJS.Timeout | null>(null);
+    useState<NodeJS.Timeout | null>(null)
 
-  const accessToken = useAppStore((state) => state.accessToken);
-  const token = accessToken == undefined ? "" : accessToken.accessToken;
+  const accessToken = useAppStore((state) => state.accessToken)
+  const token = accessToken == undefined ? '' : accessToken.accessToken
 
   const {
     data: blogData,
@@ -52,7 +53,7 @@ export default function BlogDetailScreen() {
   } = useBlogDetail({
     blogId: id as string,
     token: token as string,
-  });
+  })
 
   const {
     data: commentsData,
@@ -62,46 +63,46 @@ export default function BlogDetailScreen() {
     blogId: id as string,
     page_size: 10,
     page_index: 1,
-  });
+  })
 
   const { mutate: createComment, isPending: isCreatingComment } =
     useCreateBlogComment({
       token: token as string,
       blogId: id as string,
-    });
+    })
 
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   const { mutate: createReact, isPending: isCreatingReact } =
     useCreateBlogReact({
       token: token as string,
       blogId: id as string,
-    });
+    })
 
-  let blog: GetBlogDetailResType["data"] | null = null;
+  let blog: GetBlogDetailResType['data'] | null = null
 
   if (blogData && !blogError) {
     if (blogData.data === null) {
     } else {
-      const parsedResult = blogDetailRes.safeParse(blogData);
+      const parsedResult = blogDetailRes.safeParse(blogData)
       if (parsedResult.success) {
-        blog = parsedResult.data.data;
+        blog = parsedResult.data.data
       } else {
-        console.error("Validation errors:", parsedResult.error.errors);
+        console.error('Validation errors:', parsedResult.error.errors)
       }
     }
   }
 
-  let blogComments: GetAllBlogCommentsResType["data"] | null = null;
+  let blogComments: GetAllBlogCommentsResType['data'] | null = null
 
   if (commentsData && !commentsError) {
     if (commentsData.data === null) {
     } else {
-      const parsedResult = blogCommentRes.safeParse(commentsData);
+      const parsedResult = blogCommentRes.safeParse(commentsData)
       if (parsedResult.success) {
-        blogComments = parsedResult.data.data;
+        blogComments = parsedResult.data.data
       } else {
-        console.error("Validation errors:", parsedResult.error.errors);
+        console.error('Validation errors:', parsedResult.error.errors)
       }
     }
   }
@@ -109,51 +110,51 @@ export default function BlogDetailScreen() {
   // Initialize local states when blog data is loaded
   useEffect(() => {
     if (blogData?.data) {
-      setLocalIsReact(blogData.data.isReact);
-      setLocalTotalReact(blogData.data.totalReact);
+      setLocalIsReact(blogData.data.isReact)
+      setLocalTotalReact(blogData.data.totalReact)
     }
-  }, [blogData?.data]);
+  }, [blogData?.data])
 
-  if (blogLoading && commentsLoading) return <ActivityIndicatorScreen />;
+  if (blogLoading && commentsLoading) return <ActivityIndicatorScreen />
 
-  if (blogError) return null;
+  if (blogError) return null
 
-  if (blog == null) return null;
+  if (blog == null) return null
 
-  if (commentsError) return null;
+  if (commentsError) return null
 
-  if (blogComments == null) return null;
+  if (blogComments == null) return null
 
   const canComment = () => {
     if (!commentText.trim() || commentText.trim().length < 2) {
-      return false;
+      return false
     }
 
     if (lastCommentTime) {
       const timeSinceLastComment =
-        new Date().getTime() - lastCommentTime.getTime();
-      const cooldownPeriod = 10 * 1000;
+        new Date().getTime() - lastCommentTime.getTime()
+      const cooldownPeriod = 10 * 1000
       if (timeSinceLastComment < cooldownPeriod) {
-        return false;
+        return false
       }
     }
 
-    return true;
-  };
+    return true
+  }
 
   const getRemainingCooldownTime = () => {
-    if (!lastCommentTime) return 0;
+    if (!lastCommentTime) return 0
     const timeSinceLastComment =
-      new Date().getTime() - lastCommentTime.getTime();
-    const cooldownPeriod = 10 * 1000; // 10 seconds
+      new Date().getTime() - lastCommentTime.getTime()
+    const cooldownPeriod = 10 * 1000 // 10 seconds
     return Math.max(
       0,
       Math.ceil((cooldownPeriod - timeSinceLastComment) / 1000)
-    );
-  };
+    )
+  }
 
   const handleCommentSubmit = () => {
-    setShowValidationMessage(true);
+    setShowValidationMessage(true)
 
     if (canComment()) {
       createComment(
@@ -163,21 +164,28 @@ export default function BlogDetailScreen() {
         },
         {
           onSuccess: () => {
-            setCommentText("");
-            setLastCommentTime(new Date());
-            setShowValidationMessage(false);
+            setCommentText('')
+            setLastCommentTime(new Date())
+            setShowValidationMessage(false)
           },
           onError: (error) => {
-            console.error("Failed to post comment:", error);
+            console.error('Failed to post comment:', error)
           },
         }
-      );
+      )
     }
-  };
+  }
 
   return (
     <View className="flex-1 bg-gray-50">
-      <HeaderWithBack title="Blog" />
+      <HeaderWithBack
+        title={
+          blog.title.length > 30
+            ? blog.title.substring(0, 30) + '...'
+            : blog.title
+        }
+        returnTab="/(tabs)/blog/blog"
+      />
       <ScrollView bounces={false} className="flex-1">
         <Image
           source={{ uri: blog.imageUrl }}
@@ -270,7 +278,7 @@ export default function BlogDetailScreen() {
                           </script>
                       </head>
                       <body>
-                          ${blog.content || ""}
+                          ${blog.content || ''}
                       </body>
                   </html>
                 `,
@@ -280,7 +288,7 @@ export default function BlogDetailScreen() {
               showsVerticalScrollIndicator={false}
               scalesPageToFit={false}
               onMessage={(event) => {
-                setWebViewHeight(parseInt(event.nativeEvent.data));
+                setWebViewHeight(parseInt(event.nativeEvent.data))
               }}
             />
           </View>
@@ -294,12 +302,12 @@ export default function BlogDetailScreen() {
           disabled={isCreatingReact}
           onPress={() => {
             // Update local state immediately
-            setLocalIsReact(!localIsReact);
-            setLocalTotalReact((prev) => (!localIsReact ? prev + 1 : prev - 1));
+            setLocalIsReact(!localIsReact)
+            setLocalTotalReact((prev) => (!localIsReact ? prev + 1 : prev - 1))
 
             // Clear any pending update
             if (pendingReactUpdate) {
-              clearTimeout(pendingReactUpdate);
+              clearTimeout(pendingReactUpdate)
             }
 
             // Set new pending update
@@ -311,24 +319,24 @@ export default function BlogDetailScreen() {
                 },
                 {
                   onError: (error) => {
-                    console.error("Failed to update reaction:", error);
+                    console.error('Failed to update reaction:', error)
                     // Revert local state on error
-                    setLocalIsReact(!localIsReact);
+                    setLocalIsReact(!localIsReact)
                     setLocalTotalReact((prev) =>
                       localIsReact ? prev + 1 : prev - 1
-                    );
+                    )
                   },
                 }
-              );
-            }, 3000);
+              )
+            }, 3000)
 
-            setPendingReactUpdate(timeoutId);
+            setPendingReactUpdate(timeoutId)
           }}
         >
           <MaterialIcons
-            name={localIsReact ? "favorite" : "favorite-border"}
+            name={localIsReact ? 'favorite' : 'favorite-border'}
             size={28}
-            color={localIsReact ? "#E0245E" : "#657786"}
+            color={localIsReact ? '#E0245E' : '#657786'}
           />
           <Text className="ml-2 text-base font-medium text-gray-700">
             {localTotalReact} Tương tác
@@ -354,7 +362,7 @@ export default function BlogDetailScreen() {
       >
         <View className="flex-1 bg-white">
           <View className="h-[80px] border-b border-gray-200 px-4 flex-row items-center justify-between">
-            <Text className="text-lg font-semibold">Comments</Text>
+            <Text className="text-lg font-semibold">Bình luận</Text>
             <TouchableOpacity onPress={() => setShowComments(false)}>
               <MaterialIcons name="close" size={24} color="#657786" />
             </TouchableOpacity>
@@ -404,15 +412,15 @@ export default function BlogDetailScreen() {
             )}
 
             {/* Comment Input Container */}
-            <View className="flex-row items-center bg-gray-50 rounded-full px-4">
+            <View className="flex-row items-center bg-gray-50 rounded-2xl px-4 py-2">
               <TextInput
-                className="flex-1 py-2"
-                placeholder="Write a comment..."
+                className="flex-1 py-2 px-2 min-h-[45px] text-lg"
+                placeholder="Viết bình luận..."
                 value={commentText}
                 onChangeText={(text) => {
-                  setCommentText(text);
+                  setCommentText(text)
                   if (showValidationMessage && text.trim().length >= 2) {
-                    setShowValidationMessage(false);
+                    setShowValidationMessage(false)
                   }
                 }}
                 multiline
@@ -425,7 +433,7 @@ export default function BlogDetailScreen() {
                 <MaterialIcons
                   name="send"
                   size={20}
-                  color={!isCreatingComment ? "#1DA1F2" : "#657786"}
+                  color={!isCreatingComment ? '#1DA1F2' : '#657786'}
                 />
               </TouchableOpacity>
             </View>
@@ -433,5 +441,5 @@ export default function BlogDetailScreen() {
         </View>
       </Modal>
     </View>
-  );
+  )
 }
