@@ -7,36 +7,92 @@ import {
   Pressable,
   Button,
   Alert,
+  Platform,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import HeaderWithBack from "@/components/HeaderWithBack";
 import { useCreateChildMutation } from "@/queries/useAuth";
 import { useAppStore } from "@/components/app-provider";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 
 export default function CreateSubAccountScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
+  const [isProcessing, setIsProcessing] = useState(false);
 
+  const [date, setDate] = useState(new Date(2000,9,20));
   const createChild = useCreateChildMutation();
   const [formData, setFormData] = useState({
     username: "",
     dob: "",
     password: "",
-    gender: "" as "MALE" | "FEMALE" | "",
+    gender: "" as "MALE" | "FEMALE" | "OTHER",
   });
 
-  const handleConfirm = (selectedDate: Date) => {
-    const formattedDate = selectedDate.toISOString().split("T")[0]; // Chuyển về yyyy-mm-dd
-    setFormData({ ...formData, dob: formattedDate });
+  const [show, setShow] = useState(false);
+
+  function convertDateFormat(dateStr: string): string {
+    // Tạo Date object từ chuỗi ISO 8601
+    const [month, day, year] = dateStr.split("/");
+    return `${day}/${month}/${year}`;
+  }
+
+  function convertToSubmit(dateStr: string): string {
+    // Tạo Date object từ chuỗi ISO 8601
+    const [day, month, year] = dateStr.split("/");
+    return `${year}/${month}/${day}`;
+  }
+
+  const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    setShow(Platform.OS === "ios"); // Ẩn picker nếu là Android
+    if (!selectedDate) return;
+    setDate(selectedDate);
+    const submitDate = convertDateFormat(selectedDate.toLocaleDateString())
+    setFormData({ ...formData, dob: submitDate })
   };
+
+ 
 
   const handleCreate = async () => {
     try {
+      if(isProcessing) return;
+      setIsProcessing(true);
+      if (
+        !formData.dob.trim() &&
+        !formData.password.trim() &&
+        !formData.username.trim() &&
+        !formData.gender.trim()
+      ) {
+        Alert.alert(
+          "Lỗi",
+          "Vui lòng nhập đầy đủ thông tin, không được để trống!",
+          [
+            {
+              text: "tắt",
+              style: "cancel",
+            },
+          ]
+        );
+        setIsProcessing(false);
+        return;
+      }
+      const info = {
+        dob: convertToSubmit(formData.dob).trim(),
+        password: formData.password.trim(),
+        username: formData.username.trim(),
+        gender: formData.gender.trim()
+      }
       const res = await createChild.mutateAsync({
-        body: formData,
+        body: info,
         token: token,
       });
+      console.log("info", info.dob )
+      console.log("info", info.gender )
+      console.log("info", info )
+     
       if (res) {
         Alert.alert("Thông báo", "Tạo tài khoản con thành công", [
           {
@@ -44,9 +100,7 @@ export default function CreateSubAccountScreen() {
             style: "cancel",
           },
         ]);
-        setTimeout(() => {
-          router.push("/(root)/sub-accounts/sub-accounts");
-        }, 1000);
+        setIsProcessing(false);
       }
     } catch (error) {
       Alert.alert("Lỗi", `${error}`, [
@@ -55,6 +109,7 @@ export default function CreateSubAccountScreen() {
           style: "cancel",
         },
       ]);
+      setIsProcessing(false);
     }
   };
 
@@ -62,7 +117,7 @@ export default function CreateSubAccountScreen() {
     <View className="flex-1 bg-white">
       <HeaderWithBack
         title="Thêm tài khoản con"
-        returnTab={"/(root)/sub-accounts/sub-accounts"}
+        returnTab={"/(tabs)/profile/profile"}
       />
       <ScrollView className="flex-1 p-4">
         {/* Form Fields */}
@@ -93,12 +148,26 @@ export default function CreateSubAccountScreen() {
 
           <View>
             <Text className="text-gray-700 mb-2">Ngày sinh</Text>
-            <TextInput
-              className="border border-gray-200 rounded-xl p-4"
-              placeholder="VD: 2000-01-01"
-              value={formData.dob}
-              onChangeText={(text) => setFormData({ ...formData, dob: text })}
-            />
+            <View className="flex-row items-center">
+              <View className="border border-gray-200 p-4 rounded-xl">
+                <Text className="text-black font-bold text-center">{date.toLocaleDateString()}</Text>
+              </View>
+              <Pressable
+                className="bg-cyan-200 p-2 rounded-xl ml-3"
+                onPress={() => setShow(true)}
+              >
+                <MaterialIcons name="calendar-month" size={24} color="black" />
+              </Pressable>
+            </View>
+
+            {show && (
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display="default"
+                onChange={onChange}
+              />
+            )}
           </View>
 
           <View>
@@ -159,16 +228,15 @@ export default function CreateSubAccountScreen() {
       <View className="p-4 border-t border-gray-100">
         <Pressable
           className={`p-4 rounded-xl ${
-            formData.username && formData.dob && formData.gender
+            !isProcessing && (formData.username && formData.dob && formData.gender)
               ? "bg-blue-500"
               : "bg-gray-100"
           }`}
-          disabled={!formData.username || !formData.dob || !formData.gender}
           onPress={handleCreate}
         >
           <Text
             className={`text-center font-bold ${
-              formData.username && formData.dob && formData.gender
+              !isProcessing && (formData.username && formData.dob && formData.gender)
                 ? "text-white"
                 : "text-gray-400"
             }`}

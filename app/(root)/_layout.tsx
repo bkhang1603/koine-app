@@ -32,12 +32,6 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen
-          name="profile/my-courses"
-          options={{
-            headerTitle: "Khóa học của tôi",
-          }}
-        />
-        <Stack.Screen
           name="profile/settings"
           options={{
             headerShown: false,
@@ -85,10 +79,6 @@ export default function RootLayout() {
         />
         <Stack.Screen
           name="purchased-courses/purchased-courses"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="learning-management/learning-management"
           options={{ headerShown: false }}
         />
         <Stack.Screen

@@ -168,7 +168,7 @@ export default function ProfileScreen() {
                 >
                   <Image
                     source={{ uri: account.userDetail.avatarUrl }}
-                    className="w-24 h-24 rounded-xl"
+                    className="w-24 h-24 rounded-full"
                   />
                   <Text className="font-medium mt-2 text-center">
                     {account.userDetail.lastName +

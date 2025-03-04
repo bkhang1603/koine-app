@@ -1,11 +1,12 @@
 import React from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { View, Text, ScrollView, Pressable, Image } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import HeaderWithBack from "@/components/HeaderWithBack";
 import { MOCK_COURSES, MOCK_USER } from "@/constants/mock-data";
 import { useAppStore } from "@/components/app-provider";
 import { useMyChildCoursesProgress } from "@/queries/useUser";
+import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 
 export default function CourseProgressScreen() {
   const { id, accountId } = useLocalSearchParams<{
@@ -14,21 +15,23 @@ export default function CourseProgressScreen() {
   }>();
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
-  const childs = useAppStore(state => state.childs)
+  const childs = useAppStore((state) => state.childs);
 
   const {
     data: childCourseProgress,
     isError,
     refetch,
+    isLoading,
   } = useMyChildCoursesProgress({
     childId: accountId,
     courseId: id,
     token: token,
   });
-  
-  const course = childCourseProgress?.data
+
+  const course = childCourseProgress?.data;
   const account = childs?.find((child) => child.id == accountId);
- 
+
+  if (isLoading) return <ActivityIndicatorScreen />;
 
   if (!course || !account) {
     return (
@@ -65,15 +68,25 @@ export default function CourseProgressScreen() {
         {/* Course Info */}
         <View className="p-4 border-b border-gray-100">
           <Text className="text-xl font-bold">{course?.courseTitle}</Text>
-          <Text className="text-gray-600 mt-1">Học viên: {account?.userDetail.lastName + " " + account.userDetail.firstName}</Text>
+          <Text className="text-gray-600 mt-1">
+            Học viên:{" "}
+            {account?.userDetail.lastName + " " + account.userDetail.firstName}
+          </Text>
         </View>
 
         {/* Overall Progress */}
         <View className="p-4 bg-cyan-200">
+          <Image
+            source={{ uri: course.courseImageUrl }}
+            className="w-full h-36 rounded-lg"
+          />
+
           <Text className="text-lg font-bold mb-3">Tổng quan</Text>
           <View className="flex-row justify-between mb-2">
             <Text className="text-gray-600">Tiến độ tổng thể</Text>
-            <Text className="font-bold">{course?.courseCompletionRate || 0}%</Text>
+            <Text className="font-bold">
+              {course?.courseCompletionRate || 0}%
+            </Text>
           </View>
           <View className="bg-white h-2 rounded-full overflow-hidden">
             <View
@@ -87,20 +100,22 @@ export default function CourseProgressScreen() {
             <View className="flex-1">
               <Text className="text-gray-600">Đã học</Text>
               <Text className="font-bold text-lg">
-                {course?.totalLessonFinished || 0}{" "}
-                bài
+                {course?.totalLessonFinished || 0} bài
               </Text>
             </View>
             <View className="flex-1">
               <Text className="text-gray-600">Còn lại</Text>
               <Text className="font-bold text-lg">
-                {(course?.totalLesson || 0) - (course?.totalLessonFinished || 0)}{" "}
+                {(course?.totalLesson || 0) -
+                  (course?.totalLessonFinished || 0)}{" "}
                 bài
               </Text>
             </View>
             <View className="flex-1">
               <Text className="text-gray-600">Thời gian học</Text>
-              <Text className="font-bold text-lg">{course?.totalLearningTime || 0}</Text>
+              <Text className="font-bold text-lg">
+                {course?.totalLearningTime || 0}
+              </Text>
             </View>
           </View>
         </View>
@@ -112,7 +127,7 @@ export default function CourseProgressScreen() {
             const completedLessons = chapter.lessons.filter(
               (l) => l.lessonStatus == "YET"
             ).length;
-            const progress = chapter.chapterCompletionRate
+            const progress = chapter.chapterCompletionRate;
 
             return (
               <View
@@ -156,12 +171,16 @@ export default function CourseProgressScreen() {
                             : "radio-button-unchecked"
                         }
                         size={20}
-                        color={lesson.lessonStatus == "YET" ? "#059669" : "#9CA3AF"}
+                        color={
+                          lesson.lessonStatus == "YET" ? "#059669" : "#9CA3AF"
+                        }
                       />
                       <View className="ml-3 flex-1">
                         <Text
                           className={`${
-                            lesson.lessonStatus == "YET" ? "text-gray-600" : "text-gray-900"
+                            lesson.lessonStatus == "YET"
+                              ? "text-gray-600"
+                              : "text-gray-900"
                           }`}
                         >
                           {lesson.lessonTitle}

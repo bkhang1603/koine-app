@@ -33,6 +33,7 @@ const QUICK_ACTIONS = [
 ];
 
 export default function SubAccountsScreen() {
+  const profile = useAppStore((state) => state.profile);
   const childs = useAppStore((state) => state.childs);
   const myCourse = useAppStore((state) => state.myCourses);
 
@@ -68,11 +69,17 @@ export default function SubAccountsScreen() {
       (sum, item) => sum + item.assignedTo.length,
       0
     ) ?? 0;
+  const totalDifferentAssigned =
+    myCourse?.data.details?.reduce(
+      (sum, item) =>
+        sum + item.assignedTo.filter((a) => a.id !== profile?.data.id).length,
+      0
+    ) ?? 0;
 
   const STATS = [
     {
       id: "total",
-      label: "Tổng tài khoản",
+      label: "Tổng tài khoản con",
       value: childs?.length,
       icon: "people",
       color: "blue",
@@ -86,7 +93,7 @@ export default function SubAccountsScreen() {
     },
     {
       id: "available",
-      label: "Khóa học chờ kích hoạt",
+      label: "Khóa học đang chờ",
       value: emptyAssignedCount || 0,
       icon: "pending-actions",
       color: "yellow",
@@ -259,18 +266,19 @@ export default function SubAccountsScreen() {
                     </View>
                   </View>
                 </View>
-
-                {/* Learning Stats */}
-                <View className="flex-row mt-4 pt-4 border-t border-gray-100">
-                  <View className="flex-1 border-r border-gray-100">
-                    <Text className="text-center text-gray-600">
-                        Tổng số lượng khóa học đã gán 
-                    </Text>
-                    <Text className="text-center font-bold text-lg mt-1">
-                      {totalLearnedCourse}
-                    </Text>
-                  </View>
-                  {/* <View className="flex-1 border-r border-gray-100">
+              </Pressable>
+            );
+          })}
+          <View>
+            {/* Learning Stats */}
+            <View className="flex-row bg-cyan-200 mt-1 py-2 rounded-lg">
+              <View className="flex-1 border-r border-gray-100">
+                <Text className="text-center text-gray-600">Đã gán</Text>
+                <Text className="text-center font-bold text-lg mt-1">
+                  {totalDifferentAssigned}
+                </Text>
+              </View>
+              {/* <View className="flex-1 border-r border-gray-100">
                     <Text className="text-center text-gray-600">Thời gian</Text>
                     <Text className="text-center font-bold text-lg mt-1">
                       {activeCourses.reduce(
@@ -288,53 +296,36 @@ export default function SubAccountsScreen() {
                         activeCourses.reduce(
                           (sum, course) => sum + (course.progress || 0),
                           0
-                        ) / (activeCourses.length || 1)
+                        ) / (activeCourses.length || 1) 
                       )}
                       5
                       %
                     </Text>
                   </View>  */}
-                </View>
+            </View>
 
-                {/* Quick Actions logic chỗ này đưa qua bên sub/sub/id rồi hợp lí hơn */}
-                <View className="flex-row mt-4 pt-4 border-t border-gray-100">
-                  <Pressable
-                    className="flex-1 flex-row items-center justify-center"
-                    onPress={() => {
-                      router.push("/(root)/sub-accounts/edit/[childId]");
-                    }}
-                  >
-                    <MaterialIcons name="edit" size={20} color="#374151" />
-                  </Pressable>
-
-                  <View className="w-px h-6 bg-gray-200 self-center" />
-                  <Pressable
-                    className="flex-1 flex-row items-center justify-center"
-                    onPress={() =>
-                      router.push("/purchased-courses/purchased-courses" as any)
-                    }
-                  >
-                    <MaterialIcons name="school" size={20} color="#374151" />
-                  </Pressable>
-
-                  <View className="w-px h-6 bg-gray-200 self-center" />
-                  <Pressable
-                    className="flex-1 flex-row items-center justify-center"
-                    onPress={() =>
-                      router.push({
-                        pathname: "/learning-management/learning-management",
-                        params: {
-                          selectedAccount: account.id,
-                        },
-                      } as any)
-                    }
-                  >
-                    <MaterialIcons name="insights" size={20} color="#374151" />
-                  </Pressable>
-                </View>
+            {/* Quick Actions logic chỗ này đưa qua bên sub/sub/id rồi hợp lí hơn
+            <View className="bg-white rounded-xl p-4 mt-2 border border-gray-300"
+                style={{
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 4,
+                  elevation: 3,
+                }}>
+              
+              <Pressable
+                className="flex-1 flex-row items-center justify-center"
+                onPress={() =>
+                  router.push({
+                    pathname: "/learning-management/learning-management"
+                  } as any)
+                }
+              >
+                <MaterialIcons name="insights" size={20} color="#374151" />
               </Pressable>
-            );
-          })}
+            </View> */}
+          </View>
         </View>
       </ScrollView>
     </View>

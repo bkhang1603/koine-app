@@ -54,10 +54,19 @@ export default function HomeScreen() {
     refetch: refetchProfile,
   } = useUserProfile({ token: token ? token : "", enabled: true });
 
+  const {
+    data: myCourseData,
+    isLoading: isLoadingMyCourse,
+    isError: isErrorMyCourse,
+    error: myCourseError,
+    refetch: refetchMyCourse
+  } = useMyCourseStore({ token: token ? token : "", enabled: true });
+
   useEffect(() => {
     refetchShipping();
     refetchChild();
     refetchProfile();
+    refetchMyCourse()
   }, [token]);
 
   // Refetch data when focused
