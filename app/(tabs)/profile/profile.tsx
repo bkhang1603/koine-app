@@ -62,6 +62,7 @@ export default function ProfileScreen() {
   const setRefreshExpired = useAppStore((state) => state.setRefreshExpired);
   const clearAuth = useAppStore((state) => state.clearAuth);
   const myCourse = useAppStore((state) => state.myCourses);
+  console.log(myCourse?.data.totalItem)
   const totalPurchased = myCourse?.data.totalItem;
 
   const [isProcessing, setIsProcessing] = useState(false); // Trạng thái nút
