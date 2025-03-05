@@ -7,7 +7,7 @@ import React, { useEffect } from 'react'
 import { RoleValues } from '@/constants/type'
 import { ShippingAddressType } from '@/model/shipping-address'
 import { CartType } from '@/model/cart'
-import { Childs } from '@/model/child'
+import { ChildProfileType, Childs } from '@/model/child'
 import { ZodNotMultipleOfIssue } from 'zod'
 import { MyCourseType } from '@/model/course'
 import { GetUserProfileResType } from '@/schema/user-schema'
@@ -49,6 +49,9 @@ type AppStoreType = {
 
   profile: GetUserProfileResType | null,
   setProfile: (profile: GetUserProfileResType) => void
+
+  childProfile: ChildProfileType | null,
+  setChildProfile: (childProfile: ChildProfileType) => void
 }
 
 export const useAppStore = create<AppStoreType>((set) => ({
@@ -78,10 +81,15 @@ export const useAppStore = create<AppStoreType>((set) => ({
   setMyCourse: (myCourses) => set({myCourses}),
 
   profile: null,
-  setProfile: (profile) => set({profile})
+  setProfile: (profile) => set({profile}),
+
+  childProfile: null,
+  setChildProfile: (childProfile) => set({childProfile})
   // Courses
   // courses: [],
   // setCourses: (courses) => set({ courses }),
+
+  
 
 }))
 

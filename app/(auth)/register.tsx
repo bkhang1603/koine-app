@@ -79,6 +79,21 @@ export default function RegisterScreen() {
         return;
       }
 
+      const passwordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+      const isValidPassword = (password: string) => passwordRegex.test(password);
+
+      if (!isValidPassword(password)) {
+        Alert.alert(
+          "Lỗi",
+          "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!",
+          [{ text: "tắt", style: "cancel" }]
+        );
+        setIsProcessing(false);
+        return;
+      }
+
       if (password !== confirmPassword) {
         Alert.alert("Lỗi", "Mật khẩu xác nhận không trùng khớp!", [
           {
@@ -99,23 +114,22 @@ export default function RegisterScreen() {
         dob: convertToSubmit(dob).trim(),
         role: "ADULT",
       };
-      console.log(body);
-      setIsProcessing(false);
-      //   const res = await register.mutateAsync(body);
-      //   if (res) {
-      //     Alert.alert(
-      //       "Thông báo",
-      //       "Đăng kí thành công, kiểm tra mail để lấy mã xác nhận",
-      //       [
-      //         {
-      //           text: "tắt",
-      //           style: "cancel",
-      //         },
-      //       ]
-      //     );
-      //     setIsProcessing(false);
-      //     //router.push qua trang nhập otp
-      //   }
+
+      const res = await register.mutateAsync(body);
+      if (res) {
+        Alert.alert(
+          "Thông báo",
+          "Đăng kí thành công, kiểm tra mail để lấy mã xác nhận",
+          [
+            {
+              text: "tắt",
+              style: "cancel",
+            },
+          ]
+        );
+        setIsProcessing(false);
+        //router.push qua trang nhập otp
+      }
     } catch (error) {
       Alert.alert("Lỗi", `${error}`, [
         {
@@ -191,17 +205,27 @@ export default function RegisterScreen() {
             </View>
 
             <View>
-              <Text className="text-gray-600 mb-1">Email</Text>
+              <Text className="text-gray-600 mb-1">Mật khẩu</Text>
               <View className="flex-row items-center bg-gray-50 rounded-xl px-4">
-                <MaterialIcons name="email" size={20} color="#6B7280" />
+                <MaterialIcons name="password" size={20} color="#6B7280" />
                 <TextInput
                   className="flex-1 py-3 px-2"
-                  placeholder="Nhập email"
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
+                  placeholder="Nhập mật khẩu"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
                   autoCapitalize="none"
                 />
+                <Pressable
+                  onPress={() => setShowPassword(!showPassword)}
+                  hitSlop={8}
+                >
+                  <MaterialIcons
+                    name={showPassword ? "visibility" : "visibility-off"}
+                    size={20}
+                    color="#6B7280"
+                  />
+                </Pressable>
               </View>
             </View>
 
@@ -326,20 +350,35 @@ export default function RegisterScreen() {
 
           {/* Register Button */}
           <Pressable
-            className="bg-blue-500 p-4 rounded-xl mt-8"
+            className={`p-4 rounded-xl ${
+              !isProcessing &&
+              name &&
+              dob &&
+              gender &&
+              password &&
+              confirmPassword &&
+              address &&
+              email
+                ? "bg-blue-500"
+                : "bg-gray-200"
+            }`}
             onPress={handleRegister}
-            hitSlop={{
-              top: 10,
-              bottom: 10,
-              left: 10,
-              right: 10,
-            }}
           >
             <Text
-              className="text-white font-bold text-center"
-              onPress={handleRegister}
+              className={`text-center font-bold ${
+                !isProcessing &&
+                name &&
+                dob &&
+                gender &&
+                password &&
+                confirmPassword &&
+                address &&
+                email
+                  ? "text-white"
+                  : "text-gray-400"
+              }`}
             >
-              Đăng ký
+              Tạo tài khoản
             </Text>
           </Pressable>
 

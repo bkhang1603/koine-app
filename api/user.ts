@@ -1,4 +1,5 @@
 import {
+  ChildProfileChildPageResType,
   CreateProgressBodyType,
   EditProfileBodyType,
   EditProfileResType,
@@ -129,7 +130,7 @@ const userApiRequest = {
         Authorization: `Bearer ${token}`, // Thêm token vào headers
       },
     }),
-    
+
   getMyChildCourseProgress: ({
     childId,
     courseId,
@@ -147,6 +148,13 @@ const userApiRequest = {
         },
       }
     ),
+
+  getProfileByChild: (token: string) =>
+    http.get<ChildProfileChildPageResType>("users/profile-child", {
+      headers: {
+        Authorization: `Bearer ${token}`, // Thêm token vào headers
+      },
+    }),
 };
 
 export default userApiRequest;

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import userApiRequest from "@/api/user";
 import {
+  ChildProfileChildPageResType,
   CreateProgressBodyType,
   EditProfileBodyType,
   GetMyChildCourseProgressResType,
@@ -194,6 +195,9 @@ export const useEditProfileMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ["my-courses-store"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["child-profile"],
+      });
     },
   });
 };
@@ -226,9 +230,11 @@ export const useEditChildProfile = () => {
     onSuccess: () => {
       // Invalidate queries liên quan đến giỏ hàng sau khi update
       queryClient.invalidateQueries({
-        queryKey: ["my-childs"]});
-        queryClient.invalidateQueries({
-          queryKey: ["my-courses-store"]});
+        queryKey: ["my-childs"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["my-courses-store"],
+      });
     },
   });
 };
@@ -247,4 +253,30 @@ export const useMyChildCoursesProgress = ({
     queryFn: () =>
       userApiRequest.getMyChildCourseProgress({ childId, courseId, token }),
   });
+};
+
+export const useChildProfileAtChild = ({
+  token,
+  enabled,
+}: {
+  token: string;
+  enabled: boolean;
+}) => {
+  const setChildProfile = useAppStore((state) => state.setChildProfile);
+  const query = useQuery<ChildProfileChildPageResType>({
+    queryKey: ["child-profile"],
+    queryFn: () =>
+      userApiRequest.getProfileByChild(
+        token // Truyền token vào khi gọi API
+      ),
+    enabled: enabled,
+  });
+
+  useEffect(() => {
+    if (query.data) {
+      setChildProfile(query.data.data); // Đảm bảo `data.data` có kiểu `GetAllCartDetailResType['data']`
+    }
+  }, [query.data, setChildProfile]);
+
+  return query;
 };

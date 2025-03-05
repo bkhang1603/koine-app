@@ -41,8 +41,6 @@ export default function SubAccountDetailScreen() {
     );
   }
 
-  console.log("Fetched Data:", JSON.stringify(childCourse, null, 2));
-
   if (!childCourse.data.courses || childCourse.data.courses.length === 0) {
     return (
       <View className="flex-1 bg-white">

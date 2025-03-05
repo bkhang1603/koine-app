@@ -1,12 +1,13 @@
-import React from "react";
-import { View, Text, ScrollView, Pressable, Image } from "react-native";
+import React, { useState } from "react";
+import { View, Text, ScrollView, Pressable, Image, Alert } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import HeaderWithBack from "@/components/HeaderWithBack";
 import { MOCK_COURSES, MOCK_USER } from "@/constants/mock-data";
 import { useAppStore } from "@/components/app-provider";
 import { useMyChildCoursesProgress } from "@/queries/useUser";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
+import { useEditChildCourseVisible } from "@/queries/useCourse";
 
 export default function CourseProgressScreen() {
   const { id, accountId } = useLocalSearchParams<{
@@ -26,6 +27,13 @@ export default function CourseProgressScreen() {
     childId: accountId,
     courseId: id,
     token: token,
+  });
+
+  const [isProcessing, setIsProcessing] = useState(false);
+  const hide = useEditChildCourseVisible();
+
+  useFocusEffect(() => {
+    refetch();
   });
 
   const course = childCourseProgress?.data;
@@ -57,6 +65,61 @@ export default function CourseProgressScreen() {
     );
   }
 
+  const handleHide = async () => {
+    try {
+      if (isProcessing) return;
+      setIsProcessing(true);
+
+      Alert.alert(
+        "Xác nhận ẩn",
+        `Bạn có chắc chắn muốn ẩn khóa học?\n${
+          account.userDetail.lastName + " " + account.userDetail.firstName
+        } sẽ không thấy khóa học này nữa`,
+        [
+          {
+            text: "Hủy",
+            style: "cancel",
+            onPress: () => {
+              setIsProcessing(false); // Đặt lại trạng thái khi hủy
+            },
+          },
+          {
+            text: "Ẩn",
+            style: "destructive",
+            onPress: async () => {
+              try {
+                const body = {
+                  childId: account.id,
+                  courseId: course.courseId,
+                  isVisible: !course.isAccessibleByChild,
+                };
+                console.log(body)
+                const res = await hide.mutateAsync({
+                  token: token,
+                  body: body,
+                });
+                if (res) {
+                  refetch()
+                }
+              } catch (error) {
+                Alert.alert("Lỗi", `Thao tác thất bại ${error}`, [
+                  { text: "Tắt", style: "cancel" },
+                ]);
+              } finally {
+                setIsProcessing(false);
+              }
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      Alert.alert("Lỗi", `Thao tác thất bại ${error}`, [
+        { text: "Tắt", style: "cancel" },
+      ]);
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <View className="flex-1 bg-white">
       <HeaderWithBack
@@ -72,6 +135,34 @@ export default function CourseProgressScreen() {
             Học viên:{" "}
             {account?.userDetail.lastName + " " + account.userDetail.firstName}
           </Text>
+          <View className="flex-row items-center">
+            <Text className="text-gray-600 mt-1">Trạng thái:</Text>
+
+            {childCourseProgress.data.isAccessibleByChild == true ? (
+              <View className="mt-1 ml-1 px-2 bg-cyan-400 rounded-xl">
+                <Text className="text-gray-600">Đang hiển thị</Text>
+              </View>
+            ) : (
+              <View className="mt-1 ml-1 px-2 bg-gray-400 rounded-xl">
+                <Text className="text-gray-600">Đang ẩn</Text>
+              </View>
+            )}
+          </View>
+          <Pressable
+            className="bg-slate-300 self-start p-2 mt-1 rounded-xl"
+            onPress={handleHide}
+            hitSlop={8}
+          >
+            <MaterialIcons
+              name={
+                childCourseProgress.data.isAccessibleByChild == true
+                  ? "visibility"
+                  : "visibility-off"
+              }
+              size={24}
+              color="#6B7280"
+            />
+          </Pressable>
         </View>
 
         {/* Overall Progress */}

@@ -207,7 +207,7 @@ export const editProfileBodyType = z.object({
   lastName: z.string(),
   dob: z.string().optional(),
   address: z.string().optional(),
-  gender: z.enum(["MALE", "FEMALE", "OTHER"]).optional(),
+  gender: z.string().optional(),
   avatarUrl: z.string(),
 });
 export type EditProfileBodyType = z.TypeOf<typeof editProfileBodyType>;
@@ -271,7 +271,6 @@ export type UpdateChildProfileByParent = z.TypeOf<
   typeof editChildProfileByParentBodyType
 >;
 
-
 export const myChildCourseRes = z.object({
   statusCode: z.number(),
   info: z.string(),
@@ -284,29 +283,51 @@ export const myChildCourseRes = z.object({
     avatarUrl: z.string(),
     gender: z.string(),
     dob: z.string(),
-    courses: z.array(
-      z.object({
-        id: z.string(),
-        title: z.string(),
-        description: z.string(),
-        level: z.string(),
-        durationDisplay: z.string(),
-        categories: z.array(
-          z.object({
-            id: z.string(),
-            name: z.string(),
-          })
-        ),
-        totalLesson: z.number(),
-        totalLessonFinished: z.number(),
-        completionRate: z.number(),
-        author: z.string(),
-        imageUrl: z.string(),
-        createdAtFormatted: z.string(),
-        updatedAtFormatted: z.string(),
-      })
-    ).nullable(),
+    courses: z
+      .array(
+        z.object({
+          id: z.string(),
+          title: z.string(),
+          description: z.string(),
+          level: z.string(),
+          durationDisplay: z.string(),
+          categories: z.array(
+            z.object({
+              id: z.string(),
+              name: z.string(),
+            })
+          ),
+          totalLesson: z.number(),
+          totalLessonFinished: z.number(),
+          completionRate: z.number(),
+          author: z.string(),
+          imageUrl: z.string(),
+          createdAtFormatted: z.string(),
+          updatedAtFormatted: z.string(),
+        })
+      )
+      .nullable(),
   }),
 });
 
 export type GetMyChildCoursesResType = z.TypeOf<typeof myChildCourseRes>;
+
+export const childProfileChildPage = z.object({
+  statusCode: z.number(),
+  data: z.object({
+    id: z.string(),
+    avatarUrl: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
+    dob: z.string(),
+    level: z.string(),
+    gender: z.string(),
+    totalCourses: z.number(),
+    totalLearningDays: z.number(),
+    totalPoints: z.number(),
+  }),
+});
+
+export type ChildProfileChildPageResType = z.TypeOf<
+  typeof childProfileChildPage
+>;

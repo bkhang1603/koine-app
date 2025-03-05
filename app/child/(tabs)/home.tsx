@@ -5,7 +5,7 @@ import { router } from "expo-router";
 import { MOCK_CHILD } from "@/constants/mock-data";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAppStore } from "@/components/app-provider";
-import { useUserProfile } from "@/queries/useUser";
+import { useChildProfileAtChild} from "@/queries/useUser";
 
 export default function HomeScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
@@ -14,7 +14,7 @@ export default function HomeScreen() {
     data: profileData,
     isError: isProfileError,
     refetch: refetchProfile,
-  } = useUserProfile({ token: token ? token : "", enabled: true });
+  } = useChildProfileAtChild({ token: token ? token : "", enabled: true });
 
   useEffect(() => {
     refetchProfile();
@@ -33,12 +33,12 @@ export default function HomeScreen() {
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center flex-1">
               <Image
-                source={{ uri: MOCK_CHILD.avatar }}
+                source={{ uri: profileData?.data.avatarUrl }}
                 className="w-14 h-14 rounded-full border-2 border-white"
               />
               <View className="ml-3">
                 <Text className="text-white text-lg font-bold">
-                  Xin chào, {MOCK_CHILD.name}! 👋
+                  Xin chào, {profileData?.data.lastName + " " + profileData?.data.firstName}! 👋
                 </Text>
                 <View className="flex-row items-center mt-1">
                   <MaterialIcons name="stars" size={16} color="#FCD34D" />
