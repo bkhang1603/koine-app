@@ -175,3 +175,12 @@ export const enrollFreeCourseResType = z.object({
 })
 
 export type EnrollFreeCourseResType = z.infer<typeof enrollFreeCourseResType>;
+
+
+export const editChildCourseVisible = z.object({
+  childId: z.string(),
+  courseId: z.string(),
+  isVisible: z.boolean(),
+})
+
+export type EditChildCourseVisibleBodyType = z.infer<typeof editChildCourseVisible>;

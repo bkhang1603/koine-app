@@ -1,6 +1,7 @@
 import {
   AssignCourseStoreBodyType,
   AssignCourseStoreResType,
+  EditChildCourseVisibleBodyType,
   EnrollFreeCourseResType,
   GetAllCourseResType,
   GetCourseDetailResType,
@@ -57,6 +58,18 @@ const courseApiRequest = {
         },
       }
     ),
+  editChildCourseVisible: ({
+    body,
+    token,
+  }: {
+    body: EditChildCourseVisibleBodyType;
+    token: string;
+  }) =>
+    http.put<any>("course-visibilities", body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
 };
 
 export default courseApiRequest;

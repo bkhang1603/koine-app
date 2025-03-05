@@ -7,12 +7,6 @@ import * as SecureStore from "expo-secure-store";
 import { useEffect, useRef, useState } from "react";
 import { useAppStore } from "./app-provider";
 import { AppState, AppStateStatus } from "react-native";
-import { RoleValues } from "@/constants/type";
-import { useShippingInfos } from "@/queries/useShippingInfos";
-import { useCart } from "@/queries/useCart";
-import { dataTagErrorSymbol } from "@tanstack/react-query";
-import { useMyChilds, useUserProfile } from "@/queries/useUser";
-import { useMyCourseStore } from "@/queries/useCourse";
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isCheckingRefreshToken, setIsCheckingRefreshToken] = useState(true);
@@ -107,62 +101,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const state = useAppStore.getState();
-  const currentRefreshToken = state.refreshToken;
-  const currentAccessToken = state.accessToken;
-  const currentUser = state.user;
-  const token = currentAccessToken?.accessToken ?? "";
-
-  // Gọi API shipping (chỉ chạy khi kiểm tra token xong)
-  const {
-    data: shippingData,
-    isLoading: isLoadingShipping,
-    isError: isErrorShipping,
-    error: shippingError,
-  } = useShippingInfos({
-    token: token && currentUser?.role === RoleValues[0] ? token : "",
-    enabled: !isCheckingRefreshToken, // Chỉ chạy khi isCheckingToken = false
-  });
-
-  // Gọi API cart (chỉ chạy khi kiểm tra token xong)
-  const {
-    data: cartData,
-    isLoading: isLoadingCart,
-    isError: isErrorCart,
-    error: cartError,
-  } = useCart({
-    token: token && currentUser?.role === RoleValues[0] ? token : "",
-    enabled: !isCheckingRefreshToken, // Chỉ chạy khi isCheckingToken = false
-  });
-
-  const {
-    data: childData,
-    isLoading: isLoadingChild,
-    isError: isErrorChild,
-    error: childError,
-  } = useMyChilds({
-    token: token && currentUser?.role === RoleValues[0] ? token : "",
-    enabled: !isCheckingRefreshToken, // Chỉ chạy khi isCheckingToken = false
-  });
-
-  const {
-    data: myCourseData,
-    isLoading: isLoadingMyCourse,
-    isError: isErrorMyCourse,
-    error: myCourseError,
-  } = useMyCourseStore({
-    token: token && currentUser?.role === RoleValues[0] ? token : "",
-    enabled: !isCheckingRefreshToken, // Chỉ chạy khi isCheckingToken = false
-  });
-
-  const {
-    data: profile,
-    isError,
-    refetch,
-  } = useUserProfile({
-    token: token ? token : "",
-    enabled: !isCheckingRefreshToken,
-  });
-
+  
   const getNewAccessToken = async () => {
     try {
       const state = useAppStore.getState(); // Lấy state mới nhất

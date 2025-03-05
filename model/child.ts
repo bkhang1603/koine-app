@@ -17,3 +17,18 @@ export const childs = z.array(
 );
 
 export type Childs = z.TypeOf<typeof childs>;
+
+export const childProfile = z.object({
+  id: z.string(),
+  avatarUrl: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  dob: z.string(),
+  gender: z.string(),
+  level: z.string(),
+  totalCourses: z.number(),
+  totalLearningDays: z.number(),
+  totalPoints: z.number(),
+});
+
+export type ChildProfileType = z.TypeOf<typeof childProfile>;

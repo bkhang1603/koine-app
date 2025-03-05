@@ -9,8 +9,7 @@ import { useState } from "react";
 import { useAppStore } from "@/components/app-provider";
 
 export default function ProfileScreen() {
-  const user = useAppStore((state) => state.user);
-  const profile = useAppStore(state => state.profile)
+  const childProfile = useAppStore((state) => state.childProfile);
   const setRefreshExpired = useAppStore((state) => state.setRefreshExpired);
   const clearAuth = useAppStore((state) => state.clearAuth);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -29,6 +28,7 @@ export default function ProfileScreen() {
       console.log("Error when log out: ", error);
     }
   };
+  if (!childProfile) return;
 
   return (
     <View className="flex-1 bg-white">
@@ -59,14 +59,16 @@ export default function ProfileScreen() {
           <View className="bg-white rounded-3xl p-6 shadow-lg shadow-violet-100">
             <View className="items-center">
               <Image
-                source={{ uri: profile?.data.avatarUrl }}
+                source={{ uri: childProfile?.avatarUrl }}
                 className="w-24 h-24 rounded-full border-4 border-white"
               />
-              <Text className="text-xl font-bold mt-4">{profile?.data.lastName + " " + profile?.data.firstName}</Text>
+              <Text className="text-xl font-bold mt-4">
+                {childProfile?.lastName + " " + childProfile?.firstName}
+              </Text>
               <View className="flex-row items-center mt-1">
                 <MaterialIcons name="school" size={16} color="#7C3AED" />
                 <Text className="text-violet-600 ml-1 font-medium">
-                  Level {MOCK_CHILD.level}
+                  Cấp độ {childProfile?.level}
                 </Text>
               </View>
             </View>
@@ -75,19 +77,19 @@ export default function ProfileScreen() {
             <View className="flex-row justify-between mt-6 bg-violet-50 rounded-2xl p-4">
               <View className="items-center flex-1">
                 <Text className="text-2xl font-bold text-violet-600">
-                  {MOCK_CHILD.points}
+                  {childProfile?.totalPoints}
                 </Text>
                 <Text className="text-gray-600">Điểm</Text>
               </View>
               <View className="items-center flex-1 border-x border-violet-200">
                 <Text className="text-2xl font-bold text-violet-600">
-                  {MOCK_CHILD.streakDays}
+                  {childProfile?.totalLearningDays}
                 </Text>
                 <Text className="text-gray-600">Ngày học</Text>
               </View>
               <View className="items-center flex-1">
                 <Text className="text-2xl font-bold text-violet-600">
-                  {MOCK_CHILD.activeCourses.length}
+                  {childProfile?.totalCourses}
                 </Text>
                 <Text className="text-gray-600">Khóa học</Text>
               </View>
@@ -145,7 +147,8 @@ export default function ProfileScreen() {
             </Pressable>
 
             <Pressable
-              className="flex-row items-center p-4 bg-red-50 border border-slate-200 rounded-2xl mt-6"style={{
+              className="flex-row items-center p-4 bg-red-50 border border-slate-200 rounded-2xl mt-6"
+              style={{
                 shadowColor: "#000",
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.05,
@@ -155,9 +158,19 @@ export default function ProfileScreen() {
               onPress={handleLogout}
             >
               <View className="w-10 h-10 rounded-full bg-red-100 items-center justify-center">
-                <MaterialIcons name="logout" size={24} color={isProcessing ? "#808080" : "#EF4444"} />
+                <MaterialIcons
+                  name="logout"
+                  size={24}
+                  color={isProcessing ? "#808080" : "#EF4444"}
+                />
               </View>
-              <Text className={isProcessing ? "flex-1 ml-3 text-gray-500 font-medium" : "flex-1 ml-3 text-red-500 font-medium"}>
+              <Text
+                className={
+                  isProcessing
+                    ? "flex-1 ml-3 text-gray-500 font-medium"
+                    : "flex-1 ml-3 text-red-500 font-medium"
+                }
+              >
                 Đăng xuất
               </Text>
             </Pressable>

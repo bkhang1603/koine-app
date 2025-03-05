@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import courseApiRequest from "@/api/course";
 import {
   AssignCourseStoreBodyType,
+  EditChildCourseVisibleBodyType,
   GetMyCourseStoreResType,
 } from "@/schema/course-schema";
 import { useAppStore } from "@/components/app-provider";
@@ -97,5 +98,17 @@ export const useEnrollFreeCourse = () => {
         exact: true,
       });
     },
+  });
+};
+
+export const useEditChildCourseVisible = () => {
+  return useMutation({
+    mutationFn: ({
+      token,
+      body,
+    }: {
+      token: string;
+      body: EditChildCourseVisibleBodyType;
+    }) => courseApiRequest.editChildCourseVisible({ token, body }),
   });
 };

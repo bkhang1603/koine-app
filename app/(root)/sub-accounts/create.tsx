@@ -61,9 +61,9 @@ export default function CreateSubAccountScreen() {
       if(isProcessing) return;
       setIsProcessing(true);
       if (
-        !formData.dob.trim() &&
-        !formData.password.trim() &&
-        !formData.username.trim() &&
+        !formData.dob.trim() ||
+        !formData.password.trim() ||
+        !formData.username.trim() ||
         !formData.gender.trim()
       ) {
         Alert.alert(
@@ -89,9 +89,6 @@ export default function CreateSubAccountScreen() {
         body: info,
         token: token,
       });
-      console.log("info", info.dob )
-      console.log("info", info.gender )
-      console.log("info", info )
      
       if (res) {
         Alert.alert("Thông báo", "Tạo tài khoản con thành công", [

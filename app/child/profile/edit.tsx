@@ -21,7 +21,7 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 
 export default function EditProfileScreen() {
-  const profile = useAppStore((state) => state.profile);
+  const profile = useAppStore((state) => state.childProfile);
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
   const uploadToS3 = useUploadImage();
@@ -53,10 +53,10 @@ export default function EditProfileScreen() {
       </View>
     );
   }
-  const [avatar, setAvatar] = useState(profile?.data.avatarUrl || "");
-  const [firstName, setFirstName] = useState(profile?.data.firstName || "");
-  const [lastName, setLastName] = useState(profile?.data.lastName || "");
-  const [dob, setDob] = useState(profile?.data.dob || "");
+  const [avatar, setAvatar] = useState(profile?.avatarUrl || "");
+  const [firstName, setFirstName] = useState(profile?.firstName || "");
+  const [lastName, setLastName] = useState(profile?.lastName || "");
+  const [dob, setDob] = useState(profile?.dob || "");
   const [date, setDate] = useState(convertDateFormat(dob) || new Date());
 
   function convertDateFormat(dateStr: string) {
@@ -79,7 +79,7 @@ export default function EditProfileScreen() {
   }
 
   const [gender, setGender] = useState(
-    profile?.data.gender || ("" as "MALE" | "FEMALE" | "OTHER")
+    profile?.gender || ("" as "MALE" | "FEMALE" | "OTHER")
   );
 
   const [show, setShow] = useState(false);
@@ -97,11 +97,11 @@ export default function EditProfileScreen() {
   useEffect(() => {
     if (!profile) return;
     else if (
-      firstName != profile?.data.firstName ||
-      lastName != profile?.data.lastName ||
-      dob != profile?.data.dob ||
-      avatar != profile?.data.avatarUrl ||
-      gender != profile?.data.gender
+      firstName != profile?.firstName ||
+      lastName != profile?.lastName ||
+      dob != profile?.dob ||
+      avatar != profile?.avatarUrl ||
+      gender != profile?.gender
     )
       setIsUpdatable(true);
   }, [avatar, lastName, firstName, dob, gender]);
@@ -162,10 +162,10 @@ export default function EditProfileScreen() {
       setIsProcessing(true);
       // Trim() để loại bỏ khoảng trắng đầu & cuối
       if (
-        !avatar.trim() &&
-        !lastName.trim() &&
-        !firstName.trim() &&
-        !dob.trim() &&
+        !avatar.trim() ||
+        !lastName.trim() ||
+        !firstName.trim() ||
+        !dob.trim() ||
         !gender.trim()
       ) {
         Alert.alert(
@@ -188,7 +188,7 @@ export default function EditProfileScreen() {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         gender: gender,
-        dob: finalDob.trim(),
+        dob: finalDob,
       };
       console.log("gender ", newInfo.gender);
       console.log("Dữ liệu hợp lệ, tiến hành cập nhật...");
