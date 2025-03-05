@@ -1,6 +1,5 @@
 import orderApiRequest from "@/api/order";
 import {
-  CreateOrderBodyAtListType,
   CreateOrderBodyType,
   DeleteOrderBodyType,
 } from "@/schema/order-schema";
@@ -28,18 +27,17 @@ export const useCreateOrder = () => {
   });
 };
 
-export const useCreateOrderAtList = () => {
+export const useRePurchaseOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
-      body,
+      orderId,
       token,
     }: {
-      body: CreateOrderBodyAtListType;
+      orderId: string;
       token: string;
-    }) => orderApiRequest.createOrderAtList(body, token),
+    }) => orderApiRequest.rePurchaseOrder(token, orderId),
     onSuccess: () => {
-      // Invalidate queries liên quan đến giỏ hàng sau khi delete
       queryClient.invalidateQueries({
         queryKey: ["order"],
       });
