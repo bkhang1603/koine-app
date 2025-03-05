@@ -162,10 +162,10 @@ export default function EditProfileScreen() {
       setIsProcessing(true);
       // Trim() để loại bỏ khoảng trắng đầu & cuối
       if (
-        !avatar.trim() &&
-        !lastName.trim() &&
-        !firstName.trim() &&
-        !dob.trim() &&
+        !avatar.trim() ||
+        !lastName.trim() ||
+        !firstName.trim() ||
+        !dob.trim() ||
         !gender.trim()
       ) {
         Alert.alert(

@@ -1,14 +1,14 @@
-import { GenderValues, RoleValues } from '@/constants/type'
-import z from 'zod'
+import { GenderValues, RoleValues } from "@/constants/type";
+import z from "zod";
 
 export const loginBody = z
   .object({
     loginKey: z.string(),
-    password: z.string()
+    password: z.string(),
   })
-  .strict()
+  .strict();
 
-export type LoginBodyType = z.TypeOf<typeof loginBody>
+export type LoginBodyType = z.TypeOf<typeof loginBody>;
 
 export const loginRes = z.object({
   data: z.object({
@@ -20,12 +20,12 @@ export const loginRes = z.object({
       id: z.string(),
       username: z.string(),
       email: z.string(),
-      role: z.enum(RoleValues)
-    })
+      role: z.enum(RoleValues),
+    }),
   }),
   message: z.string(),
-  statusCode: z.number()
-}) 
+  statusCode: z.number(),
+});
 // || z.object({
 //   message: z.string(),
 //   statusCode: z.number()
@@ -38,78 +38,75 @@ export const loginRes = z.object({
 //   )
 // })
 
-export type LoginResType = z.TypeOf<typeof loginRes>
+export type LoginResType = z.TypeOf<typeof loginRes>;
 
 //refresh new access token
 export const refreshAccessBody = z
   .object({
-    refreshToken: z.string()
+    refreshToken: z.string(),
   })
-  .strict()
+  .strict();
 
-export type RefreshAccessBodyType = z.TypeOf<typeof refreshAccessBody>
+export type RefreshAccessBodyType = z.TypeOf<typeof refreshAccessBody>;
 
 export const refreshAccessRes = z.object({
   data: z.object({
     accessToken: z.string(),
     expiresAccess: z.string(),
-    refreshToken: z.string()
+    refreshToken: z.string(),
   }),
   message: z.string(),
-  statusCode: z.number()
-})
+  statusCode: z.number(),
+});
 
-export type RefreshAccessResType = z.TypeOf<typeof refreshAccessRes>
+export type RefreshAccessResType = z.TypeOf<typeof refreshAccessRes>;
 
-export const registerBody = z
-  .object({
-    email: z.string().email(),
-    username: z.string(),
-    password: z
-      .string()
-      .min(8)
-      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()])([A-Za-z\d!@#$%^&*()]+)$/),
-    gender: z.enum(GenderValues),
-    dob: z.string().regex(/^\d{4}-\d{1,2}-\d{1,2}$/)
-  })
-  .strict()
+export const registerBody = z.object({
+  email: z.string().email(),
+  username: z.string(),
+  password: z.string(),
+  gender: z.string(),
+  dob: z.string(),
+  address: z.string(),
+  role: z.string()
+});
 
-export type RegisterBodyType = z.TypeOf<typeof registerBody>
+export type RegisterBodyType = z.TypeOf<typeof registerBody>;
 
 export const registerRes = z.object({
   data: z.unknown(), // Chỉnh lại sau vì api đang lỗi
   message: z.string(),
-  statusCode: z.number()
-})
+  statusCode: z.number(),
+});
 
-export type RegisterResType = z.TypeOf<typeof registerRes>
+export type RegisterResType = z.TypeOf<typeof registerRes>;
 
 export const checkRefreshBody = z
   .object({
-    accessToken: z.string()
+    accessToken: z.string(),
   })
-  .strict()
+  .strict();
 
-export type CheckRefreshBodyType = z.TypeOf<typeof checkRefreshBody>
+export type CheckRefreshBodyType = z.TypeOf<typeof checkRefreshBody>;
 
 export const checkRefreshRes = z.object({
   data: z.string(),
-  message: z.string()
-})
+  message: z.string(),
+});
 
-export type CheckRefreshResType = z.TypeOf<typeof checkRefreshRes>
+export type CheckRefreshResType = z.TypeOf<typeof checkRefreshRes>;
 
 export const createChildBodyType = z.object({
   username: z.string(),
   password: z.string(),
   gender: z.string(),
-  dob: z.string()
-})
+  dob: z.string(),
+});
 
-export type CreateChildBodyType = z.TypeOf<typeof createChildBodyType>
+export type CreateChildBodyType = z.TypeOf<typeof createChildBodyType>;
 
 export const createChildResType = z.object({
-  message: z.string()
-})
+  message: z.string(),
+});
 
-export type CreateChildResType = z.TypeOf<typeof createChildResType>
+export type CreateChildResType = z.TypeOf<typeof createChildResType>;

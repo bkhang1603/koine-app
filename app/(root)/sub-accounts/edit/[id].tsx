@@ -180,10 +180,10 @@ export default function EditSubAccountScreen() {
       setIsProcessing(true);
       // Trim() để loại bỏ khoảng trắng đầu & cuối
       if (
-        !avatar.trim() &&
-        !lastName.trim() &&
-        !firstName.trim() &&
-        !gender.trim() &&
+        !avatar.trim() ||
+        !lastName.trim() ||
+        !firstName.trim() ||
+        !gender.trim() ||
         !dob.trim()
       ) {
         Alert.alert(
