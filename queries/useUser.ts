@@ -4,6 +4,7 @@ import {
   CreateProgressBodyType,
   EditProfileBodyType,
   GetMyChildCourseProgressResType,
+  GetMyChildCoursesResType,
   GetMyChildsResType,
   GetMyCoursesResType,
   GetUserProfileResType,
@@ -204,7 +205,7 @@ export const useMyChildCourses = ({
   childId: string;
   token: string;
 }) => {
-  return useQuery<GetMyCoursesResType>({
+  return useQuery<GetMyChildCoursesResType>({
     queryKey: ["my-childs-courses"],
     queryFn: () => userApiRequest.getMyChildCourse({ childId, token }),
   });

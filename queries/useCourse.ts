@@ -1,6 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import courseApiRequest from "@/api/course";
-import { AssignCourseStoreBodyType, GetMyCourseStoreResType } from "@/schema/course-schema";
+import {
+  AssignCourseStoreBodyType,
+  GetMyCourseStoreResType,
+} from "@/schema/course-schema";
 import { useAppStore } from "@/components/app-provider";
 import { RoleValues } from "@/constants/type";
 import { useEffect } from "react";
@@ -8,11 +11,11 @@ import { useEffect } from "react";
 export const useCourses = ({
   keyword,
   page_size,
-  page_index
+  page_index,
 }: {
-  keyword: string
-  page_size: number
-  page_index: number
+  keyword: string;
+  page_size: number;
+  page_index: number;
 }) => {
   return useQuery({
     queryKey: ["courses"],
@@ -20,10 +23,10 @@ export const useCourses = ({
       courseApiRequest.getAll({
         keyword,
         page_size,
-        page_index
-      })
-  })
-}
+        page_index,
+      }),
+  });
+};
 
 export const useCourseDetail = ({ courseId }: { courseId: string }) => {
   return useQuery({
@@ -37,8 +40,14 @@ export const useCourseDetail = ({ courseId }: { courseId: string }) => {
   });
 };
 
-export const useMyCourseStore = ({token, enabled}:{token: string, enabled: boolean}) => {
-  const setMyCourse = useAppStore(state => state.setMyCourse)
+export const useMyCourseStore = ({
+  token,
+  enabled,
+}: {
+  token: string;
+  enabled: boolean;
+}) => {
+  const setMyCourse = useAppStore((state) => state.setMyCourse);
   const currentUser = useAppStore((state) => state.user);
   const query = useQuery<GetMyCourseStoreResType>({
     queryKey: ["my-courses-store"],
@@ -46,7 +55,7 @@ export const useMyCourseStore = ({token, enabled}:{token: string, enabled: boole
       courseApiRequest.getCourseInStorage(
         token // Truyền token vào khi gọi API
       ),
-      enabled: enabled && !!token && currentUser?.role === RoleValues[0],
+    enabled: enabled && !!token && currentUser?.role === RoleValues[0],
   });
 
   useEffect(() => {
@@ -67,15 +76,15 @@ export const useAssignCourse = () => {
     }: {
       body: AssignCourseStoreBodyType;
       token: string;
-    }) => courseApiRequest.assignCourse({body, token}),
+    }) => courseApiRequest.assignCourse({ body, token }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["my-courses-store"],
-        exact: true
-      })
-    }
-  })
-}
+        exact: true,
+      });
+    },
+  });
+};
 
 export const useEnrollFreeCourse = () => {
   const queryClient = useQueryClient();
@@ -85,8 +94,8 @@ export const useEnrollFreeCourse = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["my-courses-store"],
-        exact: true
-      })
-    }
+        exact: true,
+      });
+    },
   });
 };
