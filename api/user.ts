@@ -4,6 +4,7 @@ import {
   EditProfileResType,
   GetMyChapterDetailResType,
   GetMyChildCourseProgressResType,
+  GetMyChildCoursesResType,
   GetMyChildsResType,
   GetMyCourseDetailResType,
   GetMyCoursesResType,
@@ -108,11 +109,12 @@ const userApiRequest = {
     }),
 
   getMyChildCourse: ({ childId, token }: { childId: string; token: string }) =>
-    http.get<GetMyCoursesResType>(`users/my-child-course/${childId}`, {
+    http.get<GetMyChildCoursesResType>(`users/my-child-course/${childId}`, {
       headers: {
         Authorization: `Bearer ${token}`, // Thêm token vào headers
       },
     }),
+
   editChildProfile: ({
     childId,
     body,

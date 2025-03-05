@@ -270,3 +270,43 @@ export const editChildProfileByParentBodyType = z.object({
 export type UpdateChildProfileByParent = z.TypeOf<
   typeof editChildProfileByParentBodyType
 >;
+
+
+export const myChildCourseRes = z.object({
+  statusCode: z.number(),
+  info: z.string(),
+  message: z.string(),
+  data: z.object({
+    userId: z.string(),
+    username: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
+    avatarUrl: z.string(),
+    gender: z.string(),
+    dob: z.string(),
+    courses: z.array(
+      z.object({
+        id: z.string(),
+        title: z.string(),
+        description: z.string(),
+        level: z.string(),
+        durationDisplay: z.string(),
+        categories: z.array(
+          z.object({
+            id: z.string(),
+            name: z.string(),
+          })
+        ),
+        totalLesson: z.number(),
+        totalLessonFinished: z.number(),
+        completionRate: z.number(),
+        author: z.string(),
+        imageUrl: z.string(),
+        createdAtFormatted: z.string(),
+        updatedAtFormatted: z.string(),
+      })
+    ).nullable(),
+  }),
+});
+
+export type GetMyChildCoursesResType = z.TypeOf<typeof myChildCourseRes>;

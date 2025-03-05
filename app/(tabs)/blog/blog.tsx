@@ -9,10 +9,13 @@ import { useAppStore } from '@/components/app-provider'
 import { blogRes, GetAllBlogResType } from '@/schema/blog-schema'
 import ActivityIndicatorScreen from '@/components/ActivityIndicatorScreen'
 import ErrorScreen from '@/components/ErrorScreen'
+import CartButton from '@/components/CartButton'
 
 const BLOG_CATEGORIES = ['Tất cả', 'Tâm lý', 'Sức khỏe', 'Kỹ năng', 'Giáo dục']
 
 export default function BlogScreen() {
+  const accessToken = useAppStore((state) => state.accessToken)
+  const token = accessToken?.accessToken
 
   const {
     data: blogData,
@@ -49,14 +52,25 @@ export default function BlogScreen() {
   const recentPosts = blog
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView className="flex-1 pt-4 bg-white">
       <SafeAreaView>
         {/* Header */}
-        <View className="px-4">
-          <Text className="text-2xl font-bold">Blog</Text>
-          <Text className="text-gray-600 mt-1">
-            Kiến thức hữu ích cho teen và phụ huynh
-          </Text>
+        <View className="px-4 flex-row items-center justify-between">
+          <View>
+            <Text className="text-2xl font-bold">Blog</Text>
+            <Text className="text-gray-600 mt-1">
+              Kiến thức hữu ích cho teen và phụ huynh
+            </Text>
+          </View>
+          <View className="flex-row items-center">
+            <CartButton />
+            <Pressable
+              className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 ml-2"
+              onPress={() => router.push('/notifications/notifications')}
+            >
+              <MaterialIcons name="notifications" size={24} color="#374151" />
+            </Pressable>
+          </View>
         </View>
 
         {/* Categories */}

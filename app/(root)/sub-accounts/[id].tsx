@@ -25,8 +25,25 @@ export default function SubAccountDetailScreen() {
   useFocusEffect(() => {
     refetch();
   });
-  if(isLoading) return <ActivityIndicatorScreen />;
-  if (!childCourse || childCourse.data.length == 0) {
+  if (isLoading) return <ActivityIndicatorScreen />;
+
+  if (isError || !childCourse?.data) {
+    return (
+      <View className="flex-1 bg-white">
+        <HeaderWithBack
+          title="Chi tiết tài khoản"
+          returnTab={"/(root)/sub-accounts/sub-accounts"}
+        />
+        <View className="flex-1 items-center justify-center">
+          <Text className="text-red-500">Có lỗi xảy ra khi tải dữ liệu</Text>
+        </View>
+      </View>
+    );
+  }
+
+  console.log("Fetched Data:", JSON.stringify(childCourse, null, 2));
+
+  if (!childCourse.data.courses || childCourse.data.courses.length === 0) {
     return (
       <View className="flex-1 bg-white">
         <HeaderWithBack
@@ -183,7 +200,7 @@ export default function SubAccountDetailScreen() {
                     <MaterialIcons name="school" size={24} color="#3B82F6" />
                   </View>
                   <Text className="text-2xl font-bold ml-4">
-                    {childCourse.data.length}
+                    {childCourse.data.courses.length}
                   </Text>
                 </View>
                 <Text className="text-gray-600">Khóa học đang học</Text>
@@ -200,16 +217,18 @@ export default function SubAccountDetailScreen() {
                     />
                   </View>
                   <Text className="text-2xl font-bold ml-2">
-                    {Math.round(
-                      childCourse.data.reduce(
-                        (sum, course) => sum + (course.completionRate || 0),
-                        0
-                      ) / (childCourse.data.length || 1)
-                    )}{" "}
+                    {childCourse.data.courses.length > 0
+                      ? Math.round(
+                          childCourse.data.courses.reduce(
+                            (sum: number, course) =>
+                              sum + (course.completionRate || 0),
+                            0
+                          ) / childCourse.data.courses.length
+                        )
+                      : 0}{" "}
                     %
                   </Text>
                 </View>
-
                 <Text className="text-gray-600">Tiến độ trung bình</Text>
               </View>
             </View>
@@ -233,7 +252,7 @@ export default function SubAccountDetailScreen() {
             </Pressable>
           </View>
 
-          {childCourse.data.map((course) => (
+          {childCourse.data.courses.map((course) => (
             <Pressable
               key={course.id}
               className="bg-white rounded-xl border border-gray-100 p-4 mb-4"
@@ -328,7 +347,6 @@ export default function SubAccountDetailScreen() {
             </Pressable>
           ))}
         </View>
-
       </ScrollView>
     </View>
   );

@@ -165,8 +165,8 @@ export default function ChildMyCoursesScreen() {
                   className="bg-violet-500 p-3 rounded-xl mt-4 flex-row items-center justify-center"
                   onPress={() =>
                     router.push({
-                      pathname: "/child/courses/[id]",
-                      params: { id: course.id },
+                      pathname: "/child/learn/course/[courseId]",
+                      params: { courseId: course.id },
                     })
                   }
                 >
