@@ -192,8 +192,8 @@ export const getMyChild = z.object({
         dob: z.string(),
         avatarUrl: z.string(),
         gender: z.string(),
-        createdAtFormatted: z.string(),
       }),
+      createdAtFormatted: z.string(),
     })
   ),
 });
@@ -202,11 +202,11 @@ export type GetMyChildsResType = z.TypeOf<typeof getMyChild>;
 
 export const editProfileBodyType = z.object({
   parentId: z.string().optional(),
-  phone: z.string(),
+  phone: z.string().optional(),
   firstName: z.string(),
   lastName: z.string(),
   dob: z.string().optional(),
-  address: z.string(),
+  address: z.string().optional(),
   gender: z.enum(["MALE", "FEMALE", "OTHER"]).optional(),
   avatarUrl: z.string(),
 });

@@ -52,11 +52,19 @@ export default function HomeScreen() {
     refetch: refetchProfile,
   } = useUserProfile({ token: token ? token : '', enabled: true })
 
+  const {
+    data: myCourseData, 
+    isLoading: isLoadingMyCourse,
+    isError: isErrorMyCourse,
+    refetch: refetchMyCourse
+  } = useMyCourseStore({ token: token ? token : "", enabled: true });
+
   useEffect(() => {
-    refetchShipping()
-    refetchChild()
-    refetchProfile()
-  }, [token])
+    refetchShipping();
+    refetchChild();
+    refetchProfile();
+    refetchMyCourse()
+  }, [token]);
 
   // Refetch data when focused
   useFocusEffect(() => {
@@ -64,19 +72,19 @@ export default function HomeScreen() {
   })
 
   const {
-    data: myCourseData,
-    isLoading: myCourseLoading,
-    isError: myCourseError,
+    data: myCourseOverviewData,
+    isLoading: myCourseOverviewLoading,
+    isError: myCourseOverviewError,
   } = useMyCourse({
     token: token as string,
   })
 
   let myCourse: GetMyCoursesResType['data'] = []
 
-  if (myCourseData && !myCourseError) {
-    if (myCourseData.data.length === 0) {
+  if (myCourseOverviewData && !myCourseOverviewError) {
+    if (myCourseOverviewData.data.length === 0) {
     } else {
-      const parsedResult = myCourseRes.safeParse(myCourseData)
+      const parsedResult = myCourseRes.safeParse(myCourseOverviewData)
       if (parsedResult.success) {
         myCourse = parsedResult.data.data
       } else {
@@ -134,10 +142,10 @@ export default function HomeScreen() {
     }
   }
 
-  if (myCourseLoading || coursesLoading || blogLoading)
+  if (myCourseOverviewLoading || coursesLoading || blogLoading)
     return <ActivityIndicatorScreen />
 
-  if (coursesError || blogError || myCourseError)
+  if (coursesError || blogError || myCourseOverviewError)
     return <ErrorScreen message="Failed to load courses." />
 
   const featuredCourses = courses

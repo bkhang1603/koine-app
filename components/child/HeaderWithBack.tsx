@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 type HeaderWithBackProps = {
   title: string;
   showMoreOptions?: boolean;
-  isNotBackable?: boolean;
+  returnTab?: string;
 };
 
 const MENU_OPTIONS = [
@@ -46,14 +46,18 @@ const MENU_OPTIONS = [
 export default function HeaderWithBack({
   title,
   showMoreOptions = true,
-  isNotBackable: isNotBackable,
+  returnTab: returnTab,
 }: HeaderWithBackProps) {
   const [showMenu, setShowMenu] = useState(false);
   const insets = useSafeAreaInsets();
 
   const handleBack = () => {
     try {
-      router.push("/child/(tabs)/home");
+      if (!returnTab) {
+        router.replace("/(tabs)/home");
+      } else {
+        router.replace(returnTab as any);
+      }
     } catch (error) {
       console.log("error at header with back component ", error);
     }
@@ -66,16 +70,12 @@ export default function HeaderWithBack({
         style={{ paddingTop: insets.top }}
       >
         <View className="flex-row items-center flex-1">
-          {!isNotBackable ? (
-            <Pressable
-              onPress={handleBack}
-              className="w-10 h-10 items-center justify-center rounded-full bg-gray-100"
-            >
-              <MaterialIcons name="arrow-back" size={24} color="#374151" />
-            </Pressable>
-          ) : (
-            <></>
-          )}
+          <Pressable
+            onPress={handleBack}
+            className="w-10 h-10 items-center justify-center rounded-full bg-gray-100"
+          >
+            <MaterialIcons name="arrow-back" size={24} color="#374151" />
+          </Pressable>
           <Text
             className="text-xl font-bold ml-4 max-w-[250px]"
             numberOfLines={1}
