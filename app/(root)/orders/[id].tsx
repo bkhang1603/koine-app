@@ -139,6 +139,24 @@ export default function OrderDetailScreen() {
 
   const renderActionButtons = () => {
     // Only show buttons for processing status
+    if (order.totalAmount == 0)
+      return (
+        <View className="p-4 flex-row space-x-4">
+          <Pressable
+            className="flex-1 bg-gray-500 py-3 rounded-xl items-center"
+            disabled={true}
+          >
+            <Text className="text-white font-medium">Thanh toán</Text>
+          </Pressable>
+
+          <Pressable
+            className="flex-1 bg-red-500 py-3 rounded-xl items-center"
+            onPress={() => setShowCancelModal(true)}
+          >
+            <Text className="text-white font-medium">Hủy đơn</Text>
+          </Pressable>
+        </View>
+      )
     if (order.status.toLowerCase() === 'processing') {
       return (
         <View className="p-4 flex-row space-x-4">
