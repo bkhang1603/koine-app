@@ -3,7 +3,6 @@ import { View, Text, ScrollView, Image, Pressable } from 'react-native'
 import { Link, router, useFocusEffect } from 'expo-router'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { MOCK_MY_COURSES } from '@/constants/mock-data'
 import CartButton from '@/components/CartButton'
 import { useCourses, useMyCourseStore } from '@/queries/useCourse'
 import { useAppStore } from '@/components/app-provider'
@@ -17,6 +16,8 @@ import { useCart } from '@/queries/useCart'
 import { useMyChilds, useMyCourse, useUserProfile } from '@/queries/useUser'
 import { myCourseRes } from '@/schema/user-schema'
 import { GetMyCoursesResType } from '@/schema/user-schema'
+import { useAllProduct } from '@/queries/useProduct'
+import { productRes, GetAllProductResType } from '@/schema/product-schema'
 
 export default function HomeScreen() {
   const accessToken = useAppStore((state) => state.accessToken)
@@ -56,28 +57,65 @@ export default function HomeScreen() {
     data: myCourseData, 
     isLoading: isLoadingMyCourse,
     isError: isErrorMyCourse,
-    refetch: refetchMyCourse
+    refetch: refetchMyCourseStore
   } = useMyCourseStore({ token: token ? token : "", enabled: true });
 
   useEffect(() => {
     refetchShipping();
     refetchChild();
     refetchProfile();
-    refetchMyCourse()
+    refetchMyCourseStore()
   }, [token]);
-
-  // Refetch data when focused
-  useFocusEffect(() => {
-    refetchCart()
-  })
 
   const {
     data: myCourseOverviewData,
     isLoading: myCourseOverviewLoading,
     isError: myCourseOverviewError,
+    refetch: refetchMyCourse
   } = useMyCourse({
     token: token as string,
   })
+
+  const {
+    data: productListData,
+    isLoading: productListDataLoading,
+    isError: productListDataError,
+    refetch: refetchProductList
+  } = useAllProduct({
+    token: token as string,
+  })
+
+  const {
+    data: coursesData,
+    isLoading: coursesLoading,
+    isError: coursesError,
+    refetch: refetchCourseList
+  } = useCourses({
+    keyword: '',
+    page_size: 10,
+    page_index: 1,
+  })
+
+  const {
+    data: blogData,
+    isLoading: blogLoading,
+    isError: blogError,
+    refetch: refetchBlogList
+  } = useBlog({
+    keyword: '',
+    page_size: 10,
+    page_index: 1,
+  })
+
+  // Refetch data when focused
+  useFocusEffect(() => {
+    refetchCart()
+    refetchMyCourse()
+    refetchCourseList()
+    refetchProductList()
+    refetchBlogList()
+  })
+
 
   let myCourse: GetMyCoursesResType['data'] = []
 
@@ -88,20 +126,12 @@ export default function HomeScreen() {
       if (parsedResult.success) {
         myCourse = parsedResult.data.data
       } else {
-        console.error('Validation errors:', parsedResult.error.errors)
+        console.error('My course validation errors:', parsedResult.error.errors)
       }
     }
   }
 
-  const {
-    data: coursesData,
-    isLoading: coursesLoading,
-    isError: coursesError,
-  } = useCourses({
-    keyword: '',
-    page_size: 10,
-    page_index: 1,
-  })
+  
 
   let courses: GetAllCourseResType['data'] = []
 
@@ -113,20 +143,10 @@ export default function HomeScreen() {
       if (parsedResult.success) {
         courses = parsedResult.data.data
       } else {
-        console.error('Validation errors:', parsedResult.error.errors)
+        console.error('Course validation errors:', parsedResult.error.errors)
       }
     }
   }
-
-  const {
-    data: blogData,
-    isLoading: blogLoading,
-    isError: blogError,
-  } = useBlog({
-    keyword: '',
-    page_size: 10,
-    page_index: 1,
-  })
 
   let blog: GetAllBlogResType['data'] = []
 
@@ -137,18 +157,33 @@ export default function HomeScreen() {
       if (parsedResult.success) {
         blog = parsedResult.data.data
       } else {
-        console.error('Validation errors:', parsedResult.error.errors)
+        console.error('Blog validation errors:', parsedResult.error.errors)
       }
     }
   }
 
-  if (myCourseOverviewLoading || coursesLoading || blogLoading)
+  let product: GetAllProductResType['data'] = []
+
+  if (productListData && !productListDataError) {
+    if (productListData.data.length === 0) {
+    } else {
+      const parsedResult = productRes.safeParse(productListData)
+      if (parsedResult.success) {
+        product = parsedResult.data.data
+      } else {
+        console.error('Product validation errors:', parsedResult.error.errors)
+      }
+    }
+  }
+
+  if (myCourseOverviewLoading || coursesLoading || blogLoading || productListDataLoading)
     return <ActivityIndicatorScreen />
 
   if (coursesError || blogError || myCourseOverviewError)
-    return <ErrorScreen message="Failed to load courses." />
+    return <ErrorScreen message="Lỗi khi tải dữ liệu" />
 
   const featuredCourses = courses
+  const featuredProducts = product
   const latestBlog = blog[0]
 
   // console.log('Fetched Data:', JSON.stringify(coursesData, null, 2))
@@ -317,6 +352,104 @@ export default function HomeScreen() {
                     >
                       {course.price !== 0
                         ? course.price.toLocaleString('vi-VN') + ' ₫'
+                        : 'Miễn phí'}
+                    </Text>
+                  </View>
+                </View>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Featured Product */}
+        <View className="mt-6">
+          <View className="px-4 flex-row justify-between items-center mb-3">
+            <Text className="text-lg font-bold">Sản phẩm nổi bật</Text>
+            <Pressable onPress={() => router.push('/(root)/product/product')}>
+              <Text className="text-blue-500">Xem tất cả</Text>
+            </Pressable>
+          </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            className="pl-4 pb-2"
+          >
+            {featuredProducts.map((product) => (
+              <Pressable
+                key={product.id}
+                className="bg-white rounded-2xl mr-3 w-64 overflow-hidden"
+                style={{
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 4,
+                  elevation: 3,
+                }}
+                onPress={() =>
+                  router.push({
+                    pathname: '/product/[id]',
+                    params: { id: product.id },
+                  })
+                }
+              >
+                <Image
+                  source={{ uri: product.images[0].imageUrl }}
+                  className="w-full h-32"
+                  style={{ resizeMode: 'cover' }}
+                />
+                <View className="p-3">
+                  <View className="flex-row flex-wrap gap-2 mb-1">
+                    {product.categories.map((category) => (
+                      <View
+                        key={category.id}
+                        className="bg-blue-50 px-3 py-1 rounded-full"
+                      >
+                        <Text className="text-blue-600 text-xs font-medium">
+                          {category.name}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                  <Text className="font-bold mt-2 text-lg" numberOfLines={2}>
+                    {product.name.length > 25
+                      ? product.name.substring(0, 25) + '...'
+                      : product.name}
+                  </Text>
+                  <Text
+                    className="text-gray-500 text-xs mt-1 mb-2"
+                    numberOfLines={1}
+                  >
+                    {product.description.length > 30
+                      ? product.description.substring(0, 30) + '...'
+                      : product.description}
+                  </Text>
+
+                  <View className="flex-row items-center justify-between mt-2">
+                    <View className="flex-row items-center gap-2">
+                      {/* <View className="flex-row items-center bg-yellow-50 px-2 py-1 rounded-full">
+                        <MaterialIcons name="star" size={14} color="#F59E0B" />
+                        <Text className="ml-1 text-sm font-medium text-yellow-600">
+                          {course.aveRating == 0 ? 5 : course.aveRating}
+                        </Text>
+                      </View> */}
+                      {/* <View className="flex-row items-center bg-purple-50 px-2 py-1 rounded-full">
+                        <MaterialIcons
+                          name="people"
+                          size={14}
+                          color="#8B5CF6"
+                        />
+                        <Text className="ml-1 text-sm font-medium text-purple-600">
+                          {course.totalEnrollment}
+                        </Text>
+                      </View> */}
+                    </View>
+                    <Text
+                      className={`font-bold ${
+                        product.price === 0 ? 'text-green-500' : 'text-blue-500'
+                      }`}
+                    >
+                      {product.price !== 0
+                        ? product.price.toLocaleString('vi-VN') + ' ₫'
                         : 'Miễn phí'}
                     </Text>
                   </View>

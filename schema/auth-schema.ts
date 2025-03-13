@@ -5,6 +5,7 @@ export const loginBody = z
   .object({
     loginKey: z.string(),
     password: z.string(),
+    deviceId: z.string()
   })
   .strict();
 
@@ -43,7 +44,7 @@ export type LoginResType = z.TypeOf<typeof loginRes>;
 //refresh new access token
 export const refreshAccessBody = z
   .object({
-    refreshToken: z.string(),
+    refreshToken: z.string()
   })
   .strict();
 
