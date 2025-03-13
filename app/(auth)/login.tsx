@@ -19,8 +19,13 @@ import { useAppStore } from "@/components/app-provider";
 import * as SecureStore from "expo-secure-store";
 import { RoleValues } from "@/constants/type";
 import { Alert } from "react-native";
+import * as Device from 'expo-device';
 
 export default function LoginScreen() {
+  const getDeviceId = () => {
+    return Device.osBuildId || Device.osInternalBuildId || 'unknown';
+  };
+  
   const [email, setEmail] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [password, setPassword] = useState("");
@@ -61,6 +66,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     try {
+      const deviceId = getDeviceId() || "";
       if (email == "" || password == "") {
         Alert.alert("Thông báo", "Vui lòng nhập tài khoản, mật khẩu đầy đủ!", [
           {
@@ -75,6 +81,7 @@ export default function LoginScreen() {
       const res = await signIn.mutateAsync({
         loginKey: email,
         password: password,
+        deviceId: deviceId
       });
       if (res?.statusCode == 200) {
         const {
