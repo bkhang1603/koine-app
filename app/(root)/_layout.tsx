@@ -38,6 +38,11 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen name="orders/orders" options={{ headerShown: false }} />
+
+        <Stack.Screen name="product/product" options={{ headerShown: false }} />
+        <Stack.Screen name="product/[id]" options={{ headerShown: false }} />
+
+
         <Stack.Screen
           name="certificates/certificates"
           options={{ headerShown: false }}

@@ -13,7 +13,7 @@ import {
 import http from '@/util/http'
 
 const authApiRequest = {
-  login: (body: LoginBodyType) => http.post<LoginResType>('mobile/login', body),
+  login: (body: LoginBodyType) => http.post<LoginResType>('auth/login', body),
   getNewAccessToken: (body: RefreshAccessBodyType) => http.post<RefreshAccessResType>('mobile/refresh-token', body),
   register: (body: RegisterBodyType) => http.post<RegisterResType>('auth/register', body), //thg này chưa sửa url
   checkRefreshToken: (body: CheckRefreshBodyType) => http.post<CheckRefreshResType>('mobile/check-refresh', body),

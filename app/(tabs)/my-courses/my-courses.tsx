@@ -1,43 +1,49 @@
-import React from 'react'
-import { View, Text, ScrollView, Image, Pressable } from 'react-native'
-import { MaterialIcons } from '@expo/vector-icons'
-import { router } from 'expo-router'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { MOCK_MY_COURSES } from '@/constants/mock-data'
-import { useAppStore } from '@/components/app-provider'
-import ActivityIndicatorScreen from '@/components/ActivityIndicatorScreen'
-import { GetMyCoursesResType, myCourseRes } from '@/schema/user-schema'
-import { useMyCourse } from '@/queries/useUser'
-import CartButton from '@/components/CartButton'
+import React from "react";
+import { View, Text, ScrollView, Image, Pressable } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { MOCK_MY_COURSES } from "@/constants/mock-data";
+import { useAppStore } from "@/components/app-provider";
+import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
+import { GetMyCoursesResType, myCourseRes } from "@/schema/user-schema";
+import { useMyCourse } from "@/queries/useUser";
+import CartButton from "@/components/CartButton";
+import { useFocusEffect } from "expo-router";
 
 export default function MyCoursesScreen() {
-  const accessToken = useAppStore((state) => state.accessToken)
-  const token = accessToken == undefined ? '' : accessToken.accessToken
+  const accessToken = useAppStore((state) => state.accessToken);
+  const token = accessToken == undefined ? "" : accessToken.accessToken;
 
   const {
     data: myCourseData,
     isLoading: myCourseLoading,
     isError: myCourseError,
+    refetch,
   } = useMyCourse({
     token: token as string,
-  })
+  });
 
-  let myCourse: GetMyCoursesResType['data'] = []
+  useFocusEffect(() => {
+    refetch();
+  });
+
+  let myCourse: GetMyCoursesResType["data"] = [];
 
   if (myCourseData && !myCourseError) {
     if (myCourseData.data.length === 0) {
     } else {
-      const parsedResult = myCourseRes.safeParse(myCourseData)
+      const parsedResult = myCourseRes.safeParse(myCourseData);
       if (parsedResult.success) {
-        myCourse = parsedResult.data.data
+        myCourse = parsedResult.data.data;
       } else {
-        console.error('Validation errors:', parsedResult.error.errors)
+        console.error("Validation errors:", parsedResult.error.errors);
       }
     }
   }
 
-  if (myCourseLoading) return <ActivityIndicatorScreen />
-  if (myCourseError) return null
+  if (myCourseLoading) return <ActivityIndicatorScreen />;
+  if (myCourseError) return null;
 
   // console.log("Fetched Data:", JSON.stringify(myCourseData, null, 2));
   // console.log("Fetched Data:", JSON.stringify(token, null, 2));
@@ -54,7 +60,7 @@ export default function MyCoursesScreen() {
             <CartButton />
             <Pressable
               className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 ml-2"
-              onPress={() => router.push('/notifications/notifications')}
+              onPress={() => router.push("/notifications/notifications")}
             >
               <MaterialIcons name="notifications" size={24} color="#374151" />
             </Pressable>
@@ -67,7 +73,7 @@ export default function MyCoursesScreen() {
               className="bg-white rounded-2xl mb-6 border border-gray-100 shadow-sm overflow-hidden"
               onPress={() =>
                 router.push({
-                  pathname: '/learn/course/[courseId]' as any,
+                  pathname: "/learn/course/[courseId]" as any,
                   params: { courseId: course.id },
                 })
               }
@@ -107,37 +113,37 @@ export default function MyCoursesScreen() {
                   <Text className="text-gray-600">
                     Thời gian học:
                     {(() => {
-                      const duration = course.durationDisplay
-                      const hours = parseInt(duration.split('h')[0]) || 0
+                      const duration = course.durationDisplay;
+                      const hours = parseInt(duration.split("h")[0]) || 0;
                       const minutes =
-                        parseInt(duration.split('h')[1].replace('p', '')) || 0
+                        parseInt(duration.split("h")[1].replace("p", "")) || 0;
 
-                      const totalMinutes = hours * 60 + minutes
+                      const totalMinutes = hours * 60 + minutes;
                       const learnedMinutes = Math.round(
                         (totalMinutes * (course.completionRate || 0)) / 100
-                      )
-                      const learnedHours = Math.floor(learnedMinutes / 60)
-                      const remainingMinutes = learnedMinutes % 60
+                      );
+                      const learnedHours = Math.floor(learnedMinutes / 60);
+                      const remainingMinutes = learnedMinutes % 60;
 
-                      let learned = ''
+                      let learned = "";
                       if (learnedHours > 0) {
-                        learned += `${learnedHours} giờ `
+                        learned += `${learnedHours} giờ `;
                       }
-                      if (remainingMinutes > 0 || learned === '') {
-                        learned += `${remainingMinutes} phút`
+                      if (remainingMinutes > 0 || learned === "") {
+                        learned += `${remainingMinutes} phút`;
                       }
-                      if (learned === '') learned = '0 phút'
+                      if (learned === "") learned = "0 phút";
 
-                      let total = ''
+                      let total = "";
                       if (hours > 0) {
-                        total += `${hours} giờ `
+                        total += `${hours} giờ `;
                       }
-                      if (minutes > 0 || total === '') {
-                        total += `${minutes} phút`
+                      if (minutes > 0 || total === "") {
+                        total += `${minutes} phút`;
                       }
-                      if (total === '') total = '0 phút'
+                      if (total === "") total = "0 phút";
 
-                      return ` ${learned} / ${total}`
+                      return ` ${learned} / ${total}`;
                     })()}
                   </Text>
 
@@ -152,8 +158,8 @@ export default function MyCoursesScreen() {
                     <View
                       className={`h-full rounded-full ${
                         course.completionRate === 100
-                          ? 'bg-green-500'
-                          : 'bg-blue-500'
+                          ? "bg-green-500"
+                          : "bg-blue-500"
                       }`}
                       style={{
                         width: `${Math.max(2, course.completionRate || 0)}%`,
@@ -171,7 +177,7 @@ export default function MyCoursesScreen() {
                   className="bg-blue-500 p-3 rounded-xl mt-4 flex-row items-center justify-center"
                   onPress={() =>
                     router.push({
-                      pathname: '/learn/course/[courseId]' as any,
+                      pathname: "/learn/course/[courseId]" as any,
                       params: { courseId: course.id },
                     })
                   }
@@ -185,5 +191,5 @@ export default function MyCoursesScreen() {
         <View className="h-20"></View>
       </SafeAreaView>
     </ScrollView>
-  )
+  );
 }
