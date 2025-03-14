@@ -1,28 +1,32 @@
-import React, { useCallback, useEffect } from 'react'
-import { View, Text, ScrollView, Image, Pressable } from 'react-native'
-import { Link, router, useFocusEffect } from 'expo-router'
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import CartButton from '@/components/CartButton'
-import { useCourses, useMyCourseStore } from '@/queries/useCourse'
-import { useAppStore } from '@/components/app-provider'
-import { courseRes, GetAllCourseResType } from '@/schema/course-schema'
-import ActivityIndicatorScreen from '@/components/ActivityIndicatorScreen'
-import ErrorScreen from '@/components/ErrorScreen'
-import { useBlog } from '@/queries/useBlog'
-import { blogRes, GetAllBlogResType } from '@/schema/blog-schema'
-import { useShippingInfos } from '@/queries/useShippingInfos'
-import { useCart } from '@/queries/useCart'
-import { useMyChilds, useMyCourse, useUserProfile } from '@/queries/useUser'
-import { myCourseRes } from '@/schema/user-schema'
-import { GetMyCoursesResType } from '@/schema/user-schema'
-import { useAllProduct } from '@/queries/useProduct'
-import { productRes, GetAllProductResType } from '@/schema/product-schema'
+import React, { useCallback, useEffect } from "react";
+import { View, Text, ScrollView, Image, Pressable } from "react-native";
+import { Link, router, useFocusEffect } from "expo-router";
+import {
+  Foundation,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
+import CartButton from "@/components/CartButton";
+import { useCourses, useMyCourseStore } from "@/queries/useCourse";
+import { useAppStore } from "@/components/app-provider";
+import { courseRes, GetAllCourseResType } from "@/schema/course-schema";
+import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
+import ErrorScreen from "@/components/ErrorScreen";
+import { useBlog } from "@/queries/useBlog";
+import { blogRes, GetAllBlogResType } from "@/schema/blog-schema";
+import { useShippingInfos } from "@/queries/useShippingInfos";
+import { useCart } from "@/queries/useCart";
+import { useMyChilds, useMyCourse, useUserProfile } from "@/queries/useUser";
+import { myCourseRes } from "@/schema/user-schema";
+import { GetMyCoursesResType } from "@/schema/user-schema";
+import { useAllProduct } from "@/queries/useProduct";
+import { productRes, GetAllProductResType } from "@/schema/product-schema";
 
 export default function HomeScreen() {
-  const accessToken = useAppStore((state) => state.accessToken)
-  const token = accessToken == undefined ? '' : accessToken.accessToken
-  const profile = useAppStore((state) => state.profile)
+  const accessToken = useAppStore((state) => state.accessToken);
+  const token = accessToken == undefined ? "" : accessToken.accessToken;
+  const profile = useAppStore((state) => state.profile);
 
   // Gọi API shipping
   const {
@@ -30,7 +34,7 @@ export default function HomeScreen() {
     isLoading: isLoadingShipping,
     isError: isErrorShipping,
     refetch: refetchShipping,
-  } = useShippingInfos({ token: token ? token : '', enabled: true })
+  } = useShippingInfos({ token: token ? token : "", enabled: true });
 
   // Gọi API cart
   const {
@@ -38,153 +42,163 @@ export default function HomeScreen() {
     isLoading: isLoadingCart,
     isError: isErrorCart,
     refetch: refetchCart,
-  } = useCart({ token: token ? token : '', enabled: true })
+  } = useCart({ token: token ? token : "", enabled: true });
 
   const {
     data: childData,
     isLoading: isLoadingChild,
     isError: isErrorChild,
     refetch: refetchChild,
-  } = useMyChilds({ token: token ? token : '', enabled: true })
+  } = useMyChilds({ token: token ? token : "", enabled: true });
 
   const {
     data: profileData,
     isError: isProfileError,
     refetch: refetchProfile,
-  } = useUserProfile({ token: token ? token : '', enabled: true })
+  } = useUserProfile({ token: token ? token : "", enabled: true });
 
   const {
-    data: myCourseData, 
+    data: myCourseData,
     isLoading: isLoadingMyCourse,
     isError: isErrorMyCourse,
-    refetch: refetchMyCourseStore
+    refetch: refetchMyCourseStore,
   } = useMyCourseStore({ token: token ? token : "", enabled: true });
 
   useEffect(() => {
     refetchShipping();
     refetchChild();
     refetchProfile();
-    refetchMyCourseStore()
+    refetchMyCourseStore();
   }, [token]);
 
   const {
     data: myCourseOverviewData,
     isLoading: myCourseOverviewLoading,
     isError: myCourseOverviewError,
-    refetch: refetchMyCourse
+    refetch: refetchMyCourse,
   } = useMyCourse({
     token: token as string,
-  })
+  });
 
   const {
     data: productListData,
     isLoading: productListDataLoading,
     isError: productListDataError,
-    refetch: refetchProductList
+    refetch: refetchProductList,
   } = useAllProduct({
     token: token as string,
-  })
+  });
 
   const {
     data: coursesData,
     isLoading: coursesLoading,
     isError: coursesError,
-    refetch: refetchCourseList
+    refetch: refetchCourseList,
   } = useCourses({
-    keyword: '',
+    keyword: "",
     page_size: 10,
     page_index: 1,
-  })
+  });
 
   const {
     data: blogData,
     isLoading: blogLoading,
     isError: blogError,
-    refetch: refetchBlogList
+    refetch: refetchBlogList,
   } = useBlog({
-    keyword: '',
+    keyword: "",
     page_size: 10,
     page_index: 1,
-  })
+  });
 
   // Refetch data when focused
   useFocusEffect(() => {
-    refetchCart()
-    refetchMyCourse()
-    refetchCourseList()
-    refetchProductList()
-    refetchBlogList()
-  })
+    refetchCart();
+    refetchMyCourse();
+    refetchCourseList();
+    refetchProductList();
+    refetchBlogList();
+  });
 
-
-  let myCourse: GetMyCoursesResType['data'] = []
+  let myCourse: GetMyCoursesResType["data"] = [];
 
   if (myCourseOverviewData && !myCourseOverviewError) {
     if (myCourseOverviewData.data.length === 0) {
     } else {
-      const parsedResult = myCourseRes.safeParse(myCourseOverviewData)
+      const parsedResult = myCourseRes.safeParse(myCourseOverviewData);
       if (parsedResult.success) {
-        myCourse = parsedResult.data.data
+        myCourse = parsedResult.data.data;
       } else {
-        console.error('My course validation errors:', parsedResult.error.errors)
+        console.error(
+          "My course validation errors:",
+          parsedResult.error.errors
+        );
       }
     }
   }
 
-  
-
-  let courses: GetAllCourseResType['data'] = []
+  let courses: GetAllCourseResType["data"] = [];
 
   if (coursesData && !coursesError) {
     if (coursesData.data.length === 0) {
-      console.log('No courses found in coursesData')
+      console.log("No courses found in coursesData");
     } else {
-      const parsedResult = courseRes.safeParse(coursesData)
+      const parsedResult = courseRes.safeParse(coursesData);
       if (parsedResult.success) {
-        courses = parsedResult.data.data
+        courses = parsedResult.data.data;
       } else {
-        console.error('Course validation errors:', parsedResult.error.errors)
+        console.error("Course validation errors:", parsedResult.error.errors);
       }
     }
   }
 
-  let blog: GetAllBlogResType['data'] = []
+  let blog: GetAllBlogResType["data"] = [];
 
   if (blogData && !blogError) {
     if (blogData.data.length === 0) {
     } else {
-      const parsedResult = blogRes.safeParse(blogData)
+      const parsedResult = blogRes.safeParse(blogData);
       if (parsedResult.success) {
-        blog = parsedResult.data.data
+        blog = parsedResult.data.data;
       } else {
-        console.error('Blog validation errors:', parsedResult.error.errors)
+        console.error("Blog validation errors:", parsedResult.error.errors);
       }
     }
   }
 
-  let product: GetAllProductResType['data'] = []
+  let product: GetAllProductResType["data"] = [];
 
   if (productListData && !productListDataError) {
     if (productListData.data.length === 0) {
     } else {
-      const parsedResult = productRes.safeParse(productListData)
+      const parsedResult = productRes.safeParse(productListData);
       if (parsedResult.success) {
-        product = parsedResult.data.data
+        product = parsedResult.data.data;
       } else {
-        console.error('Product validation errors:', parsedResult.error.errors)
+        console.error("Product validation errors:", parsedResult.error.errors);
       }
     }
   }
 
-  if (myCourseOverviewLoading || coursesLoading || blogLoading || productListDataLoading)
-    return <ActivityIndicatorScreen />
+  if (
+    myCourseOverviewLoading ||
+    coursesLoading ||
+    blogLoading ||
+    productListDataLoading
+  )
+    return <ActivityIndicatorScreen />;
 
-  if (coursesError || blogError || myCourseOverviewError)
-    return <ErrorScreen message="Lỗi khi tải dữ liệu" />
+  if (
+    coursesError ||
+    blogError ||
+    myCourseOverviewError ||
+    productListDataError
+  )
+    return <ErrorScreen message="Lỗi khi tải dữ liệu" />;
 
-  const featuredCourses = courses
-  const featuredProducts = product
-  const latestBlog = blog[0]
+  const featuredCourses = courses;
+  const featuredProducts = product;
+  const latestBlog = blog[0];
 
   // console.log('Fetched Data:', JSON.stringify(coursesData, null, 2))
 
@@ -204,7 +218,7 @@ export default function HomeScreen() {
             <CartButton />
             <Pressable
               className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 ml-2"
-              onPress={() => router.push('/notifications/notifications')}
+              onPress={() => router.push("/notifications/notifications")}
             >
               <MaterialIcons name="notifications" size={24} color="#374151" />
             </Pressable>
@@ -214,7 +228,7 @@ export default function HomeScreen() {
         {/* Search Bar */}
         <Pressable
           className="mx-4 mt-6 flex-row items-center bg-gray-100 rounded-xl p-3"
-          onPress={() => router.push('/search/search')}
+          onPress={() => router.push("/search/search")}
         >
           <MaterialIcons name="search" size={24} color="#6B7280" />
           <Text className="ml-2 text-gray-500 flex-1">
@@ -268,7 +282,12 @@ export default function HomeScreen() {
         <View className="mt-6">
           <View className="px-4 flex-row justify-between items-center mb-3">
             <Text className="text-lg font-bold">Khóa học nổi bật</Text>
-            <Pressable onPress={() => router.push('/course/course')}>
+            <Pressable
+              onPress={() => router.push("/course/course")}
+              disabled={
+                !featuredCourses || featuredCourses.length == 0 ? true : false
+              }
+            >
               <Text className="text-blue-500">Xem tất cả</Text>
             </Pressable>
           </View>
@@ -282,7 +301,7 @@ export default function HomeScreen() {
                 key={course.id}
                 className="bg-white rounded-2xl mr-3 w-64 overflow-hidden"
                 style={{
-                  shadowColor: '#000',
+                  shadowColor: "#000",
                   shadowOffset: { width: 0, height: 2 },
                   shadowOpacity: 0.05,
                   shadowRadius: 4,
@@ -290,7 +309,7 @@ export default function HomeScreen() {
                 }}
                 onPress={() =>
                   router.push({
-                    pathname: '/courses/[id]',
+                    pathname: "/courses/[id]",
                     params: { id: course.id },
                   })
                 }
@@ -298,7 +317,7 @@ export default function HomeScreen() {
                 <Image
                   source={{ uri: course.imageUrl }}
                   className="w-full h-32"
-                  style={{ resizeMode: 'cover' }}
+                  style={{ resizeMode: "cover" }}
                 />
                 <View className="p-3">
                   <View className="flex-row flex-wrap gap-2 mb-1">
@@ -315,7 +334,7 @@ export default function HomeScreen() {
                   </View>
                   <Text className="font-bold mt-2 text-lg" numberOfLines={2}>
                     {course.title.length > 25
-                      ? course.title.substring(0, 25) + '...'
+                      ? course.title.substring(0, 25) + "..."
                       : course.title}
                   </Text>
                   <Text
@@ -323,7 +342,7 @@ export default function HomeScreen() {
                     numberOfLines={1}
                   >
                     {course.description.length > 30
-                      ? course.description.substring(0, 30) + '...'
+                      ? course.description.substring(0, 30) + "..."
                       : course.description}
                   </Text>
                   <View className="flex-row items-center justify-between mt-2">
@@ -347,12 +366,12 @@ export default function HomeScreen() {
                     </View>
                     <Text
                       className={`font-bold ${
-                        course.price === 0 ? 'text-green-500' : 'text-blue-500'
+                        course.price === 0 ? "text-green-500" : "text-blue-500"
                       }`}
                     >
                       {course.price !== 0
-                        ? course.price.toLocaleString('vi-VN') + ' ₫'
-                        : 'Miễn phí'}
+                        ? course.price.toLocaleString("vi-VN") + " ₫"
+                        : "Miễn phí"}
                     </Text>
                   </View>
                 </View>
@@ -365,98 +384,129 @@ export default function HomeScreen() {
         <View className="mt-6">
           <View className="px-4 flex-row justify-between items-center mb-3">
             <Text className="text-lg font-bold">Sản phẩm nổi bật</Text>
-            <Pressable onPress={() => router.push('/(root)/product/product')}>
+            <Pressable
+              onPress={() => {
+                const productL = JSON.stringify(featuredProducts);
+                router.push({
+                  pathname: "/(root)/product/product",
+                  params: { productList: productL },
+                });
+              }}
+              disabled={
+                !featuredProducts || featuredProducts.length == 0 ? true : false
+              }
+            >
               <Text className="text-blue-500">Xem tất cả</Text>
             </Pressable>
           </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            className="pl-4 pb-2"
-          >
-            {featuredProducts.map((product) => (
-              <Pressable
-                key={product.id}
-                className="bg-white rounded-2xl mr-3 w-64 overflow-hidden"
-                style={{
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.05,
-                  shadowRadius: 4,
-                  elevation: 3,
-                }}
-                onPress={() =>
-                  router.push({
-                    pathname: '/product/[id]',
-                    params: { id: product.id },
-                  })
-                }
-              >
-                <Image
-                  source={{ uri: product.images[0].imageUrl }}
-                  className="w-full h-32"
-                  style={{ resizeMode: 'cover' }}
-                />
-                <View className="p-3">
-                  <View className="flex-row flex-wrap gap-2 mb-1">
-                    {product.categories.map((category) => (
-                      <View
-                        key={category.id}
-                        className="bg-blue-50 px-3 py-1 rounded-full"
-                      >
-                        <Text className="text-blue-600 text-xs font-medium">
-                          {category.name}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
-                  <Text className="font-bold mt-2 text-lg" numberOfLines={2}>
-                    {product.name.length > 25
-                      ? product.name.substring(0, 25) + '...'
-                      : product.name}
-                  </Text>
-                  <Text
-                    className="text-gray-500 text-xs mt-1 mb-2"
-                    numberOfLines={1}
-                  >
-                    {product.description.length > 30
-                      ? product.description.substring(0, 30) + '...'
-                      : product.description}
-                  </Text>
-
-                  <View className="flex-row items-center justify-between mt-2">
-                    <View className="flex-row items-center gap-2">
-                      {/* <View className="flex-row items-center bg-yellow-50 px-2 py-1 rounded-full">
-                        <MaterialIcons name="star" size={14} color="#F59E0B" />
-                        <Text className="ml-1 text-sm font-medium text-yellow-600">
-                          {course.aveRating == 0 ? 5 : course.aveRating}
-                        </Text>
-                      </View> */}
-                      {/* <View className="flex-row items-center bg-purple-50 px-2 py-1 rounded-full">
-                        <MaterialIcons
-                          name="people"
-                          size={14}
-                          color="#8B5CF6"
-                        />
-                        <Text className="ml-1 text-sm font-medium text-purple-600">
-                          {course.totalEnrollment}
-                        </Text>
-                      </View> */}
+          {featuredProducts && featuredProducts.length != 0 ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="pl-4 pb-2"
+            >
+              {featuredProducts.map((product) => (
+                <Pressable
+                  key={product.id}
+                  className="bg-white rounded-2xl mr-3 w-64 overflow-hidden"
+                  style={{
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.05,
+                    shadowRadius: 4,
+                    elevation: 3,
+                  }}
+                  onPress={() => {
+                    const productDetail = JSON.stringify(product);
+                    router.push({
+                      pathname: "/product/[id]",
+                      params: { id: product.id, productDetail: productDetail },
+                    });
+                  }}
+                >
+                  <Image
+                    source={{ uri: product.images[0].imageUrl }}
+                    className="w-full h-32"
+                    style={{ resizeMode: "cover" }}
+                  />
+                  <View className="p-3">
+                    <View className="flex-row flex-wrap gap-2 mb-1">
+                      {product.categories.map((category) => (
+                        <View
+                          key={category.id}
+                          className="bg-blue-50 px-3 py-1 rounded-full"
+                        >
+                          <Text className="text-blue-600 text-xs font-medium">
+                            {category.name}
+                          </Text>
+                        </View>
+                      ))}
                     </View>
-                    <Text
-                      className={`font-bold ${
-                        product.price === 0 ? 'text-green-500' : 'text-blue-500'
-                      }`}
-                    >
-                      {product.price !== 0
-                        ? product.price.toLocaleString('vi-VN') + ' ₫'
-                        : 'Miễn phí'}
+                    <Text className="font-bold mt-2 text-lg" numberOfLines={2}>
+                      {product.name.length > 25
+                        ? product.name.substring(0, 25) + "..."
+                        : product.name}
                     </Text>
+                    <Text
+                      className="text-gray-500 text-xs mt-1 mb-2"
+                      numberOfLines={1}
+                    >
+                      {product.description.length > 30
+                        ? product.description.substring(0, 30) + "..."
+                        : product.description}
+                    </Text>
+
+                    <View className="flex-row items-center justify-between mt-2">
+                      <View className="flex-row items-center gap-2">
+                        <View className="flex-row items-center bg-yellow-50 px-2 py-1 rounded-full">
+                          <MaterialIcons
+                            name="star"
+                            size={14}
+                            color="#F59E0B"
+                          />
+                          <Text className="ml-1 text-sm font-medium text-yellow-600">
+                            {product.averageRating == 0
+                              ? 5
+                              : product.averageRating}
+                          </Text>
+                        </View>
+                        {product && product.discount != 0 ? (
+                          <View className="flex-row items-center bg-purple-50 px-2 py-1 rounded-full">
+                            <Foundation
+                              name="burst-sale"
+                              size={14}
+                              color="#8B5CF6"
+                            />
+
+                            <Text className="ml-1 text-sm font-medium text-purple-600">
+                              {product.discount
+                                ? `${product.discount * 100}%`
+                                : "0%"}
+                            </Text>
+                          </View>
+                        ) : (
+                          <></>
+                        )}
+                      </View>
+                      <Text
+                        className={`font-bold ${
+                          product.price === 0
+                            ? "text-green-500"
+                            : "text-blue-500"
+                        }`}
+                      >
+                        {product.price !== 0
+                          ? product.price.toLocaleString("vi-VN") + " ₫"
+                          : "Miễn phí"}
+                      </Text>
+                    </View>
                   </View>
-                </View>
-              </Pressable>
-            ))}
-          </ScrollView>
+                </Pressable>
+              ))}
+            </ScrollView>
+          ) : (
+            <></>
+          )}
         </View>
 
         {/* Latest Blog */}
@@ -466,7 +516,7 @@ export default function HomeScreen() {
             <Pressable
               className="bg-white rounded-2xl overflow-hidden mx-4"
               style={{
-                shadowColor: '#000',
+                shadowColor: "#000",
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.05,
                 shadowRadius: 4,
@@ -523,5 +573,5 @@ export default function HomeScreen() {
         <View className="h-20"></View>
       </SafeAreaView>
     </ScrollView>
-  )
+  );
 }

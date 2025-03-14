@@ -1,17 +1,25 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React from "react";
+import { View, Text } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 
 import HeaderWithBack from "@/components/HeaderWithBack";
-import { useAppStore } from "@/components/app-provider";
-import { useOrder } from "@/queries/useOrder";
-import { GetAllOrderResType, orderRes } from "@/schema/order-schema";
-import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
-import ErrorScreen from "@/components/ErrorScreen";
+import { GetAllProductResType } from "@/schema/product-schema";
 
 export default function ProductsScreen() {
+  const { productList } = useLocalSearchParams();
+
+  let parsedProductList: GetAllProductResType["data"] = [];
+  // Đảm bảo productList là một chuỗi JSON hợp lệ
+  if (typeof productList === "string") {
+    try {
+      parsedProductList = JSON.parse(
+        decodeURIComponent(productList)
+      ) as GetAllProductResType["data"];
+    } catch (error) {
+      console.error("Lỗi parse JSON:", error);
+    }
+  }
+
   return (
     <View className="flex-1 bg-white">
       {/* Header */}
@@ -21,7 +29,11 @@ export default function ProductsScreen() {
         showMoreOptions={false}
       />
 
-      <Text>Product list</Text>
+      {parsedProductList.length === 0 ? (
+        <Text>Danh sách trống</Text>
+      ) : (
+        <Text>Product list ({parsedProductList.length} sản phẩm)</Text>
+      )}
     </View>
   );
 }
