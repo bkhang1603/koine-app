@@ -26,7 +26,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (!accessToken?.accessToken || socketRef.current) return;
 
     console.log("⚡️ Kết nối socket với token:", accessToken.accessToken);
-    const newSocket = io(`http://172.16.0.201:8080`, {
+    const newSocket = io(`http://10.0.170.222:8080`, {
       auth: { Authorization: `Bearer ${accessToken.accessToken}` },
       transports: ["websocket"],
       reconnection: true,

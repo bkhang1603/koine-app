@@ -24,6 +24,8 @@ export const productRes = z.object({
       detail: z.string(),
       guide: z.string(),
       price: z.number(),
+      totalRating: z.number(),
+      averageRating: z.number(),
       discount: z.number().nullable(), 
       stockQuantity: z.number(),
       isDeleted: z.boolean(),
