@@ -22,10 +22,15 @@ import { myCourseRes } from "@/schema/user-schema";
 import { GetMyCoursesResType } from "@/schema/user-schema";
 import { useAllProduct } from "@/queries/useProduct";
 import { productRes, GetAllProductResType } from "@/schema/product-schema";
+import * as Device from "expo-device";
 
 export default function HomeScreen() {
+  const getDeviceId = () => {
+    return Device.osBuildId || Device.osInternalBuildId || "unknown";
+  };
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
+
   const profile = useAppStore((state) => state.profile);
 
   // Gọi API shipping
@@ -65,6 +70,7 @@ export default function HomeScreen() {
   } = useMyCourseStore({ token: token ? token : "", enabled: true });
 
   useEffect(() => {
+    console.log("Device ID ", getDeviceId());
     refetchShipping();
     refetchChild();
     refetchProfile();
@@ -187,14 +193,6 @@ export default function HomeScreen() {
     productListDataLoading
   )
     return <ActivityIndicatorScreen />;
-
-  if (
-    coursesError ||
-    blogError ||
-    myCourseOverviewError ||
-    productListDataError
-  )
-    return <ErrorScreen message="Lỗi khi tải dữ liệu" />;
 
   const featuredCourses = courses;
   const featuredProducts = product;
@@ -320,19 +318,36 @@ export default function HomeScreen() {
                   style={{ resizeMode: "cover" }}
                 />
                 <View className="p-3">
-                  <View className="flex-row flex-wrap gap-2 mb-1">
-                    {course.categories.map((category) => (
-                      <View
-                        key={category.id}
-                        className="bg-blue-50 px-3 py-1 rounded-full"
-                      >
+                  <View className="flex-row flex-wrap gap-2">
+                    {!course.categories.length ? (
+                      <View className="bg-blue-50 px-3 py-1 rounded-full">
                         <Text className="text-blue-600 text-xs font-medium">
-                          {category.name}
+                          --
                         </Text>
                       </View>
-                    ))}
+                    ) : (
+                      <View className="flex-row flex-wrap gap-1">
+                        {course.categories.slice(0, 2).map((category) => (
+                          <View
+                            key={category.id}
+                            className="bg-blue-50 px-3 py-1 rounded-full"
+                          >
+                            <Text className="text-blue-600 text-xs font-medium">
+                              {category.name}
+                            </Text>
+                          </View>
+                        ))}
+                        {course.categories.length > 2 && (
+                          <View className="bg-blue-50 px-3 py-1 rounded-full">
+                            <Text className="text-blue-600 text-xs font-medium">
+                              ...
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                    )}
                   </View>
-                  <Text className="font-bold mt-2 text-lg" numberOfLines={2}>
+                  <Text className="font-bold text-lg" numberOfLines={2}>
                     {course.title.length > 25
                       ? course.title.substring(0, 25) + "..."
                       : course.title}
@@ -341,10 +356,11 @@ export default function HomeScreen() {
                     className="text-gray-500 text-xs mt-1 mb-2"
                     numberOfLines={1}
                   >
-                    {course.description.length > 30
-                      ? course.description.substring(0, 30) + "..."
+                    {course.description.length > 50
+                      ? course.description.substring(0, 50) + "..."
                       : course.description}
                   </Text>
+
                   <View className="flex-row items-center justify-between mt-2">
                     <View className="flex-row items-center gap-2">
                       <View className="flex-row items-center bg-yellow-50 px-2 py-1 rounded-full">
@@ -386,10 +402,8 @@ export default function HomeScreen() {
             <Text className="text-lg font-bold">Sản phẩm nổi bật</Text>
             <Pressable
               onPress={() => {
-                const productL = JSON.stringify(featuredProducts);
                 router.push({
                   pathname: "/(root)/product/product",
-                  params: { productList: productL },
                 });
               }}
               disabled={
@@ -430,17 +444,34 @@ export default function HomeScreen() {
                     style={{ resizeMode: "cover" }}
                   />
                   <View className="p-3">
-                    <View className="flex-row flex-wrap gap-2 mb-1">
-                      {product.categories.map((category) => (
-                        <View
-                          key={category.id}
-                          className="bg-blue-50 px-3 py-1 rounded-full"
-                        >
+                    <View className="flex-row flex-wrap gap-2">
+                      {!product.categories.length ? (
+                        <View className="bg-blue-50 px-3 py-1 rounded-full">
                           <Text className="text-blue-600 text-xs font-medium">
-                            {category.name}
+                            --
                           </Text>
                         </View>
-                      ))}
+                      ) : (
+                        <View className="flex-row flex-wrap gap-1">
+                          {product.categories.slice(0, 2).map((category) => (
+                            <View
+                              key={category.id}
+                              className="bg-blue-50 px-3 py-1 rounded-full"
+                            >
+                              <Text className="text-blue-600 text-xs font-medium">
+                                {category.name}
+                              </Text>
+                            </View>
+                          ))}
+                          {product.categories.length > 2 && (
+                            <View className="bg-blue-50 px-3 py-1 rounded-full">
+                              <Text className="text-blue-600 text-xs font-medium">
+                                ...
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                      )}
                     </View>
                     <Text className="font-bold mt-2 text-lg" numberOfLines={2}>
                       {product.name.length > 25
@@ -451,8 +482,8 @@ export default function HomeScreen() {
                       className="text-gray-500 text-xs mt-1 mb-2"
                       numberOfLines={1}
                     >
-                      {product.description.length > 30
-                        ? product.description.substring(0, 30) + "..."
+                      {product.description.length > 50
+                        ? product.description.substring(0, 50) + "..."
                         : product.description}
                     </Text>
 
@@ -528,7 +559,7 @@ export default function HomeScreen() {
                 source={{ uri: latestBlog.imageUrl }}
                 className="w-full h-48"
               />
-              <View className="p-4">
+              <View className="p-3">
                 <View className="flex-row flex-wrap items-center">
                   {latestBlog.categories.slice(0, 2).map((category, index) => (
                     <React.Fragment key={category.id || index}>
@@ -556,6 +587,7 @@ export default function HomeScreen() {
                 <Text className="text-gray-600 mt-1" numberOfLines={2}>
                   {latestBlog.description}
                 </Text>
+
                 <View className="flex-row items-center mt-3">
                   <MaterialIcons name="person" size={16} color="#6B7280" />
                   <Text className="text-gray-600 ml-1">

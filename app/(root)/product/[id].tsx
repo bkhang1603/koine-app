@@ -15,6 +15,10 @@ import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 import ErrorScreen from "@/components/ErrorScreen";
 import { GetAllProductResType } from "@/schema/product-schema";
 import { Animated } from "react-native";
+import { useCreateCartItemMutation } from "@/queries/useCart";
+import { Alert } from "react-native";
+import CartButton from "@/components/CartButton";
+import { ActivityIndicator } from "react-native";
 
 export default function ProductDetailScreen() {
   const { id, productDetail } = useLocalSearchParams();
@@ -42,8 +46,54 @@ export default function ProductDetailScreen() {
       }),
     ]).start();
   };
+  const [isProcessing, setProcessing] = useState(false);
+  const accessToken = useAppStore((state) => state.accessToken);
+  const token = accessToken == undefined ? "" : accessToken.accessToken;
 
-  const handleAddToCart = async () => {};
+  //ở đây nhét thêm cái cart vô cho người ta biết có bao nhiêu sản phẩm trong cart rồi
+
+  const createCartItemMutation = useCreateCartItemMutation();
+  const handleAddToCart = async () => {
+    try {
+      if (isProcessing) return;
+      setProcessing(true);
+
+      const res = await createCartItemMutation.mutateAsync({
+        body: {
+          productId: id as string,
+          quantity: quantity,
+        },
+        token,
+      });
+      Alert.alert(
+        "Thông báo",
+        "Thêm sản phẩm vào giỏ thành công",
+        [
+          {
+            text: "Mua tiếp",
+            style: "cancel",
+          },
+          {
+            text: "Trang chủ",
+            onPress: () => {
+              router.push("/(tabs)/home")
+            },
+            style: "destructive",
+          },
+        ]
+      );
+     
+    } catch (e) {
+      Alert.alert("Lỗi", `Không thêm được sản phẩm ${e}`, [
+        {
+          text: "tắt",
+          style: "cancel",
+        },
+      ]);
+    } finally {
+      setProcessing(false);
+    }
+  };
 
   // Đảm bảo productList là một chuỗi JSON hợp lệ
   if (typeof productDetail === "string") {
@@ -54,49 +104,57 @@ export default function ProductDetailScreen() {
 
       return (
         <View className="flex-1 bg-white">
-          {/* Header */}
-          <HeaderWithBack
-            title="Chi tiết sản phẩm"
-            returnTab={"/(root)/product/product"}
-            showMoreOptions={false}
-          />
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            className="pl-4 pb-2"
+          {/* Headers */}
+          <View
+            style={{ paddingTop: insets.top }}
+            className="absolute top-0 left-0 right-0 z-10"
           >
-            <View className="w-full">
-              <Image
-                source={{ uri: parsedProductDetail.images[0].imageUrl }}
-                className="w-full h-32"
-                style={{ resizeMode: "cover" }}
-              />
-              <View className="p-3">
+            <View className="px-4 py-3 flex-row items-center justify-between">
+              <Pressable
+                onPress={() => router.push("/(root)/product/product")}
+                className="w-10 h-10 bg-black/30 rounded-full items-center justify-center ml-2"
+              >
+                <MaterialIcons name="arrow-back" size={24} color="white" />
+              </Pressable>
+
+              <View className="flex-row items-center">
+                <CartButton bgColor="bg-black/30" iconColor="white" />
+                <Pressable
+                  className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
+                  onPress={() => router.push("/notifications/notifications")}
+                >
+                  <MaterialIcons name="notifications" size={24} color="white" />
+                </Pressable>
+              </View>
+            </View>
+          </View>
+
+          <ScrollView showsHorizontalScrollIndicator={false} className="flex-1">
+            <Image
+              source={{ uri: parsedProductDetail.images[0].imageUrl }}
+              className="w-full h-56"
+            />
+            <View className="p-4">
+              <View className="p-1">
                 <View className="flex-row flex-wrap gap-2 mb-1">
                   {parsedProductDetail.categories.map((category) => (
                     <View
                       key={category.id}
                       className="bg-blue-50 px-3 py-1 rounded-full"
                     >
-                      <Text className="text-blue-600 text-xs font-medium">
+                      <Text className="text-blue-600 text-sm font-medium">
                         {category.name}
                       </Text>
                     </View>
                   ))}
                 </View>
-                <Text className="font-bold mt-2 text-lg" numberOfLines={2}>
+                <Text className="font-bold mt-2 text-2xl" numberOfLines={2}>
                   {parsedProductDetail.name.length > 25
                     ? parsedProductDetail.name.substring(0, 25) + "..."
                     : parsedProductDetail.name}
                 </Text>
-                <Text
-                  className="text-gray-500 text-xs mt-1 mb-2"
-                  numberOfLines={1}
-                >
-                  {parsedProductDetail.description.length > 30
-                    ? parsedProductDetail.description.substring(0, 30) + "..."
-                    : parsedProductDetail.description}
+                <Text className="text-gray-500 text-sm mt-1 mb-2">
+                  {parsedProductDetail.description}
                 </Text>
 
                 <View className="flex-row items-center justify-between mt-2">
@@ -202,14 +260,19 @@ export default function ProductDetailScreen() {
             </View>
 
             <Pressable
-              className={`py-4 bg-blue-500 rounded-xl items-center`}
+              className={`py-4 bg-blue-500 rounded-xl items-center ${
+                isProcessing ? "opacity-70" : ""
+              }`}
               onPress={handleAddToCart}
             >
-              <Text className="text-white font-bold text-base">
-                Thêm vào giỏ hàng •{" "}
-                {(parsedProductDetail.price * quantity).toLocaleString("vi-VN")}{" "}
-                ₫
-              </Text>
+              {isProcessing ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text className="text-white font-bold text-base">
+                  Thêm vào giỏ hàng •{" "}
+                  {(parsedProductDetail.price * quantity).toLocaleString("vi-VN")} ₫
+                </Text>
+              )}
             </Pressable>
           </View>
         </View>
@@ -218,26 +281,34 @@ export default function ProductDetailScreen() {
       console.log("Lỗi ở product detail ", error);
       return (
         <View className="flex-1 bg-white">
-          {/* Header */}
           <HeaderWithBack
-            title="Chi tiết sản phẩm"
+            title="Danh sách sản phẩm"
             returnTab={"/(root)/product/product"}
             showMoreOptions={false}
           />
-          <Text>Không tìm thấy thông tin sản phẩm</Text>
+          <View className="flex-1 items-center justify-center p-4">
+            <MaterialIcons name="shopping-cart" size={34} color="#9CA3AF" />
+            <Text className="text-gray-500 text-lg mt-4 text-center">
+              Không tìm thấy thông tin sản phẩm
+            </Text>
+          </View>
         </View>
       );
     }
   } else {
     return (
       <View className="flex-1 bg-white">
-        {/* Header */}
         <HeaderWithBack
-          title="Chi tiết sản phẩm"
+          title="Danh sách sản phẩm"
           returnTab={"/(root)/product/product"}
           showMoreOptions={false}
         />
-        <Text>Không tìm thấy thông tin sản phẩm</Text>
+        <View className="flex-1 items-center justify-center p-4">
+          <MaterialIcons name="shopping-cart" size={34} color="#9CA3AF" />
+          <Text className="text-gray-500 text-lg mt-4 text-center">
+            Không tìm thấy thông tin sản phẩm
+          </Text>
+        </View>
       </View>
     );
   }
