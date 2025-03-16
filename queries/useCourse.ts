@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import courseApiRequest from "@/api/course";
 import {
   AssignCourseStoreBodyType,
+  CourseElementResType,
   EditChildCourseVisibleBodyType,
   GetMyCourseStoreResType,
 } from "@/schema/course-schema";
@@ -111,4 +112,16 @@ export const useEditChildCourseVisible = () => {
       body: EditChildCourseVisibleBodyType;
     }) => courseApiRequest.editChildCourseVisible({ token, body }),
   });
+};
+
+export const useCourseElement = ({ token }: { token: string }) => {
+  const query = useQuery<CourseElementResType>({
+    queryKey: ["course-element"],
+    queryFn: () =>
+      courseApiRequest.getCourseElement(
+        token // Truyền token vào khi gọi API
+      ),
+  });
+  
+  return query
 };

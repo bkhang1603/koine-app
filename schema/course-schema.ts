@@ -153,34 +153,64 @@ export type GetMyCourseStoreResType = z.infer<typeof myCourseStore>;
 
 //assigncourse cho con là api/courses/active-course
 
-
 export const assignCourse = z.object({
   childId: z.string().nullable(),
-  courseId: z.string()
-})
+  courseId: z.string(),
+});
 
 export type AssignCourseStoreBodyType = z.infer<typeof assignCourse>;
 
 export const assignCourseResType = z.object({
   statusCode: z.number(),
-  message: z.string()
-})
+  message: z.string(),
+});
 
 export type AssignCourseStoreResType = z.infer<typeof assignCourseResType>;
 
 export const enrollFreeCourseResType = z.object({
   statusCode: z.number(),
   info: z.string(),
-  message: z.string()
-})
+  message: z.string(),
+});
 
 export type EnrollFreeCourseResType = z.infer<typeof enrollFreeCourseResType>;
-
 
 export const editChildCourseVisible = z.object({
   childId: z.string(),
   courseId: z.string(),
   isVisible: z.boolean(),
-})
+});
 
-export type EditChildCourseVisibleBodyType = z.infer<typeof editChildCourseVisible>;
+export type EditChildCourseVisibleBodyType = z.infer<
+  typeof editChildCourseVisible
+>;
+
+export const courseElementResType = z.object({
+  data: z.array(
+    z.object({
+      id: z.string(),
+      title: z.string(),
+      imageUrl: z.string(),
+      totalChapter: z.number(),
+      chapters: z.array(
+        z.object({
+          id: z.string(),
+          title: z.string(),
+          totalLesson: z.number(),
+          description: z.number(),
+          lessons: z.array(
+            z.object({
+              id: z.string(),
+              title: z.string(),
+              description: z.string(),
+              type: z.string(),
+            })
+          ),
+        })
+      ),
+    })
+  ),
+  message: z.string(),
+});
+
+export type CourseElementResType = z.infer<typeof courseElementResType>;

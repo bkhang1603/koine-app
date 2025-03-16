@@ -1,6 +1,7 @@
 import {
   AssignCourseStoreBodyType,
   AssignCourseStoreResType,
+  CourseElementResType,
   EditChildCourseVisibleBodyType,
   EnrollFreeCourseResType,
   GetAllCourseResType,
@@ -66,6 +67,12 @@ const courseApiRequest = {
     token: string;
   }) =>
     http.put<any>("course-visibilities", body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+  getCourseElement: (token: string) =>
+    http.get<CourseElementResType>("courses/all-basic-course-info", {
       headers: {
         Authorization: `Bearer ${token}`,
       },

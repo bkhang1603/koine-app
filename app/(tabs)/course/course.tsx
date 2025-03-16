@@ -85,7 +85,17 @@ export default function CourseScreen() {
         {/* Featured Course */}
         {courses && (
           <View className="p-4">
-            <Text className="text-lg font-bold mb-3">Nổi bật</Text>
+            <View className="flex-row justify-between items-center mb-3">
+              <Text className="text-lg font-bold mb-3">Nổi bật</Text>
+            <Pressable
+            
+              onPress={() => router.push("/custom-course/custom-course")}
+              
+              className="bg-blue-500 rounded-xl"
+            >
+              <Text className="text-white p-2">+ Khóa học tùy chỉnh</Text>
+            </Pressable>
+          </View>
             <Pressable
               className="bg-white rounded-2xl overflow-hidden"
               style={{

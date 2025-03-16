@@ -70,7 +70,6 @@ export default function HomeScreen() {
   } = useMyCourseStore({ token: token ? token : "", enabled: true });
 
   useEffect(() => {
-    console.log("Device ID ", getDeviceId());
     refetchShipping();
     refetchChild();
     refetchProfile();
@@ -394,6 +393,17 @@ export default function HomeScreen() {
               </Pressable>
             ))}
           </ScrollView>
+          <View className="pr-1 justify-between items-end mb-3">
+            <Pressable
+              onPress={() => router.push("/custom-course/custom-course")}
+              disabled={
+                !featuredCourses || featuredCourses.length == 0 ? true : false
+              }
+              className="bg-blue-500 rounded-xl"
+            >
+              <Text className="text-white p-2">+ Khóa học tùy chỉnh</Text>
+            </Pressable>
+          </View>
         </View>
 
         {/* Featured Product */}
