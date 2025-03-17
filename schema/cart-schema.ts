@@ -63,6 +63,8 @@ export type GetAllCartDetailResType = z.TypeOf<typeof cartItemList>
 
 export const createCartDetailBody = z.object({
   courseId: z.string().optional(),
+  productId: z.string().optional(),
+  comboId: z.string().optional(),
   quantity: z.number(),
 })
 

@@ -55,10 +55,10 @@ export default function LoginScreen() {
 
       setShowModal(true);
 
-      // Tự động đóng modal sau 5 giây
+      // Tự động đóng modal sau 3 giây
       const timeout = setTimeout(() => {
         setShowModal(false);
-      }, 5000);
+      }, 3000);
 
       return () => clearTimeout(timeout);
     }
@@ -79,8 +79,8 @@ export default function LoginScreen() {
       setIsProcessing(true);
       Keyboard.dismiss();
       const res = await signIn.mutateAsync({
-        loginKey: email,
-        password: password,
+        loginKey: email.trim(),
+        password: password.trim(),
         deviceId: deviceId
       });
       if (res?.statusCode == 200) {

@@ -7,6 +7,7 @@ import {
   Pressable,
   ActivityIndicator,
   Animated,
+  Alert,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -75,7 +76,27 @@ export default function CourseDetailScreen() {
         },
         token,
       });
-    } catch (error) {}
+      Alert.alert("Thông báo", "Thêm khóa học vào giỏ thành công", [
+        {
+          text: "Mua tiếp",
+          style: "cancel",
+        },
+        {
+          text: "Trang chủ",
+          onPress: () => {
+            router.push("/(tabs)/home");
+          },
+          style: "destructive",
+        },
+      ]);
+    } catch (error) {
+      Alert.alert("Lỗi", `Không thêm được khóa học ${error}`, [
+        {
+          text: "tắt",
+          style: "cancel",
+        },
+      ]);
+    }
   };
 
   const handleEnrollFreeCourse = async () => {
@@ -88,7 +109,6 @@ export default function CourseDetailScreen() {
         token,
         courseId: id as string,
       });
-      // After successful enrollment, navigate back or show success message
       router.back();
     } catch (error) {
       console.error("Failed to enroll:", error);
@@ -116,9 +136,9 @@ export default function CourseDetailScreen() {
   };
 
   const toggleChapter = (chapterId: string) => {
-    setExpandedChapters((prev) =>
+    setExpandedChapters((prev: string[]) =>
       prev.includes(chapterId)
-        ? prev.filter((id) => id !== chapterId)
+        ? prev.filter((id: string) => id !== chapterId)
         : [...prev, chapterId]
     );
   };
@@ -135,6 +155,7 @@ export default function CourseDetailScreen() {
   return (
     <View className="flex-1 bg-white">
       {/* Header */}
+
       <View
         style={{ paddingTop: insets.top }}
         className="absolute top-0 left-0 right-0 z-10"
@@ -146,6 +167,16 @@ export default function CourseDetailScreen() {
           >
             <MaterialIcons name="arrow-back" size={24} color="white" />
           </Pressable>
+
+          <View className="flex-row items-center">
+            <CartButton bgColor="bg-black/30" iconColor="white" />
+            <Pressable
+              className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
+              onPress={() => router.push("/notifications/notifications")}
+            >
+              <MaterialIcons name="notifications" size={24} color="white" />
+            </Pressable>
+          </View>
         </View>
       </View>
 
@@ -297,7 +328,7 @@ export default function CourseDetailScreen() {
                                 params: {
                                   lessonId: lesson.id,
                                   courseId: id,
-                                  lessonData: JSON.stringify(lesson)
+                                  lessonData: JSON.stringify(lesson),
                                 },
                               });
                             }
