@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+} from "react";
 import { io, Socket } from "socket.io-client";
 import NetInfo from "@react-native-community/netinfo";
 import { useAppStore } from "@/components/app-provider";
@@ -16,8 +23,12 @@ const SocketContext = createContext<SocketContextType>({
   disconnectSocket: () => {},
 });
 
-export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const accessToken: AccessTokenType | null = useAppStore((state) => state.accessToken);
+export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const accessToken: AccessTokenType | null = useAppStore(
+    (state) => state.accessToken
+  );
   const [socket, setSocket] = useState<Socket | null>(null);
   const socketRef = useRef<Socket | null>(null);
   const hasConnected = useRef(false);
@@ -26,7 +37,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (!accessToken?.accessToken || socketRef.current) return;
 
     console.log("⚡️ Kết nối socket với token:", accessToken.accessToken);
-    const newSocket = io(`http://10.0.170.222:8080`, {
+    const newSocket = io(`http://10.0.232.162:8080`, {
       auth: { Authorization: `Bearer ${accessToken.accessToken}` },
       transports: ["websocket"],
       reconnection: true,
@@ -76,7 +87,11 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return () => unsubscribe();
   }, [connectSocket]);
 
-  return <SocketContext.Provider value={{ socket, connectSocket, disconnectSocket }}>{children}</SocketContext.Provider>;
+  return (
+    <SocketContext.Provider value={{ socket, connectSocket, disconnectSocket }}>
+      {children}
+    </SocketContext.Provider>
+  );
 };
 
 export const useSocket = () => useContext(SocketContext);

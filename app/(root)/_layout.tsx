@@ -42,7 +42,6 @@ export default function RootLayout() {
         <Stack.Screen name="product/product" options={{ headerShown: false }} />
         <Stack.Screen name="product/[id]" options={{ headerShown: false }} />
 
-
         <Stack.Screen
           name="certificates/certificates"
           options={{ headerShown: false }}
@@ -80,6 +79,10 @@ export default function RootLayout() {
         />
         <Stack.Screen
           name="sub-accounts/[id]"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="custom-course/custom-course"
           options={{ headerShown: false }}
         />
         <Stack.Screen
