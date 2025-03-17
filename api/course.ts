@@ -7,8 +7,10 @@ import {
   GetAllCourseResType,
   GetCourseDetailResType,
   GetMyCourseStoreResType,
+  CreateCustomCourseType,
 } from "@/schema/course-schema";
 import http from "@/util/http";
+import { string } from "zod";
 
 const courseApiRequest = {
   getAll: ({
@@ -73,6 +75,19 @@ const courseApiRequest = {
     }),
   getCourseElement: (token: string) =>
     http.get<CourseElementResType>("courses/all-basic-course-info", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+  // api/course-customs/request-custom-course
+  createCustomCourse: ({
+    token,
+    body,
+  }: {
+    token: string;
+    body: CreateCustomCourseType;
+  }) =>
+    http.post<any>("course-customs/request-custom-course", body, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

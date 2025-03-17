@@ -1,14 +1,14 @@
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 import HeaderWithBack from "@/components/HeaderWithBack";
 import { useAppStore } from "@/components/app-provider";
-import { useCourseElement } from "@/queries/useCourse";
+import { useCourseElement, useCreateCustomCourse } from "@/queries/useCourse";
 import { CourseElementResType } from "@/schema/course-schema";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import { useState } from "react";
 import { Alert, Pressable, ScrollView, TouchableOpacity } from "react-native";
 import { View, Text } from "react-native";
-import { Modal, Portal } from "react-native-paper";
+import { IconButton, Modal, Portal } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function CustomCourseScreen() {
@@ -16,16 +16,20 @@ export default function CustomCourseScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
   const [showModal, setShowModal] = useState(false);
+  const [isProcessing, setProcessing] = useState(false);
 
   const [selectedChapter, setSelectedChapter] = useState<
     CourseElementResType["data"][0]["chapters"]
   >([]);
+
   const {
     data: courseElement,
     isError,
     isLoading,
     refetch,
   } = useCourseElement({ token });
+
+  const createCustom = useCreateCustomCourse();
 
   useFocusEffect(() => {
     refetch();
@@ -77,29 +81,33 @@ export default function CustomCourseScreen() {
     );
   }
 
-  const [isProcessing, setProcessing] = useState(false);
-
   const handleCustomCourse = async () => {
     try {
       if (isProcessing) return;
       setProcessing(true);
+      const selectedChapterIds = selectedChapter.map((chapter) => chapter.id);
 
-      Alert.alert("Thông báo", "Tạo khóa học tùy chỉnh thành công", [
-        {
-          text: "Trang chủ",
-          onPress: async () => {
-            router.push("/(tabs)/home");
-          },
-          style: "cancel",
-        },
-        {
-          text: "Đơn hàng",
-          onPress: async () => {
-            router.push("/(root)/orders/orders");
-          },
-          style: "destructive",
-        },
-      ]);
+      const bodyData = {
+        chapterIds: selectedChapterIds,
+      };
+      console.log("mảng id ", selectedChapterIds);
+      // const res = await createCustom.mutateAsync({ token, body: bodyData });
+      // Alert.alert("Thông báo", "Tạo khóa học tùy chỉnh thành công", [
+      //   {
+      //     text: "Trang chủ",
+      //     onPress: async () => {
+      //       router.push("/(tabs)/home");
+      //     },
+      //     style: "cancel",
+      //   },
+      //   {
+      //     text: "Đơn hàng",
+      //     onPress: async () => {
+      //       router.push("/(root)/orders/orders");
+      //     },
+      //     style: "destructive",
+      //   },
+      // ]);
     } catch (error) {
       Alert.alert("Lỗi", `Tạo khóa học tùy chỉnh không thành công ${error}`, [
         {
@@ -126,14 +134,18 @@ export default function CustomCourseScreen() {
   const handleAddChapter = (
     newChapter: CourseElementResType["data"][0]["chapters"][0]
   ) => {
-    setSelectedChapter((prevChapters) => [...prevChapters, newChapter]);
+    setSelectedChapter((prevChapters) =>
+      prevChapters.some((chapter) => chapter.id === newChapter.id)
+        ? prevChapters
+        : [...prevChapters, newChapter]
+    );
   };
 
   const removeSelectedChapter = (
-    chapter: CourseElementResType["data"][0]["chapters"][0]
+    chapterToRemove: CourseElementResType["data"][0]["chapters"][0]
   ) => {
-    setSelectedChapter(
-      selectedChapter.filter((chapter) => chapter !== chapter)
+    setSelectedChapter((prevChapters) =>
+      prevChapters.filter((chapter) => chapter.id !== chapterToRemove.id)
     );
   };
 
@@ -145,14 +157,14 @@ export default function CustomCourseScreen() {
       {/* Selected Chapters */}
       <ScrollView className="flex-1 bg-white">
         <View className="p-2 flex-row justify-between items-center">
-          <Text>Các chương đã chọn</Text>
+          <Text className="font-bold text-lg">Các chương đã chọn</Text>
           <TouchableOpacity
             onPress={() => {
               setShowModal(true);
             }}
             className="bg-blue-500 rounded-xl"
           >
-            <Text className="text-white p-2">Danh sách chương</Text>
+            <Text className="text-white p-2">+ Danh sách chương</Text>
           </TouchableOpacity>
         </View>
 
@@ -163,16 +175,19 @@ export default function CustomCourseScreen() {
         ) : (
           <View>
             <View className="flex items-end">
-              <Text className="text-gray-500 italic">
+              <Text className="text-gray-500 italic mr-2 p-2">
                 Đã chọn: {selectedChapter.length} chương
               </Text>
             </View>
             {selectedChapter.map((chapter) => (
-              <View className="bg-white rounded-xl p-2 border-gray-300 border-[0.5px]">
+              <View
+                key={chapter.id}
+                className="bg-white rounded-xl p-2 m-1 border-gray-300 border-[2px]"
+              >
                 <Pressable
                   onPress={() => removeSelectedChapter(chapter)}
                   hitSlop={8}
-                  className="self-center"
+                  className="self-end"
                 >
                   <MaterialIcons
                     name={"remove-circle-outline"}
@@ -180,28 +195,40 @@ export default function CustomCourseScreen() {
                     color={"gray"}
                   />
                 </Pressable>
-                <View className="flex-row ml-1">
-                  <Text>{chapter.title} - </Text>
-                  <Text>{chapter.totalLesson} bài</Text>
-                </View>
-                <Text numberOfLines={2}>{chapter.description}</Text>
                 <View>
-                  {chapter.lessons.map((lesson) => (
-                    <View className="flex-row items-center p-1">
-                      <MaterialIcons
-                        name={
-                          lesson.type === "VIDEO"
-                            ? "videocam"
-                            : lesson.type === "DOCUMENT"
-                            ? "description"
-                            : "library-books"
-                        }
-                        size={20}
-                        color="#3B82F6"
-                      />
-                      <Text>{lesson.title}</Text>
-                    </View>
-                  ))}
+                  <Text numberOfLines={1} className="font-semibold text-sm">
+                    {chapter.title}
+                  </Text>
+                  <Text className="font-semibold text-sm">
+                    {chapter.totalLesson} bài
+                  </Text>
+
+                  <Text className="mb-1" numberOfLines={3}>
+                    {chapter.description}
+                  </Text>
+                  <View>
+                    {chapter.lessons.map((lesson) => (
+                      <View
+                        key={lesson.id}
+                        className="flex-row items-center p-1 w-[96%]"
+                      >
+                        <MaterialIcons
+                          name={
+                            lesson.type === "VIDEO"
+                              ? "videocam"
+                              : lesson.type === "DOCUMENT"
+                              ? "description"
+                              : "library-books"
+                          }
+                          size={20}
+                          color="blue"
+                        />
+                        <Text numberOfLines={2} className="pl-1 font-semibold">
+                          {lesson.title}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
                 </View>
               </View>
             ))}
@@ -214,27 +241,43 @@ export default function CustomCourseScreen() {
         <Modal visible={showModal} onDismiss={() => setShowModal(false)}>
           <View className="mx-3">
             <View className="bg-slate-200 p-5 rounded-lg">
-              <Text className="text-black font-bold">
-                Danh sách chương - Tổng: {chaptersArray.length} chương
-              </Text>
+              <View className="flex-row justify-between items-center">
+                <Text className="text-black font-bold text-base py-2">
+                  Danh sách chương - Tổng: {chaptersArray.length} chương
+                </Text>
+                <IconButton
+                  icon="close"
+                  className="self-end"
+                  onPress={() => {
+                    setShowModal(false);
+                  }}
+                />
+              </View>
               <ScrollView
-                className="max-h-72"
+                className="max-h-96 w-[100%]"
                 showsVerticalScrollIndicator={false}
               >
                 {chaptersArray.map((chapter) => (
                   <TouchableOpacity
                     key={chapter.id}
-                    className="bg-white rounded-xl p-2 border-gray-300 border-[0.5px]"
+                    className={`${
+                      selectedChapter.some((c) => c.id === chapter.id)
+                        ? "bg-cyan-200"
+                        : "bg-white"
+                    } rounded-xl p-1 m-1 border-gray-300 w-[100%]`}
                     onPress={() => handleAddChapter(chapter)}
                   >
-                    <View className="flex-row">
-                      <Text>{chapter.title} - </Text>
-                      <Text>{chapter.totalLesson} bài</Text>
-                    </View>
-                    <Text numberOfLines={2}>{chapter.description}</Text>
+                    <Text numberOfLines={1} className="font-semibold">
+                      {chapter.title}
+                    </Text>
+                    <Text className="font-semibold">
+                      {chapter.totalLesson} bài
+                    </Text>
+
+                    <Text numberOfLines={4}>{chapter.description}</Text>
                     <View>
                       {chapter.lessons.map((lesson) => (
-                        <View className="flex-row items-center p-1">
+                        <View className="flex-row items-center p-1 w-[96%]">
                           <MaterialIcons
                             name={
                               lesson.type === "VIDEO"
@@ -244,9 +287,14 @@ export default function CustomCourseScreen() {
                                 : "library-books"
                             }
                             size={20}
-                            color="#3B82F6"
+                            color="blue"
                           />
-                          <Text>{lesson.title}</Text>
+                          <Text
+                            numberOfLines={2}
+                            className="font-semibold pl-1"
+                          >
+                            {lesson.title}
+                          </Text>
                         </View>
                       ))}
                     </View>
@@ -259,28 +307,26 @@ export default function CustomCourseScreen() {
       </Portal>
 
       {/* Bottom Bar */}
-      <View className="p-5 border-t border-gray-100 bg-white">
-        <View className="flex-row justify-between items-center">
-          <Pressable
-            className={`px-8 py-4 rounded-2xl ${
+      <View className="p-2 border-t border-gray-200 bg-white justify-between items-center">
+        <Pressable
+          className={`px-8 py-4 rounded-2xl ${
+            !isProcessing && selectedChapter.length > 0
+              ? "bg-blue-600"
+              : "bg-gray-300"
+          }`}
+          onPress={handleCustomCourse}
+          disabled={selectedChapter.length == 0}
+        >
+          <Text
+            className={`font-bold text-base ${
               !isProcessing && selectedChapter.length > 0
-                ? "bg-blue-600"
-                : "bg-gray-300"
+                ? "text-white"
+                : "text-gray-500"
             }`}
-            onPress={handleCustomCourse}
-            disabled={selectedChapter.length == 0}
           >
-            <Text
-              className={`font-bold text-lg ${
-                !isProcessing && selectedChapter.length > 0
-                  ? "text-white"
-                  : "text-gray-500"
-              }`}
-            >
-              Tạo khóa học
-            </Text>
-          </Pressable>
-        </View>
+            Tạo khóa học
+          </Text>
+        </Pressable>
       </View>
     </View>
   );

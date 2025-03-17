@@ -105,7 +105,7 @@ export default function ProductsScreen() {
             </View>
 
             {/* Search Bar */}
-            <Pressable
+            {/* <Pressable
               className="mx-4 mt-4 flex-row items-center bg-gray-100 rounded-xl p-3"
               onPress={() => {
                 console.log("Chua lam");
@@ -116,7 +116,7 @@ export default function ProductsScreen() {
               <Text className="ml-2 text-gray-500 flex-1">
                 Tìm kiếm sản phẩm...
               </Text>
-            </Pressable>
+            </Pressable> */}
 
             {/* Featured Course */}
             {parsedProductList && (

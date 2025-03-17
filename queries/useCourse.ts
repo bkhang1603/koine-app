@@ -3,6 +3,7 @@ import courseApiRequest from "@/api/course";
 import {
   AssignCourseStoreBodyType,
   CourseElementResType,
+  CreateCustomCourseType,
   EditChildCourseVisibleBodyType,
   GetMyCourseStoreResType,
 } from "@/schema/course-schema";
@@ -124,4 +125,23 @@ export const useCourseElement = ({ token }: { token: string }) => {
   });
   
   return query
+};
+
+export const useCreateCustomCourse = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      body,
+      token,
+    }: {
+      body: CreateCustomCourseType;
+      token: string;
+    }) => courseApiRequest.createCustomCourse({ body, token }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["order"],
+        exact: true,
+      });
+    },
+  });
 };

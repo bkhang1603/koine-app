@@ -27,7 +27,6 @@ export const courseRes = z.object({
       updatedAtFormatted: z.string(),
       durationsDisplay: z.string(),
       level: z.string(),
-      prerequisiteId: z.string().nullable(),
       creatorId: z.string(),
       creator: z.object({
         id: z.string(),
@@ -214,3 +213,10 @@ export const courseElementResType = z.object({
 });
 
 export type CourseElementResType = z.infer<typeof courseElementResType>;
+
+export const requestCustomCourse = z
+  .object({
+    chapterIds: z.array(z.string()),
+  })
+
+export type CreateCustomCourseType = z.infer<typeof requestCustomCourse>;
