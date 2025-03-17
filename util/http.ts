@@ -17,7 +17,7 @@ interface HttpOptions {
 // const defaultBaseUrl = "http://10.0.199.32:8080/api";
 
 //local may lap dao
-const defaultBaseUrl = "http://172.16.0.201:8080/api";
+const defaultBaseUrl = "http://192.168.1.20:8080/api";
 
 //mới
 const request = async <Response>(

@@ -38,15 +38,13 @@ export default function ChildMyCoursesScreen() {
   if (myCourseLoading) return <ActivityIndicatorScreen />;
   if (myCourseError) return null;
 
-  console.log(token);
-
   return (
     <View className="flex-1 bg-white">
       {/* Top SafeArea với background trắng */}
       <View className="bg-white">
         <SafeAreaView edges={["top"]} className="bg-white" />
       </View>
-
+ 
       {/* Header */}
       <View className="p-4">
         <Text className="text-2xl font-bold">Khóa học của tôi</Text>

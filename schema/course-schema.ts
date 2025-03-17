@@ -27,7 +27,6 @@ export const courseRes = z.object({
       updatedAtFormatted: z.string(),
       durationsDisplay: z.string(),
       level: z.string(),
-      prerequisiteId: z.string().nullable(),
       creatorId: z.string(),
       creator: z.object({
         id: z.string(),
@@ -75,7 +74,6 @@ export const courseDetailRes = z.object({
     aveRating: z.number(),
     isBanned: z.boolean(),
     isCustom: z.boolean(),
-    prerequisiteId: z.string().nullable(),
     level: z.string(),
     durationsDisplay: z.string(),
     categories: z.array(
@@ -153,34 +151,34 @@ export type GetMyCourseStoreResType = z.infer<typeof myCourseStore>;
 
 //assigncourse cho con là api/courses/active-course
 
-
 export const assignCourse = z.object({
   childId: z.string().nullable(),
-  courseId: z.string()
-})
+  courseId: z.string(),
+});
 
 export type AssignCourseStoreBodyType = z.infer<typeof assignCourse>;
 
 export const assignCourseResType = z.object({
   statusCode: z.number(),
-  message: z.string()
-})
+  message: z.string(),
+});
 
 export type AssignCourseStoreResType = z.infer<typeof assignCourseResType>;
 
 export const enrollFreeCourseResType = z.object({
   statusCode: z.number(),
   info: z.string(),
-  message: z.string()
-})
+  message: z.string(),
+});
 
 export type EnrollFreeCourseResType = z.infer<typeof enrollFreeCourseResType>;
-
 
 export const editChildCourseVisible = z.object({
   childId: z.string(),
   courseId: z.string(),
   isVisible: z.boolean(),
-})
+});
 
-export type EditChildCourseVisibleBodyType = z.infer<typeof editChildCourseVisible>;
+export type EditChildCourseVisibleBodyType = z.infer<
+  typeof editChildCourseVisible
+>;

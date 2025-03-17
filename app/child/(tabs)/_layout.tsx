@@ -55,6 +55,31 @@ export default function ChildTabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="course"
+        options={{
+          title: "",
+          tabBarIcon: ({ focused }) => (
+            <View
+              hitSlop={{
+                top: 20,
+                bottom: 20,
+                left: 20,
+                right: 20,
+              }}
+            >
+              <MaterialIcons
+                name="auto-stories"
+                size={28}
+                color={focused ? "#7c3aed" : "#c4b5fd"}
+              />
+              {focused && (
+                <View className="absolute -bottom-1 left-2 translate-x-1/2 w-3 h-1 rounded-full bg-violet-500" />
+              )}
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="my-courses"
         options={{
           title: "",
