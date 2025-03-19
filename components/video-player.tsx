@@ -9,7 +9,7 @@ const VideoPlayer = ({ videoUrl }: { videoUrl: string }) => {
   const [shouldPlay, setShouldPlay] = useState(false);
 
   const { width, height } = Dimensions.get("window");
-  const videoHeight = width * (9 / 16); // Tỷ lệ 16:9
+  const videoHeight = width * (9 / 16);
 
   const toggleFullscreen = async () => {
     if (isFullscreen) {

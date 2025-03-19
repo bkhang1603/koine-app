@@ -5,7 +5,7 @@ export const loginBody = z
   .object({
     loginKey: z.string(),
     password: z.string(),
-    deviceId: z.string()
+    deviceId: z.string(),
   })
   .strict();
 
@@ -33,7 +33,7 @@ export type LoginResType = z.TypeOf<typeof loginRes>;
 //refresh new access token
 export const refreshAccessBody = z
   .object({
-    refreshToken: z.string()
+    refreshToken: z.string(),
   })
   .strict();
 
@@ -58,13 +58,13 @@ export const registerBody = z.object({
   gender: z.string(),
   dob: z.string(),
   address: z.string(),
-  role: z.string()
+  role: z.string(),
 });
 
 export type RegisterBodyType = z.TypeOf<typeof registerBody>;
 
 export const registerRes = z.object({
-  data: z.unknown(), // Chỉnh lại sau vì api đang lỗi
+  data: z.string().optional(),
   message: z.string(),
   statusCode: z.number(),
 });
@@ -100,3 +100,32 @@ export const createChildResType = z.object({
 });
 
 export type CreateChildResType = z.TypeOf<typeof createChildResType>;
+
+export const confirmOtpBody = z
+  .object({
+    id: z.string(),
+    code: z.string(),
+  })
+  .strict();
+
+export type ConfirmOtpBodyType = z.TypeOf<typeof confirmOtpBody>;
+
+export const confirmOtpRes = z.object({
+  statusCode: z.number(),
+  info: z.string(),
+  message: z.string(),
+  data: z.object({
+    account: z.object({
+      id: z.string(),
+      email: z.string(),
+      username: z.string(),
+      role: z.enum(RoleValues),
+    }),
+    accessToken: z.string(),
+    expiresAccess: z.string(),
+    refreshToken: z.string(),
+    expiresRefresh: z.string(),
+  }),
+});
+
+export type ConfirmOtpResType = z.TypeOf<typeof confirmOtpRes>;

@@ -92,7 +92,6 @@ export default function SearchScreen() {
       const title = course.title.toLowerCase();
       const titleNoTone = course.titleNoTone.toLowerCase();
 
-      // Tính điểm match cho mỗi khóa học
       let matchScore = 0;
 
       for (const word of searchWords) {
@@ -163,7 +162,7 @@ export default function SearchScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      <HeaderWithBack title="Tìm kiếm" showMoreOptions={false} />
+      <HeaderWithBack title="Tìm kiếm" showMoreOptions={false} returnTab="/child/(tabs)/course"/>
 
       <View className="p-4">
         <View className="flex-row items-center bg-gray-100 rounded-xl px-4">
@@ -184,22 +183,20 @@ export default function SearchScreen() {
       </View>
 
       <ScrollView>
-        {!searchQuery && (
-          <View className="px-4 mb-6">
-            <Text className="font-bold text-lg mb-3">Xu hướng tìm kiếm</Text>
-            <View className="flex-row flex-wrap">
-              {TRENDING_KEYWORDS.map((keyword) => (
-                <Pressable
-                  key={keyword}
-                  className="bg-gray-100 rounded-full px-4 py-2 mr-2 mb-2"
-                  onPress={() => handleSearch(keyword)}
-                >
-                  <Text className="text-gray-700">{keyword}</Text>
-                </Pressable>
-              ))}
-            </View>
+        <View className="px-4 mb-6">
+          <Text className="font-bold text-lg mb-3">Xu hướng tìm kiếm</Text>
+          <View className="flex-row flex-wrap">
+            {TRENDING_KEYWORDS.map((keyword) => (
+              <Pressable
+                key={keyword}
+                className="bg-gray-100 rounded-full px-4 py-2 mr-2 mb-2"
+                onPress={() => handleSearch(keyword)}
+              >
+                <Text className="text-gray-700">{keyword}</Text>
+              </Pressable>
+            ))}
           </View>
-        )}
+        </View>
 
         {searchQuery && (
           <View className="px-4">
@@ -212,7 +209,7 @@ export default function SearchScreen() {
                 className="flex-row items-center p-3 mb-3 bg-white rounded-xl border border-gray-100 shadow-sm"
                 onPress={() =>
                   router.push({
-                    pathname: "/courses/[id]",
+                    pathname: "/child/courses/[id]",
                     params: { id: course.id },
                   })
                 }

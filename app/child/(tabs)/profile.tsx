@@ -147,14 +147,7 @@ export default function ProfileScreen() {
             </Pressable>
 
             <Pressable
-              className="flex-row items-center p-4 bg-red-50 border border-slate-200 rounded-2xl mt-6"
-              style={{
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.05,
-                shadowRadius: 4,
-                elevation: 3,
-              }}
+              className="flex-row items-center p-4 bg-white rounded-2xl mb-3 shadow-sm shadow-gray-100 border border-gray-50"
               onPress={handleLogout}
             >
               <View className="w-10 h-10 rounded-full bg-red-100 items-center justify-center">
@@ -164,15 +157,21 @@ export default function ProfileScreen() {
                   color={isProcessing ? "#808080" : "#EF4444"}
                 />
               </View>
-              <Text
-                className={
-                  isProcessing
-                    ? "flex-1 ml-3 text-gray-500 font-medium"
-                    : "flex-1 ml-3 text-red-500 font-medium"
-                }
-              >
-                Đăng xuất
-              </Text>
+              <View className="flex-1 ml-3">
+                <Text
+                  className={
+                    isProcessing
+                      ? "font-bold text-gray-500"
+                      : "font-bold text-red-500"
+                  }
+                >
+                  Đăng xuất
+                </Text>
+                <Text className="text-gray-600 text-sm">
+                  Thoát khỏi tài khoản
+                </Text>
+              </View>
+              <MaterialIcons name="chevron-right" size={24} color="#9CA3AF" />
             </Pressable>
           </View>
           <View className="h-20" />

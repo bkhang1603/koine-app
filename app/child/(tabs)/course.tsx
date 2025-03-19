@@ -9,20 +9,7 @@ import { courseRes, GetAllCourseResType } from "@/schema/course-schema";
 import { useAppStore } from "@/components/app-provider";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 import ErrorScreen from "@/components/ErrorScreen";
-
-const formatDuration = (duration: string) => {
-  const hours = parseInt(duration.split("h")[0]) || 0;
-  const minutes = parseInt(duration.split("h")[1]?.replace("p", "")) || 0;
-  let total = "";
-  if (hours > 0) {
-    total += `${hours} giờ`;
-  }
-  if (minutes > 0 || total === "") {
-    total += `${minutes} phút`;
-  }
-  if (total === "") total = "0 phút";
-  return total;
-};
+import formatDuration from "@/util/formatDuration";
 
 export default function CourseScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
@@ -237,7 +224,7 @@ export default function CourseScreen() {
         {/* Search Bar */}
         <Pressable
           className="mx-4 mt-4 flex-row items-center bg-gray-100 rounded-xl p-3"
-          onPress={() => router.push("/search/search")}
+          onPress={() => router.push("/search/searchCourse")}
         >
           <MaterialIcons name="search" size={24} color="#6B7280" />
           <Text className="ml-2 text-gray-500 flex-1">

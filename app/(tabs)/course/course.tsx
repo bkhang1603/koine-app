@@ -9,6 +9,7 @@ import { courseRes, GetAllCourseResType } from "@/schema/course-schema";
 import { useAppStore } from "@/components/app-provider";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 import ErrorScreen from "@/components/ErrorScreen";
+import formatDuration from "@/util/formatDuration";
 
 const CATEGORIES = ["Tất cả", "Sức khỏe", "Tâm lý", "Kỹ năng", "Giáo dục"];
 
@@ -74,7 +75,7 @@ export default function CourseScreen() {
         {/* Search Bar */}
         <Pressable
           className="mx-4 mt-4 flex-row items-center bg-gray-100 rounded-xl p-3"
-          onPress={() => router.push("/search/search")}
+          onPress={() => router.push("/search/searchCourse")}
         >
           <MaterialIcons name="search" size={24} color="#6B7280" />
           <Text className="ml-2 text-gray-500 flex-1">
@@ -145,21 +146,7 @@ export default function CourseScreen() {
                 <View className="flex-row items-center mt-3">
                   <MaterialIcons name="schedule" size={16} color="#6B7280" />
                   <Text className="text-gray-600 ml-1">
-                    {(() => {
-                      const duration = courses[0].durationsDisplay;
-                      const hours = parseInt(duration.split("h")[0]) || 0;
-                      const minutes =
-                        parseInt(duration.split("h")[1].replace("p", "")) || 0;
-                      let total = "";
-                      if (hours > 0) {
-                        total += `${hours} giờ `;
-                      }
-                      if (minutes > 0 || total === "") {
-                        total += `${minutes} phút`;
-                      }
-                      if (total === "") total = "0 phút";
-                      return `${total}`;
-                    })()}
+                    {formatDuration(courses[0].durationsDisplay)}
                   </Text>
                 </View>
                 <View className="flex-row items-center justify-between mt-3">
@@ -223,35 +210,35 @@ export default function CourseScreen() {
               <View className="flex-1 p-3 justify-between">
                 <View>
                   <View className="flex-row items-center mb-1">
-                  <View className="flex-row flex-wrap gap-2">
-                  {!course.categories.length ? (
-                    <View className="bg-blue-50 px-3 py-1 rounded-full">
-                      <Text className="text-blue-600 text-xs font-medium">
-                        --
-                      </Text>
-                    </View>
-                  ) : (
-                    <View className="flex-row flex-wrap gap-1">
-                      {course.categories.slice(0, 3).map((category) => (
-                        <View
-                          key={category.id}
-                          className="bg-blue-50 px-3 py-1 rounded-full"
-                        >
-                          <Text className="text-blue-600 text-xs font-medium">
-                            {category.name}
-                          </Text>
-                        </View>
-                      ))}
-                      {course.categories.length > 3 && (
+                    <View className="flex-row flex-wrap gap-2">
+                      {!course.categories.length ? (
                         <View className="bg-blue-50 px-3 py-1 rounded-full">
                           <Text className="text-blue-600 text-xs font-medium">
-                            ...
+                            --
                           </Text>
+                        </View>
+                      ) : (
+                        <View className="flex-row flex-wrap gap-1">
+                          {course.categories.slice(0, 1).map((category) => (
+                            <View
+                              key={category.id}
+                              className="bg-blue-50 px-3 py-1 rounded-full"
+                            >
+                              <Text className="text-blue-600 text-xs font-medium">
+                                {category.name}
+                              </Text>
+                            </View>
+                          ))}
+                          {course.categories.length > 1 && (
+                            <View className="bg-blue-50 px-3 py-1 rounded-full">
+                              <Text className="text-blue-600 text-xs font-medium">
+                                ...
+                              </Text>
+                            </View>
+                          )}
                         </View>
                       )}
                     </View>
-                  )}
-                </View>
                   </View>
                   <Text className="font-bold text-base" numberOfLines={2}>
                     {course.title.length > 25
@@ -269,22 +256,7 @@ export default function CourseScreen() {
                         color="#6B7280"
                       />
                       <Text className="text-gray-600 ml-1 text-xs">
-                        {(() => {
-                          const duration = course.durationsDisplay;
-                          const hours = parseInt(duration.split("h")[0]) || 0;
-                          const minutes =
-                            parseInt(duration.split("h")[1].replace("p", "")) ||
-                            0;
-                          let total = "";
-                          if (hours > 0) {
-                            total += `${hours} giờ`;
-                          }
-                          if (minutes > 0 || total === "") {
-                            total += `${minutes} phút`;
-                          }
-                          if (total === "") total = "0 phút";
-                          return `${total}`;
-                        })()}
+                        {formatDuration(course.durationsDisplay)}
                       </Text>
                     </View>
                   </View>

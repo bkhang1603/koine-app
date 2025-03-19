@@ -17,24 +17,10 @@ import VideoPlayer from "@/components/video-player";
 import { useAssignCourse } from "@/queries/useCourse";
 import { useCourses } from "@/queries/useCourse";
 import { myCourseRes } from "@/schema/user-schema";
-
-const formatDuration = (durationDisplay: string) => {
-  const hours = parseInt(durationDisplay.split("h")[0]) || 0;
-  const minutes =
-    parseInt(durationDisplay.split("h")[1]?.replace("p", "")) || 0;
-  let result = "";
-  if (hours > 0) {
-    result += `${hours} giờ `;
-  }
-  if (minutes > 0 || result === "") {
-    result += `${minutes} phút`;
-  }
-  return result;
-};
+import formatDuration from "@/util/formatDuration";
 
 export default function LessonScreen() {
-  const { courseId, chapterId, lessonData } =
-    useLocalSearchParams();
+  const { courseId, chapterId, lessonData } = useLocalSearchParams();
   const lesson = JSON.parse(lessonData as string);
 
   const htmlContent = `
@@ -72,7 +58,7 @@ export default function LessonScreen() {
     <View className="flex-1 bg-white">
       <HeaderWithBack
         title="Chi tiết bài học"
-        returnTab={`/child/learn/chapter/${chapterId}?courseId=${courseId}`}
+        returnTab={`/child/courses/${courseId}`}
         showMoreOptions={false}
       />
 

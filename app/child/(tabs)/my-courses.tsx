@@ -8,6 +8,7 @@ import { myCourseRes } from "@/schema/user-schema";
 import { GetMyCoursesResType } from "@/schema/user-schema";
 import { useAppStore } from "@/components/app-provider";
 import { useMyCourse } from "@/queries/useUser";
+import formatDuration from "@/util/formatDuration";
 
 export default function ChildMyCoursesScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
@@ -44,7 +45,7 @@ export default function ChildMyCoursesScreen() {
       <View className="bg-white">
         <SafeAreaView edges={["top"]} className="bg-white" />
       </View>
- 
+
       {/* Header */}
       <View className="p-4">
         <Text className="text-2xl font-bold">Khóa học của tôi</Text>
@@ -121,16 +122,9 @@ export default function ChildMyCoursesScreen() {
                       }
                       if (learned === "") learned = "0 phút";
 
-                      let total = "";
-                      if (hours > 0) {
-                        total += `${hours} giờ `;
-                      }
-                      if (minutes > 0 || total === "") {
-                        total += `${minutes} phút`;
-                      }
-                      if (total === "") total = "0 phút";
-
-                      return `${learned} / ${total}`;
+                      return `${learned} / ${formatDuration(
+                        course.durationDisplay
+                      )}`;
                     })()}
                   </Text>
                   <Text className="text-gray-600 mx-2">•</Text>
