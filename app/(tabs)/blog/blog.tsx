@@ -1,55 +1,62 @@
-import React, { useState } from 'react'
-import { View, Text, ScrollView, Image, Pressable } from 'react-native'
-import { MaterialIcons } from '@expo/vector-icons'
-import { router } from 'expo-router'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { MOCK_BLOG_POSTS } from '@/constants/mock-data'
-import { useBlog } from '@/queries/useBlog'
-import { useAppStore } from '@/components/app-provider'
-import { blogRes, GetAllBlogResType } from '@/schema/blog-schema'
-import ActivityIndicatorScreen from '@/components/ActivityIndicatorScreen'
-import ErrorScreen from '@/components/ErrorScreen'
-import CartButton from '@/components/CartButton'
+import React, { useState } from "react";
+import { View, Text, ScrollView, Image, Pressable } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { MOCK_BLOG_POSTS } from "@/constants/mock-data";
+import { useBlog } from "@/queries/useBlog";
+import { useAppStore } from "@/components/app-provider";
+import { blogRes, GetAllBlogResType } from "@/schema/blog-schema";
+import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
+import ErrorScreen from "@/components/ErrorScreen";
+import CartButton from "@/components/CartButton";
 
-const BLOG_CATEGORIES = ['Tất cả', 'Tâm lý', 'Sức khỏe', 'Kỹ năng', 'Giáo dục']
+const BLOG_CATEGORIES = ["Tất cả", "Tâm lý", "Sức khỏe", "Kỹ năng", "Giáo dục"];
 
 export default function BlogScreen() {
-  const accessToken = useAppStore((state) => state.accessToken)
-  const token = accessToken?.accessToken
+  const accessToken = useAppStore((state) => state.accessToken);
+  const token = accessToken?.accessToken;
 
   const {
     data: blogData,
     isLoading: blogLoading,
     isError: blogError,
   } = useBlog({
-    keyword: '',
+    keyword: "",
     page_size: 10,
     page_index: 1,
-  })
+  });
 
-  let blog: GetAllBlogResType['data'] = []
+  let blog: GetAllBlogResType["data"] = [];
 
   if (blogData && !blogError) {
     if (blogData.data.length === 0) {
     } else {
-      const parsedResult = blogRes.safeParse(blogData)
+      const parsedResult = blogRes.safeParse(blogData);
       if (parsedResult.success) {
-        blog = parsedResult.data.data
+        blog = parsedResult.data.data;
       } else {
-        console.error('Validation errors:', parsedResult.error.errors)
+        console.error("Validation errors:", parsedResult.error.errors);
       }
     }
   }
 
-  if (blogLoading) return <ActivityIndicatorScreen />
+  if (blogLoading) return <ActivityIndicatorScreen />;
   if (blogError)
     return (
       <ErrorScreen message="Failed to load courses. Showing default courses." />
-    )
+    );
 
-  const [selectedCategory, setSelectedCategory] = useState('Tất cả')
-  const featuredPost = blog[0]
-  const recentPosts = blog
+  const [selectedCategory, setSelectedCategory] = useState("Tất cả");
+
+  // Tìm bài post có content dài nhất để làm featured post
+  const featuredPost = blog.reduce((longest, current) => {
+    return (current.content?.length || 0) > (longest.content?.length || 0)
+      ? current
+      : longest;
+  }, blog[0]);
+
+  const recentPosts = blog;
 
   return (
     <ScrollView className="flex-1 pt-4 bg-white">
@@ -66,7 +73,7 @@ export default function BlogScreen() {
             <CartButton />
             <Pressable
               className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 ml-2"
-              onPress={() => router.push('/notifications/notifications')}
+              onPress={() => router.push("/notifications/notifications")}
             >
               <MaterialIcons name="notifications" size={24} color="#374151" />
             </Pressable>
@@ -84,14 +91,14 @@ export default function BlogScreen() {
               key={category}
               onPress={() => setSelectedCategory(category)}
               className={`px-4 py-2 rounded-full mr-2 ${
-                selectedCategory === category ? 'bg-blue-500' : 'bg-gray-100'
+                selectedCategory === category ? "bg-blue-500" : "bg-gray-100"
               }`}
             >
               <Text
                 className={
                   selectedCategory === category
-                    ? 'text-white font-medium'
-                    : 'text-gray-600'
+                    ? "text-white font-medium"
+                    : "text-gray-600"
                 }
               >
                 {category}
@@ -107,7 +114,7 @@ export default function BlogScreen() {
             <Pressable
               className="bg-white rounded-2xl overflow-hidden"
               style={{
-                shadowColor: '#000',
+                shadowColor: "#000",
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.05,
                 shadowRadius: 4,
@@ -172,7 +179,7 @@ export default function BlogScreen() {
               key={post.id}
               className="bg-white rounded-2xl mb-4 overflow-hidden flex-row"
               style={{
-                shadowColor: '#000',
+                shadowColor: "#000",
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.05,
                 shadowRadius: 4,
@@ -181,29 +188,25 @@ export default function BlogScreen() {
               onPress={() => router.push(`/blog/${post.id}` as any)}
             >
               <Image source={{ uri: post.imageUrl }} className="w-24 h-24" />
-              <View className="flex-1 p-3">
+              <View className="flex-1 px-3 py-2">
                 <View className="flex-row flex-wrap items-center">
                   {post.categories.slice(0, 2).map((category, index) => (
                     <React.Fragment key={category.id || index}>
                       <Text className="text-blue-600 text-xs font-semibold px-3 py-1.5 bg-blue-50 rounded-full">
                         {category.name}
                       </Text>
-                      {index < Math.min(post.categories.length - 1, 1) && (
-                        <Text className="text-gray-300 mx-2">•</Text>
-                      )}
                     </React.Fragment>
                   ))}
                   {post.categories.length > 2 && (
-                    <>
-                      <Text className="text-gray-300 mx-2">•</Text>
-                      <Text className="text-blue-600 text-xs font-semibold px-3 py-1.5 bg-blue-50 rounded-full">
-                        ...
-                      </Text>
-                    </>
+                    <Text className="text-blue-600 text-xs font-semibold px-3 py-1.5 bg-blue-50 rounded-full">
+                      ...
+                    </Text>
                   )}
                 </View>
                 <Text className="font-bold mt-1" numberOfLines={2}>
-                  {post.title}
+                  {post.title.length > 50
+                    ? post.title.substring(0, 30) + "..."
+                    : post.title}
                 </Text>
                 <View className="flex-row items-center mt-2">
                   <MaterialIcons name="person" size={14} color="#6B7280" />
@@ -218,5 +221,5 @@ export default function BlogScreen() {
         <View className="h-20"></View>
       </SafeAreaView>
     </ScrollView>
-  )
+  );
 }

@@ -1,19 +1,19 @@
-import z from 'zod'
+import z from "zod";
 
 export const createOrderBody = z.object({
   arrayCartDetailIds: z.array(z.string()),
   deliveryInfoId: z.string(),
   // sắp tới thêm cái delivery method có 2 options thì set cứng luôn
   deliMethod: z.string(),
-})
+});
 
-export type CreateOrderBodyType = z.TypeOf<typeof createOrderBody>
+export type CreateOrderBodyType = z.TypeOf<typeof createOrderBody>;
 
 export const createOrderRes = z.object({
   data: z.string(),
-})
+});
 
-export type CreateOrderResType = z.TypeOf<typeof createOrderRes>
+export type CreateOrderResType = z.TypeOf<typeof createOrderRes>;
 
 export const orderRes = z.object({
   statusCode: z.number(),
@@ -24,12 +24,24 @@ export const orderRes = z.object({
       id: z.string(),
       userId: z.string(),
       orderDate: z.string(),
+      orderCode: z.string(),
+      paymentMethod: z.string(),
       totalAmount: z.number(),
+      deliMethod: z.string(),
+      deliAmount: z.number(),
       status: z.string(),
+      note: z.string().nullable(),
       isDeleted: z.boolean(),
-      deletedNote: z.string().nullable(),
       createdAt: z.string(),
       updatedAt: z.string(),
+      createdAtFormatted: z.string(),
+      updatedAtFormatted: z.string(),
+      orderStatusHistory: z.array(
+        z.object({
+          status: z.string(),
+          timestamp: z.string(),
+        })
+      ),
       orderDetails: z.array(
         z.object({
           id: z.string(),
@@ -38,12 +50,11 @@ export const orderRes = z.object({
           courseId: z.string().nullable(),
           comboId: z.string().nullable(),
           quantity: z.number(),
-          unitPrice: z.number().optional(),
-          discount: z.number().optional(),
-          totalPrice: z.number().optional(),
-          isDeleted: z.boolean().optional(),
-          createdAt: z.string().optional(),
-          updatedAt: z.string().optional(),
+          unitPrice: z.number(),
+          discount: z.number(),
+          totalPrice: z.number(),
+          itemTitle: z.string(),
+          itemImageUrl: z.string(),
         })
       ),
       deliveryInfo: z.object({
@@ -61,24 +72,25 @@ export const orderRes = z.object({
     maxPageSize: z.number(),
     totalPage: z.number(),
   }),
-})
+});
 
-export type GetAllOrderResType = z.infer<typeof orderRes>
+export type GetAllOrderResType = z.infer<typeof orderRes>;
 
 export const orderDetailsRes = z.object({
   statusCode: z.number(),
   info: z.string(),
   message: z.string(),
   data: z.object({
-    isDeleted: z.boolean(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
     id: z.string(),
     userId: z.string(),
     orderDate: z.string(),
     totalAmount: z.number(),
     status: z.string(),
     deletedNote: z.string().nullable(),
+    isDeleted: z.boolean(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    orderCode: z.string(),
     orderDetails: z.array(
       z.object({
         isDeleted: z.boolean(),
@@ -99,35 +111,48 @@ export const orderDetailsRes = z.object({
             description: z.string(),
             imageUrl: z.string(),
           })
-          .optional()
           .nullable(),
-        product: z.object({}).optional().nullable(),
-        combo: z.object({}).optional().nullable(),
+        product: z
+          .object({
+            name: z.string(),
+            description: z.string(),
+            stockQuantity: z.number(),
+            imageUrl: z.string(),
+          })
+          .nullable(),
+        combo: z.null(),
       })
     ),
     createdAtFormatted: z.string(),
     updatedAtFormatted: z.string(),
+    deliveryInfo: z.object({
+      name: z.string(),
+      address: z.string(),
+      phone: z.string(),
+      status: z.string(),
+    }),
+    payMethod: z.string(),
   }),
-})
+});
 
-export type GetOrderDetailsResType = z.infer<typeof orderDetailsRes>
+export type GetOrderDetailsResType = z.infer<typeof orderDetailsRes>;
 
 export const deleteOrderBody = z.object({
   deletedNote: z.string(),
-})
+});
 
-export type DeleteOrderBodyType = z.infer<typeof deleteOrderBody>
+export type DeleteOrderBodyType = z.infer<typeof deleteOrderBody>;
 
 export const deleteOrderRes = z.object({
   statusCode: z.number(),
   info: z.string().optional(),
   message: z.string(),
-})
+});
 
-export type DeleteOrderResType = z.infer<typeof deleteOrderRes>
+export type DeleteOrderResType = z.infer<typeof deleteOrderRes>;
 
 export const rePurchaseOrderRes = z.object({
   data: z.string(),
-})
+});
 
-export type RePurchaseOrderResType = z.TypeOf<typeof rePurchaseOrderRes>
+export type RePurchaseOrderResType = z.TypeOf<typeof rePurchaseOrderRes>;

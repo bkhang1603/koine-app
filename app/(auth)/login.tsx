@@ -19,13 +19,13 @@ import { useAppStore } from "@/components/app-provider";
 import * as SecureStore from "expo-secure-store";
 import { RoleValues } from "@/constants/type";
 import { Alert } from "react-native";
-import * as Device from 'expo-device';
+import * as Device from "expo-device";
 
 export default function LoginScreen() {
   const getDeviceId = () => {
-    return Device.osBuildId || Device.osInternalBuildId || 'unknown';
+    return Device.osBuildId || Device.osInternalBuildId || "unknown";
   };
-  
+
   const [email, setEmail] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [password, setPassword] = useState("");
@@ -81,7 +81,7 @@ export default function LoginScreen() {
       const res = await signIn.mutateAsync({
         loginKey: email.trim(),
         password: password.trim(),
-        deviceId: deviceId
+        deviceId: deviceId,
       });
       if (res?.statusCode == 200) {
         const {
@@ -232,7 +232,7 @@ export default function LoginScreen() {
               <Pressable
                 className={`${
                   isProcessing
-                    ? "bg-gray-400"
+                    ? "bg-blue-600/60"
                     : "bg-blue-600 active:bg-blue-700"
                 } py-4 rounded-xl mt-4`}
                 onPress={handleLogin}

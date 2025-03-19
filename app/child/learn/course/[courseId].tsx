@@ -11,6 +11,7 @@ import {
 import { useAppStore } from "@/components/app-provider";
 import { useMyCourseDetail } from "@/queries/useUser";
 import blog from "@/app/(tabs)/blog/blog";
+import formatDuration from "@/util/formatDuration";
 
 export default function CourseLearnScreen() {
   const { courseId } = useLocalSearchParams<{ courseId: string }>();
@@ -137,16 +138,9 @@ export default function CourseLearnScreen() {
                 }
                 if (learned === "") learned = "0 phút";
 
-                let total = "";
-                if (hours > 0) {
-                  total += `${hours} giờ `;
-                }
-                if (minutes > 0 || total === "") {
-                  total += `${minutes} phút`;
-                }
-                if (total === "") total = "0 phút";
-
-                return `Đã học ${learned} / ${total}`;
+                return `Đã học ${learned} / ${formatDuration(
+                  course.durationDisplay
+                )}`;
               })()}
             </Text>
           </View>

@@ -108,8 +108,7 @@ export default function ProductsScreen() {
             {/* <Pressable
               className="mx-4 mt-4 flex-row items-center bg-gray-100 rounded-xl p-3"
               onPress={() => {
-                console.log("Chua lam");
-                // router.push("/search/search");
+                router.push("/search/searchProduct");
               }}
             >
               <MaterialIcons name="search" size={24} color="#6B7280" />

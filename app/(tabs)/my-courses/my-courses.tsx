@@ -10,6 +10,7 @@ import { GetMyCoursesResType, myCourseRes } from "@/schema/user-schema";
 import { useMyCourse } from "@/queries/useUser";
 import CartButton from "@/components/CartButton";
 import { useFocusEffect } from "expo-router";
+import formatDuration from "@/util/formatDuration";
 
 export default function MyCoursesScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
@@ -103,7 +104,9 @@ export default function MyCoursesScreen() {
                   <View className="flex-1">
                     <Text className="font-bold text-lg">{course.title}</Text>
                     <Text className="text-gray-600 mt-1">
-                      {course.description}
+                      {course.description.length > 50
+                        ? course.description.substring(0, 100) + "..."
+                        : course.description}
                     </Text>
                   </View>
                 </View>
@@ -134,16 +137,9 @@ export default function MyCoursesScreen() {
                       }
                       if (learned === "") learned = "0 phút";
 
-                      let total = "";
-                      if (hours > 0) {
-                        total += `${hours} giờ `;
-                      }
-                      if (minutes > 0 || total === "") {
-                        total += `${minutes} phút`;
-                      }
-                      if (total === "") total = "0 phút";
-
-                      return ` ${learned} / ${total}`;
+                      return ` ${learned} / ${formatDuration(
+                        course.durationDisplay
+                      )}`;
                     })()}
                   </Text>
 

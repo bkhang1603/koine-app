@@ -10,6 +10,7 @@ import {
   myChapterDetailRes,
 } from "@/schema/user-schema";
 import { useMyChapterDetail } from "@/queries/useUser";
+import formatDuration from "@/util/formatDuration";
 
 export default function ChapterScreen() {
   const { chapterId, courseId } = useLocalSearchParams<{
@@ -67,21 +68,7 @@ export default function ChapterScreen() {
             <View className="flex-row items-center">
               <MaterialIcons name="schedule" size={20} color="#3B82F6" />
               <Text className="text-gray-600 ml-2">
-                {(() => {
-                  const duration = chapter.durationDisplay;
-                  const hours = parseInt(duration.split("h")[0]) || 0;
-                  const minutes =
-                    parseInt(duration.split("h")[1].replace("p", "")) || 0;
-
-                  let result = "";
-                  if (hours > 0) {
-                    result += `${hours} giờ `;
-                  }
-                  if (minutes > 0 || result === "") {
-                    result += `${minutes} phút`;
-                  }
-                  return result;
-                })()}
+                {formatDuration(chapter.durationDisplay)}
               </Text>
             </View>
             <Text className="mx-2 text-gray-400">•</Text>
@@ -168,22 +155,7 @@ export default function ChapterScreen() {
                           isLocked ? "text-gray-400" : "text-gray-500"
                         }`}
                       >
-                        {(() => {
-                          const duration = lesson.durationDisplay;
-                          const hours = parseInt(duration.split("h")[0]) || 0;
-                          const minutes =
-                            parseInt(duration.split("h")[1].replace("p", "")) ||
-                            0;
-
-                          let result = "";
-                          if (hours > 0) {
-                            result += `${hours} giờ `;
-                          }
-                          if (minutes > 0 || result === "") {
-                            result += `${minutes} phút`;
-                          }
-                          return result;
-                        })()}
+                        {formatDuration(lesson.durationDisplay)}
                       </Text>
                     </View>
                   </View>

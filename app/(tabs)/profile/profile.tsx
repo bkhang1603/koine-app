@@ -211,23 +211,24 @@ export default function ProfileScreen() {
                 <MaterialIcons name="chevron-right" size={24} color="#9CA3AF" />
               </Pressable>
             ))}
-          </View>
-          {/* Logout Button cố định dưới cùng */}
-          <View className="p-2 border-t border-gray-100">
+
+            {/* Logout Button */}
             <Pressable
-              className="flex-row items-center justify-center py-2"
+              className="flex-row items-center py-4 border-t border-gray-100"
               onPress={handleLogout}
             >
-              <MaterialIcons
-                name="logout"
-                size={24}
-                color={isProcessing ? "#808080" : "#EF4444"}
-              />
+              <View className="w-10 h-10 rounded-full bg-red-100 items-center justify-center">
+                <MaterialIcons
+                  name="logout"
+                  size={24}
+                  color={isProcessing ? "#808080" : "#EF4444"}
+                />
+              </View>
               <Text
                 className={
                   isProcessing
-                    ? "ml-2 text-gray-500 font-medium"
-                    : "ml-2 text-red-500 font-medium"
+                    ? "flex-1 font-medium ml-3 text-gray-500"
+                    : "flex-1 font-medium ml-3 text-red-500"
                 }
               >
                 Đăng xuất

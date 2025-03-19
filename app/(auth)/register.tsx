@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Image,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -82,7 +83,8 @@ export default function RegisterScreen() {
       const passwordRegex =
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-      const isValidPassword = (password: string) => passwordRegex.test(password);
+      const isValidPassword = (password: string) =>
+        passwordRegex.test(password);
 
       if (!isValidPassword(password)) {
         Alert.alert(
@@ -122,13 +124,18 @@ export default function RegisterScreen() {
           "Đăng kí thành công, kiểm tra mail để lấy mã xác nhận",
           [
             {
-              text: "tắt",
-              style: "cancel",
+              text: "OK",
+              onPress: () => {
+                // Chuyển đến màn hình xác nhận OTP với ID từ response
+                router.push({
+                  pathname: "/(auth)/OTPConfirmation",
+                  params: { userId: res.data },
+                });
+              },
             },
           ]
         );
         setIsProcessing(false);
-        //router.push qua trang nhập otp
       }
     } catch (error) {
       Alert.alert("Lỗi", `${error}`, [
@@ -149,93 +156,75 @@ export default function RegisterScreen() {
       >
         <ScrollView
           className="flex-1"
-          contentContainerStyle={{ padding: 16 }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           bounces={false}
         >
-          {/* Logo */}
-          <View className="items-center my-8">
-            {/* Tạm thời sử dụng icon thay cho logo */}
-            <View className="w-20 h-20 bg-blue-100 rounded-full items-center justify-center">
-              <MaterialIcons name="person-add" size={40} color="#2563EB" />
+          {/* Header Section */}
+          <View className="bg-blue-50 rounded-b-[40px] pt-8 pb-12 mb-6">
+            <View className="items-center">
+              <View className="w-20 h-20 bg-white rounded-2xl shadow-md items-center justify-center mb-4">
+                <Image
+                  source={require("../../assets/images/logoKoine.png")}
+                  className="w-16 h-16"
+                  resizeMode="contain"
+                />
+              </View>
+              <Text className="text-2xl font-bold text-gray-800">
+                Tạo tài khoản mới
+              </Text>
+              <Text className="text-gray-600 mt-2 text-center px-6">
+                Hãy điền thông tin của bạn để bắt đầu
+              </Text>
             </View>
           </View>
 
-          {/* Title */}
-          <View className="mb-8">
-            <Text className="text-2xl font-bold text-gray-800">
-              Đăng ký tài khoản
-            </Text>
-            <Text className="text-gray-500 mt-2">
-              Vui lòng điền đầy đủ thông tin bên dưới
-            </Text>
-          </View>
-
-          {/* Form */}
-          <View className="space-y-4">
-            {/* Name Input */}
-            <View>
-              <Text className="text-gray-600 mb-1">Tên đăng nhập</Text>
-              <View className="flex-row items-center bg-gray-50 rounded-xl px-4">
-                <MaterialIcons name="person" size={20} color="#6B7280" />
-                <TextInput
-                  className="flex-1 py-3 px-2"
-                  placeholder="Nhập tên đăng nhập"
-                  value={name}
-                  onChangeText={setName}
-                />
-              </View>
-            </View>
-
-            {/* Email Input */}
-            <View>
-              <Text className="text-gray-600 mb-1">Email</Text>
-              <View className="flex-row items-center bg-gray-50 rounded-xl px-4">
-                <MaterialIcons name="email" size={20} color="#6B7280" />
-                <TextInput
-                  className="flex-1 py-3 px-2"
-                  placeholder="Nhập email"
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                />
-              </View>
-            </View>
-
-            <View>
-              <Text className="text-gray-600 mb-1">Mật khẩu</Text>
-              <View className="flex-row items-center bg-gray-50 rounded-xl px-4">
-                <MaterialIcons name="password" size={20} color="#6B7280" />
-                <TextInput
-                  className="flex-1 py-3 px-2"
-                  placeholder="Nhập mật khẩu"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={!showPassword}
-                  autoCapitalize="none"
-                />
-                <Pressable
-                  onPress={() => setShowPassword(!showPassword)}
-                  hitSlop={8}
-                >
-                  <MaterialIcons
-                    name={showPassword ? "visibility" : "visibility-off"}
-                    size={20}
-                    color="#6B7280"
+          {/* Form Section */}
+          <View className="px-6 space-y-5">
+            {/* Name & Email Row */}
+            <View className="space-y-5">
+              <View>
+                <Text className="text-gray-700 font-medium mb-2 ml-1">
+                  Tên đăng nhập
+                </Text>
+                <View className="flex-row items-center bg-gray-50 rounded-2xl px-4 border border-gray-100">
+                  <MaterialIcons name="person" size={20} color="#6B7280" />
+                  <TextInput
+                    className="flex-1 py-3.5 px-3"
+                    placeholder="Nhập tên đăng nhập"
+                    value={name}
+                    onChangeText={setName}
                   />
-                </Pressable>
+                </View>
+              </View>
+
+              <View>
+                <Text className="text-gray-700 font-medium mb-2 ml-1">
+                  Email
+                </Text>
+                <View className="flex-row items-center bg-gray-50 rounded-2xl px-4 border border-gray-100">
+                  <MaterialIcons name="email" size={20} color="#6B7280" />
+                  <TextInput
+                    className="flex-1 py-3.5 px-3"
+                    placeholder="Nhập email"
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                </View>
               </View>
             </View>
 
-            {/* Địa chỉ Input */}
+            {/* Address Input */}
             <View>
-              <Text className="text-gray-600 mb-1">Địa chỉ</Text>
-              <View className="flex-row items-center bg-gray-50 rounded-xl px-4">
-                <MaterialIcons name="lock" size={20} color="#6B7280" />
+              <Text className="text-gray-700 font-medium mb-2 ml-1">
+                Địa chỉ
+              </Text>
+              <View className="flex-row items-center bg-gray-50 rounded-2xl px-4 border border-gray-100">
+                <MaterialIcons name="location-on" size={20} color="#6B7280" />
                 <TextInput
-                  className="flex-1 py-3 px-2"
+                  className="flex-1 py-3.5 px-3"
                   placeholder="Nhập địa chỉ"
                   value={address}
                   onChangeText={setAddress}
@@ -243,26 +232,28 @@ export default function RegisterScreen() {
               </View>
             </View>
 
+            {/* Date Picker */}
             <View>
-              <Text className="text-gray-700 mb-2">Ngày sinh</Text>
-              <View className="flex-row items-center">
-                <View className="border border-gray-200 p-4 rounded-xl">
-                  <Text className="text-black font-bold text-center">
+              <Text className="text-gray-700 font-medium mb-2 ml-1">
+                Ngày sinh
+              </Text>
+              <View className="flex-row items-center space-x-3">
+                <View className="flex-1 bg-gray-50 py-3.5 px-4 rounded-2xl border border-gray-100">
+                  <Text className="text-gray-700">
                     {date.toLocaleDateString()}
                   </Text>
                 </View>
                 <Pressable
-                  className="bg-cyan-200 p-2 rounded-xl ml-3"
+                  className="bg-blue-100 p-4 rounded-2xl"
                   onPress={() => setShow(true)}
                 >
                   <MaterialIcons
-                    name="calendar-month"
-                    size={24}
-                    color="black"
+                    name="calendar-today"
+                    size={20}
+                    color="#2563EB"
                   />
                 </Pressable>
               </View>
-
               {show && (
                 <DateTimePicker
                   value={date}
@@ -273,21 +264,24 @@ export default function RegisterScreen() {
               )}
             </View>
 
+            {/* Gender Selection */}
             <View>
-              <Text className="text-gray-700 mb-2">Giới tính</Text>
+              <Text className="text-gray-700 font-medium mb-2 ml-1">
+                Giới tính
+              </Text>
               <View className="flex-row space-x-4">
                 <Pressable
-                  className={`flex-1 flex-row items-center justify-center p-4 rounded-xl border ${
+                  className={`flex-1 flex-row items-center justify-center py-4 rounded-2xl border ${
                     gender === "MALE"
                       ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200"
+                      : "border-gray-200 bg-gray-50"
                   }`}
                   onPress={() => setGender("MALE")}
                 >
                   <MaterialIcons
                     name="male"
-                    size={24}
-                    color={gender === "MALE" ? "#3B82F6" : "#6B7280"}
+                    size={20}
+                    color={gender === "MALE" ? "#2563EB" : "#6B7280"}
                   />
                   <Text
                     className={`ml-2 font-medium ${
@@ -298,16 +292,16 @@ export default function RegisterScreen() {
                   </Text>
                 </Pressable>
                 <Pressable
-                  className={`flex-1 flex-row items-center justify-center p-4 rounded-xl border ${
+                  className={`flex-1 flex-row items-center justify-center py-4 rounded-2xl border ${
                     gender === "FEMALE"
                       ? "border-pink-500 bg-pink-50"
-                      : "border-gray-200"
+                      : "border-gray-200 bg-gray-50"
                   }`}
                   onPress={() => setGender("FEMALE")}
                 >
                   <MaterialIcons
                     name="female"
-                    size={24}
+                    size={20}
                     color={gender === "FEMALE" ? "#EC4899" : "#6B7280"}
                   />
                   <Text
@@ -321,51 +315,64 @@ export default function RegisterScreen() {
               </View>
             </View>
 
-            {/* Confirm Password Input */}
-            <View>
-              <Text className="text-gray-600 mb-1">Xác nhận mật khẩu</Text>
-              <View className="flex-row items-center bg-gray-50 rounded-xl px-4">
-                <MaterialIcons name="lock" size={20} color="#6B7280" />
-                <TextInput
-                  className="flex-1 py-3 px-2"
-                  placeholder="Nhập lại mật khẩu"
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  secureTextEntry={!showConfirmPassword}
-                  autoCapitalize="none"
-                />
-                <Pressable
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                  hitSlop={8}
-                >
-                  <MaterialIcons
-                    name={showConfirmPassword ? "visibility" : "visibility-off"}
-                    size={20}
-                    color="#6B7280"
+            {/* Password Inputs */}
+            <View className="space-y-5">
+              <View>
+                <Text className="text-gray-700 font-medium mb-2 ml-1">
+                  Mật khẩu
+                </Text>
+                <View className="flex-row items-center bg-gray-50 rounded-2xl px-4 border border-gray-100">
+                  <MaterialIcons name="lock" size={20} color="#6B7280" />
+                  <TextInput
+                    className="flex-1 py-3.5 px-3"
+                    placeholder="Nhập mật khẩu"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={!showPassword}
+                    autoCapitalize="none"
                   />
-                </Pressable>
+                  <Pressable onPress={() => setShowPassword(!showPassword)}>
+                    <MaterialIcons
+                      name={showPassword ? "visibility" : "visibility-off"}
+                      size={20}
+                      color="#6B7280"
+                    />
+                  </Pressable>
+                </View>
+              </View>
+
+              <View>
+                <Text className="text-gray-700 font-medium mb-2 ml-1">
+                  Xác nhận mật khẩu
+                </Text>
+                <View className="flex-row items-center bg-gray-50 rounded-2xl px-4 border border-gray-100">
+                  <MaterialIcons name="lock" size={20} color="#6B7280" />
+                  <TextInput
+                    className="flex-1 py-3.5 px-3"
+                    placeholder="Nhập lại mật khẩu"
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    secureTextEntry={!showConfirmPassword}
+                    autoCapitalize="none"
+                  />
+                  <Pressable
+                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    <MaterialIcons
+                      name={
+                        showConfirmPassword ? "visibility" : "visibility-off"
+                      }
+                      size={20}
+                      color="#6B7280"
+                    />
+                  </Pressable>
+                </View>
               </View>
             </View>
-          </View>
 
-          {/* Register Button */}
-          <Pressable
-            className={`p-4 rounded-xl ${
-              !isProcessing &&
-              name &&
-              dob &&
-              gender &&
-              password &&
-              confirmPassword &&
-              address &&
-              email
-                ? "bg-blue-500"
-                : "bg-gray-200"
-            }`}
-            onPress={handleRegister}
-          >
-            <Text
-              className={`text-center font-bold ${
+            {/* Register Button */}
+            <Pressable
+              className={`py-4 rounded-2xl shadow-sm ${
                 !isProcessing &&
                 name &&
                 dob &&
@@ -374,24 +381,43 @@ export default function RegisterScreen() {
                 confirmPassword &&
                 address &&
                 email
-                  ? "text-white"
-                  : "text-gray-400"
+                  ? "bg-blue-600"
+                  : "bg-gray-200"
               }`}
+              onPress={handleRegister}
             >
-              Tạo tài khoản
-            </Text>
-          </Pressable>
+              <Text
+                className={`text-center font-bold text-base ${
+                  !isProcessing &&
+                  name &&
+                  dob &&
+                  gender &&
+                  password &&
+                  confirmPassword &&
+                  address &&
+                  email
+                    ? "text-white"
+                    : "text-gray-400"
+                }`}
+              >
+                Tạo tài khoản
+              </Text>
+            </Pressable>
 
-          {/* Login Link */}
-          <Pressable
-            className="mt-4"
-            onPress={() => router.push("/(auth)/login")}
-          >
-            <Text className="text-center text-gray-600">
-              Đã có tài khoản?{" "}
-              <Text className="text-blue-500 font-medium">Đăng nhập</Text>
-            </Text>
-          </Pressable>
+            {/* Login Link */}
+            <Pressable
+              className="py-4"
+              onPress={() => router.push("/(auth)/login")}
+            >
+              <Text className="text-center text-gray-600">
+                Đã có tài khoản?{" "}
+                <Text className="text-blue-600 font-medium">Đăng nhập</Text>
+              </Text>
+            </Pressable>
+          </View>
+
+          {/* Bottom Padding */}
+          <View className="h-8" />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

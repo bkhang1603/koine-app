@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,25 +7,32 @@ import {
   TextInput,
   Pressable,
   Image,
-} from 'react-native'
-import { useLocalSearchParams, router } from 'expo-router'
-import { MaterialIcons } from '@expo/vector-icons'
-import HeaderWithBack from '@/components/HeaderWithBack'
-import { MOCK_ORDERS } from '@/constants/mock-data'
-import { useOrderDetails, useDeleteOrderMutation } from '@/queries/useOrder'
-import { useAppStore } from '@/components/app-provider'
-import { GetOrderDetailsResType, orderDetailsRes } from '@/schema/order-schema'
-import ActivityIndicatorScreen from '@/components/ActivityIndicatorScreen'
-import ErrorScreen from '@/components/ErrorScreen'
+  TouchableOpacity,
+  Alert,
+} from "react-native";
+import { useLocalSearchParams, router } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
+import HeaderWithBack from "@/components/HeaderWithBack";
+import { MOCK_ORDERS } from "@/constants/mock-data";
+import {
+  useOrderDetails,
+  useDeleteOrderMutation,
+  useRePurchaseOrder,
+} from "@/queries/useOrder";
+import { useAppStore } from "@/components/app-provider";
+import { GetOrderDetailsResType, orderDetailsRes } from "@/schema/order-schema";
+import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
+import ErrorScreen from "@/components/ErrorScreen";
 
 export default function OrderDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>()
-  const accessToken = useAppStore((state) => state.accessToken)
-  const token = accessToken == undefined ? '' : accessToken.accessToken
-  const [showCancelModal, setShowCancelModal] = useState(false)
-  const [cancelReason, setCancelReason] = useState('')
-  const [cancelError, setCancelError] = useState('')
-  const [isCancelling, setIsCancelling] = useState(false)
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const accessToken = useAppStore((state) => state.accessToken);
+  const token = accessToken == undefined ? "" : accessToken.accessToken;
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelError, setCancelError] = useState("");
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState("EFT");
 
   const {
     data: orderDetailsData,
@@ -34,79 +41,87 @@ export default function OrderDetailScreen() {
   } = useOrderDetails({
     orderId: id as string,
     token,
-  })
+  });
 
-  const deleteOrderMutation = useDeleteOrderMutation()
+  const deleteOrderMutation = useDeleteOrderMutation();
+  const rePurchaseOrder = useRePurchaseOrder();
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Move this logic into a useMemo hook to prevent re-renders
   const orderDetails = React.useMemo(() => {
     if (!orderDetailsData || orderDetailsError) {
-      return null
+      return null;
     }
 
     if (orderDetailsData.data === null) {
-      return null
+      return null;
     }
 
-    const parsedResult = orderDetailsRes.safeParse(orderDetailsData)
+    const parsedResult = orderDetailsRes.safeParse(orderDetailsData);
     if (parsedResult.success) {
-      return parsedResult.data.data
+      return parsedResult.data.data;
     }
 
-    console.error('Validation errors:', parsedResult.error.errors)
-    return null
-  }, [orderDetailsData, orderDetailsError])
+    console.error("Validation errors:", parsedResult.error.errors);
+    return null;
+  }, [orderDetailsData, orderDetailsError]);
 
-  if (orderDetailsLoading) return <ActivityIndicatorScreen />
+  // Check if order has any physical products
+  const hasPhysicalProducts = React.useMemo(() => {
+    if (!orderDetails) return false;
+    return orderDetails.orderDetails.some((detail) => detail.product !== null);
+  }, [orderDetails]);
+
+  if (orderDetailsLoading) return <ActivityIndicatorScreen />;
   if (orderDetailsError)
     return (
       <ErrorScreen message="Failed to load orderDetailss. Showing default orderDetailss." />
-    )
+    );
 
   if (orderDetails == null)
     return (
       <ErrorScreen message="Failed to load orderDetailss. Course is null." />
-    )
+    );
 
-  const order = orderDetails
+  const order = orderDetails;
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'COMPLETED':
+      case "COMPLETED":
         return {
-          bg: 'bg-green-100',
-          text: 'text-green-600',
-          label: 'Đã hoàn thành',
-          icon: 'check-circle',
-        }
-      case 'PROCESSING':
+          bg: "bg-green-100",
+          text: "text-green-600",
+          label: "Đã hoàn thành",
+          icon: "check-circle",
+        };
+      case "PROCESSING":
         return {
-          bg: 'bg-blue-100',
-          text: 'text-blue-600',
-          label: 'Đang xử lý',
-          icon: 'hourglass-empty',
-        }
+          bg: "bg-blue-100",
+          text: "text-blue-600",
+          label: "Đang xử lý",
+          icon: "hourglass-empty",
+        };
       default:
         return {
-          bg: 'bg-gray-100',
-          text: 'text-gray-600',
-          label: 'Chưa xác định',
-          icon: 'info',
-        }
+          bg: "bg-gray-100",
+          text: "text-gray-600",
+          label: "Chưa xác định",
+          icon: "info",
+        };
     }
-  }
+  };
 
-  const status = getStatusColor(order.status)
+  const status = getStatusColor(order.status);
 
   const handleCancel = async () => {
     if (!cancelReason.trim()) {
-      setCancelError('Vui lòng nhập lý do hủy đơn hàng')
-      return
+      setCancelError("Vui lòng nhập lý do hủy đơn hàng");
+      return;
     }
 
-    if (isCancelling) return
+    if (isCancelling) return;
 
-    setIsCancelling(true)
+    setIsCancelling(true);
 
     try {
       await deleteOrderMutation.mutateAsync({
@@ -115,36 +130,75 @@ export default function OrderDetailScreen() {
           deletedNote: cancelReason,
         },
         token,
-      })
+      });
 
-      setShowCancelModal(false)
-      setCancelReason('')
-      setCancelError('')
+      setShowCancelModal(false);
+      setCancelReason("");
+      setCancelError("");
 
-      router.back()
+      router.back();
     } catch (error) {
-      console.error('Error cancelling order:', error)
-      setCancelError('Có lỗi xảy ra khi hủy đơn hàng. Vui lòng thử lại sau.')
+      console.error("Error cancelling order:", error);
+      setCancelError("Có lỗi xảy ra khi hủy đơn hàng. Vui lòng thử lại sau.");
     } finally {
-      setIsCancelling(false)
+      setIsCancelling(false);
     }
-  }
+  };
 
-  const handleCheckout = () => {
-    // TODO: Implement checkout logic
-    console.log('Fetched Data:', JSON.stringify(order, null, 2))
-    console.log(token)
-    console.log('Proceeding to checkout')
-  }
+  const handleRePurchase = async () => {
+    try {
+      if (isProcessing) return;
+      setIsProcessing(true);
+
+      const res = await rePurchaseOrder.mutateAsync({
+        orderId: id as string,
+        token,
+      });
+
+      if (res) {
+        // Chuyển hướng đến trang thanh toán với URL được mã hóa
+        const encodedUrl = encodeURIComponent(res.data);
+        router.push(`/(root)/cart/payment-screen?paymentUrl=${encodedUrl}`);
+      }
+    } catch (error) {
+      console.error("Lỗi khi thanh toán lại đơn hàng:", error);
+    } finally {
+      setTimeout(() => setIsProcessing(false), 1000);
+    }
+  };
 
   const renderActionButtons = () => {
+    const rePurchaseOrder = useRePurchaseOrder();
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    const handleRePurchase = async () => {
+      try {
+        if (isProcessing) return;
+        setIsProcessing(true);
+
+        const res = await rePurchaseOrder.mutateAsync({
+          orderId: id as string,
+          token,
+        });
+
+        if (res) {
+          const encodedUrl = encodeURIComponent(res.data);
+          router.push(`/(root)/cart/payment-screen?paymentUrl=${encodedUrl}`);
+        }
+      } catch (error) {
+        console.error("Lỗi khi thanh toán lại đơn hàng:", error);
+      } finally {
+        setTimeout(() => setIsProcessing(false), 1000);
+      }
+    };
+
     // Only show buttons for processing status
-    if (order.status.toLowerCase() === 'processing') {
+    if (order.totalAmount == 0)
       return (
         <View className="p-4 flex-row space-x-4">
           <Pressable
-            className="flex-1 bg-blue-500 py-3 rounded-xl items-center"
-            onPress={handleCheckout}
+            className="flex-1 bg-gray-500 py-3 rounded-xl items-center"
+            disabled={true}
           >
             <Text className="text-white font-medium">Thanh toán</Text>
           </Pressable>
@@ -156,8 +210,31 @@ export default function OrderDetailScreen() {
             <Text className="text-white font-medium">Hủy đơn</Text>
           </Pressable>
         </View>
-      )
-    } else if (order.status.toLowerCase() === 'completed') {
+      );
+    if (order.status.toLowerCase() === "processing") {
+      return (
+        <View className="p-4 flex-row space-x-4">
+          <Pressable
+            className={`flex-1 ${
+              isProcessing ? "bg-gray-500" : "bg-blue-500"
+            } py-3 rounded-xl items-center`}
+            onPress={handleRePurchase}
+            disabled={isProcessing}
+          >
+            <Text className="text-white font-medium">
+              {isProcessing ? "Đang xử lý..." : "Thanh toán"}
+            </Text>
+          </Pressable>
+
+          <Pressable
+            className="flex-1 bg-red-500 py-3 rounded-xl items-center"
+            onPress={() => setShowCancelModal(true)}
+          >
+            <Text className="text-white font-medium">Hủy đơn</Text>
+          </Pressable>
+        </View>
+      );
+    } else if (order.status.toLowerCase() === "completed") {
       return (
         <View className="p-4">
           <View className="bg-gray-100 py-3 rounded-xl items-center">
@@ -166,10 +243,10 @@ export default function OrderDetailScreen() {
             </Text>
           </View>
         </View>
-      )
+      );
     } else if (
-      order.status.toLowerCase() === 'cancelled' ||
-      order.status.toLowerCase() === 'canceled'
+      order.status.toLowerCase() === "cancelled" ||
+      order.status.toLowerCase() === "canceled"
     ) {
       return (
         <View className="p-4">
@@ -179,148 +256,500 @@ export default function OrderDetailScreen() {
             </Text>
           </View>
         </View>
-      )
+      );
     }
 
-    return null
-  }
+    return null;
+  };
+
+  const renderPaymentSection = () => {
+    const [currentPaymentMethod, setCurrentPaymentMethod] = useState(
+      order.payMethod || "EFT"
+    );
+
+    const isProcessingStatus = order.status.toLowerCase() === "processing";
+
+    const handlePaymentMethodChange = (method: string) => {
+      if (!isProcessingStatus) return;
+
+      Alert.alert(
+        "Xác nhận thay đổi",
+        "Bạn có chắc chắn muốn thay đổi phương thức thanh toán?",
+        [
+          {
+            text: "Hủy",
+            style: "cancel",
+          },
+          {
+            text: "Đồng ý",
+            onPress: () => confirmPaymentMethodChange(method),
+          },
+        ]
+      );
+    };
+
+    const confirmPaymentMethodChange = async (method: string) => {
+      try {
+        // Here you would implement the API call to update the payment method
+        // For now, we'll just update the local state
+        setSelectedPayment(method);
+
+        // Show success message
+        Alert.alert("Thông báo", "Thay đổi phương thức thanh toán thành công", [
+          {
+            text: "Đóng",
+            style: "default",
+          },
+        ]);
+
+        // In the future, you might want to add an API call here
+        // await updateOrderPaymentMethod({
+        //   orderId: id as string,
+        //   paymentMethod: method,
+        //   token,
+        // });
+      } catch (error) {
+        console.error("Error updating payment method:", error);
+        Alert.alert("Lỗi", "Không thể thay đổi phương thức thanh toán", [
+          {
+            text: "Đóng",
+            style: "default",
+          },
+        ]);
+      }
+    };
+
+    return (
+      <View className="p-4 border-b border-gray-100">
+        <View className="flex-row items-center mb-3">
+          <MaterialIcons name="credit-card" size={20} color="#3B82F6" />
+          <Text className="text-xl font-bold ml-2">Phương thức thanh toán</Text>
+        </View>
+        <View className="space-y-3">
+          <TouchableOpacity
+            className="flex-row items-center"
+            onPress={() =>
+              isProcessingStatus ? handlePaymentMethodChange("EFT") : null
+            }
+            disabled={!isProcessingStatus}
+          >
+            <View
+              className={`w-5 h-5 rounded-full border-2 ${
+                selectedPayment === "EFT"
+                  ? "border-blue-500"
+                  : "border-gray-400"
+              } justify-center items-center`}
+            >
+              {selectedPayment === "EFT" && (
+                <View className="w-3 h-3 rounded-full bg-blue-500" />
+              )}
+            </View>
+            <Text
+              className={`ml-2 ${
+                !isProcessingStatus && selectedPayment !== "EFT"
+                  ? "text-gray-400"
+                  : "text-gray-800"
+              }`}
+            >
+              Chuyển khoản (QR)
+            </Text>
+          </TouchableOpacity>
+
+          <View>
+            <TouchableOpacity
+              className={`flex-row items-center ${
+                !hasPhysicalProducts || !isProcessingStatus ? "opacity-50" : ""
+              }`}
+              onPress={() =>
+                isProcessingStatus && hasPhysicalProducts
+                  ? handlePaymentMethodChange("COD")
+                  : null
+              }
+              disabled={!hasPhysicalProducts || !isProcessingStatus}
+            >
+              <View
+                className={`w-5 h-5 rounded-full border-2 ${
+                  selectedPayment === "COD"
+                    ? "border-blue-500"
+                    : "border-gray-400"
+                } justify-center items-center`}
+              >
+                {selectedPayment === "COD" && (
+                  <View className="w-3 h-3 rounded-full bg-blue-500" />
+                )}
+              </View>
+              <Text
+                className={`ml-2 ${
+                  !isProcessingStatus && selectedPayment !== "COD"
+                    ? "text-gray-400"
+                    : "text-gray-800"
+                }`}
+              >
+                Thanh toán khi nhận hàng (COD)
+              </Text>
+            </TouchableOpacity>
+
+            {!hasPhysicalProducts && (
+              <Text className="text-xs text-gray-500 ml-7 mt-1">
+                (Chỉ áp dụng cho đơn hàng có sản phẩm vật lý)
+              </Text>
+            )}
+
+            {!isProcessingStatus && (
+              <Text className="text-xs text-blue-500 ml-2 mt-3">
+                Chỉ có thể thay đổi phương thức thanh toán khi đơn hàng đang xử
+                lý.
+              </Text>
+            )}
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  const renderDeliveryInfo = () => {
+    if (!hasPhysicalProducts) return null;
+
+    return (
+      <View className="p-4 border-b border-gray-100">
+        <View className="flex-row items-center mb-3">
+          <MaterialIcons name="local-shipping" size={20} color="#3B82F6" />
+          <Text className="text-xl font-bold ml-2">Thông tin giao hàng</Text>
+        </View>
+        <View className="space-y-2">
+          <View className="flex-row items-center">
+            <MaterialIcons name="person" size={20} color="#6B7280" />
+            <Text className="text-gray-600 ml-2">Người nhận:</Text>
+            <Text className="ml-2">{order.deliveryInfo.name}</Text>
+          </View>
+
+          <View className="flex-row items-start">
+            <MaterialIcons name="location-on" size={20} color="#6B7280" />
+            <Text className="text-gray-600 ml-2">Địa chỉ:</Text>
+            <Text className="ml-2 flex-1">{order.deliveryInfo.address}</Text>
+          </View>
+
+          <View className="flex-row items-center">
+            <MaterialIcons name="phone" size={20} color="#6B7280" />
+            <Text className="text-gray-600 ml-2">Số điện thoại:</Text>
+            <Text className="ml-2">{order.deliveryInfo.phone}</Text>
+          </View>
+
+          <View className="flex-row items-center">
+            <MaterialIcons name="local-shipping" size={20} color="#6B7280" />
+            <Text className="text-gray-600 ml-2">Trạng thái:</Text>
+            <Text className="ml-2">
+              {order.deliveryInfo.status === "PENDING"
+                ? "Đang chờ xử lý"
+                : order.deliveryInfo.status === "PROCESSING"
+                ? "Đang giao hàng"
+                : order.deliveryInfo.status === "COMPLETED"
+                ? "Đã giao hàng"
+                : "Không xác định"}
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  const renderOrderDetails = () => {
+    const courses = order.orderDetails.filter(
+      (detail) => detail.course !== null
+    );
+    const products = order.orderDetails.filter(
+      (detail) => detail.product !== null
+    );
+
+    const OrderItem = ({
+      image,
+      title,
+      description,
+      quantity,
+      price,
+      discount,
+      totalPrice,
+      stockQuantity,
+    }: {
+      image: string;
+      title: string;
+      description: string;
+      quantity: number;
+      price: number;
+      discount: number;
+      totalPrice: number;
+      stockQuantity?: number;
+    }) => (
+      <View className="bg-white rounded-xl border border-gray-100 mb-3 overflow-hidden">
+        <View className="p-4">
+          <View className="flex-row">
+            <Image source={{ uri: image }} className="w-24 h-24 rounded-lg" />
+            <View className="flex-1 ml-4">
+              <Text className="text-base font-semibold" numberOfLines={2}>
+                {title}
+              </Text>
+
+              <Text className="text-gray-500 text-sm mt-1" numberOfLines={2}>
+                {description}
+              </Text>
+
+              {stockQuantity !== undefined && (
+                <Text className="text-gray-500 text-sm mt-1">
+                  Còn lại: {stockQuantity} sản phẩm
+                </Text>
+              )}
+            </View>
+          </View>
+
+          <View className="mt-3 pt-3 border-t border-gray-100">
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center">
+                <Text className="text-gray-500">Số lượng:</Text>
+                <Text className="font-medium ml-2">{quantity}</Text>
+              </View>
+              <View>
+                <Text className="text-lg font-semibold text-blue-500">
+                  {(price * (1 - discount)).toLocaleString("vi-VN")} ₫
+                </Text>
+              </View>
+            </View>
+
+            <View className="mt-2 flex-row justify-end">
+              <Text className="text-gray-500">
+                Thành tiền:{" "}
+                <Text className="font-medium text-blue-500">
+                  {totalPrice.toLocaleString("vi-VN")} ₫
+                </Text>
+              </Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+
+    return (
+      <View className="p-4 border-b border-gray-100">
+        <View className="flex-row items-center mb-3">
+          <MaterialIcons name="shopping-cart" size={20} color="#3B82F6" />
+          <Text className="text-xl font-bold ml-2">Chi tiết đơn hàng</Text>
+        </View>
+
+        {/* Courses Section */}
+        {courses.length > 0 && (
+          <View className="mb-6">
+            <View className="flex-row items-center mb-3">
+              <MaterialIcons name="school" size={20} color="#3B82F6" />
+              <Text className="text-blue-500 font-semibold ml-2">
+                Khóa học ({courses.length})
+              </Text>
+            </View>
+
+            {courses.map((detail) => (
+              <OrderItem
+                key={detail.id}
+                image={detail.course?.imageUrl || ""}
+                title={detail.course?.title || ""}
+                description={detail.course?.description || ""}
+                quantity={detail.quantity}
+                price={detail.unitPrice}
+                discount={detail.discount}
+                totalPrice={detail.totalPrice}
+              />
+            ))}
+          </View>
+        )}
+
+        {/* Products Section */}
+        {products.length > 0 && (
+          <View>
+            <View className="flex-row items-center mb-3">
+              <MaterialIcons name="shopping-bag" size={20} color="#3B82F6" />
+              <Text className="text-blue-500 font-semibold ml-2">
+                Sản phẩm ({products.length})
+              </Text>
+            </View>
+
+            {products.map((detail) => (
+              <OrderItem
+                key={detail.id}
+                image={detail.product?.imageUrl || ""}
+                title={detail.product?.name || ""}
+                description={detail.product?.description || ""}
+                quantity={detail.quantity}
+                price={detail.unitPrice}
+                discount={detail.discount}
+                totalPrice={detail.totalPrice}
+                stockQuantity={detail.product?.stockQuantity}
+              />
+            ))}
+          </View>
+        )}
+
+        {courses.length === 0 && products.length === 0 && (
+          <View className="py-8 items-center">
+            <MaterialIcons name="shopping-cart" size={48} color="#9CA3AF" />
+            <Text className="text-gray-500 mt-2 text-center">
+              Không có sản phẩm nào trong đơn hàng
+            </Text>
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  const renderPaymentInfo = () => {
+    // Tính tổng giá trị khóa học và sản phẩm riêng biệt
+    const courseTotal = order.orderDetails
+      .filter((detail) => detail.course !== null)
+      .reduce((sum, detail) => sum + detail.totalPrice, 0);
+
+    const productTotal = order.orderDetails
+      .filter((detail) => detail.product !== null)
+      .reduce((sum, detail) => sum + detail.totalPrice, 0);
+
+    return (
+      <View className="p-4 border-b border-gray-100">
+        <View className="flex-row items-center mb-3">
+          <MaterialIcons name="payment" size={20} color="#3B82F6" />
+          <Text className="text-xl font-bold ml-2">Thông tin thanh toán</Text>
+        </View>
+
+        <View className="bg-gray-50 rounded-xl p-4">
+          {/* Phương thức thanh toán */}
+          <View className="flex-row items-center justify-between mb-3">
+            <View className="flex-row items-center">
+              <MaterialIcons
+                name={selectedPayment === "COD" ? "local-shipping" : "qr-code"}
+                size={18}
+                color="#6B7280"
+              />
+              <Text className="text-gray-600 ml-2">Phương thức thanh toán</Text>
+            </View>
+            <Text className="font-medium">
+              {selectedPayment === "COD"
+                ? "Thanh toán khi nhận hàng"
+                : "Chuyển khoản (QR)"}
+            </Text>
+          </View>
+
+          {/* Chi tiết giá */}
+          {courseTotal > 0 && (
+            <View className="flex-row justify-between mb-2">
+              <Text className="text-gray-600">Tổng khóa học</Text>
+              <Text>{courseTotal.toLocaleString("vi-VN")} ₫</Text>
+            </View>
+          )}
+
+          {productTotal > 0 && (
+            <View className="flex-row justify-between mb-2">
+              <Text className="text-gray-600">Tổng sản phẩm</Text>
+              <Text>{productTotal.toLocaleString("vi-VN")} ₫</Text>
+            </View>
+          )}
+
+          {/* Phí vận chuyển - chỉ hiện khi có sản phẩm vật lý */}
+          {hasPhysicalProducts && (
+            <View className="flex-row justify-between mb-2">
+              <Text className="text-gray-600">Phí vận chuyển</Text>
+              <Text className="text-green-500">Miễn phí</Text>
+            </View>
+          )}
+
+          {/* Tổng cộng */}
+          <View className="mt-3 pt-3 border-t border-gray-200">
+            <View className="flex-row justify-between items-center">
+              <View>
+                <Text className="text-gray-600 text-sm mb-1">
+                  Tổng thanh toán
+                </Text>
+                <Text className="text-xs text-gray-500">
+                  (Đã bao gồm VAT nếu có)
+                </Text>
+              </View>
+              <Text className="text-xl font-bold text-blue-500">
+                {order.totalAmount.toLocaleString("vi-VN")} ₫
+              </Text>
+            </View>
+          </View>
+
+          {/* Ghi chú thanh toán */}
+          {selectedPayment === "EFT" && (
+            <View className="mt-4 p-3 bg-blue-50 rounded-lg">
+              <View className="flex-row items-center mb-2">
+                <MaterialIcons name="info" size={16} color="#3B82F6" />
+                <Text className="text-blue-600 font-medium ml-2">
+                  Hướng dẫn thanh toán
+                </Text>
+              </View>
+              <Text className="text-blue-600 text-sm">
+                Vui lòng quét mã QR hoặc chuyển khoản theo thông tin được cung
+                cấp sau khi xác nhận đơn hàng
+              </Text>
+            </View>
+          )}
+        </View>
+      </View>
+    );
+  };
+
+  const renderSupport = () => {
+    return (
+      <View className="p-4 border-b border-gray-100">
+        <View className="flex-row items-center mb-3">
+          <MaterialIcons name="help" size={20} color="#3B82F6" />
+          <Text className="text-xl font-bold ml-2">Hỗ trợ</Text>
+        </View>
+        <Text className="text-gray-600">
+          Nếu bạn cần hỗ trợ, vui lòng liên hệ với chúng tôi qua:
+        </Text>
+        <View className="flex-row items-center mt-2">
+          <MaterialIcons name="email" size={20} color="#6B7280" />
+          <Text className="text-blue-500 ml-2">support@example.com</Text>
+        </View>
+        <View className="flex-row items-center mt-2">
+          <MaterialIcons name="phone" size={20} color="#6B7280" />
+          <Text className="text-blue-500 ml-2">0934 600 600 - Khang</Text>
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View className="flex-1 bg-white">
       <HeaderWithBack
         title="Chi tiết đơn hàng"
-        returnTab={'/(root)/orders/orders'}
+        returnTab={"/(root)/orders/orders"}
         showMoreOptions={false}
       />
       <ScrollView>
         {/* Order Info */}
         <View className="p-4 border-b border-gray-100">
+          <View className="flex-row items-center mb-3">
+            <MaterialIcons name="receipt" size={20} color="#3B82F6" />
+            <Text className="text-xl font-bold ml-2">
+              Đơn hàng #{order.orderCode}
+            </Text>
+          </View>
           <View className="flex justify-between">
-            <Text className="text-lg font-bold">Đơn hàng #{order.id}</Text>
             <View
               className={`${status.bg} self-start py-1 px-2 rounded-xl flex-row items-center`}
             >
               <MaterialIcons
                 name={status.icon as any}
                 size={16}
-                color={status.text.replace('text-', '')}
+                color={status.text.replace("text-", "")}
               />
               <Text className={`${status.text} ml-1 pr-1`}>{status.label}</Text>
             </View>
-            <Text className="text-gray-600 mt-1">{order.orderDate}</Text>
+            <Text className="text-gray-600">{order.orderDate}</Text>
           </View>
         </View>
 
-        {/* Course Info */}
-        <View className="p-4 border-b border-gray-100">
-          <Text className="font-bold mb-3">Thông tin khóa học</Text>
-          <Text className="text-lg">
-            {new Date(order.orderDate).toLocaleDateString('vi-VN')}
-          </Text>
-        </View>
-
-        {/* Payment Info */}
-        <View className="p-4 border-b border-gray-100">
-          <Text className="font-bold mb-3">Thông tin thanh toán</Text>
-          <View className="space-y-2">
-            <View className="flex-row justify-between">
-              <Text className="text-gray-600">Phương thức</Text>
-              <Text>Mã QR</Text>
-              {/* <Text>{order.paymentMethod}</Text> */}
-            </View>
-            <View className="flex-row justify-between">
-              <Text className="text-gray-600">Giá khóa học</Text>
-              <Text>{order.totalAmount.toLocaleString('vi-VN')} ₫</Text>
-            </View>
-            <View className="flex-row justify-between">
-              <Text className="text-gray-600">Giảm giá</Text>
-              <Text>0 ₫</Text>
-            </View>
-            <View className="pt-2 border-t border-gray-100 mt-2">
-              <View className="flex-row justify-between">
-                <Text className="font-bold">Tổng cộng</Text>
-                <Text className="font-bold text-blue-500">
-                  {order.totalAmount.toLocaleString('vi-VN')} ₫
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
-        {/* Order Details */}
-        <View className="p-4 border-b border-gray-100">
-          <Text className="font-bold mb-3">Chi tiết đơn hàng</Text>
-          {order.orderDetails.map((detail) => (
-            <View
-              key={detail.id}
-              className="bg-white rounded-xl border border-gray-100 mb-3 p-4"
-            >
-              <View className="flex-row">
-                <Image
-                  source={{ uri: detail.course?.imageUrl }}
-                  className="w-20 h-20 rounded-lg"
-                />
-                <View className="flex-1 ml-3">
-                  <Text className="font-medium" numberOfLines={2}>
-                    {detail.course?.title}
-                  </Text>
-                  <Text
-                    className="text-gray-600 text-sm mt-1"
-                    numberOfLines={2}
-                  >
-                    {detail.course?.description}
-                  </Text>
-
-                  <View className="flex-row items-center justify-between mt-2">
-                    <View className="flex-row items-center">
-                      <Text className="text-gray-600">Số lượng:</Text>
-                      <Text className="font-medium ml-1">
-                        {detail.quantity}
-                      </Text>
-                    </View>
-
-                    <View>
-                      {detail.discount > 0 ? (
-                        <View>
-                          <Text className="text-gray-400 line-through">
-                            {detail.unitPrice.toLocaleString('vi-VN')} ₫
-                          </Text>
-                          <Text className="text-blue-500 font-medium">
-                            {(
-                              detail.unitPrice *
-                              (1 - detail.discount)
-                            ).toLocaleString('vi-VN')}{' '}
-                            ₫
-                          </Text>
-                        </View>
-                      ) : (
-                        <Text className="text-blue-500 font-medium">
-                          {detail.unitPrice.toLocaleString('vi-VN')} ₫
-                        </Text>
-                      )}
-                    </View>
-                  </View>
-                </View>
-              </View>
-            </View>
-          ))}
-        </View>
-
-        {/* Support */}
-        <View className="p-4">
-          <Text className="font-bold mb-3">Hỗ trợ</Text>
-          <Text className="text-gray-600">
-            Nếu bạn cần hỗ trợ, vui lòng liên hệ với chúng tôi qua:
-          </Text>
-          <View className="flex-row items-center mt-2">
-            <MaterialIcons name="email" size={20} color="#6B7280" />
-            <Text className="text-blue-500 ml-2">support@example.com</Text>
-          </View>
-          <View className="flex-row items-center mt-2">
-            <MaterialIcons name="phone" size={20} color="#6B7280" />
-            <Text className="text-blue-500 ml-2">0934 600 600 - Khang</Text>
-          </View>
-        </View>
+        {renderPaymentSection()}
+        {renderDeliveryInfo()}
+        {renderOrderDetails()}
+        {renderPaymentInfo()}
+        {renderSupport()}
       </ScrollView>
 
       {/* Action Buttons */}
@@ -345,7 +774,7 @@ export default function OrderDetailScreen() {
 
             <TextInput
               className={`border h-32 rounded-xl p-3 mb-2 ${
-                cancelError ? 'border-red-500' : 'border-gray-200'
+                cancelError ? "border-red-500" : "border-gray-200"
               }`}
               placeholder="Nhập lý do hủy đơn hàng"
               multiline
@@ -353,8 +782,8 @@ export default function OrderDetailScreen() {
               numberOfLines={6}
               value={cancelReason}
               onChangeText={(text) => {
-                setCancelReason(text)
-                setCancelError('')
+                setCancelReason(text);
+                setCancelError("");
               }}
             />
 
@@ -366,9 +795,9 @@ export default function OrderDetailScreen() {
               <Pressable
                 className="flex-1 bg-gray-100 py-3 rounded-xl items-center"
                 onPress={() => {
-                  setShowCancelModal(false)
-                  setCancelReason('')
-                  setCancelError('')
+                  setShowCancelModal(false);
+                  setCancelReason("");
+                  setCancelError("");
                 }}
               >
                 <Text className="text-gray-700 font-medium">Đóng</Text>
@@ -376,13 +805,13 @@ export default function OrderDetailScreen() {
 
               <Pressable
                 className={`flex-1 ${
-                  isCancelling ? 'bg-red-300' : 'bg-red-500'
+                  isCancelling ? "bg-red-300" : "bg-red-500"
                 } py-3 rounded-xl items-center`}
                 onPress={handleCancel}
                 disabled={isCancelling}
               >
                 <Text className="text-white font-medium">
-                  {isCancelling ? 'Đang xử lý...' : 'Xác nhận hủy'}
+                  {isCancelling ? "Đang xử lý..." : "Xác nhận hủy"}
                 </Text>
               </Pressable>
             </View>
@@ -390,5 +819,5 @@ export default function OrderDetailScreen() {
         </View>
       </Modal>
     </View>
-  )
+  );
 }

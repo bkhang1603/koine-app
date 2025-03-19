@@ -226,7 +226,7 @@ export default function HomeScreen() {
         {/* Search Bar */}
         <Pressable
           className="mx-4 mt-6 flex-row items-center bg-gray-100 rounded-xl p-3"
-          onPress={() => router.push("/search/search")}
+          onPress={() => router.push("/search/searchCourse")}
         >
           <MaterialIcons name="search" size={24} color="#6B7280" />
           <Text className="ml-2 text-gray-500 flex-1">
@@ -275,6 +275,69 @@ export default function HomeScreen() {
             </Text>
           </View>
         </View>
+
+        {/* Latest Blog */}
+        {latestBlog && (
+          <View className="mt-6 pb-6">
+            <Text className="text-lg font-bold px-4 mb-3">Bài viết mới</Text>
+            <Pressable
+              className="bg-white rounded-2xl overflow-hidden mx-4"
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.05,
+                shadowRadius: 4,
+                elevation: 3,
+              }}
+              onPress={() => router.push(`/blog/${latestBlog.id}` as any)}
+            >
+              <Image
+                source={{ uri: latestBlog.imageUrl }}
+                className="w-full h-48"
+              />
+              <View className="p-3">
+                <View className="flex-row flex-wrap items-center">
+                  {latestBlog.categories.slice(0, 2).map((category, index) => (
+                    <React.Fragment key={category.id || index}>
+                      <Text className="text-blue-600 text-xs font-semibold px-3 py-1.5 bg-blue-50 rounded-full">
+                        {category.name}
+                      </Text>
+                      {index <
+                        Math.min(latestBlog.categories.length - 1, 1) && (
+                        <Text className="text-gray-300 mx-2">•</Text>
+                      )}
+                    </React.Fragment>
+                  ))}
+                  {latestBlog.categories.length > 2 && (
+                    <>
+                      <Text className="text-gray-300 mx-2">•</Text>
+                      <Text className="text-blue-600 text-xs font-semibold px-3 py-1.5 bg-blue-50 rounded-full">
+                        ...
+                      </Text>
+                    </>
+                  )}
+                </View>
+                <Text className="text-lg font-bold mt-2">
+                  {latestBlog.title}
+                </Text>
+                <Text className="text-gray-600 mt-1" numberOfLines={2}>
+                  {latestBlog.description}
+                </Text>
+
+                <View className="flex-row items-center mt-3">
+                  <MaterialIcons name="person" size={16} color="#6B7280" />
+                  <Text className="text-gray-600 ml-1">
+                    {latestBlog.creatorInfo.firstName}
+                  </Text>
+                  <Text className="text-gray-400 mx-2">•</Text>
+                  <Text className="text-gray-500">
+                    {latestBlog.createdAtFormatted}
+                  </Text>
+                </View>
+              </View>
+            </Pressable>
+          </View>
+        )}
 
         {/* Featured Courses */}
         <View className="mt-6">
@@ -327,7 +390,7 @@ export default function HomeScreen() {
                       </View>
                     ) : (
                       <View className="flex-row flex-wrap gap-1">
-                        {course.categories.slice(0, 2).map((category) => (
+                        {course.categories.slice(0, 1).map((category) => (
                           <View
                             key={category.id}
                             className="bg-blue-50 px-3 py-1 rounded-full"
@@ -337,7 +400,7 @@ export default function HomeScreen() {
                             </Text>
                           </View>
                         ))}
-                        {course.categories.length > 2 && (
+                        {course.categories.length > 1 && (
                           <View className="bg-blue-50 px-3 py-1 rounded-full">
                             <Text className="text-blue-600 text-xs font-medium">
                               ...
@@ -550,69 +613,6 @@ export default function HomeScreen() {
             <></>
           )}
         </View>
-
-        {/* Latest Blog */}
-        {latestBlog && (
-          <View className="mt-6 pb-6">
-            <Text className="text-lg font-bold px-4 mb-3">Bài viết mới</Text>
-            <Pressable
-              className="bg-white rounded-2xl overflow-hidden mx-4"
-              style={{
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.05,
-                shadowRadius: 4,
-                elevation: 3,
-              }}
-              onPress={() => router.push(`/blog/${latestBlog.id}` as any)}
-            >
-              <Image
-                source={{ uri: latestBlog.imageUrl }}
-                className="w-full h-48"
-              />
-              <View className="p-3">
-                <View className="flex-row flex-wrap items-center">
-                  {latestBlog.categories.slice(0, 2).map((category, index) => (
-                    <React.Fragment key={category.id || index}>
-                      <Text className="text-blue-600 text-xs font-semibold px-3 py-1.5 bg-blue-50 rounded-full">
-                        {category.name}
-                      </Text>
-                      {index <
-                        Math.min(latestBlog.categories.length - 1, 1) && (
-                        <Text className="text-gray-300 mx-2">•</Text>
-                      )}
-                    </React.Fragment>
-                  ))}
-                  {latestBlog.categories.length > 2 && (
-                    <>
-                      <Text className="text-gray-300 mx-2">•</Text>
-                      <Text className="text-blue-600 text-xs font-semibold px-3 py-1.5 bg-blue-50 rounded-full">
-                        ...
-                      </Text>
-                    </>
-                  )}
-                </View>
-                <Text className="text-lg font-bold mt-2">
-                  {latestBlog.title}
-                </Text>
-                <Text className="text-gray-600 mt-1" numberOfLines={2}>
-                  {latestBlog.description}
-                </Text>
-
-                <View className="flex-row items-center mt-3">
-                  <MaterialIcons name="person" size={16} color="#6B7280" />
-                  <Text className="text-gray-600 ml-1">
-                    {latestBlog.creatorInfo.firstName}
-                  </Text>
-                  <Text className="text-gray-400 mx-2">•</Text>
-                  <Text className="text-gray-500">
-                    {latestBlog.createdAtFormatted}
-                  </Text>
-                </View>
-              </View>
-            </Pressable>
-          </View>
-        )}
         <View className="h-20"></View>
       </SafeAreaView>
     </ScrollView>

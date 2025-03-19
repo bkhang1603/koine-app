@@ -8,6 +8,7 @@ import { myCourseRes } from "@/schema/user-schema";
 import { GetMyCoursesResType } from "@/schema/user-schema";
 import { useAppStore } from "@/components/app-provider";
 import { useMyCourse } from "@/queries/useUser";
+import formatDuration from "@/util/formatDuration";
 
 export default function ChildMyCoursesScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
@@ -37,8 +38,6 @@ export default function ChildMyCoursesScreen() {
 
   if (myCourseLoading) return <ActivityIndicatorScreen />;
   if (myCourseError) return null;
-
-  console.log(token);
 
   return (
     <View className="flex-1 bg-white">
@@ -123,16 +122,9 @@ export default function ChildMyCoursesScreen() {
                       }
                       if (learned === "") learned = "0 phút";
 
-                      let total = "";
-                      if (hours > 0) {
-                        total += `${hours} giờ `;
-                      }
-                      if (minutes > 0 || total === "") {
-                        total += `${minutes} phút`;
-                      }
-                      if (total === "") total = "0 phút";
-
-                      return `${learned} / ${total}`;
+                      return `${learned} / ${formatDuration(
+                        course.durationDisplay
+                      )}`;
                     })()}
                   </Text>
                   <Text className="text-gray-600 mx-2">•</Text>
