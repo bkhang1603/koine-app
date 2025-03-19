@@ -13,9 +13,9 @@ const PaymentScreen = () => {
   // Xử lý điều hướng khi URL thay đổi
   const handleNavigation = (event: WebViewNavigation) => {
     if (event.url.includes("payment-success")) {
-      router.push("/(root)/orders/orders");
+      router.replace("/(root)/orders/orders");
     } else if (event.url.includes("payment-failed")) {
-      router.push("/(root)/orders/orders");
+      router.replace("/(root)/orders/orders");
     }
   };
 

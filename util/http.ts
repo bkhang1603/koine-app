@@ -14,7 +14,7 @@ interface HttpOptions {
 // const defaultBaseUrl = 'https://capstone-project-be-bqa5.onrender.com/api'
 
 //local may quan
-// const defaultBaseUrl = "http://10.0.170.222:8080/api";
+const defaultBaseUrl = "http://10.0.232.162:8080/api";
 
 //local may lap dao
 const defaultBaseUrl = "http://192.168.1.20:8080/api";

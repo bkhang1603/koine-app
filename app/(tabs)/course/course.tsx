@@ -40,8 +40,42 @@ export default function CourseScreen() {
       }
     }
   }
+  if (!coursesData || coursesData.data.length == 0) {
+    return (
+      <ScrollView className="flex-1 pt-4 bg-white">
+        <SafeAreaView>
+          {/* Header */}
+          <View className="px-4 flex-row items-center justify-between">
+            <View>
+              <Text className="text-2xl font-bold">Khóa học</Text>
+              <Text className="text-gray-600 mt-1">
+                Khám phá nhiều thể loại khóa học
+              </Text>
+            </View>
 
-  if (coursesLoading) return <ActivityIndicatorScreen />;
+            <View className="flex-row items-center">
+              <CartButton />
+              <Pressable
+                className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 ml-2"
+                onPress={() => router.push("/notifications/notifications")}
+              >
+                <MaterialIcons name="notifications" size={24} color="#374151" />
+              </Pressable>
+            </View>
+          </View>
+
+          <View className="flex-1 items-center justify-center p-4">
+            <MaterialIcons name="shopping-cart" size={64} color="#9CA3AF" />
+            <Text className="text-gray-500 text-lg mt-4 text-center">
+              Danh sách khóa học đang trống
+            </Text>
+          </View>
+        </SafeAreaView>
+      </ScrollView>
+    );
+  }
+
+  if (coursesLoading || !coursesData) return <ActivityIndicatorScreen />;
   if (coursesError)
     return (
       <ErrorScreen message="Failed to load courses. Showing default courses." />
@@ -86,7 +120,15 @@ export default function CourseScreen() {
         {/* Featured Course */}
         {courses && (
           <View className="p-4">
-            <Text className="text-lg font-bold mb-3">Nổi bật</Text>
+            <View className="flex-row justify-between items-center mb-3">
+              <Text className="text-lg font-bold mb-3">Nổi bật</Text>
+              <Pressable
+                onPress={() => router.push("/custom-course/custom-course")}
+                className="bg-blue-500 rounded-xl"
+              >
+                <Text className="text-white p-2">+ Khóa học tùy chỉnh</Text>
+              </Pressable>
+            </View>
             <Pressable
               className="bg-white rounded-2xl overflow-hidden"
               style={{
