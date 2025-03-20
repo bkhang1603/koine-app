@@ -20,9 +20,14 @@ import {
   useRePurchaseOrder,
 } from "@/queries/useOrder";
 import { useAppStore } from "@/components/app-provider";
-import { GetOrderDetailsResType, orderDetailsRes } from "@/schema/order-schema";
+import {
+  GetOrderDetailsResType,
+  orderDetailsRes,
+  UpdatePaymentMethodBodyType,
+} from "@/schema/order-schema";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 import ErrorScreen from "@/components/ErrorScreen";
+import { useUpdatePaymentMethod } from "@/queries/useOrder";
 
 export default function OrderDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -32,7 +37,8 @@ export default function OrderDetailScreen() {
   const [cancelReason, setCancelReason] = useState("");
   const [cancelError, setCancelError] = useState("");
   const [isCancelling, setIsCancelling] = useState(false);
-  const [selectedPayment, setSelectedPayment] = useState("EFT");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState("");
 
   const {
     data: orderDetailsData,
@@ -45,7 +51,7 @@ export default function OrderDetailScreen() {
 
   const deleteOrderMutation = useDeleteOrderMutation();
   const rePurchaseOrder = useRePurchaseOrder();
-  const [isProcessing, setIsProcessing] = useState(false);
+  const updatePaymentMethodMutation = useUpdatePaymentMethod();
 
   // Move this logic into a useMemo hook to prevent re-renders
   const orderDetails = React.useMemo(() => {
@@ -72,15 +78,22 @@ export default function OrderDetailScreen() {
     return orderDetails.orderDetails.some((detail) => detail.product !== null);
   }, [orderDetails]);
 
+  // Initialize selected payment method from order data
+  React.useEffect(() => {
+    if (orderDetails && orderDetails.payMethod && selectedPayment === "") {
+      setSelectedPayment(orderDetails.payMethod);
+    }
+  }, [orderDetails, selectedPayment]);
+
   if (orderDetailsLoading) return <ActivityIndicatorScreen />;
   if (orderDetailsError)
     return (
-      <ErrorScreen message="Failed to load orderDetailss. Showing default orderDetailss." />
+      <ErrorScreen message="Failed to load order details. Showing default order details." />
     );
 
   if (orderDetails == null)
     return (
-      <ErrorScreen message="Failed to load orderDetailss. Course is null." />
+      <ErrorScreen message="Failed to load order details. Order is null." />
     );
 
   const order = orderDetails;
@@ -167,31 +180,42 @@ export default function OrderDetailScreen() {
     }
   };
 
+  const handlePaymentMethodChange = async (method: string) => {
+    if (order.status.toLowerCase() !== "processing") return;
+
+    Alert.alert(
+      "Xác nhận thay đổi",
+      "Bạn có chắc chắn muốn thay đổi phương thức thanh toán?",
+      [
+        { text: "Hủy", style: "cancel" },
+        {
+          text: "Đồng ý",
+          onPress: async () => {
+            try {
+              await updatePaymentMethodMutation.mutateAsync({
+                orderId: id as string,
+                body: { payMethod: method },
+                token,
+              });
+              setSelectedPayment(method);
+              Alert.alert(
+                "Thông báo",
+                "Thay đổi phương thức thanh toán thành công",
+                [{ text: "Đóng", style: "default" }]
+              );
+            } catch (error) {
+              console.error("Error updating payment method:", error);
+              Alert.alert("Lỗi", "Không thể thay đổi phương thức thanh toán", [
+                { text: "Đóng", style: "default" },
+              ]);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const renderActionButtons = () => {
-    const rePurchaseOrder = useRePurchaseOrder();
-    const [isProcessing, setIsProcessing] = useState(false);
-
-    const handleRePurchase = async () => {
-      try {
-        if (isProcessing) return;
-        setIsProcessing(true);
-
-        const res = await rePurchaseOrder.mutateAsync({
-          orderId: id as string,
-          token,
-        });
-
-        if (res) {
-          const encodedUrl = encodeURIComponent(res.data);
-          router.push(`/(root)/cart/payment-screen?paymentUrl=${encodedUrl}`);
-        }
-      } catch (error) {
-        console.error("Lỗi khi thanh toán lại đơn hàng:", error);
-      } finally {
-        setTimeout(() => setIsProcessing(false), 1000);
-      }
-    };
-
     // Only show buttons for processing status
     if (order.totalAmount == 0)
       return (
@@ -263,145 +287,114 @@ export default function OrderDetailScreen() {
   };
 
   const renderPaymentSection = () => {
-    const [currentPaymentMethod, setCurrentPaymentMethod] = useState(
-      order.payMethod || "EFT"
-    );
-
     const isProcessingStatus = order.status.toLowerCase() === "processing";
-
-    const handlePaymentMethodChange = (method: string) => {
-      if (!isProcessingStatus) return;
-
-      Alert.alert(
-        "Xác nhận thay đổi",
-        "Bạn có chắc chắn muốn thay đổi phương thức thanh toán?",
-        [
-          {
-            text: "Hủy",
-            style: "cancel",
-          },
-          {
-            text: "Đồng ý",
-            onPress: () => confirmPaymentMethodChange(method),
-          },
-        ]
-      );
-    };
-
-    const confirmPaymentMethodChange = async (method: string) => {
-      try {
-        // Here you would implement the API call to update the payment method
-        // For now, we'll just update the local state
-        setSelectedPayment(method);
-
-        // Show success message
-        Alert.alert("Thông báo", "Thay đổi phương thức thanh toán thành công", [
-          {
-            text: "Đóng",
-            style: "default",
-          },
-        ]);
-
-        // In the future, you might want to add an API call here
-        // await updateOrderPaymentMethod({
-        //   orderId: id as string,
-        //   paymentMethod: method,
-        //   token,
-        // });
-      } catch (error) {
-        console.error("Error updating payment method:", error);
-        Alert.alert("Lỗi", "Không thể thay đổi phương thức thanh toán", [
-          {
-            text: "Đóng",
-            style: "default",
-          },
-        ]);
-      }
-    };
 
     return (
       <View className="p-4 border-b border-gray-100">
-        <View className="flex-row items-center mb-3">
-          <MaterialIcons name="credit-card" size={20} color="#3B82F6" />
-          <Text className="text-xl font-bold ml-2">Phương thức thanh toán</Text>
-        </View>
-        <View className="space-y-3">
-          <TouchableOpacity
-            className="flex-row items-center"
-            onPress={() =>
-              isProcessingStatus ? handlePaymentMethodChange("EFT") : null
-            }
-            disabled={!isProcessingStatus}
-          >
-            <View
-              className={`w-5 h-5 rounded-full border-2 ${
-                selectedPayment === "EFT"
-                  ? "border-blue-500"
-                  : "border-gray-400"
-              } justify-center items-center`}
-            >
-              {selectedPayment === "EFT" && (
-                <View className="w-3 h-3 rounded-full bg-blue-500" />
-              )}
-            </View>
-            <Text
-              className={`ml-2 ${
-                !isProcessingStatus && selectedPayment !== "EFT"
-                  ? "text-gray-400"
-                  : "text-gray-800"
-              }`}
-            >
-              Chuyển khoản (QR)
+        <View className="flex-row items-center justify-between mb-4">
+          <View className="flex-row items-center">
+            <MaterialIcons name="credit-card" size={20} color="#3B82F6" />
+            <Text className="text-xl font-bold ml-2">
+              Phương thức thanh toán
             </Text>
-          </TouchableOpacity>
-
-          <View>
-            <TouchableOpacity
-              className={`flex-row items-center ${
-                !hasPhysicalProducts || !isProcessingStatus ? "opacity-50" : ""
-              }`}
-              onPress={() =>
-                isProcessingStatus && hasPhysicalProducts
-                  ? handlePaymentMethodChange("COD")
-                  : null
-              }
-              disabled={!hasPhysicalProducts || !isProcessingStatus}
-            >
-              <View
-                className={`w-5 h-5 rounded-full border-2 ${
-                  selectedPayment === "COD"
-                    ? "border-blue-500"
-                    : "border-gray-400"
-                } justify-center items-center`}
-              >
-                {selectedPayment === "COD" && (
-                  <View className="w-3 h-3 rounded-full bg-blue-500" />
-                )}
-              </View>
-              <Text
-                className={`ml-2 ${
-                  !isProcessingStatus && selectedPayment !== "COD"
-                    ? "text-gray-400"
-                    : "text-gray-800"
-                }`}
-              >
-                Thanh toán khi nhận hàng (COD)
-              </Text>
-            </TouchableOpacity>
-
-            {!hasPhysicalProducts && (
-              <Text className="text-xs text-gray-500 ml-7 mt-1">
-                (Chỉ áp dụng cho đơn hàng có sản phẩm vật lý)
-              </Text>
-            )}
-
-            {!isProcessingStatus && (
-              <Text className="text-xs text-blue-500 ml-2 mt-3">
-                Chỉ có thể thay đổi phương thức thanh toán khi đơn hàng đang xử
-                lý.
-              </Text>
-            )}
           </View>
+
+          {isProcessingStatus && (
+            <Text className="text-blue-500 text-sm">Có thể thay đổi</Text>
+          )}
+        </View>
+
+        {/* Payment Method Options */}
+        <View className="bg-gray-50 rounded-xl p-4">
+          {/* If not in processing status, show current payment method only */}
+          {!isProcessingStatus ? (
+            <View className="flex-row items-center p-2 bg-white rounded-lg">
+              <MaterialIcons
+                name={
+                  order.payMethod === "COD"
+                    ? "local-shipping"
+                    : "account-balance"
+                }
+                size={24}
+                color="#4B5563"
+              />
+              <Text className="ml-3 text-gray-800 font-medium">
+                {order.payMethod === "COD"
+                  ? "Thanh toán khi nhận hàng (COD)"
+                  : "Chuyển khoản ngân hàng (BANKING)"}
+              </Text>
+            </View>
+          ) : (
+            // If in processing status, show selectable options
+            <View className="space-y-3">
+              {/* Banking Option */}
+              <TouchableOpacity
+                className={`flex-row items-center p-3 rounded-lg ${
+                  selectedPayment === "BANKING"
+                    ? "bg-blue-50 border border-blue-200"
+                    : "bg-white"
+                }`}
+                onPress={() => handlePaymentMethodChange("BANKING")}
+                activeOpacity={0.7}
+              >
+                <View className="w-6 h-6 rounded-full border-2 border-blue-500 justify-center items-center mr-3">
+                  {selectedPayment === "BANKING" && (
+                    <View className="w-3 h-3 rounded-full bg-blue-500" />
+                  )}
+                </View>
+                <View className="flex-1">
+                  <Text className="font-medium text-gray-800">
+                    Chuyển khoản ngân hàng
+                  </Text>
+                  <Text className="text-xs text-gray-500 mt-1">
+                    Thanh toán qua chuyển khoản hoặc mã QR
+                  </Text>
+                </View>
+                <MaterialIcons
+                  name="account-balance"
+                  size={24}
+                  color="#4B5563"
+                />
+              </TouchableOpacity>
+
+              {/* COD Option - only if there are physical products */}
+              <TouchableOpacity
+                className={`flex-row items-center p-3 rounded-lg ${
+                  !hasPhysicalProducts ? "opacity-50" : ""
+                } ${
+                  selectedPayment === "COD"
+                    ? "bg-blue-50 border border-blue-200"
+                    : "bg-white"
+                }`}
+                onPress={() =>
+                  hasPhysicalProducts ? handlePaymentMethodChange("COD") : null
+                }
+                activeOpacity={0.7}
+                disabled={!hasPhysicalProducts}
+              >
+                <View className="w-6 h-6 rounded-full border-2 border-blue-500 justify-center items-center mr-3">
+                  {selectedPayment === "COD" && (
+                    <View className="w-3 h-3 rounded-full bg-blue-500" />
+                  )}
+                </View>
+                <View className="flex-1">
+                  <Text className="font-medium text-gray-800">
+                    Thanh toán khi nhận hàng
+                  </Text>
+                  <Text className="text-xs text-gray-500 mt-1">
+                    {hasPhysicalProducts
+                      ? "Thanh toán khi nhận được hàng"
+                      : "Chỉ áp dụng cho đơn hàng có sản phẩm vật lý"}
+                  </Text>
+                </View>
+                <MaterialIcons
+                  name="local-shipping"
+                  size={24}
+                  color="#4B5563"
+                />
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </View>
     );
@@ -615,23 +608,6 @@ export default function OrderDetailScreen() {
         </View>
 
         <View className="bg-gray-50 rounded-xl p-4">
-          {/* Phương thức thanh toán */}
-          <View className="flex-row items-center justify-between mb-3">
-            <View className="flex-row items-center">
-              <MaterialIcons
-                name={selectedPayment === "COD" ? "local-shipping" : "qr-code"}
-                size={18}
-                color="#6B7280"
-              />
-              <Text className="text-gray-600 ml-2">Phương thức thanh toán</Text>
-            </View>
-            <Text className="font-medium">
-              {selectedPayment === "COD"
-                ? "Thanh toán khi nhận hàng"
-                : "Chuyển khoản (QR)"}
-            </Text>
-          </View>
-
           {/* Chi tiết giá */}
           {courseTotal > 0 && (
             <View className="flex-row justify-between mb-2">
@@ -651,7 +627,7 @@ export default function OrderDetailScreen() {
           {hasPhysicalProducts && (
             <View className="flex-row justify-between mb-2">
               <Text className="text-gray-600">Phí vận chuyển</Text>
-              <Text className="text-green-500">Miễn phí</Text>
+              <Text>{order.deliAmount.toLocaleString("vi-VN")} ₫</Text>
             </View>
           )}
 
@@ -673,7 +649,7 @@ export default function OrderDetailScreen() {
           </View>
 
           {/* Ghi chú thanh toán */}
-          {selectedPayment === "EFT" && (
+          {selectedPayment === "BANKING" && (
             <View className="mt-4 p-3 bg-blue-50 rounded-lg">
               <View className="flex-row items-center mb-2">
                 <MaterialIcons name="info" size={16} color="#3B82F6" />
@@ -741,7 +717,9 @@ export default function OrderDetailScreen() {
               />
               <Text className={`${status.text} ml-1 pr-1`}>{status.label}</Text>
             </View>
-            <Text className="text-gray-600">{order.orderDate}</Text>
+            <Text className="text-gray-600">
+              {new Date(order.orderDate).toLocaleDateString("vi-VN")}
+            </Text>
           </View>
         </View>
 
