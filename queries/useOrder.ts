@@ -2,6 +2,7 @@ import orderApiRequest from "@/api/order";
 import {
   CreateOrderBodyType,
   DeleteOrderBodyType,
+  UpdatePaymentMethodBodyType,
 } from "@/schema/order-schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -30,13 +31,8 @@ export const useCreateOrder = () => {
 export const useRePurchaseOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      orderId,
-      token,
-    }: {
-      orderId: string;
-      token: string;
-    }) => orderApiRequest.rePurchaseOrder(token, orderId),
+    mutationFn: ({ orderId, token }: { orderId: string; token: string }) =>
+      orderApiRequest.rePurchaseOrder(token, orderId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["order"],
@@ -106,6 +102,26 @@ export const useDeleteOrderMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ["order"],
         exact: true,
+      });
+    },
+  });
+};
+
+export const useUpdatePaymentMethod = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      orderId,
+      body,
+      token,
+    }: {
+      orderId: string;
+      body: UpdatePaymentMethodBodyType;
+      token: string;
+    }) => orderApiRequest.updatePaymentMethod(orderId, body, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["order"],
       });
     },
   });

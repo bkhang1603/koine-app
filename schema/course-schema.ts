@@ -155,15 +155,11 @@ export const assignCourse = z.object({
   childId: z.string().nullable(),
   courseId: z.string(),
 });
-  courseId: z.string(),
-});
 
 export type AssignCourseStoreBodyType = z.infer<typeof assignCourse>;
 
 export const assignCourseResType = z.object({
   statusCode: z.number(),
-  message: z.string(),
-});
   message: z.string(),
 });
 
@@ -172,8 +168,6 @@ export type AssignCourseStoreResType = z.infer<typeof assignCourseResType>;
 export const enrollFreeCourseResType = z.object({
   statusCode: z.number(),
   info: z.string(),
-  message: z.string(),
-});
   message: z.string(),
 });
 

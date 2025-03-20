@@ -85,8 +85,10 @@ export const orderDetailsRes = z.object({
     userId: z.string(),
     orderDate: z.string(),
     totalAmount: z.number(),
+    deliMethod: z.string(),
+    deliAmount: z.number(),
     status: z.string(),
-    deletedNote: z.string().nullable(),
+    deletedNote: z.string().nullable().optional(),
     isDeleted: z.boolean(),
     createdAt: z.string(),
     updatedAt: z.string(),
@@ -156,3 +158,19 @@ export const rePurchaseOrderRes = z.object({
 });
 
 export type RePurchaseOrderResType = z.TypeOf<typeof rePurchaseOrderRes>;
+
+export const updatePaymentMethodBody = z.object({
+  payMethod: z.string(),
+});
+
+export type UpdatePaymentMethodBodyType = z.infer<
+  typeof updatePaymentMethodBody
+>;
+
+export const updatePaymentMethodRes = z.object({
+  statusCode: z.number(),
+  info: z.string().optional(),
+  message: z.string(),
+});
+
+export type UpdatePaymentMethodResType = z.infer<typeof updatePaymentMethodRes>;

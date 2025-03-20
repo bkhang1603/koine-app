@@ -6,15 +6,16 @@ import {
   GetAllOrderResType,
   GetOrderDetailsResType,
   RePurchaseOrderResType,
-} from '@/schema/order-schema'
-import http from '@/util/http'
+  UpdatePaymentMethodBodyType,
+  UpdatePaymentMethodResType,
+} from "@/schema/order-schema";
+import http from "@/util/http";
 
 const orderApiRequest = {
   createOrder: (body: CreateOrderBodyType, token: string) =>
     http.post<CreateOrderResType>(`orders`, body, {
       headers: {
-        Authorization: `Bearer ${token}`,
-        'User-Agent': 'MobileKoine', // Thêm token vào headers
+        Authorization: `Bearer ${token}`, // Thêm token vào headers
       },
     }),
   rePurchaseOrder: (token: string, orderId: string) =>
@@ -24,7 +25,7 @@ const orderApiRequest = {
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          'User-Agent': 'MobileKoine',
+          "User-Agent": "MobileKoine",
         },
       }
     ),
@@ -33,9 +34,9 @@ const orderApiRequest = {
     page_index,
     token, //để authen
   }: {
-    page_size: number
-    page_index: number
-    token: string
+    page_size: number;
+    page_index: number;
+    token: string;
   }) =>
     http.get<GetAllOrderResType>(`orders/my-orders`, {
       headers: {
@@ -54,6 +55,16 @@ const orderApiRequest = {
         Authorization: `Bearer ${token}`,
       },
     }),
-}
+  updatePaymentMethod: (
+    orderId: string,
+    body: UpdatePaymentMethodBodyType,
+    token: string
+  ) =>
+    http.put<UpdatePaymentMethodResType>(`orders/pay-method/${orderId}`, body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+};
 
-export default orderApiRequest
+export default orderApiRequest;
