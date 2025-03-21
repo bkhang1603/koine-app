@@ -1,3 +1,5 @@
+import {LOCAL_HOST, DEPLOY_HOST} from "@/config"
+
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
 interface HttpOptions {
@@ -8,16 +10,14 @@ interface HttpOptions {
 }
 
 //cái xài chính
-// const defaultBaseUrl = 'https://koinebackend.site/api'
+const defaultBaseUrl = `${DEPLOY_HOST}/api`;
 
 //cái xài tạm
 // const defaultBaseUrl = 'https://capstone-project-be-bqa5.onrender.com/api'
 
 //local may quan
-const defaultBaseUrl = "http://10.0.232.162:8080/api";
+// const defaultBaseUrl = `${LOCAL_HOST}/api`;
 
-//local may lap dao
-// const defaultBaseUrl = "http://172.16.0.201:8080/api";
 
 //mới
 const request = async <Response>(

@@ -10,6 +10,7 @@ import { io, Socket } from "socket.io-client";
 import NetInfo from "@react-native-community/netinfo";
 import { useAppStore } from "@/components/app-provider";
 import { AccessTokenType } from "@/model/access-token";
+import { LOCAL_HOST, DEPLOY_HOST } from "@/config";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -37,7 +38,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
     if (!accessToken?.accessToken || socketRef.current) return;
 
     console.log("⚡️ Kết nối socket với token:", accessToken.accessToken);
-    const newSocket = io(`http://10.0.232.162:8080`, {
+    const newSocket = io(`${DEPLOY_HOST}`, {
       auth: { Authorization: `Bearer ${accessToken.accessToken}` },
       transports: ["websocket"],
       reconnection: true,

@@ -90,24 +90,21 @@ export default function CustomCourseScreen() {
       const bodyData = {
         chapterIds: selectedChapterIds,
       };
-      console.log("mảng id ", selectedChapterIds);
-      // const res = await createCustom.mutateAsync({ token, body: bodyData });
-      // Alert.alert("Thông báo", "Tạo khóa học tùy chỉnh thành công", [
-      //   {
-      //     text: "Trang chủ",
-      //     onPress: async () => {
-      //       router.push("/(tabs)/home");
-      //     },
-      //     style: "cancel",
-      //   },
-      //   {
-      //     text: "Đơn hàng",
-      //     onPress: async () => {
-      //       router.push("/(root)/orders/orders");
-      //     },
-      //     style: "destructive",
-      //   },
-      // ]);
+
+      const res = await createCustom.mutateAsync({ token, body: bodyData });
+      Alert.alert(
+        "Thông báo",
+        "Tạo khóa học tùy chỉnh thành công\nVui lòng đợi thông báo từ chúng tôi",
+        [
+          {
+            text: "Trang chủ",
+            onPress: async () => {
+              router.push("/(tabs)/home");
+            },
+            style: "cancel",
+          },
+        ]
+      );
     } catch (error) {
       Alert.alert("Lỗi", `Tạo khóa học tùy chỉnh không thành công ${error}`, [
         {
@@ -277,7 +274,7 @@ export default function CustomCourseScreen() {
                     <Text numberOfLines={4}>{chapter.description}</Text>
                     <View>
                       {chapter.lessons.map((lesson) => (
-                        <View className="flex-row items-center p-1 w-[96%]">
+                        <View key={lesson.id} className="flex-row items-center p-1 w-[96%]">
                           <MaterialIcons
                             name={
                               lesson.type === "VIDEO"

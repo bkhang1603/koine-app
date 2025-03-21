@@ -97,6 +97,11 @@ export default function EditSubAccountScreen() {
     return `${day}-${month}-${year}`;
   }
 
+  function display(dateStr: string): string{
+    const [month, day, year] = dateStr.split("-");
+    return `${day}-${month}-${year}`;
+  }
+
   
   const [show, setShow] = useState(false);
 
@@ -107,7 +112,7 @@ export default function EditSubAccountScreen() {
     const submitDate = convertDateFormatToSubmit(
       selectedDate.toLocaleDateString()
     );
-    setDob(submitDate);
+    setDob(display(submitDate));
   };
 
   useEffect(() => {
@@ -172,7 +177,7 @@ export default function EditSubAccountScreen() {
     }
   };
 
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  // const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleUpdate = async () => {
     try {
@@ -208,7 +213,7 @@ export default function EditSubAccountScreen() {
         lastName: lastName.trim(),
         gender: gender.trim(),
       };
-      console.log("Dữ liệu hợp lệ, tiến hành cập nhật...");
+      console.log("ngày ", finalDob);
       const res = await editChild.mutateAsync({
         childId: account.id,
         body: newInfo,
