@@ -26,7 +26,19 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen
-          name="search/search"
+          name="courses/lesson/[lessonId]"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="search/searchCourse"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="search/searchProduct"
           options={{
             headerShown: false,
           }}

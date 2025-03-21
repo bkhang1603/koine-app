@@ -22,6 +22,7 @@ import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 import WebView from "react-native-webview";
 import { MaterialIcons } from "@expo/vector-icons";
 import VideoPlayer from "@/components/video-player";
+import formatDuration from "@/util/formatDuration";
 
 export default function LessonScreen() {
   const { lessonId, courseId, chapterId } = useLocalSearchParams<{
@@ -81,22 +82,6 @@ export default function LessonScreen() {
 
   const lesson = myLesson;
   const windowWidth = Dimensions.get("window").width;
-
-  // Format duration
-  const formatDuration = (durationDisplay: string) => {
-    const hours = parseInt(durationDisplay.split("h")[0]) || 0;
-    const minutes =
-      parseInt(durationDisplay.split("h")[1].replace("p", "")) || 0;
-
-    let result = "";
-    if (hours > 0) {
-      result += `${hours} giờ `;
-    }
-    if (minutes > 0 || result === "") {
-      result += `${minutes} phút`;
-    }
-    return result;
-  };
 
   // HTML wrapper for WebView content
   const htmlContent = `

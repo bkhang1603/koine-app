@@ -19,7 +19,6 @@ const defaultBaseUrl = `${DEPLOY_HOST}/api`;
 // const defaultBaseUrl = `${LOCAL_HOST}/api`;
 
 
-//mới
 const request = async <Response>(
   method: HttpMethod,
   url: string,

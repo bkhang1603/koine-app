@@ -1,18 +1,18 @@
-import authApiRequest from '@/api/auth'
-import { CreateChildBodyType } from '@/schema/auth-schema'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import authApiRequest from "@/api/auth";
+import { CreateChildBodyType } from "@/schema/auth-schema";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const useLoginMutation = () => {
   return useMutation({
-    mutationFn: authApiRequest.login
-  })
-}
+    mutationFn: authApiRequest.login,
+  });
+};
 
 export const useRefreshAccessMutation = () => {
   return useMutation({
-    mutationFn: authApiRequest.getNewAccessToken
-  })
-}
+    mutationFn: authApiRequest.getNewAccessToken,
+  });
+};
 //ví dụ cho có dùng token
 /*
 //cách này thì đc recommend hơn
@@ -34,15 +34,15 @@ export const useRefreshAccessMutation = (token: string) => {
 
 export const useRegisterMutation = () => {
   return useMutation({
-    mutationFn: authApiRequest.register
-  })
-}
+    mutationFn: authApiRequest.register,
+  });
+};
 
 export const useCheckRefreshMutation = () => {
   return useMutation({
-    mutationFn: authApiRequest.checkRefreshToken
-  })
-}
+    mutationFn: authApiRequest.checkRefreshToken,
+  });
+};
 
 //tất cả method khác thì viết như trên còn get thì dùng useQuery + 1 cái query key
 //để những api chung 1 query key sẽ tự gọi nhau lúc 1 thg trigger
@@ -65,5 +65,11 @@ export const useCreateChildMutation = () => {
         exact: true, // Tùy chọn, nếu bạn muốn invalidate chỉ những query khớp chính xác
       });
     },
+  });
+};
+
+export const useConfirmOtpMutation = () => {
+  return useMutation({
+    mutationFn: authApiRequest.confirmOtp,
   });
 };

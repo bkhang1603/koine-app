@@ -235,7 +235,7 @@ export default function LoginScreen() {
               <Pressable
                 className={`${
                   isProcessing
-                    ? "bg-gray-400"
+                    ? "bg-blue-600/60"
                     : "bg-blue-600 active:bg-blue-700"
                 } py-4 rounded-xl mt-4`}
                 onPress={handleLogin}

@@ -74,7 +74,6 @@ export const courseDetailRes = z.object({
     aveRating: z.number(),
     isBanned: z.boolean(),
     isCustom: z.boolean(),
-    prerequisiteId: z.string().nullable(),
     level: z.string(),
     durationsDisplay: z.string(),
     categories: z.array(
