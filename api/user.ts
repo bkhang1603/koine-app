@@ -12,6 +12,7 @@ import {
   GetMyLessonDetailResType,
   GetUserProfileResType,
   GetUserResType,
+  LearningTimeBodyType,
   UpdateChildProfileByParent,
 } from "@/schema/user-schema";
 import http from "@/util/http";
@@ -151,6 +152,18 @@ const userApiRequest = {
 
   getProfileByChild: (token: string) =>
     http.get<ChildProfileChildPageResType>("users/profile-child", {
+      headers: {
+        Authorization: `Bearer ${token}`, // Thêm token vào headers
+      },
+    }),
+  stillLearning: (token: string) =>
+    http.get<any>("user-progresses/still-learning", {
+      headers: {
+        Authorization: `Bearer ${token}`, // Thêm token vào headers
+      },
+    }),
+  updateLearningTime: (body: LearningTimeBodyType, token: string) =>
+    http.put<any>("user-progresses/learning-time", body, {
       headers: {
         Authorization: `Bearer ${token}`, // Thêm token vào headers
       },

@@ -70,7 +70,7 @@ export default function TabsLayout() {
           options={{
             title: "Danh sách sự kiện",
             tabBarIcon: ({ focused }) => (
-              <TabIcon icon="school" focused={focused} />
+              <TabIcon icon="event-note" focused={focused} />
             ),
           }}
         />

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -13,12 +13,15 @@ import { useMyChapterDetail } from "@/queries/useUser";
 import formatDuration from "@/util/formatDuration";
 
 export default function ChapterScreen() {
-  const { chapterId, courseId } = useLocalSearchParams<{
+  const { chapterId, courseId, message } = useLocalSearchParams<{
     chapterId: string;
     courseId: string;
+    message: string;
   }>();
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
   const {
     data: chapterData,
@@ -30,6 +33,18 @@ export default function ChapterScreen() {
   });
 
   let myChapter: GetMyChapterDetailResType["data"] | null = null;
+
+  useEffect(() => {
+    if (message && message.length != 0) {
+      setModalMessage("Tài khoản đang học trên thiết bị khác");
+      setShowModal(true);
+      const timeout = setTimeout(() => {
+        setShowModal(false);
+      }, 3000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [message]);
 
   if (chapterData && !isError) {
     if (chapterData.data === null) {
@@ -57,6 +72,13 @@ export default function ChapterScreen() {
         showMoreOptions={false}
       />
       <ScrollView className="flex-1 p-4">
+        {showModal && (
+          <View className="absolute top-8 left-5 right-5 bg-white p-4 rounded-xl shadow-lg z-50">
+            <Text className="text-gray-800 text-center font-medium">
+              {modalMessage}
+            </Text>
+          </View>
+        )}
         {/* Chapter Header */}
         <View className="mb-6">
           <Text className="text-2xl font-bold">

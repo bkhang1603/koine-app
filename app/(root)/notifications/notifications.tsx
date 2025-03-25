@@ -18,7 +18,7 @@ const getNotificationIcon = (type: string) => {
 
 export default function NotificationsScreen() {
   const { socket } = useSocket();
-console.log(socket)
+  // console.log(socket)
   useEffect(() => {
     if (!socket) return;
 

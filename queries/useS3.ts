@@ -13,3 +13,15 @@ export const useUploadImage = () => {
     }) => s3.uploadImage(body, token),
   });
 };
+
+export const useUploadFile = () => {
+  return useMutation({
+    mutationFn: ({
+      body,
+      token,
+    }: {
+      body: UploadImageBodyType;
+      token: string;
+    }) => s3.uploadFile(body, token),
+  });
+};

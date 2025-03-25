@@ -5,9 +5,9 @@ export default function EditProfileScreen() {
   return (
     <View className="flex-1 bg-white">
       <HeaderWithBack
-        title="CreateEventScreen"
+        title="EditEventScreen"
         showMoreOptions={false}
-        returnTab="/(expert)/(tabs)/profile"
+        returnTab="/(expert)/menu/profile"
       />
       <Text> EditProfileScreen của expert</Text>
     </View>

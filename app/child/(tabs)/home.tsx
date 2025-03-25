@@ -5,7 +5,7 @@ import { router } from "expo-router";
 import { MOCK_CHILD } from "@/constants/mock-data";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAppStore } from "@/components/app-provider";
-import { useChildProfileAtChild} from "@/queries/useUser";
+import { useChildProfileAtChild } from "@/queries/useUser";
 
 export default function HomeScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
@@ -38,7 +38,11 @@ export default function HomeScreen() {
               />
               <View className="ml-3">
                 <Text className="text-white text-lg font-bold">
-                  Xin chào, {profileData?.data.lastName + " " + profileData?.data.firstName}! 👋
+                  Xin chào,{" "}
+                  {profileData?.data.lastName +
+                    " " +
+                    profileData?.data.firstName}
+                  ! 👋
                 </Text>
                 <View className="flex-row items-center mt-1">
                   <MaterialIcons name="stars" size={16} color="#FCD34D" />
@@ -56,6 +60,13 @@ export default function HomeScreen() {
               <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
                 <Text className="text-white text-xs font-bold">3</Text>
               </View>
+            </Pressable>
+
+            <Pressable
+              className="w-10 h-10 bg-violet-400/50 rounded-full items-center justify-center"
+              onPress={() => router.push("/child/event/event")}
+            >
+              <MaterialIcons name="event-available" size={24} color="white" />
             </Pressable>
           </View>
 
@@ -108,7 +119,8 @@ export default function HomeScreen() {
                   style={{ width: 280 }}
                   onPress={() =>
                     router.push({
-                      pathname: "/child/courses/[courseId]/lessons/[lessonId]",
+                      pathname:
+                        "/child/courses/[courseId]/lessons/[lessonId]" as any,
                       params: {
                         courseId: course.id,
                         lessonId: course.lastLesson.id,

@@ -94,14 +94,13 @@ export default function RootLayout() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="event/create-event"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
           name="event/event-list"
           options={{ headerShown: false }}
         />
-        <Stack.Screen name="event/meeting" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="event/[id]"
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name="custom-course/custom-course"
           options={{ headerShown: false }}

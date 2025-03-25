@@ -129,7 +129,7 @@ export default function EventScreen() {
               onPress={() => {
                 const encodedData = encodeURIComponent(JSON.stringify(event));
                 router.push({
-                  pathname: "/(root)/event/[id]",
+                  pathname: "/child/event/[id]" as any,
                   params: { id: event.id, data: encodedData }, 
                 });
               }}

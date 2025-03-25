@@ -66,7 +66,7 @@ export default function BlogScreen() {
           <View>
             <Text className="text-2xl font-bold">Blog</Text>
             <Text className="text-gray-600 mt-1">
-              Kiến thức hữu ích cho teen và phụ huynh
+              Nơi chia sẻ kiến thức
             </Text>
           </View>
           <View className="flex-row items-center">

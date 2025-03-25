@@ -1,7 +1,8 @@
+import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 import { useAppStore } from "@/components/app-provider";
 import { useUserProfile } from "@/queries/useUser";
 import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router} from "expo-router";
 import { useEffect } from "react";
 import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -15,11 +16,15 @@ export default function HomeScreen() {
     data: profileData,
     isError: isProfileError,
     refetch: refetchProfile,
+    isLoading,
   } = useUserProfile({ token: token ? token : "", enabled: true });
 
   useEffect(() => {
     refetchProfile();
+    console.log("token ", token);
   }, [token]);
+
+  if (isLoading) return <ActivityIndicatorScreen />;
 
   return (
     <View className="flex-1 bg-white">
@@ -28,9 +33,9 @@ export default function HomeScreen() {
         <View className="px-4 flex-row items-center justify-between">
           <View>
             <Text className="text-2xl font-bold">
-              Xin chào, {profile?.data.firstName}!
+              Xin chào, {profile?.data.firstName}
             </Text>
-            <Text className="text-gray-600 mt-1">Hôm nay bạn muốn học gì?</Text>
+            <Text className="text-gray-600 mt-1">Ngày mới tốt lành!</Text>
           </View>
           {/* Cart and Notifications */}
           <View className="flex-row items-center">
@@ -44,8 +49,9 @@ export default function HomeScreen() {
             </Pressable>
           </View>
         </View>
+
+        <Text className="text-center">Home của expert</Text>
       </SafeAreaView>
-      <Text> Home của expert</Text>
     </View>
   );
 }

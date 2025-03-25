@@ -6,6 +6,10 @@ const s3 = {
     http.post<UploadImageResType>("buckets/image", body, {
       headers: { Authorization: `Bearer ${token}` },
     }),
+  uploadFile: (body: UploadImageBodyType, token: string) =>
+    http.post<any>("buckets/file", body, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
 };
 
 export default s3;

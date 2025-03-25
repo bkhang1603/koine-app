@@ -41,7 +41,7 @@ const MENU_ITEMS = [
     id: "event",
     title: "Sự kiện",
     icon: "event-available",
-    route: "/event/event",
+    route: "/(root)/event/event-list",
   },
   {
     id: "notifications",
