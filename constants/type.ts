@@ -1,21 +1,21 @@
 export const Role = {
   Adult: 'ADULT',
-  Lecturer: 'LECTURER',
+  Expert: 'EXPERT',
   Admin: 'ADMIN',
   Child: 'CHILD',
   Supporter: 'SUPPORTER',
-  Accounting: 'ACCOUNTING',
+  Salesman: 'SALESMAN',
   Content: 'CONTENT_CREATOR',
   Manager: 'MANAGER'
 } as const
 
 export const RoleValues = [
   Role.Adult,
-  Role.Lecturer,
+  Role.Expert,
   Role.Admin,
   Role.Child,
   Role.Supporter,
-  Role.Accounting,
+  Role.Salesman,
   Role.Content,
   Role.Manager
 ] as const

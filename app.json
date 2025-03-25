@@ -9,13 +9,19 @@
         "userInterfaceStyle": "automatic",
         "newArchEnabled": true,
         "ios": {
-            "supportsTablet": true
+            "supportsTablet": true,
+            "infoPlist": {
+                "NSCameraUsageDescription": "Ứng dụng cần quyền truy cập camera để tham gia cuộc họp.",
+                "NSMicrophoneUsageDescription": "Ứng dụng cần quyền truy cập micro để ghi âm và tham gia cuộc họp.",
+                "NSAllowsArbitraryLoads": true
+            }
         },
         "android": {
             "adaptiveIcon": {
                 "foregroundImage": "./assets/images/adaptive-icon.png",
                 "backgroundColor": "#ffffff"
-            }
+            },
+            "permissions": ["CAMERA", "RECORD_AUDIO", "INTERNET"]
         },
         "web": {
             "bundler": "metro",

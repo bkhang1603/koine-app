@@ -194,7 +194,7 @@ export default function CheckoutScreen() {
       if (res) {
         console.log("thanhf coong");
         //đây trả về 1 url để qua payment nó mở webview
-        const encodedUrl = encodeURIComponent(res.data);
+        const encodedUrl = encodeURIComponent(res.data.paymentLink);
         router.push(`/(root)/cart/payment-screen?paymentUrl=${encodedUrl}`);
       }
       setTimeout(() => setIsProcessing(false), 1000);

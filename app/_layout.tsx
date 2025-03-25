@@ -18,6 +18,7 @@ export default function RootLayout() {
                 <Stack.Screen name="(root)" />
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="child" options={{ headerShown: false }} />
+                <Stack.Screen name="(expert)" />
               </Stack>
             </SocketProvider>
           </AuthProvider>

@@ -9,6 +9,7 @@ import {
   GetMyChildsResType,
   GetMyCoursesResType,
   GetUserProfileResType,
+  LearningTimeBodyType,
   UpdateChildProfileByParent,
 } from "@/schema/user-schema";
 import { useAppStore } from "@/components/app-provider";
@@ -279,4 +280,28 @@ export const useChildProfileAtChild = ({
   }, [query.data, setChildProfile]);
 
   return query;
+};
+
+export const useStillLearning = ({ token }: { token: string }) => {
+  const query = useQuery<any>({
+    queryKey: ["still-learning"],
+    queryFn: () =>
+      userApiRequest.stillLearning(
+        token // Truyền token vào khi gọi API
+      ),
+  });
+
+  return query;
+};
+
+export const useUpdateLearningTimeMutation = () => {
+  return useMutation({
+    mutationFn: ({
+      body,
+      token,
+    }: {
+      body: LearningTimeBodyType;
+      token: string;
+    }) => userApiRequest.updateLearningTime(body, token),
+  });
 };

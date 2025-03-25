@@ -32,6 +32,8 @@ export default function Index() {
         router.push("/(tabs)/home");
       } else if (user.role == RoleValues[3]) {
         router.push("/child/(tabs)/home");
+      } else if (user.role == RoleValues[1]) {
+        router.push("/(expert)/menu/home");
       }
     }
     setTimeout(() => setIsProcessing(false), 1000);

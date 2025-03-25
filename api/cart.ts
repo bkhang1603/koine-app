@@ -33,7 +33,7 @@ const cartApiRequest = {
       },
     }),
   deleteCartItem: (body: DeleteCartItemBodyType, token: string) =>
-    http.delete<MessageResType>("carts/delete-all", body, {
+    http.put<MessageResType>("carts/delete-multiple", body, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

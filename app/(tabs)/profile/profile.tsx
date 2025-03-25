@@ -38,6 +38,12 @@ const MENU_ITEMS = [
     route: "/certificates/certificates",
   },
   {
+    id: "event",
+    title: "Sự kiện",
+    icon: "event-available",
+    route: "/(root)/event/event-list",
+  },
+  {
     id: "notifications",
     title: "Thông báo",
     icon: "notifications",

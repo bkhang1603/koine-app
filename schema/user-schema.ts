@@ -331,3 +331,10 @@ export const childProfileChildPage = z.object({
 export type ChildProfileChildPageResType = z.TypeOf<
   typeof childProfileChildPage
 >;
+
+export const updateLearningTime = z.object({
+  lessonId: z.string(),
+  learningTime: z.number(),
+});
+
+export type LearningTimeBodyType = z.TypeOf<typeof updateLearningTime>;

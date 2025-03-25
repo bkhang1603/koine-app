@@ -10,7 +10,10 @@ export const createOrderBody = z.object({
 export type CreateOrderBodyType = z.TypeOf<typeof createOrderBody>;
 
 export const createOrderRes = z.object({
-  data: z.string(),
+  data: z.object({
+    orderId: z.string(),
+    paymentLink: z.string(),
+  }),
 });
 
 export type CreateOrderResType = z.TypeOf<typeof createOrderRes>;

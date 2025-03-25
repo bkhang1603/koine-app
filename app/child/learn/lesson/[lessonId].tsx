@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,12 +7,14 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { useLocalSearchParams, router } from "expo-router";
+import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
 import HeaderWithBack from "@/components/HeaderWithBack";
 import { useAppStore } from "@/components/app-provider";
 import {
   useMyLessonDetail,
   useCreateProgressMutation,
+  useStillLearning,
+  useUpdateLearningTimeMutation,
 } from "@/queries/useUser";
 import {
   GetMyLessonDetailResType,
@@ -41,6 +43,65 @@ export default function LessonScreen() {
     lessonId: lessonId as string,
     token: token as string,
   });
+
+  const {
+    data: stillLearning,
+    isError: learningError,
+    refetch: refetchStill,
+  } = useStillLearning({ token });
+
+  const updateLearningTime = useUpdateLearningTimeMutation();
+  const [focusTime, setFocusTime] = useState(0);
+
+  // Gọi refetchStill mỗi 2 phút
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const result = await refetchStill();
+        if (result.isError) {
+          router.push({
+            pathname: "/child/learn/chapter/[chapterId]",
+            params: {
+              chapterId: chapterId,
+              courseId: courseId,
+              message: "error",
+            },
+          });
+        }
+      } catch (error) {
+        console.error("Lỗi khi refetchStill:", error);
+        router.push({
+          pathname: "/child/learn/chapter/[chapterId]",
+          params: {
+            chapterId: chapterId,
+            courseId: courseId,
+            message: "error",
+          },
+        });
+      }
+    }, 2 * 60 * 1000); // 2 phút
+
+    return () => clearInterval(interval); // Cleanup khi component unmount
+  }, [refetchStill]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const interval = setInterval(() => {
+        setFocusTime((prev) => prev + 30);
+      }, 30 * 1000);
+
+      return () => clearInterval(interval);
+    }, [])
+  );
+
+  useEffect(() => {
+    if (focusTime >= 30) {
+      updateLearningTime
+        .mutateAsync({ body: { lessonId, learningTime: focusTime }, token })
+        .then(() => setFocusTime(0)) // Reset focusTime khi gửi thành công
+        .catch((err) => console.error("Update learning time failed:", err));
+    }
+  }, [focusTime, lessonId, token, updateLearningTime]);
 
   const createProgressMutation = useCreateProgressMutation(token as string);
 
