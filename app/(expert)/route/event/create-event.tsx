@@ -230,6 +230,7 @@ export default function CreateEventScreen() {
           </View>
         </View>
       </View>
+      <View className="h-5"></View>
       <Text className="text-[24px] font-bold mb-[10px] text-center mt-2">
         Tạo sự kiện mới
       </Text>

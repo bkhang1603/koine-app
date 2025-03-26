@@ -12,19 +12,17 @@ import {
 import eventRequestApi from "@/api/event";
 
 export const useEvent = () => {
-  const query = useQuery<GetAllEventResType>({
+  return useQuery<GetAllEventResType>({
     queryKey: ["events"],
     queryFn: () => eventRequestApi.getAllEvent(),
   });
-  return query;
 };
 
 export const useEventForHost = (token: string) => {
-  const query = useQuery<GetAllEventResType>({
+  return useQuery<GetAllEventResType>({
     queryKey: ["events-host"],
     queryFn: () => eventRequestApi.getAllEventForHost(token),
   });
-  return query;
 };
 
 export const useCreateEventMutation = () => {

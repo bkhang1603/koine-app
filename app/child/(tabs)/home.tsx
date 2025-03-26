@@ -63,7 +63,7 @@ export default function HomeScreen() {
             </Pressable>
 
             <Pressable
-              className="w-10 h-10 bg-violet-400/50 rounded-full items-center justify-center"
+              className="w-10 h-10 ml-2 bg-violet-400/50 rounded-full items-center justify-center"
               onPress={() => router.push("/child/event/event")}
             >
               <MaterialIcons name="event-available" size={24} color="white" />

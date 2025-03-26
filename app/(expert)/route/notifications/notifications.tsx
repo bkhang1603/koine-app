@@ -33,7 +33,7 @@ export default function NotificationsScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      <HeaderWithBack title="Thông báo" returnTab={"/(expert)/menu/home"} />
+      <HeaderWithBack title="Thông báo" returnTab={"/(expert)/menu/home"} showMoreOptions={false}/>
 
       <ScrollView>
         <View className="p-4">

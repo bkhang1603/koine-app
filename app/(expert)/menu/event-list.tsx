@@ -1,7 +1,7 @@
 import { useAppStore } from "@/components/app-provider";
 import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useMemo, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -23,6 +23,7 @@ import {
 } from "@/queries/useEvent";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 import { Portal, TextInput } from "react-native-paper";
+import ChildLayout from "@/app/child/_layout";
 
 export default function EventListScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
@@ -30,46 +31,14 @@ export default function EventListScreen() {
 
   const {
     data: events,
-    isLoading,
-    isError,
-    error,
-    refetch,
+    isLoading: eventLoading,
+    isError: eventError,
+    error: eventErrorMessage,
+    refetch: refetchEvent,
   } = useEventForHost(token);
 
-  if (isLoading) return <ActivityIndicatorScreen />;
-
-  if (!events || events.data.length == 0 || isError) {
-    console.log("Lỗi khi lấy eventlist ở expert ", error);
-    return (
-      <SafeAreaView className="flex-1">
-        <View className="flex-1 bg-gray-200">
-          <View>
-            <Text className="font-bold text-xl ml-2">Danh sách sự kiện</Text>
-            <Text className="ml-2">
-              Đón chờ những sự kiện thú vị từ chúng tôi
-            </Text>
-          </View>
-          <View className="flex-row justify-end items-center  mt-1">
-            <Pressable
-              className={`p-2 border-black border-[1px] rounded-md
-                bg-gray-300 mr-2`}
-              onPress={() => {
-                router.push("/(expert)/route/event/create-event");
-              }}
-            >
-              <Text className={`text-black font-semibold text-lg text-center`}>
-                Tạo sự kiện
-              </Text>
-            </Pressable>
-          </View>
-          <View className="flex-1 justify-center items-center">
-            <Text className="text-center">Hiện không có sự kiện</Text>
-            <MaterialIcons name="event-busy" size={64} color="#9CA3AF" />
-          </View>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  if (eventLoading) console.log("loading");
+  if (eventError) console.log("error ", eventErrorMessage);
 
   const updateRoomInfo = useUpdateEventWhenCreateRoomMutation();
   const updateEventInfo = useUpdateEventMutation();
@@ -80,8 +49,61 @@ export default function EventListScreen() {
     eventId: string;
     view: boolean;
   }>({ eventId: "", view: false });
+
   const [noteItem, setNoteItem] = useState("");
   const [noteError, setNoteError] = useState("");
+
+  // const mock = [
+  //   {
+  //     id: "1",
+  //     title: "ông cố nội mày",
+  //     description: "ông bà già nhà mày",
+  //     startedAt: "2025-03-26T22:00:00Z",
+  //     startAtFormatted: "22:00:00 26-03-2025",
+  //     durations: 3600 * 5,
+  //     durationsDisplay: "1.0h",
+  //     imageUrl: "https://i.pravatar.cc/300?img=3",
+  //     roomHostUrl:
+  //       "https://koine.whereby.com/0269aa23-31ff-4e20-b9aa-2bea9cfd2ae2?roomKey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtZWV0aW5nSWQiOiI5ODgxOTU5OSIsInJvb21SZWZlcmVuY2UiOnsicm9vbU5hbWUiOiIvMDI2OWFhMjMtMzFmZi00ZTIwLWI5YWEtMmJlYTljZmQyYWUyIiwib3JnYW5pemF0aW9uSWQiOiIzMTI3NTcifSwiaXNzIjoiaHR0cHM6Ly9hY2NvdW50cy5zcnYud2hlcmVieS5jb20iLCJpYXQiOjE3NDMwMDI0MDgsInJvb21LZXlUeXBlIjoibWVldGluZ0hvc3QifQ.3A2yyjWGxLZC1Ku6b1NSFtGkM_j8Z6rspxHYGjOSpeY",
+  //     roomName: "/0269aa23-31ff-4e20-b9aa-2bea9cfd2ae2",
+  //     roomUrl: "https://koine.whereby.com/0269aa23-31ff-4e20-b9aa-2bea9cfd2ae2",
+  //     recordUrl: "",
+  //     status: "OPENING",
+  //     totalParticipants: 0,
+  //     createdAt: "2025-03-26T10:00:00Z",
+  //     updateAt: "2025-03-26T10:00:00Z",
+  //     hostInfo: {
+  //       id: "1",
+  //       fullName: "Nguyễn San",
+  //       email: "nguyensan@gmail.com",
+  //       avatarUrl: "https://i.pravatar.cc/300?img=3",
+  //     },
+  //   },
+  //   {
+  //     id: "2",
+  //     title: "ông cố nội mày",
+  //     description: "ông bà già nhà mày",
+  //     startedAt: "2025-03-26T22:00:00Z",
+  //     startAtFormatted: "22:00:00 26-03-2025",
+  //     durations: 3600,
+  //     durationsDisplay: "1.0h",
+  //     imageUrl: "https://i.pravatar.cc/300?img=3",
+  //     roomHostUrl: "",
+  //     roomName: "",
+  //     roomUrl: "",
+  //     recordUrl: "",
+  //     status: "PENDING",
+  //     totalParticipants: 0,
+  //     createdAt: "2025-03-26T22:00:00Z",
+  //     updateAt: "2025-03-26T22:00:00Z",
+  //     hostInfo: {
+  //       id: "1",
+  //       fullName: "Nguyễn San",
+  //       email: "nguyensan@gmail.com",
+  //       avatarUrl: "https://i.pravatar.cc/300?img=3",
+  //     },
+  //   },
+  // ];
 
   const statusStyles = useMemo(
     () => ({
@@ -186,7 +208,6 @@ export default function EventListScreen() {
     duration: number,
     eventId: string
   ) => {
-    console.log("4");
     try {
       console.log("tạo phòng mới");
       const now = new Date(eventStartAt);
@@ -210,15 +231,17 @@ export default function EventListScreen() {
       });
       const text = await response.json();
       console.log("text ", text);
+
       const body = {
         roomHostUrl: text.hostRoomUrl.toString(),
         roomName: text.roomName.toString(),
         roomUrl: text.roomUrl.toString(),
       };
       console.log("room data when create room ", body);
-      const res = updateRoomInfo.mutateAsync({ body, token, eventId });
+      await updateRoomInfo.mutateAsync({ body, token, eventId });
       const roomUrl = text.hostRoomUrl;
       await WebBrowser.openBrowserAsync(roomUrl);
+      refetchEvent();
     } catch (error) {
       console.error("Lỗi tạo phòng:", error);
       Alert.alert("Lỗi", `Lỗi khi lưu thông tin phòng họp ${error}`);
@@ -232,21 +255,19 @@ export default function EventListScreen() {
     eventId: string
   ) => {
     try {
-      console.log("5");
       if (isProcessing) return;
       setIsProcessing(true);
       if (!roomHostUrl || roomHostUrl.length == 0) {
         await createRoom(eventStartAt, duration, eventId);
       } else {
         await WebBrowser.openBrowserAsync(roomHostUrl);
-        refetch();
+        refetchEvent();
+        console.log("refetch rồi");
       }
     } catch (error) {
       console.log("Lỗi khi mở meet ", error);
     } finally {
-      setTimeout(() => {
-        setIsProcessing(false);
-      }, 500);
+      setIsProcessing(false);
     }
   };
 
@@ -289,6 +310,7 @@ export default function EventListScreen() {
   return (
     <SafeAreaView className="flex-1">
       <View className="flex-1 bg-white">
+        <View className="h-5"></View>
         <View>
           <Text className="font-bold text-xl ml-2">Danh sách sự kiện</Text>
           <Text className="ml-2">
@@ -297,7 +319,8 @@ export default function EventListScreen() {
         </View>
         <View className="flex-row justify-between items-center  mt-1">
           <Text className="italic ml-2 text-cyan-600">
-            Tổng cộng: {events.data.length}
+            Tổng cộng: {events ? events.data.length : 0}
+            {/* Tổng cộng: {mock.length} */}
           </Text>
           <Pressable
             className={`p-2 border-black border-[1px] rounded-md
@@ -316,245 +339,261 @@ export default function EventListScreen() {
           showsHorizontalScrollIndicator={false}
           className="p-1 bg-white"
         >
-          {events.data.map((event) => (
-            <Pressable
-              key={event.id}
-              className="p-1 my-1 bg-gray-200 border-[1.5px] border-blue-500 rounded-lg"
-              onPress={() => {
-                const encodedData = encodeURIComponent(JSON.stringify(event));
-                router.push({
-                  pathname: "/(expert)/route/event/[id]",
-                  params: { id: event.id, data: encodedData },
-                });
-              }}
-              disabled={isProcessing}
-            >
-              <Image
-                source={{ uri: event.imageUrl }}
-                className="w-full h-56 rounded-md"
-              />
-              <View className="pl-1 pt-1">
-                <View className="flex-row justify-between items-center pr-1">
-                  <Text className="font-semibold text-lg">{event.title}</Text>
-                  <Pressable
-                    onPress={() => {
-                      setShowModal({ eventId: event.id, view: true });
-                    }}
-                  >
-                    <Feather name="delete" size={24} color="black" />
-                  </Pressable>
-                </View>
-
-                <Text className="">{event.description}</Text>
-
-                <View className="flex-row  py-1">
-                  <Feather name="mic" size={24} color="black" />
-                  <Text className="font-semibold ml-1">
-                    {event.hostInfo.fullName}
-                  </Text>
-                </View>
-
-                <View className="flex-row  py-1 items-center">
-                  <AntDesign name="calendar" size={24} color="black" />
-                  <Text className="ml-1 font-semibold">
-                    {event.startAtFormatted}
-                  </Text>
-                </View>
-
-                <View className="flex-row pl-[1.5px] py-1 items-center">
-                  <AntDesign name="clockcircleo" size={21} color="black" />
-                  <Text className="font-semibold pl-[5px]">
-                    {event.durationsDisplay}
-                  </Text>
-                </View>
-
-                <View className="flex-row items-center">
-                  <Text className="font-semibold">Trạng thái:</Text>
-                  <View
-                    className={`ml-1 p-1 ${
-                      event.status.toUpperCase() == "OPENING" &&
-                      isClosed(event.startedAt, event.durations)
-                        ? "bg-gray-300"
-                        : statusStyles[
-                            event.status.toUpperCase() as keyof typeof statusStyles
-                          ]?.textBackgroundColor
-                    } rounded-lg self-start`}
-                  >
-                    <Text
-                      className={`${
-                        statusStyles[
-                          event.status.toUpperCase() as keyof typeof statusStyles
-                        ]?.textColor
-                      } font-semibold`}
-                    >
-                      {event.status.toUpperCase() == "OPENING" &&
-                      isClosed(event.startedAt, event.durations)
-                        ? "Đã kết thúc"
-                        : statusStyles[
-                            event.status.toUpperCase() as keyof typeof statusStyles
-                          ]?.text}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-
-              <View className="flex-row justify-center items-center my-1">
-                {isOpenable(event.startedAt, event.durations) &&
-                (event.status == "OPENING" || event.status == "PENDING") ? (
-                  <View>
-                    <Pressable
-                      className={`mt-1 border-black border-[1px] mx-3 rounded-lg px-2 ${
-                        isOpenable(event.startedAt, event.durations) &&
-                        (event.status == "OPENING" || event.status == "PENDING")
-                          ? "bg-green-500"
-                          : "bg-gray-300"
-                      }`}
-                      disabled={
-                        isOpenable(event.startedAt, event.durations) &&
-                        (event.status == "OPENING" || event.status == "PENDING")
-                          ? false
-                          : true
-                      }
-                      onPress={() => {
-                        openMeet(
-                          event.roomHostUrl,
-                          event.startedAt,
-                          event.durations,
-                          event.id
-                        );
-                      }}
-                    >
-                      <Text
-                        className={`text-black font-semibold text-lg text-center`}
-                      >
-                        Tham dự
-                      </Text>
-                    </Pressable>
-                  </View>
-                ) : (
-                  <></>
-                )}
-                {isReportable(
-                  event.startedAt,
-                  event.totalParticipants,
-                  event.durations,
-                  event.status
-                ) ? (
-                  <View>
-                    <Pressable
-                      className={`mt-1 border-black mx-3 border-[1px] rounded-lg px-2 ${
-                        isReportable(
-                          event.startedAt,
-                          event.totalParticipants,
-                          event.durations,
-                          event.status
-                        )
-                          ? "bg-green-500"
-                          : "bg-gray-300"
-                      }`}
-                      disabled={
-                        isReportable(
-                          event.startedAt,
-                          event.totalParticipants,
-                          event.durations,
-                          event.status
-                        )
-                          ? false
-                          : true
-                      }
-                      onPress={() => {
-                        //call api báo cáo
-                        updateInfoToDB(event.roomName, event.id);
-                      }}
-                    >
-                      <Text
-                        className={`text-black font-semibold text-lg text-center`}
-                      >
-                        Báo cáo
-                      </Text>
-                    </Pressable>
-                  </View>
-                ) : (
-                  <></>
-                )}
-              </View>
-              <Portal>
-                <Modal
-                  transparent={true}
-                  visible={showModal.view}
-                  onDismiss={() =>
-                    setShowModal({ eventId: showModal.eventId, view: false })
-                  }
+          {events && events.data.length ? (
+            <View>
+              {events.data.map((event) => (
+                <Pressable
+                  key={event.id}
+                  className="p-1 my-1 bg-gray-200 border-[1.5px] border-blue-500 rounded-lg"
+                  onPress={() => {
+                    const encodedData = encodeURIComponent(
+                      JSON.stringify(event)
+                    );
+                    router.push({
+                      pathname: "/(expert)/route/event/[id]",
+                      params: { id: event.id, data: encodedData },
+                    });
+                  }}
+                  disabled={isProcessing}
                 >
-                  <View className=" absolute top-[40%] w-[94%] flex bg-white border-2 border-gray-300 rounded-lg justify-center items-center self-center">
-                    <Text className="text-center font-bold p-2">
-                      Bạn có chắc chắn hủy sự kiện này không?
-                    </Text>
-
-                    <TextInput
-                      className="w-[90%] border-[1px] border-gray-200 rounded-md mb-1 bg-black"
-                      placeholder="Nhập lí do"
-                      value={noteItem}
-                      onChangeText={(text) => {
-                        setNoteItem(text);
-                        setNoteError(""); // Xóa lỗi khi nhập lại
-                      }}
-                    />
-
-                    {noteError ? (
-                      <Text className="text-red-500 ml-5 mb-3 self-start">
-                        {noteError}
+                  <Image
+                    source={{ uri: event.imageUrl }}
+                    className="w-full h-56 rounded-md"
+                  />
+                  <View className="pl-1 pt-1">
+                    <View className="flex-row justify-between items-center pr-1">
+                      <Text className="font-semibold text-lg">
+                        {event.title}
                       </Text>
-                    ) : null}
-
-                    <View className="flex-row justify-center items-center w-full">
-                      <TouchableOpacity
-                        className="p-3 mr-[5px] rounded-md mx-3"
+                      <Pressable
                         onPress={() => {
-                          setNoteItem("");
-                          setNoteError("");
-                          setShowModal({
-                            eventId: showModal.eventId,
-                            view: false,
-                          });
+                          setShowModal({ eventId: event.id, view: true });
                         }}
                       >
-                        <Text className="text-black font-bold">Hủy</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        className="p-3 ml-[5px] rounded-md mx-3"
-                        onPress={async () => {
-                          if (!noteItem.trim()) {
-                            setNoteError("Không được bỏ trống");
-                            return;
-                          }
-                          try {
-                            if (isProcessing) return;
-                            setIsProcessing(true);
-                            await handleCancel(showModal.eventId, noteItem);
-                            setShowModal({
-                              eventId: showModal.eventId,
-                              view: false,
-                            });
-                          } catch (error) {
-                            Alert.alert("Lỗi", `Lỗi khi hủy sự kiện: ${error}`);
-                          } finally {
-                            setIsProcessing(false);
-                          }
-                        }}
+                        <Feather name="delete" size={24} color="black" />
+                      </Pressable>
+                    </View>
+
+                    <Text className="">{event.description}</Text>
+
+                    <View className="flex-row  py-1">
+                      <Feather name="mic" size={24} color="black" />
+                      <Text className="font-semibold ml-1">
+                        {event.hostInfo.fullName}
+                      </Text>
+                    </View>
+
+                    <View className="flex-row  py-1 items-center">
+                      <AntDesign name="calendar" size={24} color="black" />
+                      <Text className="ml-1 font-semibold">
+                        {event.startAtFormatted}
+                      </Text>
+                    </View>
+
+                    <View className="flex-row pl-[1.5px] py-1 items-center">
+                      <AntDesign name="clockcircleo" size={21} color="black" />
+                      <Text className="font-semibold pl-[5px]">
+                        {event.durationsDisplay}
+                      </Text>
+                    </View>
+
+                    <View className="flex-row items-center">
+                      <Text className="font-semibold">Trạng thái:</Text>
+                      <View
+                        className={`ml-1 p-1 ${
+                          event.status.toUpperCase() == "OPENING" &&
+                          isClosed(event.startedAt, event.durations)
+                            ? "bg-gray-300"
+                            : statusStyles[
+                                event.status.toUpperCase() as keyof typeof statusStyles
+                              ]?.textBackgroundColor
+                        } rounded-lg self-start`}
                       >
-                        <Text className="text-blue-500 font-bold">
-                          Xác nhận
+                        <Text
+                          className={`${
+                            statusStyles[
+                              event.status.toUpperCase() as keyof typeof statusStyles
+                            ]?.textColor
+                          } font-semibold`}
+                        >
+                          {event.status.toUpperCase() == "OPENING" &&
+                          isClosed(event.startedAt, event.durations)
+                            ? "Đã kết thúc"
+                            : statusStyles[
+                                event.status.toUpperCase() as keyof typeof statusStyles
+                              ]?.text}
                         </Text>
-                      </TouchableOpacity>
+                      </View>
                     </View>
                   </View>
-                </Modal>
-              </Portal>
-            </Pressable>
-          ))}
-          <View className="h-20" />
+
+                  <View className="flex-row justify-center items-center my-1">
+                    {isOpenable(event.startedAt, event.durations) &&
+                    (event.status == "OPENING" || event.status == "PENDING") ? (
+                      <View>
+                        <Pressable
+                          className={`mt-1 border-black border-[1px] mx-3 rounded-lg px-2 ${
+                            isOpenable(event.startedAt, event.durations) &&
+                            (event.status == "OPENING" ||
+                              event.status == "PENDING")
+                              ? "bg-green-500"
+                              : "bg-gray-300"
+                          }`}
+                          disabled={
+                            isOpenable(event.startedAt, event.durations) &&
+                            (event.status == "OPENING" ||
+                              event.status == "PENDING")
+                              ? false
+                              : true
+                          }
+                          onPress={() => {
+                            openMeet(
+                              event.roomHostUrl,
+                              event.startedAt,
+                              event.durations,
+                              event.id
+                            );
+                          }}
+                        >
+                          <Text
+                            className={`text-black font-semibold text-lg text-center`}
+                          >
+                            Tham dự
+                          </Text>
+                        </Pressable>
+                      </View>
+                    ) : (
+                      <></>
+                    )}
+                    {isReportable(
+                      event.startedAt,
+                      event.totalParticipants,
+                      event.durations,
+                      event.status
+                    ) ? (
+                      <View>
+                        <Pressable
+                          className={`mt-1 border-black mx-3 border-[1px] rounded-lg px-2 ${
+                            isReportable(
+                              event.startedAt,
+                              event.totalParticipants,
+                              event.durations,
+                              event.status
+                            )
+                              ? "bg-green-500"
+                              : "bg-gray-300"
+                          }`}
+                          disabled={
+                            isReportable(
+                              event.startedAt,
+                              event.totalParticipants,
+                              event.durations,
+                              event.status
+                            )
+                              ? false
+                              : true
+                          }
+                          onPress={() => {
+                            //call api báo cáo
+                            updateInfoToDB(event.roomName, event.id);
+                          }}
+                        >
+                          <Text
+                            className={`text-black font-semibold text-lg text-center`}
+                          >
+                            Báo cáo
+                          </Text>
+                        </Pressable>
+                      </View>
+                    ) : (
+                      <></>
+                    )}
+                  </View>
+                  <Portal>
+                    <Modal
+                      transparent={true}
+                      visible={showModal.view}
+                      onDismiss={() =>
+                        setShowModal({ eventId: event.id, view: false })
+                      }
+                    >
+                      <View className=" absolute top-[40%] w-[94%] flex bg-white border-2 border-gray-300 rounded-lg justify-center items-center self-center">
+                        <Text className="text-center font-bold p-2">
+                          Bạn có chắc chắn hủy sự kiện này không?
+                        </Text>
+
+                        <TextInput
+                          className="w-[90%] border-[1px] border-gray-200 rounded-md mb-1 bg-black"
+                          placeholder="Nhập lí do"
+                          value={noteItem}
+                          onChangeText={(text) => {
+                            setNoteItem(text);
+                            setNoteError(""); // Xóa lỗi khi nhập lại
+                          }}
+                        />
+
+                        {noteError ? (
+                          <Text className="text-red-500 ml-5 mb-3 self-start">
+                            {noteError}
+                          </Text>
+                        ) : null}
+
+                        <View className="flex-row justify-center items-center w-full">
+                          <TouchableOpacity
+                            className="p-3 mr-[5px] rounded-md mx-3"
+                            onPress={() => {
+                              setNoteItem("");
+                              setNoteError("");
+                              setShowModal({ eventId: event.id, view: false });
+                            }}
+                          >
+                            <Text className="text-black font-bold">Hủy</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            className="p-3 ml-[5px] rounded-md mx-3"
+                            onPress={async () => {
+                              if (!noteItem.trim()) {
+                                setNoteError("Không được bỏ trống");
+                                return;
+                              }
+                              try {
+                                if (isProcessing) return;
+                                setIsProcessing(true);
+                                await handleCancel(showModal.eventId, noteItem);
+                                setShowModal({
+                                  eventId: event.id,
+                                  view: false,
+                                });
+                              } catch (error) {
+                                Alert.alert(
+                                  "Lỗi",
+                                  `Lỗi khi hủy sự kiện: ${error}`
+                                );
+                              } finally {
+                                setIsProcessing(false);
+                              }
+                            }}
+                          >
+                            <Text className="text-blue-500 font-bold">
+                              Xác nhận
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    </Modal>
+                  </Portal>
+                </Pressable>
+              ))}
+            </View>
+          ) : (
+            <View className="flex-1 justify-center items-center">
+              <Text className="text-center">Hiện không có sự kiện</Text>
+              <MaterialIcons name="event-busy" size={64} color="#9CA3AF" />
+            </View>
+          )}
         </ScrollView>
+
+        <View className="h-20" />
       </View>
     </SafeAreaView>
   );
