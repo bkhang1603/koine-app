@@ -44,6 +44,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (loginData) {
           const parsedData = JSON.parse(loginData);
           const refreshTk = parsedData.refreshToken;
+          if (parsedData.account) {
+            setUser(parsedData.account);
+            state.setUser(parsedData.account);
+          }
+          console.log("user at auth provider ", parsedData.account);
           if (refreshTk) {
             const res = await refreshAccess.mutateAsync({
               refreshToken: refreshTk,
@@ -101,7 +106,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const state = useAppStore.getState();
-  
+
   const getNewAccessToken = async () => {
     try {
       const state = useAppStore.getState(); // Lấy state mới nhất

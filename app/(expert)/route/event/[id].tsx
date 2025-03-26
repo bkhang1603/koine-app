@@ -1,5 +1,10 @@
 import HeaderWithBack from "@/components/HeaderWithBack";
-import { AntDesign, Feather, FontAwesome, MaterialIcons } from "@expo/vector-icons";
+import {
+  AntDesign,
+  Feather,
+  FontAwesome,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   View,
@@ -10,7 +15,10 @@ import {
   Alert,
   Pressable,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import { useAppStore } from "@/components/app-provider";
 import { useState } from "react";
@@ -22,7 +30,6 @@ export default function EventDetail() {
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
   const [processing, setProcessing] = useState(false);
-  const [uploaded, setUploaded] = useState(false);
 
   const uploadFileToS3 = useUploadFile();
   const updateEventInfo = useUpdateEventMutation();
@@ -32,6 +39,8 @@ export default function EventDetail() {
   const eventData = data
     ? JSON.parse(decodeURIComponent(Array.isArray(data) ? data[0] : data))
     : null;
+
+  const [uploaded, setUploaded] = useState(eventData.recordUrl ? true : false);
 
   const statusStyles = {
     OPENING: {
@@ -78,8 +87,8 @@ export default function EventDetail() {
 
       if (!permission.granted) {
         Alert.alert(
-          "Permission needed",
-          "You need to grant permission to pick videos"
+          "Yêu cầu cấp quyền",
+          "Bạn cần cấp quyền truy cập máy ảnh để tiếp tục"
         );
         return;
       }
@@ -220,17 +229,21 @@ export default function EventDetail() {
                     <FontAwesome name="file-video-o" size={24} color="black" />
                     <View
                       className={`${
-                        uploaded || eventData.recordUrl.length != 0 ? "bg-gray-300" : "bg-blue-400"
+                        uploaded || eventData.recordUrl.length != 0
+                          ? "bg-gray-300"
+                          : "bg-blue-400"
                       } ml-2 rounded-lg p-1`}
                     >
                       <Text className="font-semibold">
-                        {uploaded || eventData.recordUrl.length != 0 ? "Đã chọn" : "Chưa chọn"}
+                        {uploaded || eventData.recordUrl.length != 0
+                          ? "Đã chọn"
+                          : "Chưa chọn"}
                       </Text>
                     </View>
                   </View>
                 </View>
               </View>
-              {eventData.recordUrl.length != 0 ? (
+              {!isClosed(eventData.startedAt, eventData.durations) ? (
                 <></>
               ) : (
                 <View className="w-full justify-center items-center mt-4">
@@ -239,9 +252,28 @@ export default function EventDetail() {
                       !processing && !uploaded ? "bg-cyan-500" : "bg-gray-300"
                     }  p-2 rounded-lg w-[94%]`}
                     onPress={() => {
-                      pickVideo();
+                      if (uploaded) {
+                        Alert.alert(
+                          "Thông báo",
+                          "Nếu tải lên bản ghi mới, bản ghi cũ sẽ bị xóa",
+                          [
+                            {
+                              text: "Hủy",
+                              style: "cancel",
+                            },
+                            {
+                              text: "Tải lên",
+                              onPress: () => {
+                                pickVideo();
+                              },
+                              style: "destructive",
+                            },
+                          ]
+                        );
+                      } else {
+                        pickVideo();
+                      }
                     }}
-                    disabled={uploaded}
                   >
                     <Text className="text-center font-bold">
                       Tải lên bản ghi cuộc họp

@@ -271,10 +271,10 @@ export default function SubAccountsScreen() {
           })}
           <View>
             {/* Learning Stats */}
-            <View className="flex-row bg-cyan-200 mt-1 py-2 rounded-lg">
+            <View className="flex-row bg-cyan-200 mt-1 py-1 rounded-lg">
               <View className="flex-1 border-r border-gray-100">
-                <Text className="text-center text-gray-600">Đã gán</Text>
-                <Text className="text-center font-bold text-lg mt-1">
+                <Text className="text-center text-black text-lg font-bold">Đã gán</Text>
+                <Text className="text-center font-bold text-base mt-1">
                   {totalDifferentAssigned}
                 </Text>
               </View>

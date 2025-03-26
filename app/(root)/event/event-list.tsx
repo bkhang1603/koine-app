@@ -5,38 +5,18 @@ import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { View, Text, ScrollView, Image, Pressable, Alert } from "react-native";
 import * as WebBrowser from "expo-web-browser";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useEvent } from "@/queries/useEvent";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 
 export default function EventScreen() {
   const { data: events, isLoading, isError, error, refetch } = useEvent();
-
-  if (isLoading) return <ActivityIndicatorScreen />;
-
-  if (!events || events.data.length == 0 || isError) {
-    console.log("Lỗi khi lấy eventlist", error);
-    return (
-      <SafeAreaView className="flex-1">
-        <View className="flex-1 bg-gray-200">
-          <View>
-            <Text className="font-bold text-xl text-center">
-              Danh sách sự kiện
-            </Text>
-            <Text className="ml-2">
-              Đón chờ những sự kiện thú vị từ chúng tôi
-            </Text>
-          </View>
-          <View className="flex-1 justify-center items-center">
-            <Text className="text-center">Hiện không có sự kiện</Text>
-            <MaterialIcons name="event-busy" size={64} color="#9CA3AF" />
-          </View>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  const insets = useSafeAreaInsets();
 
   const [isProcessing, setIsProcessing] = useState(false);
+
+  if (isLoading) console.log("loading");
+  if (isError) console.log("error ", error);
 
   const statusStyles = useMemo(
     () => ({
@@ -106,6 +86,30 @@ export default function EventScreen() {
   return (
     <SafeAreaView className="flex-1">
       <View className="flex-1 bg-white">
+        {/* Headers */}
+      <View
+        style={{ paddingTop: insets.top }}
+        className="absolute top-0 left-0 right-0 z-10"
+      >
+        <View className="px-4 py-3 flex-row items-center justify-between">
+          <Pressable
+            onPress={() => router.push("/(tabs)/home")}
+            className="w-10 h-10 bg-black/30 rounded-full items-center justify-center ml-2"
+          >
+            <MaterialIcons name="arrow-back" size={24} color="white" />
+          </Pressable>
+
+          <View className="flex-row items-center">
+            <Pressable
+              className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
+              onPress={() => router.push("/notifications/notifications")}
+            >
+              <MaterialIcons name="notifications" size={24} color="white" />
+            </Pressable>
+          </View>
+        </View>
+      </View>
+      <View className="h-5"></View>
         <View>
           <Text className="font-bold text-xl ml-2">Danh sách sự kiện</Text>
           <Text className="ml-2">
@@ -114,7 +118,7 @@ export default function EventScreen() {
         </View>
         <View className="flex-row justify-between items-center  mt-1">
           <Text className="italic ml-2 text-cyan-600">
-            Tổng cộng: {events.data.length}
+            Tổng cộng: {events ? events.data.length : 0}
           </Text>
         </View>
 
@@ -122,116 +126,129 @@ export default function EventScreen() {
           showsHorizontalScrollIndicator={false}
           className="p-1 bg-white"
         >
-          {events.data.map((event) => (
-            <Pressable
-              key={event.id}
-              className="p-1 my-1 bg-gray-200 border-[1.5px] border-blue-500 rounded-lg"
-              onPress={() => {
-                const encodedData = encodeURIComponent(JSON.stringify(event));
-                router.push({
-                  pathname: "/(root)/event/[id]",
-                  params: { id: event.id, data: encodedData }, 
-                });
-              }}
-              disabled={isProcessing}
-            >
-              <Image
-                source={{ uri: event.imageUrl }}
-                className="w-full h-56 rounded-md"
-              />
+          {events && events.data.length ? (
+            <View>
+              {events.data.map((event) => (
+                <Pressable
+                  key={event.id}
+                  className="p-1 my-1 bg-gray-200 border-[1.5px] border-blue-500 rounded-lg"
+                  onPress={() => {
+                    const encodedData = encodeURIComponent(
+                      JSON.stringify(event)
+                    );
+                    router.push({
+                      pathname: "/(root)/event/[id]",
+                      params: { id: event.id, data: encodedData },
+                    });
+                  }}
+                  disabled={isProcessing}
+                >
+                  <Image
+                    source={{ uri: event.imageUrl }}
+                    className="w-full h-56 rounded-md"
+                  />
 
-              <View className="pl-1 pt-1">
-                <View className="flex-row justify-between items-center pr-1">
-                  <Text className="font-semibold text-lg">{event.title}</Text>
-                </View>
-
-                <Text className="">{event.description}</Text>
-
-                <View className="flex-row  py-1">
-                  <Feather name="mic" size={24} color="black" />
-                  <Text className="font-semibold ml-1">
-                    {event.hostInfo.fullName}
-                  </Text>
-                </View>
-
-                <View className="flex-row  py-1 items-center">
-                  <AntDesign name="calendar" size={24} color="black" />
-                  <Text className="ml-1 font-semibold">
-                    {event.startAtFormatted}
-                  </Text>
-                </View>
-
-                <View className="flex-row pl-[1.5px] py-1 items-center">
-                  <AntDesign name="clockcircleo" size={21} color="black" />
-                  <Text className="font-semibold pl-[5px]">
-                    {event.durationsDisplay}
-                  </Text>
-                </View>
-
-                <View className="flex-row items-center">
-                  <Text className="font-semibold">Trạng thái:</Text>
-                  <View
-                    className={`ml-1 p-1 ${
-                      event.status.toUpperCase() == "OPENING" &&
-                      isClosed(event.startedAt, event.durations)
-                        ? "bg-gray-300"
-                        : statusStyles[
-                            event.status.toUpperCase() as keyof typeof statusStyles
-                          ]?.textBackgroundColor
-                    } rounded-lg self-start`}
-                  >
-                    <Text
-                      className={`${
-                        statusStyles[
-                          event.status.toUpperCase() as keyof typeof statusStyles
-                        ]?.textColor
-                      } font-semibold`}
-                    >
-                      {event.status.toUpperCase() == "OPENING" &&
-                      isClosed(event.startedAt, event.durations)
-                        ? "Đã kết thúc"
-                        : statusStyles[
-                            event.status.toUpperCase() as keyof typeof statusStyles
-                          ]?.text}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-
-              <View className="flex-row justify-center items-center my-1">
-                {isOpenable(event.startedAt, event.durations) &&
-                event.status == "OPENING" ? (
-                  <View>
-                    <Pressable
-                      className={`mt-1 border-black border-[1px] mx-3 rounded-lg px-2 ${
-                        isOpenable(event.startedAt, event.durations) &&
-                        event.status == "OPENING"
-                          ? "bg-green-500"
-                          : "bg-gray-300"
-                      }`}
-                      disabled={
-                        isOpenable(event.startedAt, event.durations) &&
-                        event.status == "OPENING"
-                          ? false
-                          : true
-                      }
-                      onPress={() => {
-                        openMeet(event.roomHostUrl);
-                      }}
-                    >
-                      <Text
-                        className={`text-black font-semibold text-lg text-center`}
-                      >
-                        Tham dự
+                  <View className="pl-1 pt-1">
+                    <View className="flex-row justify-between items-center pr-1">
+                      <Text className="font-semibold text-lg">
+                        {event.title}
                       </Text>
-                    </Pressable>
+                    </View>
+
+                    <Text className="">{event.description}</Text>
+
+                    <View className="flex-row  py-1">
+                      <Feather name="mic" size={24} color="black" />
+                      <Text className="font-semibold ml-1">
+                        {event.hostInfo.fullName}
+                      </Text>
+                    </View>
+
+                    <View className="flex-row  py-1 items-center">
+                      <AntDesign name="calendar" size={24} color="black" />
+                      <Text className="ml-1 font-semibold">
+                        {event.startAtFormatted}
+                      </Text>
+                    </View>
+
+                    <View className="flex-row pl-[1.5px] py-1 items-center">
+                      <AntDesign name="clockcircleo" size={21} color="black" />
+                      <Text className="font-semibold pl-[5px]">
+                        {event.durationsDisplay}
+                      </Text>
+                    </View>
+
+                    <View className="flex-row items-center">
+                      <Text className="font-semibold">Trạng thái:</Text>
+                      <View
+                        className={`ml-1 p-1 ${
+                          event.status.toUpperCase() == "OPENING" &&
+                          isClosed(event.startedAt, event.durations)
+                            ? "bg-gray-300"
+                            : statusStyles[
+                                event.status.toUpperCase() as keyof typeof statusStyles
+                              ]?.textBackgroundColor
+                        } rounded-lg self-start`}
+                      >
+                        <Text
+                          className={`${
+                            statusStyles[
+                              event.status.toUpperCase() as keyof typeof statusStyles
+                            ]?.textColor
+                          } font-semibold`}
+                        >
+                          {event.status.toUpperCase() == "OPENING" &&
+                          isClosed(event.startedAt, event.durations)
+                            ? "Đã kết thúc"
+                            : statusStyles[
+                                event.status.toUpperCase() as keyof typeof statusStyles
+                              ]?.text}
+                        </Text>
+                      </View>
+                    </View>
                   </View>
-                ) : (
-                  <></>
-                )}
-              </View>
-            </Pressable>
-          ))}
+
+                  <View className="flex-row justify-center items-center my-1">
+                    {isOpenable(event.startedAt, event.durations) &&
+                    event.status == "OPENING" ? (
+                      <View>
+                        <Pressable
+                          className={`mt-1 border-black border-[1px] mx-3 rounded-lg px-2 ${
+                            isOpenable(event.startedAt, event.durations) &&
+                            event.status == "OPENING"
+                              ? "bg-green-500"
+                              : "bg-gray-300"
+                          }`}
+                          disabled={
+                            isOpenable(event.startedAt, event.durations) &&
+                            event.status == "OPENING"
+                              ? false
+                              : true
+                          }
+                          onPress={() => {
+                            openMeet(event.roomHostUrl);
+                          }}
+                        >
+                          <Text
+                            className={`text-black font-semibold text-lg text-center`}
+                          >
+                            Tham dự
+                          </Text>
+                        </Pressable>
+                      </View>
+                    ) : (
+                      <></>
+                    )}
+                  </View>
+                </Pressable>
+              ))}
+            </View>
+          ) : (
+            <View className="flex-1 justify-center items-center">
+              <Text className="text-center">Hiện không có sự kiện</Text>
+              <MaterialIcons name="event-busy" size={64} color="#9CA3AF" />
+            </View>
+          )}
           <View className="h-20" />
         </ScrollView>
       </View>
