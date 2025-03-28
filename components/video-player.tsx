@@ -56,3 +56,4 @@ const VideoPlayer = ({ videoUrl }: { videoUrl: string }) => {
 };
 
 export default VideoPlayer;
+

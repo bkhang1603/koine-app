@@ -67,7 +67,7 @@ export default function CreateEventScreen() {
   const isValidDuration =
     !isNaN(parseFloat(duration)) &&
     parseFloat(duration) >= 0.5 &&
-    parseFloat(duration) < 3;
+    parseFloat(duration) <= 3;
 
   const isValidStartAt =
     startAt.getTime() + 7 * 3600 * 1000 >= nowGmt7.getTime() + 7 * 1000 * 3600;
@@ -129,10 +129,7 @@ export default function CreateEventScreen() {
     const [date, time] = dateStr.split("T");
     const [hour, minute, second] = time.split(":");
     const [year, month, day] = date.split("-");
-    return `${hour}:${minute}:${second.substring(
-      0,
-      2
-    )} ${day}-${month}-${year}`;
+    return `${hour}:${minute}:${second.substring(0,2)} ${day}-${month}-${year}`;
   }
 
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {

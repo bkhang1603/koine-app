@@ -21,9 +21,7 @@ import {
   useUpdateEventMutation,
   useUpdateEventWhenCreateRoomMutation,
 } from "@/queries/useEvent";
-import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 import { Portal, TextInput } from "react-native-paper";
-import ChildLayout from "@/app/child/_layout";
 
 export default function EventListScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
@@ -292,6 +290,17 @@ export default function EventListScreen() {
     return localTime.getTime() >= endDate.getTime(); // chỉ mở khi trong khoảng startTime -> endDate
   };
 
+  const isCancelable = (eventStartAt: string): boolean => {
+    const now = new Date();
+    // Chuyển giờ về GMT+7 (đảm bảo giờ giữ nguyên)
+    const localTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+    const startTime = new Date(eventStartAt);
+    const timeDiff = startTime.getTime() - localTime.getTime(); // Chênh lệch giữa startTime và localTime
+
+    // Kiểm tra nếu thời gian hiện tại (localTime) ít nhất 2 giờ sớm hơn startTime
+    return timeDiff >= 2 * 3600 * 1000;
+  };
+
   const isReportable = (
     startAt: string,
     totalParticipants: number,
@@ -365,13 +374,19 @@ export default function EventListScreen() {
                       <Text className="font-semibold text-lg">
                         {event.title}
                       </Text>
-                      <Pressable
-                        onPress={() => {
-                          setShowModal({ eventId: event.id, view: true });
-                        }}
-                      >
-                        <Feather name="delete" size={24} color="black" />
-                      </Pressable>
+                      {isCancelable(event.startedAt) ? (
+                        <View>
+                          <Pressable
+                            onPress={() => {
+                              setShowModal({ eventId: event.id, view: true });
+                            }}
+                          >
+                            <Feather name="delete" size={24} color="black" />
+                          </Pressable>
+                        </View>
+                      ) : (
+                        <></>
+                      )}
                     </View>
 
                     <Text className="">{event.description}</Text>

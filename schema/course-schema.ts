@@ -7,37 +7,41 @@ export const courseRes = z.object({
   data: z.array(
     z.object({
       id: z.string(),
+      isDeleted: z.boolean(),
+      creatorId: z.string(), // Chỉnh sửa: Thêm creatorId
       title: z.string(),
       titleNoTone: z.string(),
       slug: z.string(),
       description: z.string(),
       durations: z.number(),
-      imageUrl: z.string(),
-      imageBanner: z.string(),
+      durationsDisplay: z.string(), // Thêm durationsDisplay
+      imageUrl: z.string(), // Sửa: Cho phép null
+      imageBanner: z.string().nullable(), // Sửa: Cho phép null
       price: z.number(),
-      discount: z.number().optional(),
+      discount: z.number().default(0), // Chỉnh sửa: discount có giá trị mặc định là 0
       totalEnrollment: z.number(),
       aveRating: z.number(),
       isBanned: z.boolean(),
       isCustom: z.boolean(),
-      isDeleted: z.boolean(),
-      createdAt: z.string(),
-      updatedAt: z.string(),
-      createdAtFormatted: z.string(),
-      updatedAtFormatted: z.string(),
-      durationsDisplay: z.string(),
       level: z.string(),
-      creatorId: z.string(),
-      creator: z.object({
-        id: z.string(),
-        username: z.string(),
-      }),
+      isDraft: z.boolean(),
+      censorId: z.string().nullable(), // Sửa: Cho phép null
+      createdAtFormatted: z.string(), // Chỉnh sửa: Sử dụng createdAtFormatted
+      updatedAtFormatted: z.string(), // Chỉnh sửa: Sử dụng updatedAtFormatted
       categories: z.array(
         z.object({
           id: z.string(),
           name: z.string(),
         })
       ),
+      creator: z.object({
+        id: z.string(),
+        username: z.string(),
+      }),
+      censor: z.object({
+        id: z.string(),
+        username: z.string(),
+      }).nullable(), // Sửa: Cho phép null
     })
   ),
   pagination: z.object({
@@ -48,7 +52,6 @@ export const courseRes = z.object({
     totalPage: z.number(),
   }),
 });
-
 export type GetAllCourseResType = z.infer<typeof courseRes>;
 
 export const courseDetailRes = z.object({
@@ -102,6 +105,21 @@ export const courseDetailRes = z.object({
               videoUrl: z.string().nullable(),
               sequence: z.number(),
               durationsDisplay: z.string(),
+            })
+          ),
+          questions: z.array(
+            z.object({
+              id: z.string(),
+              content: z.string(),
+              numCorrect: z.number(),
+              questionOptions: z.array(
+                z.object({
+                  id: z.string(),
+                  questionId: z.string(),
+                  optionData: z.string(),
+                  isCorrect: z.boolean(),
+                })
+              ),
             })
           ),
         })
@@ -213,9 +231,8 @@ export const courseElementResType = z.object({
 
 export type CourseElementResType = z.infer<typeof courseElementResType>;
 
-export const requestCustomCourse = z
-  .object({
-    chapterIds: z.array(z.string()),
-  })
+export const requestCustomCourse = z.object({
+  chapterIds: z.array(z.string()),
+});
 
 export type CreateCustomCourseType = z.infer<typeof requestCustomCourse>;

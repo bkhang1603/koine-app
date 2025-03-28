@@ -1,29 +1,11 @@
-import HeaderWithBack from "@/components/HeaderWithBack";
-import {
-  AntDesign,
-  Feather,
-  FontAwesome,
-  MaterialIcons,
-} from "@expo/vector-icons";
+import VideoPlayer from "@/components/video-player";
+import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import {
-  View,
-  Text,
-  Image,
-  ScrollView,
-  Button,
-  Alert,
-  Pressable,
-} from "react-native";
+import { View, Text, Image, ScrollView, Pressable } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import * as ImagePicker from "expo-image-picker";
-import { useAppStore } from "@/components/app-provider";
-import { useState } from "react";
-import { useUploadFile } from "@/queries/useS3";
-import { useUpdateEventMutation } from "@/queries/useEvent";
 
 export default function EventDetailUser() {
   const { id, data } = useLocalSearchParams();
@@ -160,12 +142,12 @@ export default function EventDetailUser() {
                 </View>
 
                 {eventData.recordUrl.length != 0 ? (
-                  <View>
-                    <Text>Chỗ chiếu video</Text>
+                  <View className="w-full">
+                    <VideoPlayer videoUrl={eventData.videoUrl} />
                   </View>
                 ) : (
-                  <View>
-                    <Text>Sự kiện này không có bản ghi</Text>
+                  <View className='p-2'>
+                    <Text className="font-semibold text-lg">Sự kiện này không có bản ghi</Text>
                   </View>
                 )}
               </View>
