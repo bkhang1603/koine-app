@@ -10,40 +10,42 @@ export const courseRes = z.object({
       createdAt: z.string(),
       updatedAt: z.string(),
       id: z.string(),
-      creatorId: z.string(), // Chỉnh sửa: Thêm creatorId
+      creatorId: z.string(),
       title: z.string(),
       titleNoTone: z.string(),
       slug: z.string(),
       description: z.string(),
       durations: z.number(),
-      durationsDisplay: z.string(), // Thêm durationsDisplay
-      imageUrl: z.string(), // Sửa: Cho phép null
-      imageBanner: z.string().nullable(), // Sửa: Cho phép null
+      imageUrl: z.string().nullable(),
+      imageBanner: z.string().nullable(),
       price: z.number(),
-      discount: z.number().default(0), // Chỉnh sửa: discount có giá trị mặc định là 0
+      discount: z.number(),
       totalEnrollment: z.number(),
       aveRating: z.number(),
       isBanned: z.boolean(),
       isCustom: z.boolean(),
-      level: z.string(),
+      level: z.enum(["ALL"]),
+      censorId: z.string().nullable(),
       isDraft: z.boolean(),
-      censorId: z.string().nullable(), // Sửa: Cho phép null
-      createdAtFormatted: z.string(), // Chỉnh sửa: Sử dụng createdAtFormatted
-      updatedAtFormatted: z.string(), // Chỉnh sửa: Sử dụng updatedAtFormatted
+      creator: z.object({
+        id: z.string(),
+        username: z.string(),
+      }),
+      censor: z
+        .object({
+          id: z.string(),
+          username: z.string(),
+        })
+        .nullable(),
+      durationsDisplay: z.string(),
       categories: z.array(
         z.object({
           id: z.string(),
           name: z.string(),
         })
       ),
-      creator: z.object({
-        id: z.string(),
-        username: z.string(),
-      }),
-      censor: z.object({
-        id: z.string(),
-        username: z.string(),
-      }).nullable(), // Sửa: Cho phép null
+      createdAtFormatted: z.string(),
+      updatedAtFormatted: z.string(),
     })
   ),
   pagination: z.object({
@@ -54,6 +56,7 @@ export const courseRes = z.object({
     totalPage: z.number(),
   }),
 });
+
 export type GetAllCourseResType = z.infer<typeof courseRes>;
 
 export const courseDetailRes = z.object({

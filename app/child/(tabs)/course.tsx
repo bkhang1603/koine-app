@@ -61,7 +61,7 @@ export default function CourseScreen() {
         }
       >
         <Image
-          source={{ uri: courses[0].imageUrl ?? "" }}
+          source={{ uri: courses[0].imageUrl ?? "https://thumbs.dreamstime.com/b/orange-cosmos-flower-bud-garden-indiana-39358565.jpg" }}
           className="w-full h-48"
           style={{ resizeMode: "cover" }}
         />
@@ -138,7 +138,7 @@ export default function CourseScreen() {
         }
       >
         <Image
-          source={{ uri: course.imageUrl ?? "" }}
+          source={{ uri: course.imageUrl ?? "https://thumbs.dreamstime.com/b/orange-cosmos-flower-bud-garden-indiana-39358565.jpg" }} 
           className="w-32 h-full rounded-l-2xl"
           style={{ resizeMode: "cover" }}
         />
