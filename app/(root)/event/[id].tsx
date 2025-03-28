@@ -1,8 +1,7 @@
-import HeaderWithBack from "@/components/HeaderWithBack";
+
 import {
   AntDesign,
   Feather,
-  FontAwesome,
   MaterialIcons,
 } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -11,19 +10,14 @@ import {
   Text,
   Image,
   ScrollView,
-  Button,
-  Alert,
   Pressable,
 } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import * as ImagePicker from "expo-image-picker";
-import { useAppStore } from "@/components/app-provider";
-import { useState } from "react";
-import { useUploadFile } from "@/queries/useS3";
-import { useUpdateEventMutation } from "@/queries/useEvent";
+
+import VideoPlayer from "@/components/video-player";
 
 export default function EventDetailUser() {
   const { id, data } = useLocalSearchParams();
@@ -71,6 +65,8 @@ export default function EventDetailUser() {
     return localTime.getTime() >= endDate.getTime(); // chỉ mở khi trong khoảng startTime -> endDate
   };
 
+  console.log("record url ", eventData.recordUrl)
+
   return (
     <SafeAreaView className="flex-1">
       {/* Headers */}
@@ -111,7 +107,7 @@ export default function EventDetailUser() {
                   <Text className="font-bold text-lg">{eventData.title}</Text>
                   <Text className="ml-1">{eventData.description}</Text>
 
-                  <View className="flex-row  py-2">
+                  <View className="flex-row py-2">
                     <Feather name="mic" size={24} color="black" />
                     <Text className="font-semibold ml-1">
                       {eventData.hostInfo.fullName}
@@ -159,13 +155,16 @@ export default function EventDetailUser() {
                   </View>
                 </View>
 
+                {/* Video */}
                 {eventData.recordUrl.length != 0 ? (
-                  <View>
-                    <Text>Chỗ chiếu video</Text>
+                  <View className="w-full p-2">
+                    <VideoPlayer videoUrl={eventData.videoUrl} />
                   </View>
                 ) : (
-                  <View>
-                    <Text>Sự kiện này không có bản ghi</Text>
+                  <View className="p-2">
+                    <Text className="font-semibold text-lg">
+                      Sự kiện này không có bản ghi
+                    </Text>
                   </View>
                 )}
               </View>
