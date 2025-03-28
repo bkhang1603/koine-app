@@ -146,7 +146,7 @@ export default function CourseScreen() {
               }
             >
               <Image
-                source={{ uri: courses[0].imageUrl }}
+                source={{ uri: courses[0].imageUrl ?? "" }}
                 className="w-full h-48"
               />
               <View className="p-4">
@@ -245,7 +245,7 @@ export default function CourseScreen() {
               }
             >
               <Image
-                source={{ uri: course.imageUrl }}
+                source={{ uri: course.imageUrl ?? "" }}
                 className="w-32 h-full rounded-l-2xl"
                 style={{ resizeMode: "cover" }}
               />

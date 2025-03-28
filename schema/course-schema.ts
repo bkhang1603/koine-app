@@ -6,38 +6,46 @@ export const courseRes = z.object({
   message: z.string(),
   data: z.array(
     z.object({
+      isDeleted: z.boolean(),
+      createdAt: z.string(),
+      updatedAt: z.string(),
       id: z.string(),
+      creatorId: z.string(),
       title: z.string(),
       titleNoTone: z.string(),
       slug: z.string(),
       description: z.string(),
       durations: z.number(),
-      imageUrl: z.string(),
-      imageBanner: z.string(),
+      imageUrl: z.string().nullable(),
+      imageBanner: z.string().nullable(),
       price: z.number(),
-      discount: z.number().optional(),
+      discount: z.number(),
       totalEnrollment: z.number(),
       aveRating: z.number(),
       isBanned: z.boolean(),
       isCustom: z.boolean(),
-      isDeleted: z.boolean(),
-      createdAt: z.string(),
-      updatedAt: z.string(),
-      createdAtFormatted: z.string(),
-      updatedAtFormatted: z.string(),
-      durationsDisplay: z.string(),
       level: z.string(),
-      creatorId: z.string(),
+      censorId: z.string().nullable(),
+      isDraft: z.boolean(),
       creator: z.object({
         id: z.string(),
         username: z.string(),
       }),
+      censor: z
+        .object({
+          id: z.string(),
+          username: z.string(),
+        })
+        .nullable(),
+      durationsDisplay: z.string(),
       categories: z.array(
         z.object({
           id: z.string(),
           name: z.string(),
         })
       ),
+      createdAtFormatted: z.string(),
+      updatedAtFormatted: z.string(),
     })
   ),
   pagination: z.object({
