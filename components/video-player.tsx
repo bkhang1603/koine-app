@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import { View, ActivityIndicator, Dimensions } from "react-native";
-import { Video, ResizeMode } from "expo-av";
+import { useVideoPlayer, VideoView } from "expo-video";
 import * as ScreenOrientation from "expo-screen-orientation";
 
 const VideoPlayer = ({ videoUrl }: { videoUrl: string }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [shouldPlay, setShouldPlay] = useState(false);
 
   const { width, height } = Dimensions.get("window");
   const videoHeight = width * (9 / 16);
+
+  const player = useVideoPlayer(videoUrl, (player) => {
+    player.loop = true;
+  });
 
   const toggleFullscreen = async () => {
     if (isFullscreen) {
@@ -34,26 +37,19 @@ const VideoPlayer = ({ videoUrl }: { videoUrl: string }) => {
       {isLoading && (
         <ActivityIndicator size="large" color="#3B82F6" className="absolute" />
       )}
-      <Video
-        source={{ uri: videoUrl }}
-        resizeMode={ResizeMode.CONTAIN}
-        onLoad={() => setIsLoading(false)}
-        onError={(error) => {
-          console.error("Lỗi phát video:", error);
-          setIsLoading(false);
-        }}
-        className="w-full"
+      <VideoView
+        player={player}
         style={
           isFullscreen
             ? { width: height, height: width }
             : { width: width, height: videoHeight }
         }
-        shouldPlay={shouldPlay}
-        useNativeControls
+        allowsFullscreen
+        allowsPictureInPicture
+        nativeControls
       />
     </View>
   );
 };
 
 export default VideoPlayer;
-
