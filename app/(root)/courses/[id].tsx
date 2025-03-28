@@ -194,8 +194,8 @@ export default function CourseDetailScreen() {
           <View className="flex-row items-center justify-between mt-3 bg-blue-50 p-3 rounded-xl">
             <View className="flex-row items-center">
               <MaterialIcons name="star" size={22} color="#FFA000" />
-              <Text className="ml-1 font-semibold text-lg">           
-                {course.aveRating == 0 ? 5 : course.aveRating}  
+              <Text className="ml-1 font-semibold text-lg">
+                {course.aveRating == 0 ? 5 : course.aveRating}
               </Text>
             </View>
 
@@ -334,64 +334,80 @@ export default function CourseDetailScreen() {
 
                   {expandedChapters.includes(chapter.id) && (
                     <View className="ml-12 border-l border-gray-200">
-                      {chapter.lessons.map((lesson, index) => (
-                        <Pressable
-                          key={lesson.id}
-                          className={`flex-row items-center px-4 py-3.5 border-t border-gray-100
-                            ${index !== 0 ? "opacity-50" : ""}`}
-                          disabled={index !== 0}
-                          onPress={() => {
-                            if (index === 0) {
-                              router.push({
-                                pathname: "/courses/lesson/[lessonId]",
-                                params: {
-                                  lessonId: lesson.id,
-                                  courseId: id,
-                                  lessonData: JSON.stringify(lesson),
-                                },
-                              });
-                            }
-                          }}
-                        >
-                          <View className="w-8 items-center mr-3">
-                            <MaterialIcons
-                              name={index === 0 ? "play-circle-fill" : "lock"}
-                              size={22}
-                              color={index === 0 ? "#2563EB" : "#9CA3AF"}
-                            />
-                          </View>
-                          <View className="flex-1">
-                            <Text
-                              className={`font-medium ${
-                                index === 0 ? "text-gray-800" : "text-gray-400"
+                      {chapter.lessons.map((lesson, index) => {
+                        const isFirstChapterFirstLesson =
+                          chapterIndex === 0 && index === 0;
+                        return (
+                          <Pressable
+                            key={lesson.id}
+                            className={`flex-row items-center px-4 py-3.5 border-t border-gray-100
+                              ${
+                                !isFirstChapterFirstLesson ? "opacity-50" : ""
                               }`}
-                            >
-                              {lesson.title}
-                            </Text>
-                            <View className="flex-row items-center mt-1">
+                            disabled={!isFirstChapterFirstLesson}
+                            onPress={() => {
+                              if (isFirstChapterFirstLesson) {
+                                router.push({
+                                  pathname: "/courses/lesson/[lessonId]",
+                                  params: {
+                                    lessonId: lesson.id,
+                                    courseId: id,
+                                    lessonData: JSON.stringify(lesson),
+                                  },
+                                });
+                              }
+                            }}
+                          >
+                            <View className="w-8 items-center mr-3">
                               <MaterialIcons
                                 name={
-                                  lesson.type === "VIDEO"
-                                    ? "videocam"
-                                    : "article"
+                                  isFirstChapterFirstLesson
+                                    ? "play-circle-fill"
+                                    : "lock"
                                 }
-                                size={14}
+                                size={22}
+                                color={
+                                  isFirstChapterFirstLesson
+                                    ? "#2563EB"
+                                    : "#9CA3AF"
+                                }
+                              />
+                            </View>
+                            <View className="flex-1">
+                              <Text
+                                className={`font-medium ${
+                                  isFirstChapterFirstLesson
+                                    ? "text-gray-800"
+                                    : "text-gray-400"
+                                }`}
+                              >
+                                {lesson.title}
+                              </Text>
+                              <View className="flex-row items-center mt-1">
+                                <MaterialIcons
+                                  name={
+                                    lesson.type === "VIDEO"
+                                      ? "videocam"
+                                      : "article"
+                                  }
+                                  size={14}
+                                  color="#6B7280"
+                                />
+                                <Text className="text-gray-500 text-sm ml-1">
+                                  {lesson.durationsDisplay}
+                                </Text>
+                              </View>
+                            </View>
+                            {isFirstChapterFirstLesson && (
+                              <MaterialIcons
+                                name="chevron-right"
+                                size={20}
                                 color="#6B7280"
                               />
-                              <Text className="text-gray-500 text-sm ml-1">
-                                {lesson.durationsDisplay}
-                              </Text>
-                            </View>
-                          </View>
-                          {index === 0 && (
-                            <MaterialIcons
-                              name="chevron-right"
-                              size={20}
-                              color="#6B7280"
-                            />
-                          )}
-                        </Pressable>
-                      ))}
+                            )}
+                          </Pressable>
+                        );
+                      })}
                     </View>
                   )}
                 </View>

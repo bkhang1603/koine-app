@@ -6,8 +6,10 @@ export const courseRes = z.object({
   message: z.string(),
   data: z.array(
     z.object({
-      id: z.string(),
       isDeleted: z.boolean(),
+      createdAt: z.string(),
+      updatedAt: z.string(),
+      id: z.string(),
       creatorId: z.string(), // Chỉnh sửa: Thêm creatorId
       title: z.string(),
       titleNoTone: z.string(),
