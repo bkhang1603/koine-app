@@ -1,17 +1,6 @@
-
-import {
-  AntDesign,
-  Feather,
-  MaterialIcons,
-} from "@expo/vector-icons";
+import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import {
-  View,
-  Text,
-  Image,
-  ScrollView,
-  Pressable,
-} from "react-native";
+import { View, Text, Image, ScrollView, Pressable } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -65,7 +54,7 @@ export default function EventDetailUser() {
     return localTime.getTime() >= endDate.getTime(); // chỉ mở khi trong khoảng startTime -> endDate
   };
 
-  console.log("record url ", eventData.recordUrl)
+  console.log("record url ", eventData.recordUrl);
 
   return (
     <SafeAreaView className="flex-1">
@@ -156,9 +145,9 @@ export default function EventDetailUser() {
                 </View>
 
                 {/* Video */}
-                {eventData.recordUrl.length != 0 ? (
+                {eventData.recordUrl && eventData.recordUrl.length > 0 ? (
                   <View className="w-full p-2">
-                    <VideoPlayer videoUrl={eventData.videoUrl} />
+                    <VideoPlayer videoUrl={eventData.recordUrl} />
                   </View>
                 ) : (
                   <View className="p-2">
