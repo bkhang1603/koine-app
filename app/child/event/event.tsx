@@ -1,8 +1,8 @@
 import HeaderWithBack from "@/components/HeaderWithBack";
 import { useAppStore } from "@/components/app-provider";
 import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useMemo, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
 import { View, Text, ScrollView, Image, Pressable, Alert } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import {
@@ -13,11 +13,26 @@ import { useEvent } from "@/queries/useEvent";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 
 export default function EventScreen() {
-  const { data: events, isLoading, isError, error, refetch } = useEvent();
+  const {
+    data: events,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isFetched,
+  } = useEvent();
   const insets = useSafeAreaInsets();
 
   if (isLoading) console.log("loading");
   if (isError) console.log("error ", error);
+
+  useFocusEffect(() => {
+    useCallback(() => {
+      if (isFetched) {
+        refetch();
+      }
+    }, [isFetched]);
+  });
 
   const [isProcessing, setIsProcessing] = useState(false);
 

@@ -1,7 +1,7 @@
 import { useAppStore } from "@/components/app-provider";
 import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -33,7 +33,16 @@ export default function EventListScreen() {
     isError: eventError,
     error: eventErrorMessage,
     refetch: refetchEvent,
+    isFetched
   } = useEventForHost(token);
+
+  useFocusEffect(() => {
+    useCallback(() => {
+      if(isFetched){
+        refetchEvent()
+      }
+    }, [isFetched])
+  })
 
   if (eventLoading) console.log("loading");
   if (eventError) console.log("error ", eventErrorMessage);
