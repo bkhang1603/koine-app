@@ -1,8 +1,8 @@
 import HeaderWithBack from "@/components/HeaderWithBack";
 import { useAppStore } from "@/components/app-provider";
 import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useMemo, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
 import { View, Text, ScrollView, Image, Pressable, Alert } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import {
@@ -18,6 +18,10 @@ export default function EventScreen() {
 
   if (isLoading) console.log("loading");
   if (isError) console.log("error ", error);
+
+  useFocusEffect(() => {
+    refetch();
+  });
 
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -134,7 +138,7 @@ export default function EventScreen() {
               {events.data.map((event) => (
                 <Pressable
                   key={event.id}
-                  className="p-1 my-1 bg-gray-200 border-[1.5px] border-blue-500 rounded-lg"
+                  className="p-1 my-1 bg-gray-200 border-[1.5px] border-black rounded-lg"
                   onPress={() => {
                     const encodedData = encodeURIComponent(
                       JSON.stringify(event)
@@ -216,7 +220,7 @@ export default function EventScreen() {
                     event.status == "OPENING" ? (
                       <View>
                         <Pressable
-                          className={`mt-1 border-black border-[1px] mx-3 rounded-lg px-2 ${
+                          className={`mt-1  mx-3 rounded-lg px-2 ${
                             isOpenable(event.startedAt, event.durations) &&
                             event.status == "OPENING"
                               ? "bg-green-500"

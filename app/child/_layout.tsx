@@ -20,6 +20,7 @@ export default function ChildLayout() {
         <Stack.Screen name="learn/course/[courseId]" />
         <Stack.Screen name="learn/chapter/[chapterId]" />
         <Stack.Screen name="learn/lesson/[lessonId]" />
+        <Stack.Screen name="learn/question/[chapterId]" />
         <Stack.Screen name="event/[id]" />
         <Stack.Screen name="event/event" />
       </Stack>

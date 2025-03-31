@@ -1,13 +1,13 @@
-import HeaderWithBack from "@/components/HeaderWithBack";
-import { useAppStore } from "@/components/app-provider";
 import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useMemo, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
 import { View, Text, ScrollView, Image, Pressable, Alert } from "react-native";
 import * as WebBrowser from "expo-web-browser";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { useEvent } from "@/queries/useEvent";
-import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 
 export default function EventScreen() {
   const { data: events, isLoading, isError, error, refetch } = useEvent();
@@ -17,6 +17,10 @@ export default function EventScreen() {
 
   if (isLoading) console.log("loading");
   if (isError) console.log("error ", error);
+
+  useFocusEffect(() => {
+    refetch();
+  });
 
   const statusStyles = useMemo(
     () => ({
@@ -87,29 +91,29 @@ export default function EventScreen() {
     <SafeAreaView className="flex-1">
       <View className="flex-1 bg-white">
         {/* Headers */}
-      <View
-        style={{ paddingTop: insets.top }}
-        className="absolute top-0 left-0 right-0 z-10"
-      >
-        <View className="px-4 py-3 flex-row items-center justify-between">
-          <Pressable
-            onPress={() => router.push("/(tabs)/home")}
-            className="w-10 h-10 bg-black/30 rounded-full items-center justify-center ml-2"
-          >
-            <MaterialIcons name="arrow-back" size={24} color="white" />
-          </Pressable>
-
-          <View className="flex-row items-center">
+        <View
+          style={{ paddingTop: insets.top }}
+          className="absolute top-0 left-0 right-0 z-10"
+        >
+          <View className="px-4 py-3 flex-row items-center justify-between">
             <Pressable
-              className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
-              onPress={() => router.push("/notifications/notifications")}
+              onPress={() => router.push("/(tabs)/home")}
+              className="w-10 h-10 bg-black/30 rounded-full items-center justify-center ml-2"
             >
-              <MaterialIcons name="notifications" size={24} color="white" />
+              <MaterialIcons name="arrow-back" size={24} color="white" />
             </Pressable>
+
+            <View className="flex-row items-center">
+              <Pressable
+                className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
+                onPress={() => router.push("/notifications/notifications")}
+              >
+                <MaterialIcons name="notifications" size={24} color="white" />
+              </Pressable>
+            </View>
           </View>
         </View>
-      </View>
-      <View className="h-5"></View>
+        <View className="h-5"></View>
         <View>
           <Text className="font-bold text-xl ml-2">Danh sách sự kiện</Text>
           <Text className="ml-2">
@@ -131,7 +135,7 @@ export default function EventScreen() {
               {events.data.map((event) => (
                 <Pressable
                   key={event.id}
-                  className="p-1 my-1 bg-gray-200 border-[1.5px] border-blue-500 rounded-lg"
+                  className="p-1 my-1 bg-gray-200 border-[1.5px] border-black rounded-lg"
                   onPress={() => {
                     const encodedData = encodeURIComponent(
                       JSON.stringify(event)
@@ -213,7 +217,7 @@ export default function EventScreen() {
                     event.status == "OPENING" ? (
                       <View>
                         <Pressable
-                          className={`mt-1 border-black border-[1px] mx-3 rounded-lg px-2 ${
+                          className={`mt-1  mx-3 rounded-lg px-2 ${
                             isOpenable(event.startedAt, event.durations) &&
                             event.status == "OPENING"
                               ? "bg-green-500"

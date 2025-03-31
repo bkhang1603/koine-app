@@ -8,6 +8,8 @@ import {
   GetCourseDetailResType,
   GetMyCourseStoreResType,
   CreateCustomCourseType,
+  GetChapterQuestionResType,
+  ChapterScoreBodyType,
 } from "@/schema/course-schema";
 import http from "@/util/http";
 import { string } from "zod";
@@ -88,6 +90,30 @@ const courseApiRequest = {
     body: CreateCustomCourseType;
   }) =>
     http.post<any>("course-customs/request-custom-course", body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+  getChapterQuestions: ({
+    token,
+    chapterId,
+  }: {
+    token: string;
+    chapterId: string;
+  }) =>
+    http.get<GetChapterQuestionResType>(`questions/my-quiz/${chapterId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+  updateChapterScore: ({
+    token,
+    body,
+  }: {
+    token: string;
+    body: ChapterScoreBodyType;
+  }) =>
+    http.put<any>(`mobile/update-score`, body, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -389,7 +389,7 @@ export default function HomeScreen() {
                       </View>
                     ) : (
                       <View className="flex-row flex-wrap gap-1">
-                        {course.categories.slice(0, 1).map((category) => (
+                        {course.categories.slice(0, 2).map((category) => (
                           <View
                             key={category.id}
                             className="bg-blue-50 px-3 py-1 rounded-full"
@@ -399,7 +399,7 @@ export default function HomeScreen() {
                             </Text>
                           </View>
                         ))}
-                        {course.categories.length > 1 && (
+                        {course.categories.length > 2 && (
                           <View className="bg-blue-50 px-3 py-1 rounded-full">
                             <Text className="text-blue-600 text-xs font-medium">
                               ...
@@ -410,8 +410,8 @@ export default function HomeScreen() {
                     )}
                   </View>
                   <Text className="font-bold text-lg" numberOfLines={2}>
-                    {course.title.length > 25
-                      ? course.title.substring(0, 25) + "..."
+                    {course.title.length > 22
+                      ? course.title.substring(0, 22) + "..."
                       : course.title}
                   </Text>
                   <Text

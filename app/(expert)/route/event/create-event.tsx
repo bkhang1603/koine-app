@@ -19,7 +19,10 @@ import * as ImagePicker from "expo-image-picker";
 import { useUploadImage } from "@/queries/useS3";
 import { useCreateEventMutation } from "@/queries/useEvent";
 import { router } from "expo-router";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 export default function CreateEventScreen() {
   const now = new Date();
@@ -129,7 +132,10 @@ export default function CreateEventScreen() {
     const [date, time] = dateStr.split("T");
     const [hour, minute, second] = time.split(":");
     const [year, month, day] = date.split("-");
-    return `${hour}:${minute}:${second.substring(0,2)} ${day}-${month}-${year}`;
+    return `${hour}:${minute}:${second.substring(
+      0,
+      2
+    )} ${day}-${month}-${year}`;
   }
 
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
@@ -191,7 +197,15 @@ export default function CreateEventScreen() {
       const res = createEvent.mutateAsync({ body: eventData, token });
 
       // Gọi API tạo sự kiện ở đây (fetch / axios)
-      Alert.alert("Thành công", "Sự kiện đã được tạo!");
+      Alert.alert("Thành công", "Sự kiện đã được tạo!", [
+        {
+          text: "Tắt",
+          style: "cancel",
+          onPress: () => {
+            router.push("/(expert)/menu/event-list");
+          },
+        },
+      ]);
     } catch (error) {
       Alert.alert("Lỗi", `Tạo sự kiện thất bại ${error}`);
     } finally {
@@ -204,153 +218,158 @@ export default function CreateEventScreen() {
   return (
     <SafeAreaView className="flex-1">
       <View className="flex-1 bg-white">
-      {/* Headers */}
-      <View
-        style={{ paddingTop: insets.top }}
-        className="absolute top-0 left-0 right-0 z-10"
-      >
-        <View className="px-4 py-3 flex-row items-center justify-between">
-          <Pressable
-            onPress={() => router.push("/(expert)/menu/event-list")}
-            className="w-10 h-10 bg-black/30 rounded-full items-center justify-center ml-2"
-          >
-            <MaterialIcons name="arrow-back" size={24} color="white" />
-          </Pressable>
-
-          <View className="flex-row items-center">
-            <Pressable
-              className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
-              onPress={() => router.push("/notifications/notifications")}
-            >
-              <MaterialIcons name="notifications" size={24} color="white" />
-            </Pressable>
-          </View>
-        </View>
-      </View>
-      <View className="h-5"></View>
-      <Text className="text-[24px] font-bold mb-[10px] text-center mt-2">
-        Tạo sự kiện mới
-      </Text>
-      <ScrollView className="flex-1 p-2" showsHorizontalScrollIndicator={false}>
-        <View className="items-center py-6 ">
-          <View className="relative">
-            {imageUrl.length != 0 ? (
-              <Image
-                source={{ uri: imageUrl }}
-                className="w-72 h-52 rounded-md"
-              />
-            ) : (
-              <View className="w-72 h-52 rounded-md border-black border-2">
-                <Image
-                  source={require("@/assets/images/default-my-course-banner.jpg")}
-                  className="absolute w-full h-full rounded-sm"
-                />
-              </View>
-            )}
-            <Pressable
-              className="absolute bottom-1 right-1 w-8 h-8 bg-blue-500 rounded-full items-center justify-center"
-              onPress={pickImage}
-            >
-              <MaterialIcons name="camera-alt" size={20} color="#fff" />
-            </Pressable>
-          </View>
-        </View>
-
-        <Text className="font-semibold mb-1">Tiêu đề sự kiện:</Text>
-        <TextInput
-          className="border-[1px] rounded-[5px] p-[10px] mb-[10px]"
-          placeholder="Nhập tiêu đề..."
-          value={title}
-          onChangeText={setTitle}
-        />
-        {!isValidTitle && title.trim().length > 0 && (
-          <Text className="text-red-500 mb-[10px]">
-            Tiêu đề phải từ 10 đến 30 ký tự
-          </Text>
-        )}
-
-        <Text className="font-semibold mb-1">Mô tả nội dung:</Text>
-        <TextInput
-          className="border-[1px] rounded-[5px] p-[10px] mb-[10px]"
-          placeholder="Nhập mô tả..."
-          value={description}
-          onChangeText={setDescription}
-          multiline
-        />
-        {!isValidDescription && description.trim().length > 0 && (
-          <Text className="text-red-500 mb-[10px]">
-            Mô tả phải ít nhất 30 ký tự
-          </Text>
-        )}
-
-        <Text className="font-semibold mb-1">Thời gian bắt đầu:</Text>
-        <View>
-          <View className="flex-row items-center">
-            <View className="border  p-4 rounded-[5px] mb-[10px]">
-              <Text className="text-black font-bold text-center">
-                {displayTime}
-              </Text>
-            </View>
-            <Pressable
-              className="bg-cyan-200 p-3 rounded-xl ml-3 mb-3"
-              onPress={() => setShow(true)}
-            >
-              <MaterialIcons name="calendar-month" size={30} color="black" />
-            </Pressable>
-          </View>
-
-          {show && (
-            <DateTimePicker
-              value={startAt}
-              mode="date"
-              display="default"
-              onChange={onChange}
-              minimumDate={minDate}
-            />
-          )}
-
-          {showTimePicker && Platform.OS === "android" && (
-            <DateTimePicker
-              value={startAt}
-              mode="time"
-              display="default"
-              onChange={onChangeTime}
-              minimumDate={minDate}
-            />
-          )}
-        </View>
-        {!isValidStartAt && !first && (
-          <Text className="text-red-500 mb-[10px]">
-            Thời gian bắt đầu phải cách hiện tại ít nhất 7h
-          </Text>
-        )}
-
-        <Text className="font-semibold mb-1">Thời lượng:</Text>
-        <TextInput
-          className="border-[1px] rounded-[5px] p-[10px] mb-[10px]"
-          placeholder="Nhập số giờ... VD: 1.5 = 1h30p"
-          value={duration}
-          onChangeText={setDuration}
-          keyboardType="numeric"
-        />
-        {!isValidDuration && duration.trim().length > 0 && (
-          <Text className="text-red-500 mb-[10px]">
-            Thời lượng phải trong khoảng 30 phút đến 3 giờ
-          </Text>
-        )}
-      </ScrollView>
-      <View className="bg-gray-300 p-2 flex justify-center">
-        <Pressable
-          className={`p-2 ${
-            isFormValid && !processing ? "bg-cyan-500" : "bg-gray-200"
-          } rounded-xl`}
-          onPress={handleCreateEvent}
-          disabled={!isFormValid}
+        {/* Headers */}
+        <View
+          style={{ paddingTop: insets.top }}
+          className="absolute top-0 left-0 right-0 z-10"
         >
-          <Text className="text-center font-semibold text-lg">Tạo sự kiện</Text>
-        </Pressable>
+          <View className="px-4 py-3 flex-row items-center justify-between">
+            <Pressable
+              onPress={() => router.push("/(expert)/menu/event-list")}
+              className="w-10 h-10 bg-black/30 rounded-full items-center justify-center ml-2"
+            >
+              <MaterialIcons name="arrow-back" size={24} color="white" />
+            </Pressable>
+
+            <View className="flex-row items-center">
+              <Pressable
+                className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
+                onPress={() => router.push("/notifications/notifications")}
+              >
+                <MaterialIcons name="notifications" size={24} color="white" />
+              </Pressable>
+            </View>
+          </View>
+        </View>
+        <View className="h-5"></View>
+        <Text className="text-[24px] font-bold mb-[10px] text-center mt-2">
+          Tạo sự kiện mới
+        </Text>
+        <ScrollView
+          className="flex-1 p-2"
+          showsHorizontalScrollIndicator={false}
+        >
+          <View className="items-center py-6 ">
+            <View className="relative">
+              {imageUrl.length != 0 ? (
+                <Image
+                  source={{ uri: imageUrl }}
+                  className="w-72 h-52 rounded-md"
+                />
+              ) : (
+                <View className="w-72 h-52 rounded-md border-black border-2">
+                  <Image
+                    source={require("@/assets/images/default-my-course-banner.jpg")}
+                    className="absolute w-full h-full rounded-sm"
+                  />
+                </View>
+              )}
+              <Pressable
+                className="absolute bottom-1 right-1 w-8 h-8 bg-blue-500 rounded-full items-center justify-center"
+                onPress={pickImage}
+              >
+                <MaterialIcons name="camera-alt" size={20} color="#fff" />
+              </Pressable>
+            </View>
+          </View>
+
+          <Text className="font-semibold mb-1">Tiêu đề sự kiện:</Text>
+          <TextInput
+            className="border-[1px] rounded-[5px] p-[10px] mb-[10px]"
+            placeholder="Nhập tiêu đề..."
+            value={title}
+            onChangeText={setTitle}
+          />
+          {!isValidTitle && title.trim().length > 0 && (
+            <Text className="text-red-500 mb-[10px]">
+              Tiêu đề phải từ 10 đến 30 ký tự
+            </Text>
+          )}
+
+          <Text className="font-semibold mb-1">Mô tả nội dung:</Text>
+          <TextInput
+            className="border-[1px] rounded-[5px] p-[10px] mb-[10px]"
+            placeholder="Nhập mô tả..."
+            value={description}
+            onChangeText={setDescription}
+            multiline
+          />
+          {!isValidDescription && description.trim().length > 0 && (
+            <Text className="text-red-500 mb-[10px]">
+              Mô tả phải ít nhất 30 ký tự
+            </Text>
+          )}
+
+          <Text className="font-semibold mb-1">Thời gian bắt đầu:</Text>
+          <View>
+            <View className="flex-row items-center">
+              <View className="border  p-4 rounded-[5px] mb-[10px]">
+                <Text className="text-black font-bold text-center">
+                  {displayTime}
+                </Text>
+              </View>
+              <Pressable
+                className="bg-cyan-200 p-3 rounded-xl ml-3 mb-3"
+                onPress={() => setShow(true)}
+              >
+                <MaterialIcons name="calendar-month" size={30} color="black" />
+              </Pressable>
+            </View>
+
+            {show && (
+              <DateTimePicker
+                value={startAt}
+                mode="date"
+                display="default"
+                onChange={onChange}
+                minimumDate={minDate}
+              />
+            )}
+
+            {showTimePicker && Platform.OS === "android" && (
+              <DateTimePicker
+                value={startAt}
+                mode="time"
+                display="default"
+                onChange={onChangeTime}
+                minimumDate={minDate}
+              />
+            )}
+          </View>
+          {!isValidStartAt && !first && (
+            <Text className="text-red-500 mb-[10px]">
+              Thời gian bắt đầu phải cách hiện tại ít nhất 7h
+            </Text>
+          )}
+
+          <Text className="font-semibold mb-1">Thời lượng:</Text>
+          <TextInput
+            className="border-[1px] rounded-[5px] p-[10px] mb-[10px]"
+            placeholder="Nhập số giờ... VD: 1.5 = 1h30p"
+            value={duration}
+            onChangeText={setDuration}
+            keyboardType="numeric"
+          />
+          {!isValidDuration && duration.trim().length > 0 && (
+            <Text className="text-red-500 mb-[10px]">
+              Thời lượng phải trong khoảng 30 phút đến 3 giờ
+            </Text>
+          )}
+        </ScrollView>
+        <View className="bg-gray-300 p-2 flex justify-center">
+          <Pressable
+            className={`p-2 ${
+              isFormValid && !processing ? "bg-cyan-500" : "bg-gray-200"
+            } rounded-xl`}
+            onPress={handleCreateEvent}
+            disabled={!isFormValid}
+          >
+            <Text className="text-center font-semibold text-lg">
+              Tạo sự kiện
+            </Text>
+          </Pressable>
+        </View>
       </View>
-    </View>
     </SafeAreaView>
   );
 }
