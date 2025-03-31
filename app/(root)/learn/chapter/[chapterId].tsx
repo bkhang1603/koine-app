@@ -108,6 +108,9 @@ export default function ChapterScreen() {
                 {chapter.status === "YET" ? "Đã hoàn thành" : "Chưa hoàn thành"}
               </Text>
             </View>
+            {chapter.score ? (
+              <Text className="text-gray-600 ml-2">Điểm: {chapter.score}</Text>
+            ) : null}
           </View>
         </View>
 
@@ -191,6 +194,92 @@ export default function ChapterScreen() {
             );
           })}
         </View>
+
+        {/* Question Section */}
+        {/* chapter.isQuestion */}
+        {chapter.isQuestion ? (
+          <View>
+            <Text className="text-lg font-bold mb-4">Bài kiểm tra</Text>
+            <Pressable
+              className={`bg-gray-50 rounded-xl mb-3 p-4 ${
+                chapter.status != "YET" ? "opacity-60" : ""
+              }`}
+              onPress={() => {
+                if (!(chapter.status != "YET")) {
+                  if (true) {
+                    router.push({
+                      pathname: "/(root)/learn/question/[chapterId]" as any,
+                      params: {
+                        chapterId: chapterId,
+                        courseId: courseId,
+                      },
+                    });
+                  }
+                }
+              }}
+              disabled={chapter.status != "YET"}
+              // disabled={false}
+            >
+              <View className="flex-row items-center justify-between">
+                <View className="flex-1">
+                  <View className="flex-row items-center">
+                    <MaterialIcons
+                      name={
+                        chapter.status != "YET"
+                          ? "lock"
+                          : !chapter.score
+                          ? "play-circle-outline"
+                          : chapter.score >= 70
+                          ? "check-circle"
+                          : "warning"
+                      }
+                      size={24}
+                      color={
+                        chapter.status != "YET"
+                          ? "#9CA3AF"
+                          : !chapter.score
+                          ? "#3B82F6"
+                          : chapter.score >= 70
+                          ? "green"
+                          : "red"
+                      }
+                    />
+                    <Text
+                      className={`font-medium ml-3 flex-1 ${
+                        chapter.status != "YET"
+                          ? "text-gray-400"
+                          : "text-gray-900"
+                      }`}
+                    >
+                      Bài kiểm tra chương
+                    </Text>
+                  </View>
+                  <View className="flex-row items-center mt-2 ml-9">
+                    <MaterialIcons
+                      name="schedule"
+                      size={20}
+                      color={chapter.status != "YET" ? "#9CA3AF" : "#3B82F6"}
+                    />
+                    <Text
+                      className={`text-sm ml-1 ${
+                        chapter.status != "YET"
+                          ? "text-gray-400"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      10 phút
+                    </Text>
+                  </View>
+                </View>
+                <MaterialIcons
+                  name="chevron-right"
+                  size={24}
+                  color={chapter.status != "YET" ? "#9CA3AF" : "#6B7280"}
+                />
+              </View>
+            </Pressable>
+          </View>
+        ) : null}
         <View className="h-20" />
       </ScrollView>
     </View>

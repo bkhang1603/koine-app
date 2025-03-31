@@ -94,7 +94,7 @@ export default function CheckoutScreen() {
   useEffect(() => {
     let extraFee = 0;
     if (deliveryPace === "STANDARD") {
-      extraFee = 25000;
+      extraFee = 26000;
     } else if (deliveryPace === "EXPEDITED") {
       extraFee = chosenShippingAddress?.deliAmount || 0;
     } else {
@@ -338,7 +338,7 @@ export default function CheckoutScreen() {
                     size={24}
                     color="#6B7280"
                   />
-                  <Text> Tiêu chuẩn: 25.000 ₫</Text>
+                  <Text> Tiêu chuẩn: 26.000 ₫</Text>
                 </View>
                 <View className="flex-row items-center ml-2 mb-3">
                   <RadioButton value="EXPEDITED" />
@@ -379,7 +379,7 @@ export default function CheckoutScreen() {
                     }
                     onPress={() => setDeliveryPace("STANDARD")}
                   />
-                  <Text>Tiêu chuẩn phí 25.000 ₫</Text>
+                  <Text>Tiêu chuẩn phí 26.000 ₫</Text>
                 </View>
                 <View className="flex-row items-center mb-2">
                   <RadioButton

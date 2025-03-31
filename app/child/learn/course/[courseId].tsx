@@ -152,9 +152,14 @@ export default function CourseLearnScreen() {
               // Kiểm tra xem chương trước đó đã hoàn thành chưa
               const previousChapter =
                 index > 0 ? course.chapters[index - 1] : null;
-              const isLocked =
-                previousChapter && previousChapter.status !== "YET";
+              // const isLocked =
+              // previousChapter && previousChapter.status !== "YET";
 
+              const isLocked =
+                previousChapter &&
+                (previousChapter.score == null ||
+                  (previousChapter.score != null &&
+                    previousChapter.score < 70));
               return (
                 <View key={chapter.id}>
                   <Text
@@ -183,7 +188,7 @@ export default function CourseLearnScreen() {
                   >
                     <MaterialIcons
                       name={
-                        chapter.status === "YET"
+                        chapter.score && chapter.score >= 70
                           ? "check-circle"
                           : "play-circle-outline"
                       }
@@ -191,7 +196,7 @@ export default function CourseLearnScreen() {
                       color={
                         isLocked
                           ? "#9CA3AF"
-                          : chapter.status === "YET"
+                          : chapter.score && chapter.score >= 70
                           ? "#10B981"
                           : "#8B5CF6"
                       }

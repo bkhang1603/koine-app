@@ -33,16 +33,11 @@ export default function EventListScreen() {
     isError: eventError,
     error: eventErrorMessage,
     refetch: refetchEvent,
-    isFetched
   } = useEventForHost(token);
 
   useFocusEffect(() => {
-    useCallback(() => {
-      if(isFetched){
-        refetchEvent()
-      }
-    }, [isFetched])
-  })
+    refetchEvent();
+  });
 
   if (eventLoading) console.log("loading");
   if (eventError) console.log("error ", eventErrorMessage);
@@ -341,7 +336,7 @@ export default function EventListScreen() {
             {/* Tổng cộng: {mock.length} */}
           </Text>
           <Pressable
-            className={`p-2 border-black border-[1px] rounded-md
+            className={`p-2  rounded-md
               bg-gray-300 mr-2`}
             onPress={() => {
               router.push("/(expert)/route/event/create-event");
@@ -362,7 +357,7 @@ export default function EventListScreen() {
               {events.data.map((event) => (
                 <Pressable
                   key={event.id}
-                  className="p-1 my-1 bg-gray-200 border-[1.5px] border-blue-500 rounded-lg"
+                  className="p-1 my-1 bg-gray-200 border-[1.5px] border-black rounded-lg"
                   onPress={() => {
                     const encodedData = encodeURIComponent(
                       JSON.stringify(event)
@@ -456,7 +451,7 @@ export default function EventListScreen() {
                     (event.status == "OPENING" || event.status == "PENDING") ? (
                       <View>
                         <Pressable
-                          className={`mt-1 border-black border-[1px] mx-3 rounded-lg px-2 ${
+                          className={`mt-1  mx-3 rounded-lg px-2 ${
                             isOpenable(event.startedAt, event.durations) &&
                             (event.status == "OPENING" ||
                               event.status == "PENDING")
@@ -497,7 +492,7 @@ export default function EventListScreen() {
                     ) ? (
                       <View>
                         <Pressable
-                          className={`mt-1 border-black mx-3 border-[1px] rounded-lg px-2 ${
+                          className={`mt-1 mx-3  rounded-lg px-2 ${
                             isReportable(
                               event.startedAt,
                               event.totalParticipants,

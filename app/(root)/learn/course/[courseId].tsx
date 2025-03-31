@@ -47,6 +47,7 @@ export default function CourseLearnScreen() {
 
   const course = myCourse;
 
+
   return (
     <View className="flex-1 bg-white">
       <HeaderWithBack
@@ -153,7 +154,13 @@ export default function CourseLearnScreen() {
               const previousChapter =
                 index > 0 ? course.chapters[index - 1] : null;
               const isLocked =
-                previousChapter && previousChapter.status !== "YET";
+                previousChapter &&
+                (previousChapter.score == null ||
+                  (previousChapter.score != null &&
+                    previousChapter.score < 70));
+
+              // const isLocked =
+                // previousChapter && previousChapter.status !== "YET";
 
               return (
                 <View key={chapter.id}>
@@ -183,7 +190,7 @@ export default function CourseLearnScreen() {
                   >
                     <MaterialIcons
                       name={
-                        chapter.status === "YET"
+                        chapter.score && chapter.score >= 70 
                           ? "check-circle"
                           : "play-circle-outline"
                       }
@@ -191,7 +198,7 @@ export default function CourseLearnScreen() {
                       color={
                         isLocked
                           ? "#9CA3AF"
-                          : chapter.status === "YET"
+                          : chapter.score && chapter.score >= 70 
                           ? "#10B981"
                           : "#3B82F6"
                       }

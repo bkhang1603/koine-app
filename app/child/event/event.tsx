@@ -13,25 +13,14 @@ import { useEvent } from "@/queries/useEvent";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 
 export default function EventScreen() {
-  const {
-    data: events,
-    isLoading,
-    isError,
-    error,
-    refetch,
-    isFetched,
-  } = useEvent();
+  const { data: events, isLoading, isError, error, refetch } = useEvent();
   const insets = useSafeAreaInsets();
 
   if (isLoading) console.log("loading");
   if (isError) console.log("error ", error);
 
   useFocusEffect(() => {
-    useCallback(() => {
-      if (isFetched) {
-        refetch();
-      }
-    }, [isFetched]);
+    refetch();
   });
 
   const [isProcessing, setIsProcessing] = useState(false);
@@ -149,7 +138,7 @@ export default function EventScreen() {
               {events.data.map((event) => (
                 <Pressable
                   key={event.id}
-                  className="p-1 my-1 bg-gray-200 border-[1.5px] border-blue-500 rounded-lg"
+                  className="p-1 my-1 bg-gray-200 border-[1.5px] border-black rounded-lg"
                   onPress={() => {
                     const encodedData = encodeURIComponent(
                       JSON.stringify(event)
@@ -231,7 +220,7 @@ export default function EventScreen() {
                     event.status == "OPENING" ? (
                       <View>
                         <Pressable
-                          className={`mt-1 border-black border-[1px] mx-3 rounded-lg px-2 ${
+                          className={`mt-1  mx-3 rounded-lg px-2 ${
                             isOpenable(event.startedAt, event.durations) &&
                             event.status == "OPENING"
                               ? "bg-green-500"

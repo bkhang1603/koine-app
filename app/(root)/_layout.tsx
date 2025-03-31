@@ -75,6 +75,10 @@ export default function RootLayout() {
           name="learn/lesson/[lessonId]"
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name="learn/question/[chapterId]"
+          options={{ headerShown: false }}
+        />
         <Stack.Screen name="orders/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="cart/checkout" options={{ headerShown: false }} />
         <Stack.Screen
@@ -97,10 +101,7 @@ export default function RootLayout() {
           name="event/event-list"
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name="event/[id]"
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
         <Stack.Screen
           name="custom-course/custom-course"
           options={{ headerShown: false }}

@@ -9,7 +9,12 @@ import {
   Animated,
   Alert,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import {
+  AntDesign,
+  EvilIcons,
+  MaterialIcons,
+  SimpleLineIcons,
+} from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MOCK_COURSES } from "@/constants/mock-data";
@@ -315,18 +320,32 @@ export default function CourseDetailScreen() {
                             size={16}
                             color="#6B7280"
                           />
-                          <Text className="text-gray-500 text-sm ml-1">
+                          <Text className="text-gray-500 text-sm ml-1 mr-1">
                             {chapter.durationsDisplay}
                           </Text>
-                          <View className="w-1 h-1 bg-gray-300 rounded-full mx-2" />
+                          {/* <View className="w-1 h-1 bg-gray-300 rounded-full mx-2" /> */}
                           <MaterialIcons
                             name="menu-book"
                             size={16}
                             color="#6B7280"
                           />
+
                           <Text className="text-gray-500 text-sm ml-1">
-                            {chapter.lessons.length} bài học
+                            {chapter.lessons.length + " bài học"}
                           </Text>
+
+                          {chapter.questions.length != 0 ? (
+                            <View className="flex-row justify-center items-center ml-1">
+                              <SimpleLineIcons
+                                name="note"
+                                size={16}
+                                color="black"
+                              />
+                              <Text className="text-gray-500 text-sm ml-1">
+                                1 bài kiểm tra
+                              </Text>
+                            </View>
+                          ) : null}
                         </View>
                       </View>
                     </View>
@@ -340,7 +359,7 @@ export default function CourseDetailScreen() {
                         return (
                           <Pressable
                             key={lesson.id}
-                            className={`flex-row items-center px-4 py-3.5 border-t border-gray-100
+                            className={`flex-row items-center px-4 py-3.5 border-b border-gray-300
                               ${
                                 !isFirstChapterFirstLesson ? "opacity-50" : ""
                               }`}
@@ -410,6 +429,43 @@ export default function CourseDetailScreen() {
                       })}
                     </View>
                   )}
+                  {expandedChapters.includes(chapter.id) &&
+                    chapter.questions.length != 0 && (
+                      <View className="ml-12 border-l border-gray-200">
+                        <View
+                          className={`flex-row items-center px-4 py-3.5 border-t border-gray-300
+                              opacity-50
+                              `}
+                        >
+                          <View className="w-8 items-center mr-3">
+                            <MaterialIcons
+                              name={"lock"}
+                              size={22}
+                              color={"#9CA3AF"}
+                            />
+                          </View>
+                          <View className="flex-1">
+                            <Text
+                              className={`font-medium text-gray-400
+                                
+                                }`}
+                            >
+                              Bài kiểm tra chương
+                            </Text>
+                            <View className="flex-row items-center mt-1">
+                              <AntDesign
+                                name="questioncircle"
+                                size={14}
+                                color="#9CA3AF"
+                              />
+                              <Text className="text-gray-500 text-sm ml-1">
+                                {chapter.questions.length} câu hỏi
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    )}
                 </View>
               ))}
             </View>

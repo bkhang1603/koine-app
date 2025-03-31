@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import courseApiRequest from "@/api/course";
 import {
   AssignCourseStoreBodyType,
+  ChapterScoreBodyType,
   CourseElementResType,
   CreateCustomCourseType,
   EditChildCourseVisibleBodyType,
@@ -123,8 +124,8 @@ export const useCourseElement = ({ token }: { token: string }) => {
         token // Truyền token vào khi gọi API
       ),
   });
-  
-  return query
+
+  return query;
 };
 
 export const useCreateCustomCourse = () => {
@@ -141,6 +142,51 @@ export const useCreateCustomCourse = () => {
       queryClient.invalidateQueries({
         queryKey: ["order"],
         exact: true,
+      });
+    },
+  });
+};
+
+export const useChapterQuestion = ({
+  chapterId,
+  token,
+}: {
+  chapterId: string;
+  token: string;
+}) => {
+  return useQuery({
+    queryKey: ["chapter-question", chapterId],
+    queryFn: () =>
+      courseApiRequest.getChapterQuestions({
+        token,
+        chapterId,
+      }),
+    enabled: !!chapterId,
+  });
+};
+
+export const useUpdateChapterScoreMutation = (
+  courseId: string,
+  chapterId: string
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      body,
+      token,
+    }: {
+      body: ChapterScoreBodyType;
+      token: string;
+    }) => courseApiRequest.updateChapterScore({ body, token }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["my-courses"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["my-course", courseId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["my-chapter", chapterId],
       });
     },
   });

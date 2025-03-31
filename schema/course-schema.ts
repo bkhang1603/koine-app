@@ -241,3 +241,38 @@ export const requestCustomCourse = z.object({
 });
 
 export type CreateCustomCourseType = z.infer<typeof requestCustomCourse>;
+
+export const getChapterQuestionResType = z.object({
+  data: z.object({
+    attempt: z.number(),
+    questions: z.array(
+      z.object({
+        isDeleted: z.boolean(),
+        createdAt: z.string(),
+        updatedAt: z.string(),
+        id: z.string(),
+        content: z.string(),
+        numCorrect: z.number(),
+        questionOptions: z.array(
+          z.object({
+            id: z.string(),
+            questionId: z.string(),
+            optionData: z.string(),
+            isCorrect: z.boolean(),
+          })
+        ),
+      })
+    ),
+  }),
+});
+
+export type GetChapterQuestionResType = z.infer<
+  typeof getChapterQuestionResType
+>;
+
+export const updateChapterScoreBodyType = z.object({
+  chapterId: z.string(),
+  score: z.number(),
+});
+
+export type ChapterScoreBodyType = z.infer<typeof updateChapterScoreBodyType>;

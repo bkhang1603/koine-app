@@ -12,9 +12,6 @@ import {
 import { router } from "expo-router";
 import { useAppStore } from "@/components/app-provider";
 import { RoleValues } from "@/constants/type";
-import { MaterialIcons } from "@expo/vector-icons";
-
-const { width, height } = Dimensions.get("window");
 
 export default function Index() {
   const isRefreshExpired = useAppStore((state) => state.isRefreshExpired);
@@ -29,6 +26,9 @@ export default function Index() {
       router.push("/(auth)/login");
     } else {
       if (user.role == RoleValues[0]) {
+        // router.push(
+        //   "/(root)/learn/question/34518330-359b-40cf-9ec0-1ab29d0e0c65"
+        // );
         router.push("/(tabs)/home");
       } else if (user.role == RoleValues[3]) {
         router.push("/child/(tabs)/home");
