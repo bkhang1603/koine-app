@@ -80,8 +80,8 @@ export default function OrderDetailScreen() {
 
   // Initialize selected payment method from order data
   React.useEffect(() => {
-    if (orderDetails && orderDetails.payMethod && selectedPayment === "") {
-      setSelectedPayment(orderDetails.payMethod);
+    if (orderDetails && orderDetails.payment.payMethod && selectedPayment === "") {
+      setSelectedPayment(orderDetails.payment.payMethod);
     }
   }, [orderDetails, selectedPayment]);
 
@@ -311,7 +311,7 @@ export default function OrderDetailScreen() {
             <View className="flex-row items-center p-2 bg-white rounded-lg">
               <MaterialIcons
                 name={
-                  order.payMethod === "COD"
+                  order.payment.payMethod === "COD"
                     ? "local-shipping"
                     : "account-balance"
                 }
@@ -319,7 +319,7 @@ export default function OrderDetailScreen() {
                 color="#4B5563"
               />
               <Text className="ml-3 text-gray-800 font-medium">
-                {order.payMethod === "COD"
+                {order.payment.payMethod === "COD"
                   ? "Thanh toán khi nhận hàng (COD)"
                   : "Chuyển khoản ngân hàng (BANKING)"}
               </Text>

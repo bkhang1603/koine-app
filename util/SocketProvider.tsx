@@ -38,7 +38,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
     if (!accessToken?.accessToken || socketRef.current) return;
 
     console.log("⚡️ Kết nối socket với token:", accessToken.accessToken);
-    const newSocket = io(`${LOCAL_HOST}`, {
+    const newSocket = io(`${DEPLOY_HOST}`, {
       auth: { Authorization: `Bearer ${accessToken.accessToken}` },
       transports: ["websocket"],
       reconnection: true,
