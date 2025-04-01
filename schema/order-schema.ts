@@ -136,7 +136,12 @@ export const orderDetailsRes = z.object({
       phone: z.string(),
       status: z.string(),
     }),
-    payMethod: z.string(),
+    payment: z.object({
+      payMethod: z.string(),
+      payDate: z.string(),
+      payAmount: z.number(),
+      payStatus: z.string(),
+    }),
   }),
 });
 
