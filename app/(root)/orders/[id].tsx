@@ -13,7 +13,6 @@ import {
 import { useLocalSearchParams, router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import HeaderWithBack from "@/components/HeaderWithBack";
-import { MOCK_ORDERS } from "@/constants/mock-data";
 import {
   useOrderDetails,
   useDeleteOrderMutation,
@@ -80,7 +79,11 @@ export default function OrderDetailScreen() {
 
   // Initialize selected payment method from order data
   React.useEffect(() => {
-    if (orderDetails && orderDetails.payment.payMethod && selectedPayment === "") {
+    if (
+      orderDetails &&
+      orderDetails.payment.payMethod &&
+      selectedPayment === ""
+    ) {
       setSelectedPayment(orderDetails.payment.payMethod);
     }
   }, [orderDetails, selectedPayment]);
@@ -100,12 +103,53 @@ export default function OrderDetailScreen() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case "PENDING":
+        return {
+          bg: "bg-gray-100",
+          text: "text-gray-600",
+          label: "Chờ xử lý",
+          icon: "info",
+        };
+      case "DELIVERING":
+        return {
+          bg: "bg-blue-100",
+          text: "text-blue-600",
+          label: "Đang giao",
+          icon: "local-shipping",
+        };
+      case "DELIVERED":
+        return {
+          bg: "bg-gray-100",
+          text: "text-gray-600",
+          label: "Đã giao",
+          icon: "local-shipping",
+        };
+      case "FAILED_PAYMENT":
+        return {
+          bg: "bg-red-100",
+          text: "text-red-600",
+          label: "Thanh toán thất bại",
+        };
       case "COMPLETED":
         return {
           bg: "bg-green-100",
           text: "text-green-600",
           label: "Đã hoàn thành",
           icon: "check-circle",
+        };
+      case "FAILED":
+        return {
+          bg: "bg-red-100",
+          text: "text-red-600",
+          label: "Thất bại",
+          icon: "remove-circle",
+        };
+      case "CANCELLED":
+        return {
+          bg: "bg-gray-100",
+          text: "text-gray-600",
+          label: "Đã hủy",
+          icon: "cancel",
         };
       case "PROCESSING":
         return {
@@ -114,11 +158,33 @@ export default function OrderDetailScreen() {
           label: "Đang xử lý",
           icon: "hourglass-empty",
         };
+      case "REFUND_REQUEST":
+        return {
+          bg: "bg-gray-100",
+          text: "text-gray-600",
+          label: "Yêu cầu hoàn tiền",
+          icon: "question-answer",
+        };
+      case "REFUNDING":
+        return {
+          bg: "bg-blue-100",
+          text: "text-blue-600",
+          label: "Đang trả tiền",
+          icon: "hourglass-empty",
+        };
+      case "REFUNDED":
+        return {
+          bg: "bg-gray-100",
+          text: "text-gray-600",
+          icon: "price-check",
+          label: "Đã trả tiền",
+        };
+
       default:
         return {
           bg: "bg-gray-100",
           text: "text-gray-600",
-          label: "Chưa xác định",
+          label: "Không xác định",
           icon: "info",
         };
     }
@@ -413,31 +479,47 @@ export default function OrderDetailScreen() {
           <View className="flex-row items-center">
             <MaterialIcons name="person" size={20} color="#6B7280" />
             <Text className="text-gray-600 ml-2">Người nhận:</Text>
-            <Text className="ml-2">{order.deliveryInfo.name}</Text>
+            <Text className="ml-2">{order.deliveryInfo?.name}</Text>
           </View>
 
           <View className="flex-row items-start">
             <MaterialIcons name="location-on" size={20} color="#6B7280" />
             <Text className="text-gray-600 ml-2">Địa chỉ:</Text>
-            <Text className="ml-2 flex-1">{order.deliveryInfo.address}</Text>
+            <Text className="ml-2 flex-1">{order.deliveryInfo?.address}</Text>
           </View>
 
           <View className="flex-row items-center">
             <MaterialIcons name="phone" size={20} color="#6B7280" />
             <Text className="text-gray-600 ml-2">Số điện thoại:</Text>
-            <Text className="ml-2">{order.deliveryInfo.phone}</Text>
+            <Text className="ml-2">{order.deliveryInfo?.phone}</Text>
           </View>
 
           <View className="flex-row items-center">
             <MaterialIcons name="local-shipping" size={20} color="#6B7280" />
             <Text className="text-gray-600 ml-2">Trạng thái:</Text>
             <Text className="ml-2">
-              {order.deliveryInfo.status === "PENDING"
+              {order.deliveryInfo?.status === "PENDING"
                 ? "Đang chờ xử lý"
-                : order.deliveryInfo.status === "PROCESSING"
+                : order.deliveryInfo?.status === "INTRANSIT"
                 ? "Đang giao hàng"
-                : order.deliveryInfo.status === "COMPLETED"
+                : order.deliveryInfo?.status === "DELIVERED"
                 ? "Đã giao hàng"
+                : order.deliveryInfo?.status === "FAILED"
+                ? "Thất bại"
+                : order.deliveryInfo?.status == "RETURNED"
+                ? "Trả hàng"
+                : "Không xác định"}
+            </Text>
+          </View>
+
+          <View className="flex-row items-center">
+            <MaterialIcons name="local-shipping" size={20} color="#6B7280" />
+            <Text className="text-gray-600 ml-2">Tốc độ:</Text>
+            <Text className="ml-2">
+              {order.deliMethod === "STANDARD"
+                ? "Tiêu chuẩn"
+                : order.deliveryInfo?.status === "EXPEDITED"
+                ? "Hỏa tốc"
                 : "Không xác định"}
             </Text>
           </View>
@@ -501,14 +583,14 @@ export default function OrderDetailScreen() {
                 <Text className="font-medium ml-2">{quantity}</Text>
               </View>
               <View>
-                <Text className="text-lg font-semibold text-blue-500">
+                <Text className="text-base font-semibold text-gray-500">
                   {(price * (1 - discount)).toLocaleString("vi-VN")} ₫
                 </Text>
               </View>
             </View>
 
             <View className="mt-2 flex-row justify-end">
-              <Text className="text-gray-500">
+              <Text className="text-gray-500 text-base">
                 Thành tiền:{" "}
                 <Text className="font-medium text-blue-500">
                   {totalPrice.toLocaleString("vi-VN")} ₫
@@ -706,7 +788,9 @@ export default function OrderDetailScreen() {
               Đơn hàng #{order.orderCode}
             </Text>
           </View>
-          <View className="flex justify-between">
+
+          <View className="flex-row items-center">
+            <Text className="font-semibold mr-2">Trạng thái</Text>
             <View
               className={`${status.bg} self-start py-1 px-2 rounded-xl flex-row items-center`}
             >
@@ -717,9 +801,13 @@ export default function OrderDetailScreen() {
               />
               <Text className={`${status.text} ml-1 pr-1`}>{status.label}</Text>
             </View>
+          </View>
+          <View className="flex-row items-center">
+            <Text className="font-semibold mr-2">Ngày đặt hàng:</Text>
             <Text className="text-gray-600">
               {new Date(order.orderDate).toLocaleDateString("vi-VN")}
             </Text>
+            <Text className="ml-2 italic text-gray-600">(ngày/tháng/năm)</Text>
           </View>
         </View>
 

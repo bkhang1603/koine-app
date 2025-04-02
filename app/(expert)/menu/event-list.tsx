@@ -143,7 +143,7 @@ export default function EventListScreen() {
         eventId: eventId,
         note: newNote,
       };
-      console.log("body ", body);
+      // console.log("body ", body);
       await cancelEvent.mutateAsync({ body: body, token });
       Alert.alert("Thành công", "Sự kiện đã được hủy");
     } catch (error) {
@@ -166,6 +166,9 @@ export default function EventListScreen() {
         Alert.alert("Thông báo", `Chưa có dữ liệu phòng họp`);
         return;
       }
+      // console.log("total ", totalParticipants)
+      // console.log("event ", eventId)
+      // console.log("token ", token)
       await updateEventInfo.mutateAsync({
         body: { totalParticipants: totalParticipants, status: "DONE" },
         token,
@@ -198,7 +201,7 @@ export default function EventListScreen() {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      console.log("Insights Room Data:", data);
+      // console.log("Insights Room Data:", data);
       return data;
     } catch (error) {
       console.error("Error when getting insight room:", error);
@@ -337,12 +340,12 @@ export default function EventListScreen() {
           </Text>
           <Pressable
             className={`p-2  rounded-md
-              bg-gray-300 mr-2`}
+              bg-cyan-300 mr-2`}
             onPress={() => {
               router.push("/(expert)/route/event/create-event");
             }}
           >
-            <Text className={`text-black font-semibold text-lg text-center`}>
+            <Text className={`text-gray-500 font-semibold text-lg text-center`}>
               Tạo sự kiện
             </Text>
           </Pressable>
@@ -520,7 +523,7 @@ export default function EventListScreen() {
                           <Text
                             className={`text-black font-semibold text-lg text-center`}
                           >
-                            Báo cáo
+                            Gửi số liệu
                           </Text>
                         </Pressable>
                       </View>

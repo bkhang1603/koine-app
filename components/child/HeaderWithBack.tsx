@@ -54,7 +54,7 @@ export default function HeaderWithBack({
   const handleBack = () => {
     try {
       if (!returnTab) {
-        router.replace("/(tabs)/home");
+        router.replace("/child/(tabs)/home");
       } else {
         router.replace(returnTab as any);
       }

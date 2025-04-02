@@ -166,8 +166,8 @@ export default function CustomCourseScreen() {
         </View>
 
         {selectedChapter.length == 0 ? (
-          <View className="flex justify-center items-center">
-            <Text>Chưa có chương nào được chọn</Text>
+          <View className="flex justify-center items-center h-96">
+            <Text className="italic">Chưa có chương nào được chọn</Text>
           </View>
         ) : (
           <View>
@@ -236,8 +236,8 @@ export default function CustomCourseScreen() {
       {/* Select Chapters Modal */}
       <Portal>
         <Modal visible={showModal} onDismiss={() => setShowModal(false)}>
-          <View className="mx-3">
-            <View className="bg-slate-200 p-5 rounded-lg">
+          <View className="mx-2">
+            <View className="bg-slate-200 p-3 rounded-lg">
               <View className="flex-row justify-between items-center">
                 <Text className="text-black font-bold text-base py-2">
                   Danh sách chương - Tổng: {chaptersArray.length} chương
@@ -253,6 +253,11 @@ export default function CustomCourseScreen() {
               <ScrollView
                 className="max-h-96 w-[100%]"
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexGrow: 1, // Đảm bảo nội dung chiếm hết không gian của ScrollView
+                }}
               >
                 {chaptersArray.map((chapter) => (
                   <TouchableOpacity
@@ -261,7 +266,7 @@ export default function CustomCourseScreen() {
                       selectedChapter.some((c) => c.id === chapter.id)
                         ? "bg-cyan-200"
                         : "bg-white"
-                    } rounded-xl p-1 m-1 border-gray-300 w-[100%]`}
+                    } rounded-xl p-2 m-1 border-gray-300 w-[100%]`}
                     onPress={() => handleAddChapter(chapter)}
                   >
                     <Text numberOfLines={1} className="font-semibold">
@@ -274,7 +279,10 @@ export default function CustomCourseScreen() {
                     <Text numberOfLines={4}>{chapter.description}</Text>
                     <View>
                       {chapter.lessons.map((lesson) => (
-                        <View key={lesson.id} className="flex-row items-center p-1 w-[96%]">
+                        <View
+                          key={lesson.id}
+                          className="flex-row items-center p-1 w-[96%]"
+                        >
                           <MaterialIcons
                             name={
                               lesson.type === "VIDEO"

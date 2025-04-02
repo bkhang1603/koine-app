@@ -77,7 +77,7 @@ export default function QuestionScreen() {
     }
   }
 
-  const [timer, setTimer] = useState<number>(10);
+  const [timer, setTimer] = useState<number>( 10 * 60);
   const [selectedAnswers, setSelectedAnswers] = useState<{
     [key: number]: string[];
   }>({}); // Lưu ID của đáp án người dùng đã chọn
@@ -107,6 +107,7 @@ export default function QuestionScreen() {
 
     // Tính điểm khi thời gian hết
     if (timer == 0) {
+      console.log("hết giờ")
       calculateScore();
     }
 
@@ -226,7 +227,7 @@ export default function QuestionScreen() {
             <View>
               <Text
                 className={`${
-                  hasResult >= 70 ? "text-green-500" : "text-red-500"
+                  hasResult >= 70 ? "text-green-600" : "text-red-500"
                 } text-lg ml-2`}
               >
                 Kết quả lần thi thứ {data?.data.attempt}: {hasResult} điểm

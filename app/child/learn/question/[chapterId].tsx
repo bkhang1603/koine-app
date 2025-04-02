@@ -226,7 +226,7 @@ export default function QuestionScreen() {
             <View>
               <Text
                 className={`${
-                  hasResult >= 70 ? "text-green-500" : "text-red-500"
+                  hasResult >= 70 ? "text-green-600" : "text-red-500"
                 } text-lg ml-2`}
               >
                 Kết quả lần thi thứ {data?.data.attempt}: {hasResult} điểm

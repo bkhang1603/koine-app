@@ -71,7 +71,7 @@ export default function EventDetailUser() {
           <View className="flex-row items-center">
             <Pressable
               className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
-              onPress={() => router.push("/notifications/notifications")}
+              onPress={() => router.push("/child/notifications")}
             >
               <MaterialIcons name="notifications" size={24} color="white" />
             </Pressable>
@@ -84,10 +84,17 @@ export default function EventDetailUser() {
           {eventData ? (
             <>
               <View className="flex-1">
-                <Image
-                  source={{ uri: eventData.imageUrl }}
-                  className="w-full h-60"
-                />
+                {/* Video */}
+                {eventData.recordUrl && eventData.recordUrl.length > 0 ? (
+                  <View className="w-full p-2">
+                    <VideoPlayer videoUrl={eventData.recordUrl} />
+                  </View>
+                ) : (
+                  <Image
+                    source={{ uri: eventData.imageUrl }}
+                    className="w-full h-60"
+                  />
+                )}
 
                 <View className="p-2">
                   <Text className="font-bold text-lg">{eventData.title}</Text>
@@ -140,16 +147,6 @@ export default function EventDetailUser() {
                     </View>
                   </View>
                 </View>
-
-                {eventData.recordUrl.length != 0 ? (
-                  <View className="w-full">
-                    <VideoPlayer videoUrl={eventData.videoUrl} />
-                  </View>
-                ) : (
-                  <View className='p-2'>
-                    <Text className="font-semibold text-lg">Sự kiện này không có bản ghi</Text>
-                  </View>
-                )}
               </View>
             </>
           ) : (

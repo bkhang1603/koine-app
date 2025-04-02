@@ -1,7 +1,10 @@
 import React from "react";
 import { View, Text, ScrollView, Pressable, Image } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import HeaderWithBack from "@/components/HeaderWithBack";
 import { GetAllProductResType, productRes } from "@/schema/product-schema";
 import CartButton from "@/components/CartButton";
@@ -13,7 +16,7 @@ import { useFocusEffect } from "expo-router";
 export default function ProductsScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
-
+  const insets = useSafeAreaInsets();
   const {
     data: productListData,
     isLoading: productListDataLoading,
@@ -56,56 +59,86 @@ export default function ProductsScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      {parsedProductList.length === 0 ? (
+      {/* parsedProductList.length === 0 */}
+      {false ? (
         <View>
-          {" "}
-          <HeaderWithBack
-            title="Danh sách sản phẩm"
-            returnTab={"/(tabs)/home"}
-            showMoreOptions={false}
-          />
           <View className="flex-1 items-center justify-center p-4">
             <MaterialIcons name="shop" size={34} color="#9CA3AF" />
             <Text className="text-gray-500 text-lg mt-4 text-center">
               Danh sách sản phẩm trống
             </Text>
           </View>
-        </View>
-      ) : (
-        <ScrollView className="flex-1 bg-white">
-          <SafeAreaView>
-            {/* Header */}
-            <View className="px-4 flex-row items-center justify-between">
-              <View>
-                <Text className="text-2xl font-bold">Sản phẩm</Text>
-                <Text className="text-gray-600 mt-1">
-                  Khám phá các sản phẩm
-                </Text>
-              </View>
+          <View
+            style={{ paddingTop: insets.top }}
+            className="absolute top-0 left-0 right-0 z-10"
+          >
+            <View className="px-4 py-3 flex-row items-center justify-between">
+              <Pressable
+                onPress={() => router.push("/(tabs)/home")}
+                className="w-10 h-10 bg-black/30 rounded-full items-center justify-center ml-2"
+              >
+                <MaterialIcons name="arrow-back" size={24} color="white" />
+              </Pressable>
 
               <View className="flex-row items-center">
+                <CartButton
+                  bgColor="bg-black/30"
+                  iconColor="white"
+                ></CartButton>
                 <Pressable
-                  className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 mr-2"
-                  onPress={() => router.push("/(tabs)/home")}
-                >
-                  <MaterialIcons name="home" size={24} color="#374151" />
-                </Pressable>
-                <CartButton />
-                <Pressable
-                  className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 ml-2"
+                  className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
                   onPress={() => router.push("/notifications/notifications")}
                 >
-                  <MaterialIcons
-                    name="notifications"
-                    size={24}
-                    color="#374151"
-                  />
+                  <MaterialIcons name="notifications" size={24} color="white" />
                 </Pressable>
               </View>
             </View>
+          </View>
+        </View>
+      ) : (
+        <SafeAreaView className="flex-1 bg-white">
+          {/* Header */}
+          <View className="px-4 mt-2 flex-row items-center justify-between">
+            <View>
+              <Text className="text-2xl font-bold">Sản phẩm</Text>
+              <Text className="text-gray-600 mt-1">Khám phá các sản phẩm</Text>
+            </View>
 
+            <View
+              style={{ paddingTop: insets.top }}
+              className="absolute top-0 left-0 right-0 z-10"
+            >
+              <View className="px-4 py-3 flex-row items-center justify-between">
+                <Pressable
+                  onPress={() => router.push("/(tabs)/home")}
+                  className="w-10 h-10 bg-black/30 rounded-full items-center justify-center ml-2"
+                >
+                  <MaterialIcons name="arrow-back" size={24} color="white" />
+                </Pressable>
+
+                <View className="flex-row items-center">
+                  <CartButton
+                    bgColor="bg-black/30"
+                    iconColor="white"
+                  ></CartButton>
+                  <Pressable
+                    className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
+                    onPress={() => router.push("/notifications/notifications")}
+                  >
+                    <MaterialIcons
+                      name="notifications"
+                      size={24}
+                      color="white"
+                    />
+                  </Pressable>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          <ScrollView>
             {/* Search Bar */}
-            {/* <Pressable
+            <Pressable
               className="mx-4 mt-4 flex-row items-center bg-gray-100 rounded-xl p-3"
               onPress={() => {
                 router.push("/search/searchProduct");
@@ -115,7 +148,7 @@ export default function ProductsScreen() {
               <Text className="ml-2 text-gray-500 flex-1">
                 Tìm kiếm sản phẩm...
               </Text>
-            </Pressable> */}
+            </Pressable>
 
             {/* Featured Course */}
             {parsedProductList && (
@@ -145,7 +178,7 @@ export default function ProductsScreen() {
                     source={{ uri: parsedProductList[0].images[0].imageUrl }}
                     className="w-full h-48"
                   />
-                  <View className="p-4">
+                  <View className="p-2">
                     <View className="flex-row flex-wrap gap-1">
                       {!parsedProductList[0].categories.length ? (
                         <View className="bg-blue-50 px-3 py-1 rounded-full">
@@ -271,12 +304,12 @@ export default function ProductsScreen() {
                     className="w-32 h-full rounded-l-2xl"
                     style={{ resizeMode: "cover" }}
                   />
-                  <View className="flex-1 p-3 justify-between">
+                  <View className="flex-1 p-2 justify-between">
                     <View>
                       <View className="flex-row items-center mb-1">
                         <View className="flex-row flex-wrap gap-1">
                           {!product.categories.length ? (
-                            <View className="bg-blue-50 px-3 py-1 rounded-full">
+                            <View className="bg-blue-50 px-1 py-1 rounded-full">
                               <Text className="text-blue-600 text-xs font-medium">
                                 --
                               </Text>
@@ -288,7 +321,7 @@ export default function ProductsScreen() {
                                 .map((category) => (
                                   <View
                                     key={category.id}
-                                    className="bg-blue-50 px-3 py-1 rounded-full"
+                                    className="bg-blue-50 px-2 py-1 rounded-full"
                                   >
                                     <Text className="text-blue-600 text-xs font-medium">
                                       {category.name}
@@ -307,8 +340,8 @@ export default function ProductsScreen() {
                         </View>
                       </View>
                       <Text className="font-bold text-base" numberOfLines={2}>
-                        {product.name.length > 25
-                          ? product.name.substring(0, 25) + "..."
+                        {product.name.length > 20
+                          ? product.name.substring(0, 20) + "..."
                           : product.name}
                       </Text>
                     </View>
@@ -367,9 +400,8 @@ export default function ProductsScreen() {
                 </Pressable>
               ))}
             </View>
-            <View className="h-20"></View>
-          </SafeAreaView>
-        </ScrollView>
+          </ScrollView>
+        </SafeAreaView>
       )}
     </View>
   );

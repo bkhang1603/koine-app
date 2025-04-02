@@ -116,18 +116,29 @@ export default function ProfileScreen() {
 
           {/* Quick Stats */}
           <View className="flex-row px-4 mt-6">
-            <View className="flex-1 bg-blue-50 rounded-xl p-4 mr-2">
-              <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center mb-2">
-                <MaterialIcons name="people" size={24} color="#3B82F6" />
+            <View className="flex-1 bg-blue-100 rounded-xl p-4 mr-2">
+              <View className="flex-row">
+                <View className="w-10 h-10 bg-blue-500 rounded-full items-center justify-center mb-2">
+                  <MaterialIcons name="people" size={24} color="#fff" />
+                </View>
+                <Text className="text-2xl font-bold ml-2">
+                  {childs?.length}
+                </Text>
               </View>
-              <Text className="text-2xl font-bold">{childs?.length}</Text>
+
               <Text className="text-gray-600">Tài khoản con</Text>
             </View>
-            <View className="flex-1 bg-green-50 rounded-xl p-4 ml-2">
-              <View className="w-10 h-10 bg-green-100 rounded-full items-center justify-center mb-2">
-                <MaterialIcons name="school" size={24} color="#059669" />
+
+            <View className="flex-1 bg-green-100 rounded-xl p-4 ml-2">
+              <View className="flex-row">
+                <View className="w-10 h-10 bg-green-500 rounded-full items-center justify-center mb-2">
+                  <MaterialIcons name="school" size={24} color="#fff" />
+                </View>
+                <Text className="text-2xl font-bold ml-2">
+                  {totalPurchased}
+                </Text>
               </View>
-              <Text className="text-2xl font-bold">{totalPurchased}</Text>
+
               <Text className="text-gray-600">Khóa học đã mua</Text>
             </View>
           </View>
@@ -151,7 +162,7 @@ export default function ProfileScreen() {
             >
               {/* Add Account Button */}
               <Pressable
-                className="w-24 h-32 bg-gray-50 rounded-xl items-center justify-center mr-3 border-2 border-dashed border-gray-200"
+                className="w-24 bg-gray-50 rounded-xl items-center justify-center mr-3 border-2 border-dashed border-gray-200"
                 onPress={() => router.push("/(root)/sub-accounts/create")}
               >
                 <MaterialIcons name="person-add" size={24} color="#3B82F6" />
@@ -176,7 +187,7 @@ export default function ProfileScreen() {
                     source={{ uri: account.userDetail.avatarUrl }}
                     className="w-24 h-24 rounded-full"
                   />
-                  <Text className="font-medium mt-2 text-center">
+                  <Text className="font-medium mt-2 text-center" numberOfLines={2}>
                     {account.userDetail.lastName +
                       " " +
                       account.userDetail.firstName}
@@ -208,7 +219,7 @@ export default function ProfileScreen() {
                 </View>
                 <Text className="flex-1 font-medium ml-3">{item.title}</Text>
                 {item.badge && (
-                  <View className="bg-blue-100 px-2 py-1 rounded-full mr-2">
+                  <View className="flex items-center bg-blue-100 w-8 h-8 px-2 py-1 rounded-full mr-2">
                     <Text className="text-blue-600 text-sm">
                       {childs?.length}
                     </Text>
@@ -241,7 +252,7 @@ export default function ProfileScreen() {
               </Text>
             </Pressable>
           </View>
-          <View className="h-20" />
+          <View className="h-10" />
         </ScrollView>
       </View>
     </SafeAreaView>

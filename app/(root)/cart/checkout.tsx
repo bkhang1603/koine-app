@@ -6,6 +6,7 @@ import {
   Pressable,
   Image,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import {
   FontAwesome6,
@@ -18,7 +19,11 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import HeaderWithBack from "@/components/HeaderWithBack";
 import { CartType } from "@/model/cart";
 import { useAppStore } from "@/components/app-provider";
-import { useCreateShippingInfos } from "@/queries/useShippingInfos";
+import {
+  useCreateShippingInfos,
+  useDeleteShippingInfos,
+  useShippingInfos,
+} from "@/queries/useShippingInfos";
 import {
   RadioButton,
   Button,
@@ -41,11 +46,19 @@ export default function CheckoutScreen() {
 
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const [showQR, setShowQR] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<string>("BANKING");
   const shippingInfos = useAppStore((state) => state.shippingInfos);
   const [deliveryPace, setDeliveryPace] = useState("STANDARD");
 
   const { itemsToCheckout } = useLocalSearchParams();
+
+  const {
+    data: shippingData,
+    isLoading: isLoadingShipping,
+    isError: isErrorShipping,
+    refetch: refetchShipping,
+  } = useShippingInfos({ token: token ? token : "", enabled: true });
+
   // Kiểm tra và giải mã
   let cartDetails: CartType["cartDetails"] = [];
 
@@ -83,6 +96,7 @@ export default function CheckoutScreen() {
 
   const [totalToPay, setTotalToPay] = useState(total);
   const createShippingInfos = useCreateShippingInfos();
+  const deleteAddress = useDeleteShippingInfos();
   const [modalVisible, setModalVisible] = useState(false);
   const [addAddressModalVisible, setAddAddressModalVisible] = useState(false);
   const [chosenShippingAddress, setChosenShippingAddress] = useState(
@@ -155,6 +169,7 @@ export default function CheckoutScreen() {
         // xóa bớt 1 đoạn r cần thì cop lại bên mobile
         setAddAddressModalVisible(false);
         setNewAddress({ name: "", phone: "", address: "", tag: "" }); // Reset form
+        refetchShipping();
       }
     } catch (error) {
       console.error("Error creating address:", error);
@@ -178,6 +193,7 @@ export default function CheckoutScreen() {
         deliveryInfoId: z.string(),
         //thêm 1 cái delivery method đây nữa
         deliMethod: z.string(),
+        payMethod: z.string(),
       });
 
       const body = {
@@ -185,6 +201,7 @@ export default function CheckoutScreen() {
         deliveryInfoId: chosenShippingAddress?.id, // ID của địa chỉ giao hàng
         //thêm cái delivery method đây nữa
         deliMethod: deliveryPace,
+        payMethod: paymentMethod,
       };
 
       // Validate body với schema
@@ -192,14 +209,36 @@ export default function CheckoutScreen() {
 
       const res = await payment.mutateAsync({ body: parsedBody, token });
       if (res) {
-        console.log("thanhf coong");
         //đây trả về 1 url để qua payment nó mở webview
-        const encodedUrl = encodeURIComponent(res.data.paymentLink);
-        router.push(`/(root)/cart/payment-screen?paymentUrl=${encodedUrl}`);
+        if (res.data.paymentLink != null && res.data.paymentLink.length > 0) {
+          const encodedUrl = encodeURIComponent(res.data.paymentLink);
+          router.push(`/(root)/cart/payment-screen?paymentUrl=${encodedUrl}`);
+        } else {
+          router.push(`/(root)/orders/orders?message=true`);
+        }
       }
       setTimeout(() => setIsProcessing(false), 1000);
     } catch (error) {
       console.log("Lỗi ở khi tạo đơn hàng ", error);
+    }
+  };
+
+  const removeSelectedAddress = async (address: AShippingAddressType) => {
+    console.log(token);
+    try {
+      console.log(address.id);
+      console.log(address.isDeleted);
+      if (isProcessing) return;
+      setIsProcessing(true);
+      const res = deleteAddress.mutateAsync({ addressId: address.id, token });
+      refetchShipping();
+    } catch (error) {
+      Alert.alert("Lỗi", `Lỗi khi xóa địa chỉ ${error}`);
+      console.log(error);
+    } finally {
+      setTimeout(() => {
+        setIsProcessing(false);
+      }, 400);
     }
   };
 
@@ -310,7 +349,7 @@ export default function CheckoutScreen() {
                 <Text className="text-gray-600">
                   Người nhận: {chosenShippingAddress?.name}
                 </Text>
-                <View className="self-start bg-cyan-200 p-1 mt-1 rounded">
+                <View className="self-start bg-cyan-100 p-1 mt-1 rounded">
                   <Text className="text-blue-600 font-semibold">
                     {chosenShippingAddress?.tag}
                   </Text>
@@ -363,56 +402,48 @@ export default function CheckoutScreen() {
           <></>
         )}
 
-        {isProduct ? (
-          <View className="p-4">
-            <Text className="font-bold text-lg mb-3">Tốc độ giao hàng</Text>
-            <RadioButton.Group
-              onValueChange={(value) => setDeliveryPace(value)}
-              value={deliveryPace}
-            >
-              <View>
-                <View className="flex-row items-center mb-2">
-                  <RadioButton
-                    value="STANDARD"
-                    status={
-                      deliveryPace === "STANDARD" ? "checked" : "unchecked"
-                    }
-                    onPress={() => setDeliveryPace("STANDARD")}
-                  />
-                  <Text>Tiêu chuẩn phí 26.000 ₫</Text>
-                </View>
-                <View className="flex-row items-center mb-2">
-                  <RadioButton
-                    value="EXPEDITED"
-                    status={
-                      deliveryPace === "EXPEDITED" ? "checked" : "unchecked"
-                    }
-                    onPress={() => setDeliveryPace("EXPEDITED")}
-                  />
-                  <Text>
-                    Hỏa tốc phí{" "}
-                    {chosenShippingAddress?.deliAmount?.toLocaleString("vi-VN")}{" "}
-                    ₫
-                  </Text>
-                </View>
-              </View>
-            </RadioButton.Group>
-          </View>
-        ) : (
-          <></>
-        )}
-
         {/* Payment Method */}
         {/* tắt bật để COD hoặc QR */}
         <View className="p-4">
           <Text className="font-bold text-lg mb-3">Phương thức thanh toán</Text>
-          <Pressable className="border border-gray-400 rounded-xl p-4 flex-row items-center">
+          <Pressable
+            className={`border ${
+              paymentMethod == "BANKING" ? "bg-blue-100" : "border-white"
+            } border-gray-400 rounded-xl p-4 flex-row items-center`}
+            onPress={() => {
+              setPaymentMethod("BANKING");
+            }}
+          >
             <MaterialIcons name="qr-code" size={24} color="#374151" />
             <View className="ml-3 flex-1">
               <Text className="font-medium">Chuyển khoản qua QR</Text>
               <Text className="text-gray-500">Quét mã QR để thanh toán</Text>
             </View>
           </Pressable>
+          {isProduct ? (
+            <View>
+              <Pressable
+                className={`border ${
+                  paymentMethod == "COD" ? "bg-blue-100" : "border-white"
+                } border-gray-400 rounded-xl p-4 flex-row items-center mt-2`}
+                onPress={() => {
+                  setPaymentMethod("COD");
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="truck-delivery-outline"
+                  size={24}
+                  color="#374151"
+                />
+                <View className="ml-3 flex-1">
+                  <Text className="font-medium">COD</Text>
+                  <Text className="text-gray-500">
+                    Thanh toán khi nhận hàng
+                  </Text>
+                </View>
+              </Pressable>
+            </View>
+          ) : null}
         </View>
       </ScrollView>
 
@@ -420,7 +451,7 @@ export default function CheckoutScreen() {
       <Portal>
         <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)}>
           <View className="mx-3">
-            <View className="bg-slate-200 p-5 rounded-lg">
+            <View className="bg-white p-5 rounded-lg">
               <ScrollView
                 className="max-h-72"
                 showsVerticalScrollIndicator={false}
@@ -428,16 +459,42 @@ export default function CheckoutScreen() {
                 {shippingInfos?.data.map((address) => (
                   <TouchableOpacity
                     key={address.id}
-                    className="p-2 border-b-2 border-b-cyan-300"
+                    className={`p-2 border-2 ${
+                      chosenShippingAddress?.id == address.id
+                        ? "bg-gray-200"
+                        : "bg-white"
+                    } border-gray-300 rounded-lg my-1`}
                     onPress={() => handleAddressSelect(address)}
                   >
                     <Text className="text-gray-600 font-bold p-1">
                       {address.address}
                     </Text>
-                    <Text className="text-gray-600 p-1">{address.phone}</Text>
-                    <Text className="text-gray-600 p-1">{address.name}</Text>
-                    <View className="self-start bg-cyan-200 p-1 mt-1 rounded">
-                      <Text className="text-gray-600">{address.tag}</Text>
+                    <Text className="text-gray-600 p-1">
+                      Số điện thoại: {address.phone}
+                    </Text>
+                    <Text className="text-gray-600 p-1">
+                      Người nhận: {address.name}
+                    </Text>
+
+                    <View className="flex-row justify-between items-center">
+                      <View className="p-1 flex-row items-center">
+                        <Text className="text-gray-600">Tag địa chỉ: </Text>
+                        <View className="self-start bg-cyan-200 p-1 rounded-lg">
+                          <Text className="text-gray-600">{address.tag}</Text>
+                        </View>
+                      </View>
+                      {shippingInfos.data.length >= 2 ? (
+                        <Pressable
+                          onPress={() => removeSelectedAddress(address)}
+                          hitSlop={8}
+                        >
+                          <MaterialIcons
+                            name={"remove-circle-outline"}
+                            size={24}
+                            color={"gray"}
+                          />
+                        </Pressable>
+                      ) : null}
                     </View>
                   </TouchableOpacity>
                 ))}
@@ -522,7 +579,7 @@ export default function CheckoutScreen() {
       <View className="p-4 border-t border-gray-100">
         <View className="flex-row justify-between mb-4">
           <Text className="text-gray-600">
-            Tổng thanh toán <Text className="italic">(đơn và vận chuyển)</Text>
+            Tổng <Text className="italic">(đơn và vận chuyển)</Text>
           </Text>
           <Text className="font-bold text-lg">
             {totalToPay.toLocaleString("vi-VN")} ₫

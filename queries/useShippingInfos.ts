@@ -8,7 +8,13 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-export const useShippingInfos = ({ token, enabled }: { token: string; enabled: boolean }) => {
+export const useShippingInfos = ({
+  token,
+  enabled,
+}: {
+  token: string;
+  enabled: boolean;
+}) => {
   const setShippingInfos = useAppStore((state) => state.setShippingInfos);
   const currentUser = useAppStore((state) => state.user);
   const query = useQuery<GetAllShippingAddressResType>({
@@ -44,6 +50,20 @@ export const useCreateShippingInfos = () => {
       queryClient.invalidateQueries({
         queryKey: ["shipping-infos"],
         exact: true, // Tùy chọn, nếu bạn muốn invalidate chỉ những query khớp chính xác
+      });
+    },
+  });
+};
+
+export const useDeleteShippingInfos = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ addressId, token }: { addressId: string; token: string }) =>
+      shippingAddressApiRequest.deleteAddress(addressId, token),
+    onSuccess: () => {
+      // Invalidate queries liên quan đến giỏ hàng sau khi update
+      queryClient.invalidateQueries({
+        queryKey: ["shipping-infos"],
       });
     },
   });

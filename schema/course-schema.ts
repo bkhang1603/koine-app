@@ -16,7 +16,7 @@ export const courseRes = z.object({
       slug: z.string(),
       description: z.string(),
       durations: z.number(),
-      imageUrl: z.string().nullable(),
+      imageUrl: z.string(),
       imageBanner: z.string().nullable(),
       price: z.number(),
       discount: z.number(),
@@ -24,7 +24,7 @@ export const courseRes = z.object({
       aveRating: z.number(),
       isBanned: z.boolean(),
       isCustom: z.boolean(),
-      level: z.enum(["ALL"]),
+      level: z.string(),
       censorId: z.string().nullable(),
       isDraft: z.boolean(),
       creator: z.object({
