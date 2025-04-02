@@ -5,6 +5,7 @@ export const createOrderBody = z.object({
   deliveryInfoId: z.string(),
   // sắp tới thêm cái delivery method có 2 options thì set cứng luôn
   deliMethod: z.string(),
+  payMethod: z.string(),
 });
 
 export type CreateOrderBodyType = z.TypeOf<typeof createOrderBody>;
@@ -22,52 +23,70 @@ export const orderRes = z.object({
   statusCode: z.number(),
   info: z.string(),
   message: z.string(),
-  data: z.array(
-    z.object({
-      id: z.string(),
-      userId: z.string(),
-      orderDate: z.string(),
-      orderCode: z.string(),
-      paymentMethod: z.string(),
-      totalAmount: z.number(),
-      deliMethod: z.string(),
-      deliAmount: z.number(),
-      status: z.string(),
-      note: z.string().nullable(),
-      isDeleted: z.boolean(),
-      createdAt: z.string(),
-      updatedAt: z.string(),
-      createdAtFormatted: z.string(),
-      updatedAtFormatted: z.string(),
-      orderStatusHistory: z.array(
-        z.object({
-          status: z.string(),
-          timestamp: z.string(),
-        })
-      ),
-      orderDetails: z.array(
-        z.object({
-          id: z.string(),
-          orderId: z.string(),
-          productId: z.string().nullable(),
-          courseId: z.string().nullable(),
-          comboId: z.string().nullable(),
-          quantity: z.number(),
-          unitPrice: z.number(),
-          discount: z.number(),
-          totalPrice: z.number(),
-          itemTitle: z.string(),
-          itemImageUrl: z.string(),
-        })
-      ),
-      deliveryInfo: z.object({
-        name: z.string(),
-        address: z.string(),
-        phone: z.string(),
+  data: z.object({
+    statistics: z.object({
+      totalOrders: z.number(),
+      totalCompletedAmount: z.number(),
+      processingOrdersCount: z.number(),
+      deliveryOrdersCount: z.number(),
+    }),
+    orders: z.array(
+      z.object({
+        id: z.string(),
+        userId: z.string(),
+        orderDate: z.string(),
+        orderCode: z.string(),
+        paymentMethod: z.string(),
+        totalAmount: z.number(),
+        deliMethod: z.string(),
+        deliAmount: z.number(),
         status: z.string(),
-      }),
-    })
-  ),
+        note: z.string().nullable(),
+        isDeleted: z.boolean(),
+        createdAt: z.string(),
+        updatedAt: z.string(),
+        createdAtFormatted: z.string(),
+        updatedAtFormatted: z.string(),
+        orderStatusHistory: z.array(
+          z.object({
+            status: z.string(),
+            timestamp: z.string(),
+          })
+        ),
+        orderDetails: z.array(
+          z.object({
+            id: z.string(),
+            orderId: z.string(),
+            productId: z.string().nullable(),
+            courseId: z.string().nullable(),
+            comboId: z.string().nullable(),
+            quantity: z.number(),
+            unitPrice: z.number(),
+            discount: z.number(),
+            totalPrice: z.number(),
+            itemTitle: z.string(),
+            itemImageUrl: z.string(),
+          })
+        ),
+        deliveryInfo: z
+          .object({
+            name: z.string().nullable().optional(),
+            address: z.string().nullable().optional(),
+            phone: z.string().nullable().optional(),
+            status: z.string().nullable().optional(),
+          })
+          .nullable()
+          .optional(),
+
+        payment: z.object({
+          payMethod: z.string(),
+          payDate: z.string(),
+          payAmount: z.number(),
+          payStatus: z.string(),
+        }),
+      })
+    ),
+  }),
   pagination: z.object({
     pageSize: z.number(),
     totalItem: z.number(),
@@ -91,7 +110,7 @@ export const orderDetailsRes = z.object({
     deliMethod: z.string(),
     deliAmount: z.number(),
     status: z.string(),
-    deletedNote: z.string().nullable().optional(),
+    note: z.string().nullable().optional(),
     isDeleted: z.boolean(),
     createdAt: z.string(),
     updatedAt: z.string(),
@@ -130,17 +149,20 @@ export const orderDetailsRes = z.object({
     ),
     createdAtFormatted: z.string(),
     updatedAtFormatted: z.string(),
-    deliveryInfo: z.object({
-      name: z.string(),
-      address: z.string(),
-      phone: z.string(),
-      status: z.string(),
-    }),
+    deliveryInfo: z
+      .object({
+        name: z.string().nullable().optional(),
+        address: z.string().nullable().optional(),
+        phone: z.string().nullable().optional(),
+        status: z.string().nullable().optional(),
+      })
+      .nullable()
+      .optional(),
     payment: z.object({
       payMethod: z.string(),
-      payDate: z.string(),
-      payAmount: z.number(),
-      payStatus: z.string(),
+      payDate: z.string().nullable(),
+      payAmount: z.number().nullable(),
+      payStatus: z.string().nullable(),
     }),
   }),
 });

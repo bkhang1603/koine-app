@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MOCK_ORDERS } from "@/constants/mock-data";
 import HeaderWithBack from "@/components/HeaderWithBack";
@@ -16,15 +16,59 @@ const STATUS_FILTERS = [
   { id: "COMPLETED", label: "Đã hoàn thành" },
   { id: "PROCESSING", label: "Đang xử lý" },
   { id: "CANCELLED", label: "Đã hủy" },
+  { id: "PENDING", label: "Chờ xử lý" },
+  { id: "DELIVERING", label: "Giao hàng" },
+  { id: "DELIVERED", label: "Đã giao" },
+  { id: "FAILED_PAYMENT", label: "Thanh toán thất bại" },
+  { id: "REFUND_REQUEST", label: "Yêu cầu hoàn tiền" },
+  { id: "REFUNDING", label: "Đang trả tiền" },
+  { id: "REFUNDED", label: "Đã trả tiền" },
+  { id: "FAILED", label: "Thất bại" },
 ] as const;
 
 const getStatusColor = (status: string) => {
   switch (status) {
+    case "PENDING":
+      return {
+        bg: "bg-gray-100",
+        text: "text-gray-600",
+        label: "Chờ xử lý",
+      };
+    case "DELIVERING":
+      return {
+        bg: "bg-blue-100",
+        text: "text-blue-600",
+        label: "Đang giao",
+      };
+    case "DELIVERED":
+      return {
+        bg: "bg-gray-100",
+        text: "text-gray-600",
+        label: "Đã giao",
+      };
+    case "FAILED_PAYMENT":
+      return {
+        bg: "bg-red-100",
+        text: "text-red-600",
+        label: "Thanh toán thất bại",
+      };
     case "COMPLETED":
       return {
         bg: "bg-green-100",
         text: "text-green-600",
         label: "Đã hoàn thành",
+      };
+    case "FAILED":
+      return {
+        bg: "bg-red-100",
+        text: "text-red-600",
+        label: "Thất bại",
+      };
+    case "CANCELLED":
+      return {
+        bg: "bg-gray-100",
+        text: "text-gray-600",
+        label: "Đã hủy",
       };
     case "PROCESSING":
       return {
@@ -32,18 +76,25 @@ const getStatusColor = (status: string) => {
         text: "text-blue-600",
         label: "Đang xử lý",
       };
-    case "DONE":
+    case "REFUND_REQUEST":
+      return {
+        bg: "bg-gray-100",
+        text: "text-gray-600",
+        label: "Yêu cầu hoàn tiền",
+      };
+    case "REFUNDING":
       return {
         bg: "bg-blue-100",
         text: "text-blue-600",
-        label: "Đang xử lý",
+        label: "Đang trả tiền",
       };
-    case "CANCELLED":
+    case "REFUNDED":
       return {
-        bg: "bg-red-100",
-        text: "text-red-600",
-        label: "Đã huỷ",
+        bg: "bg-gray-100",
+        text: "text-gray-600",
+        label: "Đã trả tiền",
       };
+
     default:
       return {
         bg: "bg-gray-100",
@@ -54,8 +105,22 @@ const getStatusColor = (status: string) => {
 };
 
 export default function OrdersScreen() {
+  const { message } = useLocalSearchParams<{ message: string }>();
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<
-    "all" | "COMPLETED" | "PROCESSING" | "CANCELLED"
+    | "all"
+    | "COMPLETED"
+    | "PROCESSING"
+    | "CANCELLED"
+    | "PENDING"
+    | "DELIVERING"
+    | "DELIVERED"
+    | "FAILED_PAYMENT"
+    | "REFUND_REQUEST"
+    | "REFUNDING"
+    | "REFUNDED"
+    | "FAILED"
   >("all");
 
   const accessToken = useAppStore((state) => state.accessToken);
@@ -72,14 +137,31 @@ export default function OrdersScreen() {
     token,
   });
 
-  let orders: GetAllOrderResType["data"] = [];
+  let orders: GetAllOrderResType["data"]["orders"] = [];
+
+  useEffect(() => {
+    if (message && message.length != 0 && message == "true") {
+      setModalMessage("Thanh toán thành công!");
+      setShowModal(true);
+      const timeout = setTimeout(() => {
+        setShowModal(false);
+      }, 3000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [message]);
 
   if (ordersData && !ordersError) {
-    if (ordersData.data.length === 0) {
-    } else {
+    if (ordersData.data.orders.length > 0) {
+      // Bổ sung giá trị mặc định nếu thiếu
+      ordersData.data.orders = ordersData.data.orders.map((order) => ({
+        ...order,
+        deliveryInfo: order.deliveryInfo ?? null, // Nếu thiếu, đặt thành null
+      }));
+
       const parsedResult = orderRes.safeParse(ordersData);
       if (parsedResult.success) {
-        orders = parsedResult.data.data;
+        orders = parsedResult.data.data.orders;
       } else {
         console.error("Validation errors:", parsedResult.error.errors);
       }
@@ -89,11 +171,7 @@ export default function OrdersScreen() {
   if (ordersLoading) return <ActivityIndicatorScreen />;
   if (ordersError) return <ErrorScreen message="Failed to load orders." />;
 
-  const filteredOrders = orders;
-
-  // const filteredOrders = MOCK_ORDERS.filter(
-  //     (order) => selectedStatus === "all" || order.status === selectedStatus
-  // );
+  // const filteredOrders = orders;
 
   if (orders.length == 0) {
     return (
@@ -119,6 +197,10 @@ export default function OrdersScreen() {
     );
   }
 
+  const filteredOrders = orders.filter(
+    (order) => selectedStatus === "all" || order.status === selectedStatus
+  );
+
   return (
     <View className="flex-1 bg-white">
       {/* Header */}
@@ -129,11 +211,21 @@ export default function OrdersScreen() {
       />
 
       <ScrollView>
+        {showModal && (
+          <View className="absolute top-8 left-5 right-5 border-2 border-black bg-gray-100 p-4 rounded-xl shadow-lg z-50">
+            <Text className="text-green-800 text-center font-medium">
+              {/* {modalMessage} */}
+              Thanh toán thành công!
+            </Text>
+          </View>
+        )}
+
         {/* Status Filters */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           className="px-4 py-3"
+          contentContainerStyle={{ paddingRight: 20 }}
         >
           {STATUS_FILTERS.map((filter) => (
             <Pressable
@@ -172,9 +264,13 @@ export default function OrdersScreen() {
                   elevation: 3,
                 }}
               >
-                <View className="flex-row justify-between items-start">
+                <Text className="font-semibold text-lg">
+                  Mã đơn: {order.orderCode}
+                </Text>
+
+                <View className="flex-row justify-between items-center mt-1">
                   <View className="flex-1">
-                    <Text className="text-gray-500 text-lg font-bold mt-1">
+                    <Text className="text-gray-600">
                       Ngày đặt:{" "}
                       {new Date(order.orderDate).toLocaleDateString("vi-VN")}
                     </Text>
@@ -184,7 +280,7 @@ export default function OrdersScreen() {
                   </View>
                 </View>
 
-                <View className="mt-2 space-y-2">
+                <View className="mt-1 space-y-2">
                   <View className="flex-row justify-between">
                     <Text className="text-gray-600">
                       Phương thức thanh toán

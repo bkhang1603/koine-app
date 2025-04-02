@@ -25,9 +25,9 @@ import { productRes, GetAllProductResType } from "@/schema/product-schema";
 import * as Device from "expo-device";
 
 export default function HomeScreen() {
-  const getDeviceId = () => {
-    return Device.osBuildId || Device.osInternalBuildId || "unknown";
-  };
+  // const getDeviceId = () => {
+  //   return Device.osBuildId || Device.osInternalBuildId || "unknown";
+  // };
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
 
@@ -35,8 +35,8 @@ export default function HomeScreen() {
 
   // Gọi API shipping
   const {
-    data: shippingData,
-    isLoading: isLoadingShipping,
+    data: shippingData, 
+    isLoading: isLoadingShipping,   
     isError: isErrorShipping,
     refetch: refetchShipping,
   } = useShippingInfos({ token: token ? token : "", enabled: true });
@@ -234,46 +234,63 @@ export default function HomeScreen() {
         </Pressable>
 
         {/* Quick Stats */}
-        <View className="flex-row justify-between px-4 mt-6">
-          <View className="bg-blue-100 rounded-xl p-4 flex-1 mr-2">
-            <View className="bg-blue-500 w-8 h-8 rounded-lg items-center justify-center mb-2">
-              <MaterialIcons name="school" size={20} color="#fff" />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingRight: 20 }}
+        >
+          <View className="flex-row justify-between px-4 mt-6">
+            <View className="bg-blue-100 rounded-xl p-4 flex-1 mr-2">
+              <View className="flex-row">
+                <View className="bg-blue-500 w-8 h-8 rounded-lg items-center justify-center mb-2">
+                  <MaterialIcons name="school" size={20} color="#fff" />
+                </View>
+                <Text className="font-bold text-lg pl-2">
+                  {myCourse.length}
+                </Text>
+              </View>
+              <Text className="text-gray-600 text-sm">Khóa học</Text>
             </View>
-            <Text className="text-gray-600 text-sm">Khóa học</Text>
-            <Text className="font-bold text-lg">{myCourse.length}</Text>
-          </View>
-          <View className="bg-green-100 rounded-xl p-4 flex-1 mx-2">
-            <View className="bg-green-500 w-8 h-8 rounded-lg items-center justify-center mb-2">
-              <MaterialIcons
-                name="assignment-turned-in"
-                size={20}
-                color="#fff"
-              />
+
+            <View className="bg-green-100 rounded-xl p-4 flex-1 mx-2">
+              <View className="flex-row">
+                <View className="bg-green-500 w-8 h-8 rounded-lg items-center justify-center mb-2">
+                  <MaterialIcons
+                    name="assignment-turned-in"
+                    size={20}
+                    color="#fff"
+                  />
+                </View>
+                <Text className="font-bold text-lg ml-2">
+                  {
+                    myCourse.filter((course) => course.completionRate === 100)
+                      .length
+                  }
+                </Text>
+              </View>
+
+              <Text className="text-gray-600 text-sm">Hoàn thành</Text>
             </View>
-            <Text className="text-gray-600 text-sm">Hoàn thành</Text>
-            <Text className="font-bold text-lg">
-              {
-                myCourse.filter((course) => course.completionRate === 100)
-                  .length
-              }
-            </Text>
-          </View>
-          <View className="bg-purple-100 rounded-xl p-4 flex-1 ml-2">
-            <View className="bg-purple-500 w-8 h-8 rounded-lg items-center justify-center mb-2">
-              <MaterialIcons name="trending-up" size={20} color="#fff" />
+            <View className="bg-purple-100 rounded-xl p-4 flex-1 ml-2">
+              <View className="flex-row">
+                <View className="bg-purple-500 w-8 h-8 rounded-lg items-center justify-center mb-2">
+                  <MaterialIcons name="trending-up" size={20} color="#fff" />
+                </View>
+                <Text className="font-bold text-lg ml-2">
+                  {Math.round(
+                    myCourse.reduce(
+                      (acc, course) => acc + course.completionRate,
+                      0
+                    ) / myCourse.length
+                  )}
+                  %
+                </Text>
+              </View>
+
+              <Text className="text-gray-600 text-sm">Tiến độ TB</Text>
             </View>
-            <Text className="text-gray-600 text-sm">Tiến độ TB</Text>
-            <Text className="font-bold text-lg">
-              {Math.round(
-                myCourse.reduce(
-                  (acc, course) => acc + course.completionRate,
-                  0
-                ) / myCourse.length
-              )}
-              %
-            </Text>
           </View>
-        </View>
+        </ScrollView>
 
         {/* Latest Blog */}
         {latestBlog && (
@@ -355,6 +372,7 @@ export default function HomeScreen() {
             horizontal
             showsHorizontalScrollIndicator={false}
             className="pl-4 pb-2"
+            contentContainerStyle={{ paddingRight: 20 }}
           >
             {featuredCourses.map((course) => (
               <Pressable
@@ -375,7 +393,11 @@ export default function HomeScreen() {
                 }
               >
                 <Image
-                  source={{ uri: course.imageUrl ?? "https://thumbs.dreamstime.com/b/orange-cosmos-flower-bud-garden-indiana-39358565.jpg" }}
+                  source={{
+                    uri:
+                      course.imageUrl ??
+                      "https://thumbs.dreamstime.com/b/orange-cosmos-flower-bud-garden-indiana-39358565.jpg",
+                  }}
                   className="w-full h-32"
                   style={{ resizeMode: "cover" }}
                 />
@@ -491,6 +513,7 @@ export default function HomeScreen() {
               horizontal
               showsHorizontalScrollIndicator={false}
               className="pl-4 pb-2"
+              contentContainerStyle={{ paddingRight: 20 }}
             >
               {featuredProducts.map((product) => (
                 <Pressable

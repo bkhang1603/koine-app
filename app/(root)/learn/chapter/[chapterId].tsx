@@ -21,7 +21,6 @@ export default function ChapterScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
   const [showModal, setShowModal] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
 
   const {
     data: chapterData,
@@ -36,11 +35,10 @@ export default function ChapterScreen() {
 
   useEffect(() => {
     if (message && message.length != 0) {
-      setModalMessage("Tài khoản đang học trên thiết bị khác");
       setShowModal(true);
       const timeout = setTimeout(() => {
         setShowModal(false);
-      }, 3000);
+      }, 5000);
 
       return () => clearTimeout(timeout);
     }
@@ -73,9 +71,9 @@ export default function ChapterScreen() {
       />
       <ScrollView className="flex-1 p-4">
         {showModal && (
-          <View className="absolute top-8 left-5 right-5 bg-white p-4 rounded-xl shadow-lg z-50">
-            <Text className="text-gray-800 text-center font-medium">
-              {modalMessage}
+          <View className="absolute border-2 top-8 left-5 right-5 bg-green-200 p-4 rounded-xl shadow-lg z-50">
+            <Text className="text-red-500 text-center font-medium">
+              Tài khoản đang học trên thiết bị khác
             </Text>
           </View>
         )}
@@ -240,7 +238,7 @@ export default function ChapterScreen() {
                           : !chapter.score
                           ? "#3B82F6"
                           : chapter.score >= 70
-                          ? "green"
+                          ? "#10B981"
                           : "red"
                       }
                     />
@@ -251,7 +249,10 @@ export default function ChapterScreen() {
                           : "text-gray-900"
                       }`}
                     >
-                      Bài kiểm tra chương
+                      Bài kiểm tra chương{" "}
+                      {chapter.score != null
+                        ? " - " + chapter.score + " điểm"
+                        : ""}
                     </Text>
                   </View>
                   <View className="flex-row items-center mt-2 ml-9">

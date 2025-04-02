@@ -54,8 +54,6 @@ export default function EventDetailUser() {
     return localTime.getTime() >= endDate.getTime(); // chỉ mở khi trong khoảng startTime -> endDate
   };
 
-  console.log("record url ", eventData.recordUrl);
-
   return (
     <SafeAreaView className="flex-1">
       {/* Headers */}
@@ -87,10 +85,17 @@ export default function EventDetailUser() {
           {eventData ? (
             <>
               <View className="flex-1">
-                <Image
-                  source={{ uri: eventData.imageUrl }}
-                  className="w-full h-60"
-                />
+                {/* Video */}
+                {eventData.recordUrl && eventData.recordUrl.length > 0 ? (
+                  <View className="w-full p-2">
+                    <VideoPlayer videoUrl={eventData.recordUrl} />
+                  </View>
+                ) : (
+                  <Image
+                    source={{ uri: eventData.imageUrl }}
+                    className="w-full h-60"
+                  />
+                )}
 
                 <View className="p-2">
                   <Text className="font-bold text-lg">{eventData.title}</Text>
@@ -143,19 +148,6 @@ export default function EventDetailUser() {
                     </View>
                   </View>
                 </View>
-
-                {/* Video */}
-                {eventData.recordUrl && eventData.recordUrl.length > 0 ? (
-                  <View className="w-full p-2">
-                    <VideoPlayer videoUrl={eventData.recordUrl} />
-                  </View>
-                ) : (
-                  <View className="p-2">
-                    <Text className="font-semibold text-lg">
-                      Sự kiện này không có bản ghi
-                    </Text>
-                  </View>
-                )}
               </View>
             </>
           ) : (

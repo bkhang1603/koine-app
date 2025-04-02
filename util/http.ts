@@ -10,13 +10,13 @@ interface HttpOptions {
 }
 
 //cái xài chính
-const defaultBaseUrl = `${DEPLOY_HOST}/api`;
+// const defaultBaseUrl = `${DEPLOY_HOST}/api`;
 
 //cái xài tạm
 // const defaultBaseUrl = 'https://capstone-project-be-bqa5.onrender.com/api'
 
 //local may quan
-// const defaultBaseUrl = `${LOCAL_HOST}/api`;
+const defaultBaseUrl = `${LOCAL_HOST}/api`;
 
 
 const request = async <Response>(

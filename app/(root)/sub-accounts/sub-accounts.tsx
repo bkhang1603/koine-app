@@ -104,6 +104,7 @@ export default function SubAccountsScreen() {
       <HeaderWithBack
         title="Quản lý tài khoản con"
         returnTab={"/(tabs)/profile/profile"}
+        showMoreOptions={false}
       />
       <ScrollView>
         {/* Stats */}
@@ -111,11 +112,12 @@ export default function SubAccountsScreen() {
           horizontal
           showsHorizontalScrollIndicator={false}
           className="p-4"
+          contentContainerStyle={{ paddingRight: 20 }}
         >
           {STATS.map((stat) => (
             <View
               key={stat.id}
-              className={`bg-${stat.color}-500 rounded-xl p-4 mr-3`}
+              className={`bg-${stat.color}-50 rounded-xl p-4 mr-3`}
               style={{ minWidth: 150 }}
             >
               <View className="flex-row">
@@ -204,7 +206,7 @@ export default function SubAccountsScreen() {
                 key={account.id}
                 className="bg-white rounded-xl border border-gray-100 p-4 mb-4"
                 style={{
-                  shadowColor: '#000',
+                  shadowColor: "#000",
                   shadowOffset: { width: 0, height: 2 },
                   shadowOpacity: 0.05,
                   shadowRadius: 4,
@@ -212,7 +214,7 @@ export default function SubAccountsScreen() {
                 }}
                 onPress={() =>
                   router.push({
-                    pathname: '/sub-accounts/[id]',
+                    pathname: "/sub-accounts/[id]",
                     params: { id: account.id },
                   })
                 }
@@ -224,44 +226,46 @@ export default function SubAccountsScreen() {
                   />
                   <View className="ml-4 flex-1">
                     <View className="flex-row items-center justify-between">
-                      <Text className="font-bold text-lg">
-                        {account.userDetail.lastName +
-                          ' ' +
-                          account.userDetail.firstName}
-                      </Text>
+                      <View className="w-36">
+                        <Text className="font-bold text-sm">
+                          {account.userDetail.lastName +
+                            " " +
+                            account.userDetail.firstName}
+                        </Text>
+                      </View>
                       <View
                         className={`px-3 py-1 rounded-full ${
                           activeCourses.length > 0
-                            ? 'bg-green-100'
-                            : 'bg-gray-100'
+                            ? "bg-green-100"
+                            : "bg-gray-100"
                         }`}
                       >
                         <Text
                           className={
                             activeCourses.length > 0
-                              ? 'text-green-700'
-                              : 'text-gray-600'
+                              ? "text-green-700"
+                              : "text-gray-600"
                           }
                         >
-                          {activeCourses.length > 0 ? 'Đang học' : 'Chưa học'}
+                          {activeCourses.length > 0 ? "Đang học" : "Chưa học"}
                         </Text>
                       </View>
                     </View>
                     <View className="flex-row items-center mt-1">
                       <Text className="text-gray-600">
                         {new Date().getFullYear() -
-                          new Date(account.userDetail.dob).getFullYear()}{' '}
+                          new Date(account.userDetail.dob).getFullYear()}{" "}
                         tuổi
                       </Text>
                       <Text className="text-gray-400 mx-2">•</Text>
                       <Text
                         className={`${
-                          account.userDetail.gender === 'MALE'
-                            ? 'text-blue-600'
-                            : 'text-pink-600'
+                          account.userDetail.gender === "MALE"
+                            ? "text-blue-600"
+                            : "text-pink-600"
                         }`}
                       >
-                        {account.userDetail.gender === 'MALE' ? 'Nam' : 'Nữ'}
+                        {account.userDetail.gender === "MALE" ? "Nam" : "Nữ"}
                       </Text>
                     </View>
                   </View>
@@ -273,8 +277,10 @@ export default function SubAccountsScreen() {
             {/* Learning Stats */}
             <View className="flex-row bg-cyan-200 mt-1 py-1 rounded-lg">
               <View className="flex-1 border-r border-gray-100">
-                <Text className="text-center text-black text-lg font-bold">Đã gán</Text>
-                <Text className="text-center font-bold text-base mt-1">
+                <Text className="text-center text-black text-lg font-semibold">
+                  Tổng số khóa học riêng biệt đã gán
+                </Text>
+                <Text className="text-center font-bold text-base mt-1 text-blue-500">
                   {totalDifferentAssigned}
                 </Text>
               </View>

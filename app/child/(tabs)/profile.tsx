@@ -174,7 +174,7 @@ export default function ProfileScreen() {
               <MaterialIcons name="chevron-right" size={24} color="#9CA3AF" />
             </Pressable>
           </View>
-          <View className="h-20" />
+          <View className="h-10" />
         </View>
       </ScrollView>
 

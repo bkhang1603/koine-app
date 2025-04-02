@@ -305,31 +305,30 @@ export default function CartScreen() {
                       đ
                     </Text>
                   </View>
-
-                  <View className="flex-row items-center bg-gray-50 rounded-lg border border-gray-200">
-                    <Pressable
-                      className="w-7 h-7 items-center justify-center"
-                      onPress={() =>
-                        handleUpdateQuantity(item.id, item.quantity - 1)
-                      }
-                      disabled={item.quantity <= 1}
-                    >
-                      <MaterialIcons
-                        name="remove"
-                        size={18}
-                        color={item.quantity <= 1 ? "#9CA3AF" : "#374151"}
-                      />
-                    </Pressable>
-                    <Text className="mx-2 font-medium">{item.quantity}</Text>
-                    <Pressable
-                      className="w-7 h-7 items-center justify-center"
-                      onPress={() =>
-                        handleUpdateQuantity(item.id, item.quantity + 1)
-                      }
-                    >
-                      <MaterialIcons name="add" size={18} color="#374151" />
-                    </Pressable>
-                  </View>
+                </View>
+                <View className="flex-row self-end w-[85px] items-center bg-gray-50 rounded-lg border border-gray-200">
+                  <Pressable
+                    className="w-7 h-7 items-center justify-center"
+                    onPress={() =>
+                      handleUpdateQuantity(item.id, item.quantity - 1)
+                    }
+                    disabled={item.quantity <= 1}
+                  >
+                    <MaterialIcons
+                      name="remove"
+                      size={18}
+                      color={item.quantity <= 1 ? "#9CA3AF" : "#374151"}
+                    />
+                  </Pressable>
+                  <Text className="mx-2 font-medium">{item.quantity}</Text>
+                  <Pressable
+                    className="w-7 h-7 items-center justify-center"
+                    onPress={() =>
+                      handleUpdateQuantity(item.id, item.quantity + 1)
+                    }
+                  >
+                    <MaterialIcons name="add" size={18} color="#374151" />
+                  </Pressable>
                 </View>
               </View>
             </View>
@@ -338,13 +337,13 @@ export default function CartScreen() {
       </ScrollView>
 
       {/* Bottom Bar */}
-      <View className="p-5 border-t border-gray-100 bg-white">
+      <View className="p-3 border-t border-gray-100 bg-white">
         <View className="flex-row justify-between items-center">
           <View>
             <Text className="text-gray-600 text-base">
               Đã chọn: {selectedItems.length} sản phẩm
             </Text>
-            <Text className="text-gray-800 font-semibold text-lg mt-2">
+            <Text className="text-gray-800 font-semibold text-base mt-2">
               Tổng tiền:{" "}
               <Text className="text-blue-600 font-bold text-xl">
                 {total.toLocaleString("vi-VN")} ₫
@@ -352,7 +351,7 @@ export default function CartScreen() {
             </Text>
           </View>
           <Pressable
-            className={`px-8 py-4 rounded-2xl ${
+            className={`px-5 py-4 rounded-2xl ${
               selectedItems.length > 0 ? "bg-blue-600" : "bg-gray-300"
             }`}
             onPress={() => {
@@ -368,7 +367,7 @@ export default function CartScreen() {
             disabled={selectedItems.length === 0}
           >
             <Text
-              className={`font-bold text-lg ${
+              className={`font-bold text-base ${
                 selectedItems.length > 0 ? "text-white" : "text-gray-500"
               }`}
             >

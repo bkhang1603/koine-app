@@ -162,7 +162,11 @@ export default function SearchScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      <HeaderWithBack title="Tìm kiếm" showMoreOptions={false} returnTab="/child/(tabs)/course"/>
+      <HeaderWithBack
+        title="Tìm kiếm"
+        showMoreOptions={false}
+        returnTab="/child/(tabs)/course"
+      />
 
       <View className="p-4">
         <View className="flex-row items-center bg-gray-100 rounded-xl px-4">
@@ -198,7 +202,7 @@ export default function SearchScreen() {
           </View>
         </View>
 
-        {searchQuery && (
+        {searchQuery != "" ? (
           <View className="px-4">
             <Text className="font-bold text-gray-600 mb-4">
               {filteredCourses.length} kết quả cho "{searchQuery}"
@@ -209,7 +213,7 @@ export default function SearchScreen() {
                 className="flex-row items-center p-3 mb-3 bg-white rounded-xl border border-gray-100 shadow-sm"
                 onPress={() =>
                   router.push({
-                    pathname: "/child/courses/[id]",
+                    pathname: "/courses/[id]",
                     params: { id: course.id },
                   })
                 }
@@ -226,31 +230,41 @@ export default function SearchScreen() {
                     {course.title}
                   </Text>
                   <View className="flex-row flex-wrap gap-1 mb-2">
-                    {course.categories?.map((category) => (
-                      <View
-                        key={category.id}
-                        className="bg-gray-100 rounded-full px-2 py-1 flex-row items-center"
-                      >
+                    {!course.categories.length ? (
+                      <View className="flex-row justify-center items-center bg-blue-50 px-3 py-1 rounded-full">
                         <MaterialIcons
                           name="category"
                           size={12}
                           color="#6B7280"
                         />
-                        <Text className="text-gray-500 text-xs ml-1">
-                          {category.name}
+                        <Text className="pl-1 text-blue-600 text-xs font-medium">
+                          --
                         </Text>
                       </View>
-                    ))}
-                    {(!course.categories || course.categories.length === 0) && (
-                      <View className="bg-gray-100 rounded-full px-2 py-1 flex-row items-center">
-                        <MaterialIcons
-                          name="category"
-                          size={12}
-                          color="#6B7280"
-                        />
-                        <Text className="text-gray-500 text-xs ml-1">
-                          Không có danh mục
-                        </Text>
+                    ) : (
+                      <View className="flex-row flex-wrap gap-1">
+                        {course.categories.slice(0, 3).map((category) => (
+                          <View
+                            key={category.id}
+                            className="flex-row justify-center items-center bg-blue-50 px-3 py-1 rounded-full"
+                          >
+                            <MaterialIcons
+                              name="category"
+                              size={12}
+                              color="#6B7280"
+                            />
+                            <Text className="pl-1 text-blue-600 text-xs font-medium">
+                              {category.name}
+                            </Text>
+                          </View>
+                        ))}
+                        {course.categories.length > 3 && (
+                          <View className=" bg-blue-50 px-3 py-1 rounded-full">
+                            <Text className=" text-blue-600 text-xs font-medium">
+                              ...
+                            </Text>
+                          </View>
+                        )}
                       </View>
                     )}
                   </View>
@@ -262,7 +276,15 @@ export default function SearchScreen() {
                         color="#6B7280"
                       />
                       <Text className="text-gray-500 text-sm ml-1">
-                        {course.level || "Chưa có cấp độ"}
+                        {course.level == null
+                          ? "Chưa có cấp độ"
+                          : course.level == "ALL"
+                          ? "Tất cả"
+                          : course.level == "BEGINNER"
+                          ? "Khởi đầu"
+                          : course.level == "INTERMEDIATE"
+                          ? "Trung cấp"
+                          : "Nâng cao"}
                       </Text>
                     </View>
                     <View className="flex-row items-center">
@@ -284,6 +306,102 @@ export default function SearchScreen() {
                 </Text>
               </View>
             )}
+          </View>
+        ) : (
+          <View className="px-4">
+            <Text className="font-bold text-gray-600 mb-4">
+              Khóa học nổi bật
+            </Text>
+            {allCourses.map((course) => (
+              <Pressable
+                key={course.id}
+                className="flex-row items-center p-3 mb-3 bg-white rounded-xl border border-gray-100 shadow-sm"
+                onPress={() =>
+                  router.push({
+                    pathname: "/courses/[id]",
+                    params: { id: course.id },
+                  })
+                }
+              >
+                <Image
+                  source={{ uri: course.imageUrl }}
+                  className="w-20 h-20 rounded-lg"
+                />
+                <View className="ml-3 flex-1">
+                  <Text
+                    className="font-semibold text-base text-gray-900 mb-1"
+                    numberOfLines={2}
+                  >
+                    {course.title}
+                  </Text>
+                  <View className="flex-row flex-wrap gap-1 mb-2">
+                    {!course.categories.length ? (
+                      <View className="flex-row justify-center items-center bg-blue-50 px-3 py-1 rounded-full">
+                        <MaterialIcons
+                          name="category"
+                          size={12}
+                          color="#6B7280"
+                        />
+                        <Text className="pl-1 text-blue-600 text-xs font-medium">
+                          --
+                        </Text>
+                      </View>
+                    ) : (
+                      <View className="flex-row flex-wrap gap-1">
+                        {course.categories.slice(0, 3).map((category) => (
+                          <View
+                            key={category.id}
+                            className="flex-row justify-center items-center bg-blue-50 px-3 py-1 rounded-full"
+                          >
+                            <MaterialIcons
+                              name="category"
+                              size={12}
+                              color="#6B7280"
+                            />
+                            <Text className="pl-1 text-blue-600 text-xs font-medium">
+                              {category.name}
+                            </Text>
+                          </View>
+                        ))}
+                        {course.categories.length > 3 && (
+                          <View className=" bg-blue-50 px-3 py-1 rounded-full">
+                            <Text className=" text-blue-600 text-xs font-medium">
+                              ...
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                    )}
+                  </View>
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center">
+                      <MaterialIcons
+                        name="signal-cellular-alt"
+                        size={16}
+                        color="#6B7280"
+                      />
+                      <Text className="text-gray-500 text-sm ml-1">
+                        {course.level == null
+                          ? "Chưa có cấp độ"
+                          : course.level == "ALL"
+                          ? "Tất cả"
+                          : course.level == "BEGINNER"
+                          ? "Khởi đầu"
+                          : course.level == "INTERMEDIATE"
+                          ? "Trung cấp"
+                          : "Nâng cao"}
+                      </Text>
+                    </View>
+                    <View className="flex-row items-center">
+                      <MaterialIcons name="people" size={16} color="#6B7280" />
+                      <Text className="text-gray-500 text-sm ml-1">
+                        {course.totalEnrollment || 0} học viên
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </Pressable>
+            ))}
           </View>
         )}
       </ScrollView>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -25,6 +25,8 @@ import WebView from "react-native-webview";
 import { MaterialIcons } from "@expo/vector-icons";
 import VideoPlayer from "@/components/video-player";
 import formatDuration from "@/util/formatDuration";
+import { Pressable } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function LessonScreen() {
   const { lessonId, courseId, chapterId } = useLocalSearchParams<{
@@ -34,6 +36,7 @@ export default function LessonScreen() {
   }>();
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
+  const insets = useSafeAreaInsets();
 
   const {
     data: lessonData,
@@ -44,64 +47,53 @@ export default function LessonScreen() {
     token: token as string,
   });
 
-  const {
-    data: stillLearning,
-    isError: learningError,
-    refetch: refetchStill,
-  } = useStillLearning({ token });
+  const { refetch: refetchStill } = useStillLearning({ token });
 
   const updateLearningTime = useUpdateLearningTimeMutation();
-  const [focusTime, setFocusTime] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null); // Reference to interval
 
-  // Gọi refetchStill mỗi 2 phút
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      try {
-        const result = await refetchStill();
-        if (result.isError) {
-          router.push({
-            pathname: "/child/learn/chapter/[chapterId]",
-            params: {
-              chapterId: chapterId,
-              courseId: courseId,
-              message: "error",
-            },
-          });
-        }
-      } catch (error) {
-        console.error("Lỗi khi refetchStill:", error);
-        router.push({
-          pathname: "/child/learn/chapter/[chapterId]",
-          params: {
-            chapterId: chapterId,
-            courseId: courseId,
-            message: "error",
-          },
-        });
-      }
-    }, 2 * 60 * 1000); // 2 phút
-
-    return () => clearInterval(interval); // Cleanup khi component unmount
-  }, [refetchStill]);
+  // Flag to track if component is mounted or focused
+  const isMounted = useRef(true);
 
   useFocusEffect(
     React.useCallback(() => {
-      const interval = setInterval(() => {
-        setFocusTime((prev) => prev + 30);
-      }, 30 * 1000);
+      isMounted.current = true; // Component is focused
 
-      return () => clearInterval(interval);
-    }, [])
+      // Setup interval when screen is focused
+      intervalRef.current = setInterval(async () => {
+        if (!isMounted.current) return; // Skip if not mounted
+
+        try {
+          // Refetch API to check status
+          const result = await refetchStill();
+
+          if (result.isError) {
+            router.push({
+              pathname: "/child/learn/chapter/[chapterId]",
+              params: { chapterId, courseId, message: "error" },
+            });
+            return;
+          }
+
+          const res = await updateLearningTime.mutateAsync({
+            body: { lessonId, learningTime: 30 },
+            token,
+          });
+        } catch (error) {
+          console.error("Lỗi khi refetchStill hoặc updateLearningTime:", error);
+          router.push({
+            pathname: "/child/learn/chapter/[chapterId]",
+            params: { chapterId, courseId, message: "error" },
+          });
+        }
+      }, 30 * 1000); // Every 30 seconds
+
+      return () => {
+        clearInterval(intervalRef.current as NodeJS.Timeout); // Cleanup on focus loss
+        isMounted.current = false; // Component is no longer focused
+      };
+    }, [lessonId, courseId, chapterId, refetchStill, token, updateLearningTime])
   );
-
-  useEffect(() => {
-    if (focusTime >= 30) {
-      updateLearningTime
-        .mutateAsync({ body: { lessonId, learningTime: focusTime }, token })
-        .then(() => setFocusTime(0)) // Reset focusTime khi gửi thành công
-        .catch((err) => console.error("Update learning time failed:", err));
-    }
-  }, [focusTime, lessonId, token, updateLearningTime]);
 
   const createProgressMutation = useCreateProgressMutation(token as string);
 
@@ -183,12 +175,41 @@ export default function LessonScreen() {
         returnTab={`/child/learn/chapter/${chapterId}?courseId=${courseId}`}
         showMoreOptions={false}
       />
+      {/* Headers */}
+      <View
+        style={{ paddingTop: insets.top }}
+        className="absolute top-0 left-0 right-0 z-10"
+      >
+        <View className="px-4 py-3 flex-row items-center justify-between">
+          <Pressable
+            onPress={() =>
+              router.push(
+                `/child/learn/chapter/${chapterId}?courseId=${courseId}`
+              )
+            }
+            className="w-10 h-10 bg-black/30 rounded-full items-center justify-center ml-2"
+          >
+            <MaterialIcons name="arrow-back" size={24} color="white" />
+          </Pressable>
+
+          <View className="flex-row items-center">
+            <Pressable
+              className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
+              onPress={() => router.push("/child/notifications")}
+            >
+              <MaterialIcons name="notifications" size={24} color="white" />
+            </Pressable>
+          </View>
+        </View>
+      </View>
 
       <ScrollView className="flex-1">
         {/* Lesson Header */}
         <View className="p-4 border-b border-gray-200">
-          <Text className="text-2xl font-bold mb-2">{lesson.title}</Text>
-          <Text className="text-gray-600 mb-3">{lesson.description}</Text>
+          <Text className="text-lg font-bold mb-2">{lesson.title}</Text>
+          <Text numberOfLines={1} className="text-gray-600 mb-3">
+            {lesson.description}
+          </Text>
 
           <View className="flex-row items-center space-x-4">
             <View className="flex-row items-center">
