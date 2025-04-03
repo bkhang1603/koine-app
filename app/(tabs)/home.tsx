@@ -12,7 +12,6 @@ import { useCourses, useMyCourseStore } from "@/queries/useCourse";
 import { useAppStore } from "@/components/app-provider";
 import { courseRes, GetAllCourseResType } from "@/schema/course-schema";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
-import ErrorScreen from "@/components/ErrorScreen";
 import { useBlog } from "@/queries/useBlog";
 import { blogRes, GetAllBlogResType } from "@/schema/blog-schema";
 import { useShippingInfos } from "@/queries/useShippingInfos";
@@ -215,7 +214,7 @@ export default function HomeScreen() {
             <CartButton />
             <Pressable
               className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 ml-2"
-              onPress={() => router.push("/notifications/notifications")}
+              onPress={() => router.push("/(root)/notifications/notifications")}
             >
               <MaterialIcons name="notifications" size={24} color="#374151" />
             </Pressable>

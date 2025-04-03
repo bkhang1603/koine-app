@@ -106,7 +106,9 @@ export default function EventScreen() {
             <View className="flex-row items-center">
               <Pressable
                 className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
-                onPress={() => router.push("/notifications/notifications")}
+                onPress={() =>
+                  router.push("/(root)/notifications/notifications")
+                }
               >
                 <MaterialIcons name="notifications" size={24} color="white" />
               </Pressable>
@@ -142,7 +144,7 @@ export default function EventScreen() {
                     );
                     router.push({
                       pathname: "/(root)/event/[id]",
-                      params: { id: event.id, data: encodedData },
+                      params: { id: event.id},
                     });
                   }}
                   disabled={isProcessing}

@@ -57,7 +57,7 @@ export default function CourseScreen() {
               <CartButton />
               <Pressable
                 className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 ml-2"
-                onPress={() => router.push("/notifications/notifications")}
+                onPress={() => router.push("/(root)/notifications/notifications")}
               >
                 <MaterialIcons name="notifications" size={24} color="#374151" />
               </Pressable>
@@ -99,7 +99,7 @@ export default function CourseScreen() {
             <CartButton />
             <Pressable
               className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 ml-2"
-              onPress={() => router.push("/notifications/notifications")}
+              onPress={() => router.push("/(root)/notifications/notifications")}
             >
               <MaterialIcons name="notifications" size={24} color="#374151" />
             </Pressable>
@@ -269,7 +269,7 @@ export default function CourseScreen() {
                         </View>
                       ) : (
                         <View className="flex-row flex-wrap gap-1">
-                          {course.categories.slice(0, 1).map((category) => (
+                          {course.categories.slice(0, 2).map((category) => (
                             <View
                               key={category.id}
                               className="bg-blue-50 px-3 py-1 rounded-full"
@@ -279,7 +279,7 @@ export default function CourseScreen() {
                               </Text>
                             </View>
                           ))}
-                          {course.categories.length > 1 && (
+                          {course.categories.length > 2 && (
                             <View className="bg-blue-50 px-3 py-1 rounded-full">
                               <Text className="text-blue-600 text-xs font-medium">
                                 ...
@@ -290,10 +290,8 @@ export default function CourseScreen() {
                       )}
                     </View>
                   </View>
-                  <Text className="font-bold text-base" numberOfLines={2}>
-                    {course.title.length > 25
-                      ? course.title.substring(0, 25) + "..."
-                      : course.title}
+                  <Text className="font-bold text-base" numberOfLines={1}>
+                    {course.title}
                   </Text>
                 </View>
 

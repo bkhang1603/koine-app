@@ -6,14 +6,13 @@ import {
   Image,
   Pressable,
   ActivityIndicator,
-  Animated,
+  Alert,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, SimpleLineIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCourseDetail, useAssignCourse } from "@/queries/useCourse";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
-import ErrorScreen from "@/components/ErrorScreen";
 import {
   courseDetailRes,
   GetCourseDetailResType,
@@ -97,6 +96,15 @@ export default function CourseDetailScreen() {
         },
         token,
       });
+      Alert.alert("Thông báo", "Đăng kí thành công", [
+        {
+          text: "Trang chủ",
+          onPress: async () => {
+            router.push("/child/(tabs)/my-courses")
+          },
+          style: "cancel",
+        },
+      ])
       router.back();
     } catch (error) {
       console.error("Failed to assign course:", error);
@@ -126,7 +134,7 @@ export default function CourseDetailScreen() {
               onPress={() => toggleChapter(chapter.id)}
               className="px-4 py-3 bg-gray-50"
             >
-              <View className="flex-row items-start">
+              <View className="flex-row items-center">
                 <View className="w-8 h-8 bg-blue-100 rounded-full items-center justify-center mr-3">
                   <Text className="text-blue-600 font-medium">
                     {chapterIndex + 1}
@@ -134,7 +142,10 @@ export default function CourseDetailScreen() {
                 </View>
                 <View className="flex-1">
                   <View className="flex-row items-center justify-between">
-                    <Text className="font-bold text-gray-800 text-base flex-1">
+                    <Text
+                      numberOfLines={1}
+                      className="font-bold text-gray-800 text-sm flex-1"
+                    >
                       {chapter.title}
                     </Text>
                     <MaterialIcons
@@ -143,20 +154,30 @@ export default function CourseDetailScreen() {
                           ? "keyboard-arrow-up"
                           : "keyboard-arrow-down"
                       }
-                      size={24}
+                      size={28}
                       color="#4B5563"
                     />
                   </View>
                   <View className="flex-row items-center mt-1">
                     <MaterialIcons name="schedule" size={14} color="#6B7280" />
-                    <Text className="text-gray-500 text-sm ml-1">
+                    <Text className="text-gray-500 text-xs mr-1">
                       {formatDuration(chapter.durationsDisplay)}
                     </Text>
-                    <View className="w-1 h-1 bg-gray-300 rounded-full mx-2" />
-                    <MaterialIcons name="menu-book" size={14} color="#6B7280" />
-                    <Text className="text-gray-500 text-sm ml-1">
-                      {chapter.lessons.length} bài học
+
+                    <MaterialIcons name="menu-book" size={16} color="#6B7280" />
+
+                    <Text className="text-gray-500 text-xs ml-1">
+                      {chapter.lessons.length + " bài học"}
                     </Text>
+
+                    {chapter.questions.length != 0 ? (
+                      <View className="flex-row justify-center items-center ml-1">
+                        <SimpleLineIcons name="note" size={12} color="black" />
+                        <Text className="text-gray-500 text-xs ml-1">
+                          1 bài kiểm tra
+                        </Text>
+                      </View>
+                    ) : null}
                   </View>
                 </View>
               </View>
@@ -213,7 +234,7 @@ export default function CourseDetailScreen() {
                         <View className="flex-row items-center mt-1">
                           <MaterialIcons
                             name={
-                              lesson.type === "VIDEO" ? "videocam" : "article"
+                              "schedule"
                             }
                             size={14}
                             color="#6B7280"
@@ -243,13 +264,15 @@ export default function CourseDetailScreen() {
 
   if (courseLoading && myCourseLoading) return <ActivityIndicatorScreen />;
   if (courseError)
-    return (
-      <ErrorScreen message="Failed to load courses. Showing default courses." />
-    );
+    console.log("Lỗi khi tải dữ liệu khóa học")
+    // return <ErrorScreen message="Lỗi khi tải dữ liệu khóa học" />;
 
   if (course == null)
-    return <ErrorScreen message="Failed to load courses. Course is null." />;
-  console.log(id);
+    return (
+      console.log("Lỗi khi tải dữ liệu khóa học. Không tìm thấy khóa học")
+      // <ErrorScreen message="Lỗi khi tải dữ liệu khóa học. Không tìm thấy khóa học" />
+    );
+
 
   return (
     <View className="flex-1 bg-white">
@@ -261,7 +284,7 @@ export default function CourseDetailScreen() {
         <View className="px-4 py-3 flex-row items-center justify-between backdrop-blur-sm">
           <Pressable
             onPress={() => router.push("/child/(tabs)/course")}
-            className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
+            className="w-10 h-10 bg-black/30 rounded-full items-center justify-center"
           >
             <MaterialIcons name="arrow-back" size={24} color="white" />
           </Pressable>
@@ -296,7 +319,17 @@ export default function CourseDetailScreen() {
 
             <View className="flex-row items-center">
               <MaterialIcons name="bar-chart" size={22} color="#7B1FA2" />
-              <Text className="ml-1 font-medium text-base">{course.level}</Text>
+              <Text className="ml-1 font-medium text-base">
+                {course.level == null
+                  ? "Chưa có cấp độ"
+                  : course.level == "ALL"
+                  ? "Tất cả"
+                  : course.level == "BEGINNER"
+                  ? "Khởi đầu"
+                  : course.level == "INTERMEDIATE"
+                  ? "Trung cấp"
+                  : "Nâng cao"}
+              </Text>
             </View>
           </View>
 
@@ -342,7 +375,7 @@ export default function CourseDetailScreen() {
         {/* Tab Content - Redesigned with better spacing */}
         <View className="p-4 mt-2">
           {selectedTab === "overview" && course && course.chapters && (
-            <View className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <View>
               <Text className="text-xl font-bold mb-4">
                 Bạn sẽ học được gì?
               </Text>

@@ -145,7 +145,7 @@ export default function EventScreen() {
                     );
                     router.push({
                       pathname: "/child/event/[id]" as any,
-                      params: { id: event.id, data: encodedData },
+                      params: { id: event.id},
                     });
                   }}
                   disabled={isProcessing}

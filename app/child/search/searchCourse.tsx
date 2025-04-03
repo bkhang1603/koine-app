@@ -213,7 +213,7 @@ export default function SearchScreen() {
                 className="flex-row items-center p-3 mb-3 bg-white rounded-xl border border-gray-100 shadow-sm"
                 onPress={() =>
                   router.push({
-                    pathname: "/courses/[id]",
+                    pathname: "/child/courses/[id]",
                     params: { id: course.id },
                   })
                 }
@@ -318,7 +318,7 @@ export default function SearchScreen() {
                 className="flex-row items-center p-3 mb-3 bg-white rounded-xl border border-gray-100 shadow-sm"
                 onPress={() =>
                   router.push({
-                    pathname: "/courses/[id]",
+                    pathname: "/child/courses/[id]",
                     params: { id: course.id },
                   })
                 }

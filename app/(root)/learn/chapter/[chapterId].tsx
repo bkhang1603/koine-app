@@ -106,7 +106,7 @@ export default function ChapterScreen() {
                 {chapter.status === "YET" ? "Đã hoàn thành" : "Chưa hoàn thành"}
               </Text>
             </View>
-            {chapter.score ? (
+            {chapter.score != null? (
               <Text className="text-gray-600 ml-2">Điểm: {chapter.score}</Text>
             ) : null}
           </View>
@@ -225,7 +225,7 @@ export default function ChapterScreen() {
                       name={
                         chapter.status != "YET"
                           ? "lock"
-                          : !chapter.score
+                          : chapter.score == null
                           ? "play-circle-outline"
                           : chapter.score >= 70
                           ? "check-circle"
@@ -235,7 +235,7 @@ export default function ChapterScreen() {
                       color={
                         chapter.status != "YET"
                           ? "#9CA3AF"
-                          : !chapter.score
+                          : chapter.score == null
                           ? "#3B82F6"
                           : chapter.score >= 70
                           ? "#10B981"

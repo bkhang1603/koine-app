@@ -234,7 +234,7 @@ export default function CreateEventScreen() {
             <View className="flex-row items-center">
               <Pressable
                 className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
-                onPress={() => router.push("/notifications/notifications")}
+                onPress={() => router.push("/(expert)/route/notifications/notifications")}
               >
                 <MaterialIcons name="notifications" size={24} color="white" />
               </Pressable>

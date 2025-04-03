@@ -10,8 +10,8 @@ import {
 } from "@/schema/user-schema";
 import { useAppStore } from "@/components/app-provider";
 import { useMyCourseDetail } from "@/queries/useUser";
-import blog from "@/app/(tabs)/blog/blog";
 import formatDuration from "@/util/formatDuration";
+import { boolean } from "zod";
 
 export default function CourseLearnScreen() {
   const { courseId } = useLocalSearchParams<{ courseId: string }>();
@@ -47,15 +47,10 @@ export default function CourseLearnScreen() {
 
   const course = myCourse;
 
-
   return (
     <View className="flex-1 bg-white">
       <HeaderWithBack
-        title={
-          course.title.length > 30
-            ? course.title.substring(0, 30) + "..."
-            : course.title
-        }
+        title={"Chi tiết khóa học"}
         returnTab={"/(tabs)/my-courses/my-courses"}
         showMoreOptions={false}
       />
@@ -153,14 +148,39 @@ export default function CourseLearnScreen() {
               // Kiểm tra xem chương trước đó đã hoàn thành chưa
               const previousChapter =
                 index > 0 ? course.chapters[index - 1] : null;
-              const isLocked =
-                previousChapter &&
-                (previousChapter.score == null ||
-                  (previousChapter.score != null &&
-                    previousChapter.score < 70));
 
-              // const isLocked =
-                // previousChapter && previousChapter.status !== "YET";
+              let isLocked = false;
+              if (previousChapter == null) {
+                isLocked = false;
+              } else if (
+                previousChapter != null &&
+                previousChapter.status != "YET"
+              ) {
+                isLocked = true;
+              } else if (
+                previousChapter != null &&
+                previousChapter.status == "YET" &&
+                !previousChapter.isQuestion
+              ) {
+                isLocked = false;
+                console.log("check");
+              } else if (
+                previousChapter != null &&
+                previousChapter.status == "YET" &&
+                previousChapter.isQuestion &&
+                (previousChapter.score == null ||
+                  (previousChapter.score != null && previousChapter.score < 70))
+              ) {
+                isLocked = true;
+              } else if (
+                previousChapter != null &&
+                previousChapter.status == "YET" &&
+                previousChapter.isQuestion &&
+                previousChapter.score &&
+                previousChapter.score >= 70
+              ) {
+                isLocked = false;
+              }
 
               return (
                 <View key={chapter.id}>
@@ -190,16 +210,25 @@ export default function CourseLearnScreen() {
                   >
                     <MaterialIcons
                       name={
-                        chapter.score && chapter.score >= 70 
+                        (chapter.status == "YET" &&
+                          chapter.score &&
+                          chapter.score >= 70) ||
+                        (chapter.status == "YET" && !chapter.isQuestion)
                           ? "check-circle"
                           : "play-circle-outline"
                       }
                       size={24}
                       color={
                         isLocked
+                        // màu xám
                           ? "#9CA3AF"
-                          : chapter.score && chapter.score >= 70 
+                          : (chapter.status == "YET" &&
+                              chapter.score &&
+                              chapter.score >= 70) ||
+                            (chapter.status == "YET" && !chapter.isQuestion)
+                            // màu xanh lá
                           ? "#10B981"
+                          //màu xanh dương
                           : "#3B82F6"
                       }
                     />

@@ -17,7 +17,9 @@ export const getAllEventResType = z.object({
     z.object({
       id: z.string(),
       title: z.string(),
+      slug: z.string(),
       description: z.string(),
+      content: z.string(),
       startedAt: z.string(),
       startAtFormatted: z.string(),
       durations: z.number(),
@@ -29,6 +31,7 @@ export const getAllEventResType = z.object({
       recordUrl: z.string(),
       status: z.string(),
       totalParticipants: z.number(),
+      note: z.string(),
       createdAt: z.string(),
       updateAt: z.string(),
       hostInfo: z.object({
@@ -38,11 +41,10 @@ export const getAllEventResType = z.object({
         avatarUrl: z.string(),
       }),
     })
-  )
-})
+  ),
+});
 
 export type GetAllEventResType = z.infer<typeof getAllEventResType>;
-
 
 //cancel
 export const cancelEventRequest = z.object({
@@ -51,7 +53,6 @@ export const cancelEventRequest = z.object({
 });
 export type CancelEventRequestType = z.infer<typeof cancelEventRequest>;
 
-
 //update thông tin lúc tạo phòng
 export const createEventRoomRequest = z.object({
   roomUrl: z.string(),
@@ -59,8 +60,6 @@ export const createEventRoomRequest = z.object({
   roomName: z.string(),
 });
 export type CreateEventRoomRequestType = z.infer<typeof createEventRoomRequest>;
-
-
 
 //update thông tin khác
 export const updateEventRequest = z.object({
@@ -88,4 +87,34 @@ export const updateEventRequest = z.object({
 
 export type UpdateEventRequestType = z.infer<typeof updateEventRequest>;
 
+export const getEventDetail = z.object({
+  data: z.object({
+    id: z.string(),
+    title: z.string(),
+    slug: z.string(),
+    description: z.string(),
+    content: z.string(),
+    startedAt: z.string(),
+    startAtFormatted: z.string(),
+    durations: z.number(),
+    durationsDisplay: z.string(),
+    imageUrl: z.string(),
+    roomHostUrl: z.string(),
+    roomName: z.string(),
+    roomUrl: z.string(),
+    recordUrl: z.string(),
+    status: z.string(),
+    totalParticipants: z.number(),
+    note: z.string(),
+    createdAt: z.string(),
+    updateAt: z.string(),
+    hostInfo: z.object({
+      id: z.string(),
+      fullName: z.string(),
+      email: z.string(),
+      avatarUrl: z.string(),
+    }),
+  }),
+});
 
+export type EventDetailResType = z.infer<typeof getEventDetail>;

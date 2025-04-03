@@ -50,11 +50,7 @@ export default function CourseLearnScreen() {
   return (
     <View className="flex-1 bg-white">
       <HeaderWithBack
-        title={
-          course.title.length > 30
-            ? course.title.substring(0, 30) + "..."
-            : course.title
-        }
+        title={"Chi tiết khóa học"}
         returnTab={"/child/(tabs)/my-courses"}
         showMoreOptions={false}
       />
@@ -152,14 +148,37 @@ export default function CourseLearnScreen() {
               // Kiểm tra xem chương trước đó đã hoàn thành chưa
               const previousChapter =
                 index > 0 ? course.chapters[index - 1] : null;
-              // const isLocked =
-              // previousChapter && previousChapter.status !== "YET";
-
-              const isLocked =
-                previousChapter &&
+              let isLocked = false;
+              if (previousChapter == null) {
+                isLocked = false;
+              } else if (
+                previousChapter != null &&
+                previousChapter.status != "YET"
+              ) {
+                isLocked = true;
+              } else if (
+                previousChapter != null &&
+                previousChapter.status == "YET" &&
+                !previousChapter.isQuestion
+              ) {
+                isLocked = false;
+              } else if (
+                previousChapter != null &&
+                previousChapter.status == "YET" &&
+                previousChapter.isQuestion &&
                 (previousChapter.score == null ||
-                  (previousChapter.score != null &&
-                    previousChapter.score < 70));
+                  (previousChapter.score != null && previousChapter.score < 70))
+              ) {
+                isLocked = true;
+              } else if (
+                previousChapter != null &&
+                previousChapter.status == "YET" &&
+                previousChapter.isQuestion &&
+                previousChapter.score &&
+                previousChapter.score >= 70
+              ) {
+                isLocked = false;
+              }
               return (
                 <View key={chapter.id}>
                   <Text
@@ -188,17 +207,26 @@ export default function CourseLearnScreen() {
                   >
                     <MaterialIcons
                       name={
-                        chapter.score && chapter.score >= 70
+                        (chapter.status == "YET" &&
+                          chapter.score &&
+                          chapter.score >= 70) ||
+                        (chapter.status == "YET" && !chapter.isQuestion)
                           ? "check-circle"
                           : "play-circle-outline"
                       }
                       size={24}
                       color={
                         isLocked
-                          ? "#9CA3AF"
-                          : chapter.score && chapter.score >= 70
-                          ? "#10B981"
-                          : "#8B5CF6"
+                          ? // màu xám
+                            "#9CA3AF"
+                          : (chapter.status == "YET" &&
+                              chapter.score &&
+                              chapter.score >= 70) ||
+                            (chapter.status == "YET" && !chapter.isQuestion)
+                          ? // màu xanh lá
+                            "#10B981"
+                          : //màu xanh dương
+                            "#3B82F6"
                       }
                     />
                     <View className="flex-1 ml-3">

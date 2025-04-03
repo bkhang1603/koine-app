@@ -114,7 +114,6 @@ export default function CheckoutScreen() {
     } else {
       extraFee = 0;
     }
-    console.log("fee ", extraFee);
     setTotalToPay(total + extraFee);
   }, [deliveryPace, total, chosenShippingAddress]);
 

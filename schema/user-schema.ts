@@ -92,6 +92,7 @@ export const myCourseDetailRes = z.object({
         sequence: z.number(),
         status: z.string(),
         score: z.number().nullable(),
+        isQuestion: z.boolean(),
       })
     ),
   }),
@@ -111,6 +112,7 @@ export const myChapterDetailRes = z.object({
     score: z.number().nullable(),
     status: z.string(),
     sequence: z.number(),
+    isQuestion: z.boolean(),
     lessons: z.array(
       z.object({
         id: z.string(),
@@ -120,7 +122,6 @@ export const myChapterDetailRes = z.object({
         durationDisplay: z.string(),
       })
     ),
-    isQuestion: z.boolean(),
   }),
 });
 

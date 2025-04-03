@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -9,20 +9,12 @@ import {
   Animated,
   Alert,
 } from "react-native";
-import {
-  AntDesign,
-  EvilIcons,
-  MaterialIcons,
-  SimpleLineIcons,
-} from "@expo/vector-icons";
+import { AntDesign, MaterialIcons, SimpleLineIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { MOCK_COURSES } from "@/constants/mock-data";
 import CartButton from "@/components/CartButton";
-import { useBlogDetail } from "@/queries/useBlog";
 import { useCourseDetail, useEnrollFreeCourse } from "@/queries/useCourse";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
-import ErrorScreen from "@/components/ErrorScreen";
 import {
   courseDetailRes,
   GetCourseDetailResType,
@@ -30,6 +22,8 @@ import {
 import { useCreateCartItemMutation } from "@/queries/useCart";
 import { useAppStore } from "@/components/app-provider";
 import formatDuration from "@/util/formatDuration";
+import { useMyCourse } from "@/queries/useUser";
+import { GetMyCoursesResType, myCourseRes } from "@/schema/user-schema";
 
 export default function CourseDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -40,6 +34,8 @@ export default function CourseDetailScreen() {
   const [quantity, setQuantity] = useState(1);
   const shakeAnimation = new Animated.Value(0);
   const [expandedChapters, setExpandedChapters] = useState<string[]>([]);
+  const accessToken = useAppStore((state) => state.accessToken);
+  const token = accessToken?.accessToken;
 
   const {
     data: courseData,
@@ -49,8 +45,14 @@ export default function CourseDetailScreen() {
     courseId: id as string,
   });
 
-  const accessToken = useAppStore((state) => state.accessToken);
-  const token = accessToken?.accessToken;
+  const {
+    data: myCourseOverviewData,
+    isLoading: myCourseOverviewLoading,
+    isError: myCourseOverviewError,
+    refetch: refetchMyCourse,
+  } = useMyCourse({
+    token: token as string,
+  });
 
   const createCartItemMutation = useCreateCartItemMutation();
   const enrollFreeMutation = useEnrollFreeCourse();
@@ -68,6 +70,24 @@ export default function CourseDetailScreen() {
       }
     }
   }
+
+  let myCourse: GetMyCoursesResType["data"] = [];
+
+  if (myCourseOverviewData && !myCourseOverviewError) {
+    if (myCourseOverviewData.data.length === 0) {
+    } else {
+      const parsedResult = myCourseRes.safeParse(myCourseOverviewData);
+      if (parsedResult.success) {
+        myCourse = parsedResult.data.data;
+      } else {
+        console.error("Validation errors:", parsedResult.error.errors);
+      }
+    }
+  }
+
+  const isEnrolled = useMemo(() => {
+    return myCourse.some((course) => course.id === id);
+  }, [myCourse, id]);
 
   const handleAddToCart = async () => {
     if (!token) {
@@ -150,13 +170,12 @@ export default function CourseDetailScreen() {
   };
 
   if (courseLoading) return <ActivityIndicatorScreen />;
-  if (courseError)
-    return (
-      <ErrorScreen message="Failed to load courses. Showing default courses." />
-    );
+  if (courseError) console.log("Lỗi khi tải dữ liệu khóa học");
+  // return <ErrorScreen message="Lỗi khi tải dữ liệu khóa học" />;
 
   if (course == null)
-    return <ErrorScreen message="Failed to load courses. Course is null." />;
+    return console.log("Lỗi khi tải dữ liệu khóa học. Không tìm thấy khóa học");
+  // <ErrorScreen message="Lỗi khi tải dữ liệu khóa học. Không tìm thấy khóa học" />
 
   return (
     <View className="flex-1 bg-white">
@@ -168,16 +187,16 @@ export default function CourseDetailScreen() {
         <View className="px-4 py-3 flex-row items-center justify-between backdrop-blur-sm">
           <Pressable
             onPress={() => router.push("/(tabs)/course/course")}
-            className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
+            className="w-10 h-10 bg-black/30 rounded-full items-center justify-center"
           >
             <MaterialIcons name="arrow-back" size={24} color="white" />
           </Pressable>
 
           <View className="flex-row items-center">
-            <CartButton bgColor="bg-white/20" iconColor="white" />
+            <CartButton bgColor="bg-black/30" iconColor="white" />
             <Pressable
-              className="w-10 h-10 items-center justify-center rounded-full bg-white/20 ml-2"
-              onPress={() => router.push("/notifications/notifications")}
+              className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
+              onPress={() => router.push("/(root)/notifications/notifications")}
             >
               <MaterialIcons name="notifications" size={24} color="white" />
             </Pressable>
@@ -213,7 +232,17 @@ export default function CourseDetailScreen() {
 
             <View className="flex-row items-center">
               <MaterialIcons name="bar-chart" size={22} color="#7B1FA2" />
-              <Text className="ml-1 font-medium text-base">{course.level}</Text>
+              <Text className="ml-1 font-medium text-base">
+                {course.level == null
+                  ? "Chưa có cấp độ"
+                  : course.level == "ALL"
+                  ? "Tất cả"
+                  : course.level == "BEGINNER"
+                  ? "Khởi đầu"
+                  : course.level == "INTERMEDIATE"
+                  ? "Trung cấp"
+                  : "Nâng cao"}
+              </Text>
             </View>
           </View>
 
@@ -259,7 +288,7 @@ export default function CourseDetailScreen() {
         {/* Tab Content - Redesigned with better spacing */}
         <View className="p-4 mt-2">
           {selectedTab === "overview" && course && course.chapters && (
-            <View className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <View>
               <Text className="text-xl font-bold mb-4">
                 Bạn sẽ học được gì?
               </Text>
@@ -293,7 +322,7 @@ export default function CourseDetailScreen() {
                     onPress={() => toggleChapter(chapter.id)}
                     className="px-4 py-4 bg-gray-50"
                   >
-                    <View className="flex-row items-start">
+                    <View className="flex-row items-center">
                       <View className="w-9 h-9 bg-blue-600 rounded-full items-center justify-center mr-3">
                         <Text className="text-white font-bold">
                           {chapterIndex + 1}
@@ -301,7 +330,10 @@ export default function CourseDetailScreen() {
                       </View>
                       <View className="flex-1">
                         <View className="flex-row items-center justify-between">
-                          <Text className="font-bold text-gray-800 text-base flex-1">
+                          <Text
+                            numberOfLines={1}
+                            className="font-bold text-gray-800 text-sm flex-1"
+                          >
                             {chapter.title}
                           </Text>
                           <MaterialIcons
@@ -320,17 +352,17 @@ export default function CourseDetailScreen() {
                             size={16}
                             color="#6B7280"
                           />
-                          <Text className="text-gray-500 text-sm ml-1 mr-1">
-                            {chapter.durationsDisplay}
+                          <Text className="text-gray-500 text-xs ml-1 mr-1">
+                            {formatDuration(chapter.durationsDisplay)}
                           </Text>
-                          {/* <View className="w-1 h-1 bg-gray-300 rounded-full mx-2" /> */}
+
                           <MaterialIcons
                             name="menu-book"
                             size={16}
                             color="#6B7280"
                           />
 
-                          <Text className="text-gray-500 text-sm ml-1">
+                          <Text className="text-gray-500 text-xs ml-1">
                             {chapter.lessons.length + " bài học"}
                           </Text>
 
@@ -338,10 +370,10 @@ export default function CourseDetailScreen() {
                             <View className="flex-row justify-center items-center ml-1">
                               <SimpleLineIcons
                                 name="note"
-                                size={16}
+                                size={12}
                                 color="black"
                               />
-                              <Text className="text-gray-500 text-sm ml-1">
+                              <Text className="text-gray-500 text-xs ml-1">
                                 1 bài kiểm tra
                               </Text>
                             </View>
@@ -367,7 +399,7 @@ export default function CourseDetailScreen() {
                             onPress={() => {
                               if (isFirstChapterFirstLesson) {
                                 router.push({
-                                  pathname: "/courses/lesson/[lessonId]",
+                                  pathname: "/(root)/courses/lesson/[lessonId]",
                                   params: {
                                     lessonId: lesson.id,
                                     courseId: id,
@@ -487,115 +519,129 @@ export default function CourseDetailScreen() {
         className="bg-white border-t border-gray-100 px-6 py-4 shadow-lg"
         style={{ paddingBottom: insets.bottom + 8 }}
       >
-        <View className="flex-row items-center justify-between mb-4">
+        {isEnrolled && course.price == 0 ? (
+          <View className="flex-row h-[56px] rounded-xl justify-center items-center mb-4 bg-green-500">
+            <MaterialIcons
+              name="school"
+              size={20}
+              color="white"
+              style={{ marginRight: 6 }}
+            />
+            <Text className="text-white font-bold text-base">Đã đăng kí</Text>
+          </View>
+        ) : (
           <View>
-            <Text className="text-gray-500 text-sm mb-1">Học phí</Text>
-            <Text className="text-2xl font-bold text-blue-600">
-              {course.price === 0
-                ? "Miễn phí"
-                : `${course.price.toLocaleString("vi-VN")} ₫`}
-            </Text>
-          </View>
-
-          {course.price > 0 && (
-            <View className="bg-gray-50 px-3 py-2 rounded-lg">
-              <Text className="text-gray-500 text-xs mb-2 text-center">
-                Số lượng
-              </Text>
-              <View className="flex-row items-center">
-                <Pressable
-                  className="w-8 h-8 items-center justify-center rounded-lg bg-gray-200"
-                  onPress={() => setQuantity(Math.max(1, quantity - 1))}
-                >
-                  <MaterialIcons
-                    name="remove"
-                    size={20}
-                    color={quantity <= 1 ? "#9CA3AF" : "#374151"}
-                  />
-                </Pressable>
-                <Animated.Text
-                  className="mx-4 font-semibold text-lg"
-                  style={{ transform: [{ translateX: shakeAnimation }] }}
-                >
-                  {quantity}
-                </Animated.Text>
-                <Pressable
-                  className="w-8 h-8 items-center justify-center rounded-lg bg-gray-200"
-                  onPress={() => {
-                    if (quantity >= 3) {
-                      shake();
-                    } else {
-                      setQuantity(quantity + 1);
-                    }
-                  }}
-                >
-                  <MaterialIcons
-                    name="add"
-                    size={20}
-                    color={quantity >= 3 ? "#9CA3AF" : "#374151"}
-                  />
-                </Pressable>
-              </View>
-            </View>
-          )}
-        </View>
-
-        <Pressable
-          className={`h-[56px] rounded-xl items-center justify-center ${
-            course.price === 0 ? "bg-green-500" : "bg-blue-600"
-          } ${
-            (
-              course.price === 0
-                ? enrollFreeMutation.isPending
-                : createCartItemMutation.isPending
-            )
-              ? "opacity-70"
-              : ""
-          }`}
-          onPress={
-            course.price === 0 ? handleEnrollFreeCourse : handleAddToCart
-          }
-          disabled={
-            course.price === 0
-              ? enrollFreeMutation.isPending
-              : createCartItemMutation.isPending
-          }
-        >
-          <View className="flex-row items-center justify-center">
-            {course.price === 0 ? (
-              enrollFreeMutation.isPending ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <>
-                  <MaterialIcons
-                    name="school"
-                    size={20}
-                    color="white"
-                    style={{ marginRight: 6 }}
-                  />
-                  <Text className="text-white font-bold text-base">
-                    Đăng ký khóa học
-                  </Text>
-                </>
-              )
-            ) : createCartItemMutation.isPending ? (
-              <ActivityIndicator color="white" />
-            ) : (
-              <>
-                <MaterialIcons
-                  name="shopping-cart"
-                  size={20}
-                  color="white"
-                  style={{ marginRight: 6 }}
-                />
-                <Text className="text-white font-bold text-base">
-                  Thêm vào giỏ hàng •{" "}
-                  {(course.price * quantity).toLocaleString("vi-VN")} ₫
+            <View className="flex-row items-center justify-between mb-4">
+              <View>
+                <Text className="text-gray-500 text-sm mb-1">Học phí</Text>
+                <Text className="text-2xl font-bold text-blue-600">
+                  {course.price === 0
+                    ? "Miễn phí"
+                    : `${course.price.toLocaleString("vi-VN")} ₫`}
                 </Text>
-              </>
-            )}
+              </View>
+
+              {course.price > 0 && (
+                <View className="bg-gray-50 px-3 py-2 rounded-lg">
+                  <Text className="text-gray-500 text-xs mb-2 text-center">
+                    Số lượng
+                  </Text>
+                  <View className="flex-row items-center">
+                    <Pressable
+                      className="w-8 h-8 items-center justify-center rounded-lg bg-gray-200"
+                      onPress={() => setQuantity(Math.max(1, quantity - 1))}
+                    >
+                      <MaterialIcons
+                        name="remove"
+                        size={20}
+                        color={quantity <= 1 ? "#9CA3AF" : "#374151"}
+                      />
+                    </Pressable>
+                    <Animated.Text
+                      className="mx-4 font-semibold text-lg"
+                      style={{ transform: [{ translateX: shakeAnimation }] }}
+                    >
+                      {quantity}
+                    </Animated.Text>
+                    <Pressable
+                      className="w-8 h-8 items-center justify-center rounded-lg bg-gray-200"
+                      onPress={() => {
+                        if (quantity >= 3) {
+                          shake();
+                        } else {
+                          setQuantity(quantity + 1);
+                        }
+                      }}
+                    >
+                      <MaterialIcons
+                        name="add"
+                        size={20}
+                        color={quantity >= 3 ? "#9CA3AF" : "#374151"}
+                      />
+                    </Pressable>
+                  </View>
+                </View>
+              )}
+            </View>
+
+            <Pressable
+              className={`h-[56px] rounded-xl items-center justify-center ${
+                course.price === 0 ? "bg-green-500" : "bg-blue-600"
+              } ${
+                (
+                  course.price === 0
+                    ? enrollFreeMutation.isPending
+                    : createCartItemMutation.isPending
+                )
+                  ? "opacity-70"
+                  : ""
+              }`}
+              onPress={
+                course.price === 0 ? handleEnrollFreeCourse : handleAddToCart
+              }
+              disabled={
+                course.price === 0
+                  ? enrollFreeMutation.isPending
+                  : createCartItemMutation.isPending
+              }
+            >
+              <View className="flex-row items-center justify-center">
+                {course.price === 0 ? (
+                  enrollFreeMutation.isPending ? (
+                    <ActivityIndicator color="white" />
+                  ) : (
+                    <>
+                      <MaterialIcons
+                        name="school"
+                        size={20}
+                        color="white"
+                        style={{ marginRight: 6 }}
+                      />
+                      <Text className="text-white font-bold text-base">
+                        Đăng ký khóa học
+                      </Text>
+                    </>
+                  )
+                ) : createCartItemMutation.isPending ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <>
+                    <MaterialIcons
+                      name="shopping-cart"
+                      size={20}
+                      color="white"
+                      style={{ marginRight: 6 }}
+                    />
+                    <Text className="text-white font-bold text-base">
+                      Thêm vào giỏ hàng •{" "}
+                      {(course.price * quantity).toLocaleString("vi-VN")} ₫
+                    </Text>
+                  </>
+                )}
+              </View>
+            </Pressable>
           </View>
-        </Pressable>
+        )}
       </View>
     </View>
   );
