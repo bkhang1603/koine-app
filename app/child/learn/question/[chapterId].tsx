@@ -19,6 +19,7 @@ import {
   getChapterQuestionResType,
 } from "@/schema/course-schema";
 import { MaterialIcons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function QuestionScreen() {
   const { chapterId, courseId } = useLocalSearchParams<{
@@ -30,7 +31,7 @@ export default function QuestionScreen() {
   const [isSubmit, setSubmit] = useState(false);
   const [hasResult, setHasResult] = useState<number | null>(null);
 
-  const { data, isError, error, isLoading, refetch } = useChapterQuestion({
+  const { data, isError, error, isLoading } = useChapterQuestion({
     chapterId,
     token,
   }) as {
@@ -38,19 +39,17 @@ export default function QuestionScreen() {
     isError: boolean;
     error: any;
     isLoading: boolean;
-    refetch: any;
   };
 
   const updateScore = useUpdateChapterScoreMutation(courseId, chapterId);
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null); // Dùng useRef để lưu interval timer
-
+ 
   if (isError) {
     return (
       <View className="flex-1 bg-white">
         <HeaderWithBack
           title={"Bài kiểm tra chương"}
-          returnTab={`/child/learn/chapter/${chapterId}&courseId=${courseId}`}
+          returnTab={`/child/learn/chapter/${chapterId}`}
           showMoreOptions={false}
         />
         <View className="flex-1 items-center justify-center p-4">
@@ -76,6 +75,7 @@ export default function QuestionScreen() {
       }
     }
   }
+  const timerRef = useRef<NodeJS.Timeout | null>(null); // Dùng useRef để lưu interval timer
 
   const [timer, setTimer] = useState<number>(60 * 10);
   const [selectedAnswers, setSelectedAnswers] = useState<{
@@ -84,15 +84,16 @@ export default function QuestionScreen() {
   const [correctAnswers, setCorrectAnswers] = useState<string[]>([]); // Lưu ID của đáp án đúng
 
   useEffect(() => {
-    // Lưu đáp án đúng
-    const correctOptions =
-      data?.data?.questions?.flatMap((question) =>
-        question.questionOptions
-          .filter((option) => option.isCorrect)
-          .map((option) => option.id)
-      ) || [];
-    setCorrectAnswers(correctOptions);
-  }, []); // Chạy khi mock data thay đổi
+    if (data?.data?.questions) {
+      const correctOptions =
+        data.data.questions.flatMap((question) =>
+          question.questionOptions
+            .filter((option) => option.isCorrect)
+            .map((option) => option.id)
+        ) || [];
+      setCorrectAnswers(correctOptions);
+    }
+  }, [data]); // Chạy lại mỗi khi data thay đổi
 
   useEffect(() => {
     timerRef.current = setInterval(() => {
@@ -124,7 +125,6 @@ export default function QuestionScreen() {
       const currentAnswers = prev[questionIndex] || [];
       const numCorrect = questionData[questionIndex].numCorrect;
 
-      // Nếu đã chọn option này rồi => Bỏ chọn nó
       if (currentAnswers.includes(optionId)) {
         return {
           ...prev,
@@ -132,7 +132,6 @@ export default function QuestionScreen() {
         };
       }
 
-      // Nếu chưa đủ số lượng numCorrect => Cho phép chọn thêm
       if (currentAnswers.length < numCorrect) {
         return {
           ...prev,
@@ -140,7 +139,6 @@ export default function QuestionScreen() {
         };
       }
 
-      // Nếu đã đạt giới hạn numCorrect => Bỏ đáp án đầu tiên và thêm cái mới
       return {
         ...prev,
         [questionIndex]: [...currentAnswers.slice(1), optionId],
@@ -151,7 +149,8 @@ export default function QuestionScreen() {
   const calculateScore = async () => {
     if (isSubmit) return;
     setSubmit(true);
-    clearInterval(timerRef.current!); // Dừng timer khi nộp bài
+    clearInterval(timerRef.current!);
+
     let totalCorrectAns = 0;
     let totalCorrect = 0;
 
@@ -163,16 +162,15 @@ export default function QuestionScreen() {
         )
       );
 
-      totalCorrect += correctOptions.length; // Tổng số đáp án đúng
+      totalCorrect += correctOptions.length;
 
       selectedOptions.forEach((optionId) => {
         if (correctOptions.includes(optionId)) {
-          totalCorrectAns++; // Cộng điểm nếu chọn đúng
+          totalCorrectAns++;
         }
       });
     });
 
-    // Tính điểm, đảm bảo không âm và làm tròn đến 1 chữ số thập phân
     const finalScore =
       totalCorrect > 0
         ? Math.max(
@@ -180,21 +178,20 @@ export default function QuestionScreen() {
             parseFloat(((totalCorrectAns / totalCorrect) * 100).toFixed(2))
           )
         : 0;
-
-    console.log("Final Score:", finalScore);
+    console.log("final score ", finalScore);
     await handleSubmit(finalScore);
   };
+
 
   const handleSubmit = async (finalScore: number) => {
     try {
       if (isSubmit) return;
       setSubmit(true);
 
-      updateScore.mutateAsync({
+      await updateScore.mutateAsync({
         body: { chapterId, score: finalScore },
         token,
       });
-      console.log("thành công");
       setHasResult(finalScore);
       setSubmit(false);
       setTimeout(() => {
@@ -213,90 +210,89 @@ export default function QuestionScreen() {
 
   return (
     <View className="flex-1">
-      <HeaderWithBack
-        title={"Bài kiểm tra chương"}
-        returnTab={`/child/learn/chapter/${chapterId}&courseId=${courseId}`}
-        showMoreOptions={false}
-      />
-      {isLoading ? (
-        <ActivityIndicatorScreen></ActivityIndicatorScreen>
-      ) : (
-        <View>
-          {hasResult != null ? (
-            <View>
-              <Text
-                className={`${
-                  hasResult >= 70 ? "text-green-600" : "text-red-500"
-                } text-lg ml-2`}
-              >
-                Kết quả lần thi thứ {data?.data.attempt}: {hasResult} điểm
-              </Text>
-            </View>
-          ) : (
-            <View>
-              <View className="flex-row justify-between items-end mr-2 mt-2">
-                <Text className={`text-black text-lg italic text-center ml-2`}>
-                  Bạn cần 70 điểm để vượt qua
-                </Text>
+      <SafeAreaView className="flex-1">
+        {isLoading ? (
+          <ActivityIndicatorScreen></ActivityIndicatorScreen>
+        ) : (
+          <View>
+            {hasResult != null ? (
+              <View>
                 <Text
                   className={`${
-                    timer <= 2 * 60 ? "text-red-500" : "text-black"
-                  } text-xl font-bold text-center border-2 w-24 rounded-md`}
+                    hasResult >= 70 ? "text-green-600" : "text-red-500"
+                  } text-lg ml-2`}
                 >
-                  {formatTime(timer)}
+                  Kết quả lần thi thứ {data?.data.attempt}: {hasResult} điểm
                 </Text>
               </View>
-            </View>
-          )}
-
-          <ScrollView
-            contentContainerStyle={{ flexGrow: 1, paddingBottom: 140 }} // Đảm bảo ScrollView có không gian tự động mở rộng
-          >
-            {questionData.map((item, index) => (
-              <View key={index} className="p-2 my-2 w-full">
-                <Text className="text-lg font-bold">
-                  Câu {index + 1}: {item.content}
-                </Text>
-                <Text className="text-md italic">
-                  ({item.numCorrect} đáp án đúng)
-                </Text>
-                <View className="flex-row flex-wrap mt-2 justify-center">
-                  {item.questionOptions.map((option, optionIndex) => (
-                    <TouchableOpacity
-                      key={option.id}
-                      className={`m-1 px-4 py-2 rounded ${
-                        selectedAnswers[index]?.includes(option.id)
-                          ? "bg-cyan-500"
-                          : "bg-gray-200"
-                      } ${
-                        item.questionOptions.length % 2 !== 0 &&
-                        optionIndex === item.questionOptions.length - 1
-                          ? "w-[94%]"
-                          : "w-[46%]"
-                      }`}
-                      onPress={() => handleAnswerSelect(index, option.id)}
-                    >
-                      <Text>{option.optionData}</Text>
-                    </TouchableOpacity>
-                  ))}
+            ) : (
+              <View>
+                <View className="flex-row justify-between items-end mr-2 mt-2">
+                  <Text
+                    className={`text-black text-lg italic text-center ml-2`}
+                  >
+                    Bạn cần 70 điểm để vượt qua
+                  </Text>
+                  <Text
+                    className={`${
+                      timer <= 2 * 60 ? "text-red-500" : "text-black"
+                    } text-xl font-bold text-center border-2 w-24 rounded-md`}
+                  >
+                    {formatTime(timer)}
+                  </Text>
                 </View>
               </View>
-            ))}
-            {/* Nút nộp bài ở dưới cùng */}
-            <View className="flex items-center mt-4 pb-4">
-              <Pressable
-                className={`p-2 w-[96%] mb-2 ${
-                  hasResult != null ? "bg-gray-400" : "bg-cyan-400"
-                } bg-cyan-400 rounded-lg`}
-                onPress={() => calculateScore()}
-                disabled={hasResult != null ? true : false}
-              >
-                <Text className="text-center font-bold text-lg">Nộp bài</Text>
-              </Pressable>
-            </View>
-          </ScrollView>
-        </View>
-      )}
+            )}
+
+            <ScrollView
+              contentContainerStyle={{ flexGrow: 1, paddingBottom: 70 }} // Đảm bảo ScrollView có không gian tự động mở rộng
+            >
+              {questionData.map((item, index) => (
+                <View key={index} className="p-2 my-2 w-full">
+                  <Text className="text-lg font-bold">
+                    Câu {index + 1}: {item.content}
+                  </Text>
+                  <Text className="text-md italic">
+                    ({item.numCorrect} đáp án đúng)
+                  </Text>
+                  <View className="flex-row flex-wrap mt-2 justify-center">
+                    {item.questionOptions.map((option, optionIndex) => (
+                      <TouchableOpacity
+                        key={option.id}
+                        className={`m-1 px-4 py-2 rounded ${
+                          selectedAnswers[index]?.includes(option.id)
+                            ? "bg-cyan-500"
+                            : "bg-gray-200"
+                        } ${
+                          item.questionOptions.length % 2 !== 0 &&
+                          optionIndex === item.questionOptions.length - 1
+                            ? "w-[94%]"
+                            : "w-[46%]"
+                        }`}
+                        onPress={() => handleAnswerSelect(index, option.id)}
+                      >
+                        <Text>{option.optionData}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              ))}
+              {/* Nút nộp bài ở dưới cùng */}
+              <View className="flex items-center mt-4 pb-4">
+                <Pressable
+                  className={`p-2 w-[96%] mb-2 ${
+                    hasResult != null || isSubmit ? "bg-gray-400" : "bg-cyan-400"
+                  }  rounded-lg`}
+                  onPress={() => calculateScore()}
+                  disabled={hasResult != null ? true : false}
+                >
+                  <Text className="text-center font-bold text-lg">{isSubmit ? "Đã nộp" : "Nộp bài"}</Text>
+                </Pressable>
+              </View>
+            </ScrollView>
+          </View>
+        )}
+      </SafeAreaView>
     </View>
   );
 }

@@ -59,40 +59,18 @@ export default function ProductsScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      {/* parsedProductList.length === 0 */}
-      {false ? (
-        <View>
+      {parsedProductList.length == 0 ? (
+        <View className="flex-1 bg-white">
+          <HeaderWithBack
+            title="Danh sách sản phẩm"
+            returnTab={"/(tabs)/home"}
+            showMoreOptions={false}
+          />
           <View className="flex-1 items-center justify-center p-4">
-            <MaterialIcons name="shop" size={34} color="#9CA3AF" />
+            <MaterialIcons name="shopping-cart" size={34} color="#9CA3AF" />
             <Text className="text-gray-500 text-lg mt-4 text-center">
               Danh sách sản phẩm trống
             </Text>
-          </View>
-          <View
-            style={{ paddingTop: insets.top }}
-            className="absolute top-0 left-0 right-0 z-10"
-          >
-            <View className="px-4 py-3 flex-row items-center justify-between">
-              <Pressable
-                onPress={() => router.push("/(tabs)/home")}
-                className="w-10 h-10 bg-black/30 rounded-full items-center justify-center ml-2"
-              >
-                <MaterialIcons name="arrow-back" size={24} color="white" />
-              </Pressable>
-
-              <View className="flex-row items-center">
-                <CartButton
-                  bgColor="bg-black/30"
-                  iconColor="white"
-                ></CartButton>
-                <Pressable
-                  className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
-                  onPress={() => router.push("/notifications/notifications")}
-                >
-                  <MaterialIcons name="notifications" size={24} color="white" />
-                </Pressable>
-              </View>
-            </View>
           </View>
         </View>
       ) : (
@@ -123,7 +101,7 @@ export default function ProductsScreen() {
                   ></CartButton>
                   <Pressable
                     className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
-                    onPress={() => router.push("/notifications/notifications")}
+                    onPress={() => router.push("/(root)/notifications/notifications")}
                   >
                     <MaterialIcons
                       name="notifications"

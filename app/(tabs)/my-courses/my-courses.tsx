@@ -3,7 +3,6 @@ import { View, Text, ScrollView, Image, Pressable } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { MOCK_MY_COURSES } from "@/constants/mock-data";
 import { useAppStore } from "@/components/app-provider";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 import { GetMyCoursesResType, myCourseRes } from "@/schema/user-schema";
@@ -53,7 +52,11 @@ export default function MyCoursesScreen() {
   }
 
   if (myCourseLoading) return <ActivityIndicatorScreen />;
-  if (myCourseError) return null;
+  if (myCourseError)
+    return (
+      // <ErrorScreen message="Lỗi khi tải dữ liệu khóa học" />
+      console.log("Lỗi khi tải dữ liệu khóa học")
+    );
 
   if (myCourse.length == 0) {
     return (
@@ -67,7 +70,7 @@ export default function MyCoursesScreen() {
             <CartButton />
             <Pressable
               className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 ml-2"
-              onPress={() => router.push("/notifications/notifications")}
+              onPress={() => router.push("/(root)/notifications/notifications")}
             >
               <MaterialIcons name="notifications" size={24} color="#374151" />
             </Pressable>
@@ -228,11 +231,10 @@ export default function MyCoursesScreen() {
                         )}`;
                       })()}
                     </Text>
-
-                    <Text className="text-gray-600">
-                      Tác giả: {course.author}
-                    </Text>
                   </View>
+                  <Text className="text-gray-600">
+                    Tác giả: {course.author}
+                  </Text>
 
                   {/* Progress Bar */}
                   <View className="mt-4">

@@ -1,6 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import blogApiRequest from "@/api/blog";
-import { CreateBlogCommentBodyType, CreateBlogReactBodyType } from "@/schema/blog-schema";
+import {
+  CreateBlogCommentBodyType,
+  CreateBlogReactBodyType,
+} from "@/schema/blog-schema";
 
 export const useBlog = ({
   keyword,
@@ -76,6 +79,9 @@ export const useCreateBlogComment = ({
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["blogs-comments", blogId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["blogs-detail", blogId],
       });
     },
   });

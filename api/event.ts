@@ -2,9 +2,9 @@ import {
   CancelEventRequestType,
   CreateEventMeetingRequestType,
   CreateEventRoomRequestType,
+  EventDetailResType,
   GetAllEventResType,
   UpdateEventRequestType,
-
 } from "@/schema/event-schema";
 import http from "@/util/http";
 
@@ -40,6 +40,12 @@ const eventRequestApi = {
     }),
   cancelEvent: (token: string, body: CancelEventRequestType) =>
     http.put<any>("events/cancel", body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+  getEventDetail: (token: string, eventId: string) =>
+    http.get<EventDetailResType>(`events/${eventId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

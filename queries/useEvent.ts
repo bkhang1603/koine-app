@@ -6,6 +6,7 @@ import {
   CancelEventRequestType,
   CreateEventMeetingRequestType,
   CreateEventRoomRequestType,
+  EventDetailResType,
   GetAllEventResType,
   UpdateEventRequestType,
 } from "@/schema/event-schema";
@@ -22,6 +23,13 @@ export const useEventForHost = (token: string) => {
   return useQuery<GetAllEventResType>({
     queryKey: ["events-host"],
     queryFn: () => eventRequestApi.getAllEventForHost(token),
+  });
+};
+
+export const useEventDetail = (token: string, eventId: string) => {
+  return useQuery<EventDetailResType>({
+    queryKey: ["events-detail", eventId],
+    queryFn: () => eventRequestApi.getEventDetail(token, eventId),
   });
 };
 

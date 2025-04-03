@@ -61,7 +61,11 @@ export default function CourseScreen() {
         }
       >
         <Image
-          source={{ uri: courses[0].imageUrl ?? "https://thumbs.dreamstime.com/b/orange-cosmos-flower-bud-garden-indiana-39358565.jpg" }}
+          source={{
+            uri:
+              courses[0].imageUrl ??
+              "https://thumbs.dreamstime.com/b/orange-cosmos-flower-bud-garden-indiana-39358565.jpg",
+          }}
           className="w-full h-48"
           style={{ resizeMode: "cover" }}
         />
@@ -138,7 +142,11 @@ export default function CourseScreen() {
         }
       >
         <Image
-          source={{ uri: course.imageUrl ?? "https://thumbs.dreamstime.com/b/orange-cosmos-flower-bud-garden-indiana-39358565.jpg" }} 
+          source={{
+            uri:
+              course.imageUrl ??
+              "https://thumbs.dreamstime.com/b/orange-cosmos-flower-bud-garden-indiana-39358565.jpg",
+          }}
           className="w-32 h-full rounded-l-2xl"
           style={{ resizeMode: "cover" }}
         />
@@ -158,10 +166,8 @@ export default function CourseScreen() {
                 ))}
               </View>
             </View>
-            <Text className="font-bold text-base" numberOfLines={2}>
-              {course.title.length > 25
-                ? course.title.substring(0, 25) + "..."
-                : course.title}
+            <Text className="font-bold text-base" numberOfLines={1}>
+              {course.title}
             </Text>
           </View>
 
@@ -208,9 +214,7 @@ export default function CourseScreen() {
 
   if (coursesLoading) return <ActivityIndicatorScreen />;
   if (coursesError)
-    return (
-      <ErrorScreen message="Failed to load courses. Showing default courses." />
-    );
+    return <ErrorScreen message="Lỗi khi tải dữ liệu khóa học" />;
 
   return (
     <ScrollView className="flex-1 pt-4 bg-white">
@@ -228,7 +232,7 @@ export default function CourseScreen() {
         {/* Search Bar */}
         <Pressable
           className="mx-4 mt-4 flex-row items-center bg-gray-100 rounded-xl p-3"
-          onPress={() => router.push("/search/searchCourse")}
+          onPress={() => router.push("/child/search/searchCourse")}
         >
           <MaterialIcons name="search" size={24} color="#6B7280" />
           <Text className="ml-2 text-gray-500 flex-1">

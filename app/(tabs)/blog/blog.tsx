@@ -42,10 +42,7 @@ export default function BlogScreen() {
   }
 
   if (blogLoading) return <ActivityIndicatorScreen />;
-  if (blogError)
-    return (
-      <ErrorScreen message="Failed to load courses. Showing default courses." />
-    );
+  if (blogError) return <ErrorScreen message="Lỗi khi tải bài viết" />;
 
   const [selectedCategory, setSelectedCategory] = useState("Tất cả");
 
@@ -65,15 +62,13 @@ export default function BlogScreen() {
         <View className="px-4 flex-row items-center justify-between">
           <View>
             <Text className="text-2xl font-bold">Blog</Text>
-            <Text className="text-gray-600 mt-1">
-              Nơi chia sẻ kiến thức
-            </Text>
+            <Text className="text-gray-600 mt-1">Nơi chia sẻ kiến thức</Text>
           </View>
           <View className="flex-row items-center">
             <CartButton />
             <Pressable
               className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 ml-2"
-              onPress={() => router.push("/notifications/notifications")}
+              onPress={() => router.push("/(root)/notifications/notifications")}
             >
               <MaterialIcons name="notifications" size={24} color="#374151" />
             </Pressable>
@@ -81,7 +76,7 @@ export default function BlogScreen() {
         </View>
 
         {/* Categories */}
-        <ScrollView
+        {/* <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           className="mt-4 pl-4"
@@ -105,7 +100,7 @@ export default function BlogScreen() {
               </Text>
             </Pressable>
           ))}
-        </ScrollView>
+        </ScrollView> */}
 
         {/* Featured Post */}
         {featuredPost && (
@@ -173,7 +168,7 @@ export default function BlogScreen() {
 
         {/* Recent Posts */}
         <View className="p-4">
-          <Text className="text-lg font-bold mb-3">Bài viết mới</Text>
+          <Text className="text-lg font-bold mb-3">Bài viết gần đây</Text>
           {recentPosts.map((post) => (
             <Pressable
               key={post.id}
@@ -189,10 +184,10 @@ export default function BlogScreen() {
             >
               <Image source={{ uri: post.imageUrl }} className="w-24 h-24" />
               <View className="flex-1 px-3 py-2">
-                <View className="flex-row flex-wrap items-center">
+                <View className="flex-row flex-wrap items-center mr-2">
                   {post.categories.slice(0, 2).map((category, index) => (
                     <React.Fragment key={category.id || index}>
-                      <Text className="text-blue-600 text-xs font-semibold px-3 py-1.5 bg-blue-50 rounded-full">
+                      <Text className="text-blue-600 text-xs font-semibold px-2 py-1.5 bg-blue-50 rounded-full mr-1">
                         {category.name}
                       </Text>
                     </React.Fragment>
@@ -204,8 +199,8 @@ export default function BlogScreen() {
                   )}
                 </View>
                 <Text className="font-bold mt-1" numberOfLines={2}>
-                  {post.title.length > 50
-                    ? post.title.substring(0, 30) + "..."
+                  {post.title.length > 25
+                    ? post.title.substring(0, 25) + "..."
                     : post.title}
                 </Text>
                 <View className="flex-row items-center mt-2">

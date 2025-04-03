@@ -367,7 +367,7 @@ export default function EventListScreen() {
                     );
                     router.push({
                       pathname: "/(expert)/route/event/[id]",
-                      params: { id: event.id, data: encodedData },
+                      params: { id: event.id},
                     });
                   }}
                   disabled={isProcessing}

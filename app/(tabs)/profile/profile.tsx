@@ -47,7 +47,7 @@ const MENU_ITEMS = [
     id: "notifications",
     title: "Thông báo",
     icon: "notifications",
-    route: "/notifications/notifications",
+    route: "/(root)/notifications/notifications",
   },
   {
     id: "settings",

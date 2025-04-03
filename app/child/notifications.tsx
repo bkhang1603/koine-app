@@ -45,7 +45,7 @@ const NOTIFICATIONS = [
 export default function NotificationsScreen() {
   return (
     <View className="flex-1 bg-white">
-      <HeaderWithBack title="Thông báo" returnTab="/child/(tabs)/home" />
+      <HeaderWithBack title="Thông báo" returnTab="/child/(tabs)/home" showMoreOptions={false} />
 
       <ScrollView>
         <View className="p-4">

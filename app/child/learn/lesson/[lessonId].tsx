@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
-import HeaderWithBack from "@/components/HeaderWithBack";
 import { useAppStore } from "@/components/app-provider";
 import {
   useMyLessonDetail,
@@ -26,7 +25,10 @@ import { MaterialIcons } from "@expo/vector-icons";
 import VideoPlayer from "@/components/video-player";
 import formatDuration from "@/util/formatDuration";
 import { Pressable } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 export default function LessonScreen() {
   const { lessonId, courseId, chapterId } = useLocalSearchParams<{
@@ -148,6 +150,10 @@ export default function LessonScreen() {
             margin: 0;
             color: #1F2937;
           }
+          .content-wrapper {
+            height: 100vh; /* Đảm bảo chiều cao của wrapper sẽ chiếm toàn bộ chiều cao màn hình */
+            box-sizing: border-box;
+          }
           p {
             font-size: 16px;
             line-height: 1.6;
@@ -170,11 +176,6 @@ export default function LessonScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      <HeaderWithBack
-        title="Chi tiết bài học"
-        returnTab={`/child/learn/chapter/${chapterId}?courseId=${courseId}`}
-        showMoreOptions={false}
-      />
       {/* Headers */}
       <View
         style={{ paddingTop: insets.top }}
@@ -191,22 +192,14 @@ export default function LessonScreen() {
           >
             <MaterialIcons name="arrow-back" size={24} color="white" />
           </Pressable>
-
-          <View className="flex-row items-center">
-            <Pressable
-              className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
-              onPress={() => router.push("/child/notifications")}
-            >
-              <MaterialIcons name="notifications" size={24} color="white" />
-            </Pressable>
-          </View>
         </View>
       </View>
-
-      <ScrollView className="flex-1">
+      <SafeAreaView className="flex-1">
         {/* Lesson Header */}
-        <View className="p-4 border-b border-gray-200">
-          <Text className="text-lg font-bold mb-2">{lesson.title}</Text>
+        <View className="p-4 mt-1 border-b border-gray-200">
+          <Text className="text-xl font-bold mb-2">
+            Bài {lesson.sequence}: {lesson.title}
+          </Text>
           <Text numberOfLines={1} className="text-gray-600 mb-3">
             {lesson.description}
           </Text>
@@ -241,34 +234,34 @@ export default function LessonScreen() {
           </View>
         </View>
 
-        {/* Video Section */}
-        {(lesson.type === "VIDEO" || lesson.type === "BOTH") &&
-          lesson.videoUrl && (
-            <View className="w-full">
-              <VideoPlayer videoUrl={lesson.videoUrl} />
-            </View>
-          )}
+        <View className="flex-1">
+          {/* Video Section */}
+          {(lesson.type === "VIDEO" || lesson.type === "BOTH") &&
+            lesson.videoUrl && (
+              <View className="w-full">
+                <VideoPlayer videoUrl={lesson.videoUrl} />
+              </View>
+            )}
 
-        {/* Content Section */}
-        {(lesson.type === "DOCUMENT" || lesson.type === "BOTH") &&
-          lesson.content && (
-            <View className="flex-1 bg-white p-4">
-              <WebView
-                source={{ html: htmlContent }}
-                style={{ flex: 1, height: 1000 }}
-                scrollEnabled={false}
-                showsVerticalScrollIndicator={false}
-                originWhitelist={["*"]}
-              />
-            </View>
-          )}
-
-        {/* Add padding at bottom for fixed button */}
-        <View className="h-28" />
-      </ScrollView>
+          {/* Content Section */}
+          {(lesson.type === "DOCUMENT" || lesson.type === "BOTH") &&
+            lesson.content && (
+              <View className="flex-1 bg-white p-4">
+                <WebView
+                  source={{ html: htmlContent }}
+                  style={{ flex: 1 }}
+                  scrollEnabled={false}
+                  showsVerticalScrollIndicator={false}
+                  originWhitelist={["*"]}
+                />
+                <View className="h-20"></View>
+              </View>
+            )}
+        </View>
+      </SafeAreaView>
 
       {/* Fixed Complete Button */}
-      <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 shadow-xl">
+      <View className="absolute bottom-0 left-0 right-0 shadow-xl">
         <View className="px-4 py-4">
           <TouchableOpacity
             className={`w-full h-[52px] rounded-xl ${
