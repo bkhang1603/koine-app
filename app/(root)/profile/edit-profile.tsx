@@ -26,7 +26,7 @@ export default function EditProfileScreen() {
   const [avatar, setAvatar] = useState(profile?.data.avatarUrl || "");
   const [firstName, setFirstName] = useState(profile?.data.firstName || "");
   const [lastName, setLastName] = useState(profile?.data.lastName || "");
-  const [email, setEmail] = useState(profile?.data.email || "");
+
   const [phone, setPhone] = useState(profile?.data.phone || ""); // Thêm vào mock data
   const [address, setAddress] = useState(profile?.data.address || "");
   const [isUpdatable, setIsUpdatable] = useState(false);
@@ -103,7 +103,6 @@ export default function EditProfileScreen() {
         !avatar.trim() &&
         !lastName.trim() &&
         !firstName.trim() &&
-        !email.trim() &&
         !phone.trim() &&
         !address.trim()
       ) {
@@ -180,6 +179,7 @@ export default function EditProfileScreen() {
       <HeaderWithBack
         title="Chỉnh sửa hồ sơ"
         returnTab={"/(tabs)/profile/profile"}
+        showMoreOptions={false}
       />
 
       <ScrollView className="flex-1 p-4">

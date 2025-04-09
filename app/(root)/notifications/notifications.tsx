@@ -7,10 +7,12 @@ import { useSocket } from "@/util/SocketProvider";
 
 const getNotificationIcon = (type: string) => {
   switch (type) {
-    case "course":
+    case "INFO":
       return "menu-book";
-    case "achievement":
-      return "emoji-events";
+    case "WARNING":
+      return "warning";
+    case "ERROR":
+      return "error";
     default:
       return "notifications";
   }

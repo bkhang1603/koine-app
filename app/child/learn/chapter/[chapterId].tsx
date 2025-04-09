@@ -255,7 +255,7 @@ export default function ChapterScreen() {
                     <MaterialIcons
                       name="schedule"
                       size={20}
-                      color={chapter.status != "YET" ? "#9CA3AF" : "#3B82F6"}
+                      color={chapter.status != "YET" ? "#9CA3AF" : "#8B5CF6"}
                     />
                     <Text
                       className={`text-sm ml-1 ${

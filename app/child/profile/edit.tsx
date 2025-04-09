@@ -190,8 +190,6 @@ export default function EditProfileScreen() {
         gender: gender,
         dob: finalDob,
       };
-      console.log("gender ", newInfo.gender);
-      console.log("Dữ liệu hợp lệ, tiến hành cập nhật...");
 
       const res = await uploadNewProfile.mutateAsync({
         body: newInfo,
@@ -201,6 +199,9 @@ export default function EditProfileScreen() {
         Alert.alert("Thông báo", "Cập nhật thông tin thành công!", [
           {
             text: "tắt",
+            onPress: async () => {
+              router.push("/child/(tabs)/profile")
+            },
             style: "cancel",
           },
         ]);

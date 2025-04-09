@@ -3,16 +3,11 @@ import { View, Text, ScrollView, Pressable, Image } from "react-native";
 import { Foundation, MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import {
-  SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 
 import HeaderWithBack from "@/components/HeaderWithBack";
 import { useAppStore } from "@/components/app-provider";
-import { useOrder } from "@/queries/useOrder";
-import { GetAllOrderResType, orderRes } from "@/schema/order-schema";
-import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
-import ErrorScreen from "@/components/ErrorScreen";
 import { GetAllProductResType } from "@/schema/product-schema";
 import { Animated } from "react-native";
 import { useCreateCartItemMutation } from "@/queries/useCart";

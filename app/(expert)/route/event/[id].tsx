@@ -285,7 +285,7 @@ export default function EventDetail() {
             <View className="flex-1">
               <Image
                 source={{ uri: eventDetail.imageUrl }}
-                className="w-full h-60"
+                className="w-full h-72"
               />
 
               <View className="p-2">

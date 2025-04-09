@@ -38,12 +38,14 @@ export default function CreateEventScreen() {
 
   const [displayTime, setDisplayTime] = useState(startAt.toLocaleString());
 
-  const nowUtc = new Date(); // Lấy thời gian hiện tại theo UTC
-  const nowGmt7 = new Date(nowUtc.getTime() + 7 * 60 * 60 * 1000); // Cộng thêm 7 giờ để đúng với GMT+7
+ 
 
   const [processing, setProcessing] = useState(false);
   const createEvent = useCreateEventMutation();
 
+  
+  const nowUtc = new Date(); // Lấy thời gian hiện tại theo UTC
+  const nowGmt7 = new Date(nowUtc.getTime() + 7 * 60 * 60 * 1000); // Cộng thêm 7 giờ để đúng với GMT+7
   // Giới hạn độ tuổi (7 - 16 tuổi)
   const minDate = new Date(
     nowGmt7.getFullYear(),

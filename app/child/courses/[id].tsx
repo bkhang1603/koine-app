@@ -105,7 +105,6 @@ export default function CourseDetailScreen() {
           style: "cancel",
         },
       ])
-      router.back();
     } catch (error) {
       console.error("Failed to assign course:", error);
     }

@@ -131,7 +131,7 @@ export const orderDetailsRes = z.object({
         totalPrice: z.number(),
         course: z
           .object({
-            title: z.string(),
+            title: z.string().nullable(),
             description: z.string(),
             imageUrl: z.string(),
           })

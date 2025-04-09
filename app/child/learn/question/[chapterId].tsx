@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Pressable,
   ScrollView,
+  Alert,
 } from "react-native";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 import HeaderWithBack from "@/components/HeaderWithBack";
@@ -43,7 +44,6 @@ export default function QuestionScreen() {
 
   const updateScore = useUpdateChapterScoreMutation(courseId, chapterId);
 
- 
   if (isError) {
     return (
       <View className="flex-1 bg-white">
@@ -182,7 +182,6 @@ export default function QuestionScreen() {
     await handleSubmit(finalScore);
   };
 
-
   const handleSubmit = async (finalScore: number) => {
     try {
       if (isSubmit) return;
@@ -194,15 +193,28 @@ export default function QuestionScreen() {
       });
       setHasResult(finalScore);
       setSubmit(false);
-      setTimeout(() => {
-        router.push({
-          pathname: "/child/learn/chapter/[chapterId]",
-          params: {
-            chapterId: chapterId,
-            courseId: courseId,
+      Alert.alert(
+        `Kết quả lần thi thứ ${data?.data.attempt}`,
+        `Điểm số của bạn: ${finalScore} điểm\n${
+          finalScore >= 70
+            ? "Bạn đã vượt qua bài kiểm tra"
+            : "Bạn đã trượt bài kiểm tra"
+        }`,
+        [
+          {
+            text: "Tiếp theo",
+            onPress: () => {
+              router.push({
+                pathname: "/child/learn/chapter/[chapterId]",
+                params: {
+                  chapterId: chapterId,
+                  courseId: courseId,
+                },
+              });
+            },
           },
-        });
-      }, 5000);
+        ]
+      );
     } catch (error) {
       console.log("Error when submit quiz ", error);
     }
@@ -215,34 +227,20 @@ export default function QuestionScreen() {
           <ActivityIndicatorScreen></ActivityIndicatorScreen>
         ) : (
           <View>
-            {hasResult != null ? (
-              <View>
+            <View>
+              <View className="flex-row justify-between items-end mr-2 mt-2">
+                <Text className={`text-black text-lg italic text-center ml-2`}>
+                  Bạn cần 70 điểm để vượt qua
+                </Text>
                 <Text
                   className={`${
-                    hasResult >= 70 ? "text-green-600" : "text-red-500"
-                  } text-lg ml-2`}
+                    timer <= 2 * 60 ? "text-red-500" : "text-black"
+                  } text-xl font-bold text-center border-2 w-24 rounded-md`}
                 >
-                  Kết quả lần thi thứ {data?.data.attempt}: {hasResult} điểm
+                  {formatTime(timer)}
                 </Text>
               </View>
-            ) : (
-              <View>
-                <View className="flex-row justify-between items-end mr-2 mt-2">
-                  <Text
-                    className={`text-black text-lg italic text-center ml-2`}
-                  >
-                    Bạn cần 70 điểm để vượt qua
-                  </Text>
-                  <Text
-                    className={`${
-                      timer <= 2 * 60 ? "text-red-500" : "text-black"
-                    } text-xl font-bold text-center border-2 w-24 rounded-md`}
-                  >
-                    {formatTime(timer)}
-                  </Text>
-                </View>
-              </View>
-            )}
+            </View>
 
             <ScrollView
               contentContainerStyle={{ flexGrow: 1, paddingBottom: 70 }} // Đảm bảo ScrollView có không gian tự động mở rộng
@@ -281,12 +279,16 @@ export default function QuestionScreen() {
               <View className="flex items-center mt-4 pb-4">
                 <Pressable
                   className={`p-2 w-[96%] mb-2 ${
-                    hasResult != null || isSubmit ? "bg-gray-400" : "bg-cyan-400"
+                    hasResult != null || isSubmit
+                      ? "bg-gray-400"
+                      : "bg-cyan-400"
                   }  rounded-lg`}
                   onPress={() => calculateScore()}
                   disabled={hasResult != null ? true : false}
                 >
-                  <Text className="text-center font-bold text-lg">{isSubmit ? "Đã nộp" : "Nộp bài"}</Text>
+                  <Text className="text-center font-bold text-lg">
+                    {isSubmit ? "Đã nộp" : "Nộp bài"}
+                  </Text>
                 </Pressable>
               </View>
             </ScrollView>

@@ -77,13 +77,13 @@ export default function ProfileScreen() {
             <View className="flex-row justify-between mt-6 bg-violet-50 rounded-2xl p-4">
               <View className="items-center flex-1">
                 <Text className="text-2xl font-bold text-violet-600">
-                  {childProfile?.totalPoints}
+                  {childProfile?.totalPoints || 0} 
                 </Text>
                 <Text className="text-gray-600">Điểm</Text>
               </View>
               <View className="items-center flex-1 border-x border-violet-200">
                 <Text className="text-2xl font-bold text-violet-600">
-                  {childProfile?.totalLearningDays}
+                  {childProfile?.totalLearningDays || 1}
                 </Text>
                 <Text className="text-gray-600">Ngày học</Text>
               </View>

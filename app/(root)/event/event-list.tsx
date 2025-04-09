@@ -8,6 +8,7 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { useEvent } from "@/queries/useEvent";
+import formatDurationForString from "@/util/formatDurationForString";
 
 export default function EventScreen() {
   const { data: events, isLoading, isError, error, refetch } = useEvent();
@@ -86,6 +87,33 @@ export default function EventScreen() {
     const endDate = new Date(startTime.getTime() + duration * 1000); // duration tính theo giây
     return localTime.getTime() >= endDate.getTime(); // chỉ mở khi trong khoảng startTime -> endDate
   };
+
+  const formatStartAtDisplay = (startAtDisplay: string): string => {
+    // Tách phần thời gian và ngày
+    const [timePart, datePart] = startAtDisplay.split('-'); // "19:04:00", "09/04/2025"
+    const [hour, minute, second] = timePart.split(':').map(Number);
+    const [day, month, year] = datePart.split('/').map(Number);
+  
+    // Tạo đối tượng Date (chú ý: tháng trong JS bắt đầu từ 0)
+    const date = new Date(year, month - 1, day, hour, minute, second);
+  
+    // Trừ đi 7 giờ
+    date.setHours(date.getHours() - 7);
+  
+    // Format lại thành chuỗi "HH:mm:ss-DD/MM/YYYY"
+    const pad = (n: number): string => n.toString().padStart(2, '0');
+    const formatted = `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}-${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}`;
+  
+    return formatted;
+  };
+  
+
+  const formatStartAt = (startAt: string): string => {
+    //2025-04-09T05:04:00.000Z
+    const startAtOTC = new Date(startAt)
+    const startAtGMT7 = new Date(startAtOTC.getTime() + 7 * 3600 * 1000)
+    return startAtGMT7.toString()
+  }
 
   return (
     <SafeAreaView className="flex-1">
@@ -173,14 +201,14 @@ export default function EventScreen() {
                     <View className="flex-row  py-1 items-center">
                       <AntDesign name="calendar" size={24} color="black" />
                       <Text className="ml-1 font-semibold">
-                        {event.startAtFormatted}
+                        {formatStartAtDisplay(event.startAtFormatted)}
                       </Text>
                     </View>
 
                     <View className="flex-row pl-[1.5px] py-1 items-center">
                       <AntDesign name="clockcircleo" size={21} color="black" />
                       <Text className="font-semibold pl-[5px]">
-                        {event.durationsDisplay}
+                        {formatDurationForString(event.durationsDisplay)}
                       </Text>
                     </View>
 
@@ -189,7 +217,7 @@ export default function EventScreen() {
                       <View
                         className={`ml-1 p-1 ${
                           event.status.toUpperCase() == "OPENING" &&
-                          isClosed(event.startedAt, event.durations)
+                          isClosed(formatStartAt(event.startedAt), event.durations)
                             ? "bg-gray-300"
                             : statusStyles[
                                 event.status.toUpperCase() as keyof typeof statusStyles
@@ -204,7 +232,7 @@ export default function EventScreen() {
                           } font-semibold`}
                         >
                           {event.status.toUpperCase() == "OPENING" &&
-                          isClosed(event.startedAt, event.durations)
+                          isClosed(formatStartAt(event.startedAt), event.durations)
                             ? "Đã kết thúc"
                             : statusStyles[
                                 event.status.toUpperCase() as keyof typeof statusStyles
@@ -215,18 +243,18 @@ export default function EventScreen() {
                   </View>
 
                   <View className="flex-row justify-center items-center my-1">
-                    {isOpenable(event.startedAt, event.durations) &&
+                    {isOpenable(formatStartAt(event.startedAt), event.durations) &&
                     event.status == "OPENING" ? (
                       <View>
                         <Pressable
                           className={`mt-1  mx-3 rounded-lg px-2 ${
-                            isOpenable(event.startedAt, event.durations) &&
+                            isOpenable(formatStartAt(event.startedAt), event.durations) &&
                             event.status == "OPENING"
                               ? "bg-green-500"
                               : "bg-gray-300"
                           }`}
                           disabled={
-                            isOpenable(event.startedAt, event.durations) &&
+                            isOpenable(formatStartAt(event.startedAt), event.durations) &&
                             event.status == "OPENING"
                               ? false
                               : true

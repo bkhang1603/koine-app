@@ -6,6 +6,7 @@ import HeaderWithBack from "@/components/HeaderWithBack";
 import { useAppStore } from "@/components/app-provider";
 import { useMyChildCourses } from "@/queries/useUser";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
+import formatDuration from "@/util/formatDuration";
 
 export default function SubAccountDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -283,11 +284,21 @@ export default function SubAccountDetailScreen() {
                   <View className="flex-row items-center my-2">
                     <MaterialIcons name="schedule" size={16} color="#6B7280" />
                     <Text className="text-gray-600 ml-1">
-                      {course.durationDisplay}
+                      {formatDuration(course.durationDisplay)}
                     </Text>
                     <Text className="text-gray-400 mx-2">•</Text>
                     <MaterialIcons name="bar-chart" size={16} color="#6B7280" />
-                    <Text className="text-gray-600 ml-1">{course.level}</Text>
+                    <Text className="text-gray-600 ml-1">
+                      {course.level == null
+                        ? "Chưa có cấp độ"
+                        : course.level == "ALL"
+                        ? "Tất cả"
+                        : course.level == "BEGINNER"
+                        ? "Khởi đầu"
+                        : course.level == "INTERMEDIATE"
+                        ? "Trung cấp"
+                        : "Nâng cao"}
+                    </Text>
                   </View>
                   <View className="flex-row items-center">
                     <MaterialCommunityIcons
