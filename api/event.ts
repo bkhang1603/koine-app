@@ -22,16 +22,6 @@ const eventRequestApi = {
         Authorization: `Bearer ${token}`,
       },
     }),
-  updateEventWhenCreateRoom: (
-    token: string,
-    body: CreateEventRoomRequestType,
-    eventId: string
-  ) =>
-    http.put<any>(`events/${eventId}/room`, body, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }),
   updateEvent: (token: string, body: UpdateEventRequestType, eventId: string) =>
     http.put<any>(`events/${eventId}`, body, {
       headers: {

@@ -9,7 +9,10 @@ import { useState } from "react";
 import { Alert, Pressable, ScrollView, TouchableOpacity } from "react-native";
 import { View, Text } from "react-native";
 import { IconButton, Modal, Portal } from "react-native-paper";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 export default function CustomCourseScreen() {
   const insets = useSafeAreaInsets();
@@ -51,7 +54,7 @@ export default function CustomCourseScreen() {
             className="mt-4 bg-blue-500 px-6 py-3 rounded-xl"
             onPress={() => router.push("/(tabs)/home")}
           >
-            <Text className="text-white font-bold">Tiếp tục mua sắm</Text>
+            <Text className="text-white font-bold">Quay lại trang chủ</Text>
           </Pressable>
         </View>
 
@@ -86,7 +89,6 @@ export default function CustomCourseScreen() {
       if (isProcessing) return;
       setProcessing(true);
       const selectedChapterIds = selectedChapter.map((chapter) => chapter.id);
-
       const bodyData = {
         chapterIds: selectedChapterIds,
       };
@@ -147,136 +149,85 @@ export default function CustomCourseScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white">
-      {/* Header */}
-      <HeaderWithBack title="Khóa học tùy chỉnh" showMoreOptions={false} />
-
-      {/* Selected Chapters */}
-      <ScrollView className="flex-1 bg-white">
-        <View className="p-2 flex-row justify-between items-center">
-          <Text className="font-bold text-lg">Các chương đã chọn</Text>
-          <TouchableOpacity
-            onPress={() => {
-              setShowModal(true);
-            }}
-            className="bg-blue-500 rounded-xl"
-          >
-            <Text className="text-white p-2">+ Danh sách chương</Text>
-          </TouchableOpacity>
+    <SafeAreaView className="flex-1">
+      <View className="flex-1 bg-white">
+        {/* Header */}
+        {/* Headers */}
+        <View
+          style={{ paddingTop: insets.top }}
+          className="absolute top-0 left-0 right-0 z-10"
+        >
+          <View className="px-4 py-3 flex-row items-center justify-between">
+            <Pressable
+              onPress={() => router.push("/(tabs)/home")}
+              className="w-10 h-10 bg-black/30 rounded-full items-center justify-center ml-2"
+            >
+              <MaterialIcons name="arrow-back" size={24} color="white" />
+            </Pressable>
+          </View>
         </View>
 
-        {selectedChapter.length == 0 ? (
-          <View className="flex justify-center items-center h-96">
-            <Text className="italic">Chưa có chương nào được chọn</Text>
-          </View>
-        ) : (
-          <View>
-            <View className="flex items-end">
-              <Text className="text-gray-500 italic mr-2 p-2">
-                Đã chọn: {selectedChapter.length} chương
+        {/* Selected Chapters */}
+        <ScrollView className="flex-1 bg-white">
+        <View className="p-2">
+              <Text className="text-2xl font-bold">Khóa học tùy chọn</Text>
+              <Text className="text-gray-600 mt-1">
+                Tạo khóa học yêu thích của riêng bạn
               </Text>
             </View>
-            {selectedChapter.map((chapter) => (
-              <View
-                key={chapter.id}
-                className="bg-white rounded-xl p-2 m-1 border-gray-300 border-[2px]"
-              >
-                <Pressable
-                  onPress={() => removeSelectedChapter(chapter)}
-                  hitSlop={8}
-                  className="self-end"
-                >
-                  <MaterialIcons
-                    name={"remove-circle-outline"}
-                    size={24}
-                    color={"gray"}
-                  />
-                </Pressable>
-                <View>
-                  <Text numberOfLines={1} className="font-semibold text-sm">
-                    {chapter.title}
-                  </Text>
-                  <Text className="font-semibold text-sm">
-                    {chapter.totalLesson} bài
-                  </Text>
-
-                  <Text className="mb-1" numberOfLines={3}>
-                    {chapter.description}
-                  </Text>
-                  <View>
-                    {chapter.lessons.map((lesson) => (
-                      <View
-                        key={lesson.id}
-                        className="flex-row items-center p-1 w-[96%]"
-                      >
-                        <MaterialIcons
-                          name={
-                            lesson.type === "VIDEO"
-                              ? "videocam"
-                              : lesson.type === "DOCUMENT"
-                              ? "description"
-                              : "library-books"
-                          }
-                          size={20}
-                          color="blue"
-                        />
-                        <Text numberOfLines={2} className="pl-1 font-semibold">
-                          {lesson.title}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-              </View>
-            ))}
+          <View className="p-2 flex-row justify-between items-center border-t border-gray-200">
+            <Text className="font-semibold text-lg">Các chương đã chọn</Text>
+            <TouchableOpacity
+              onPress={() => {
+                setShowModal(true);
+              }}
+              className="bg-blue-600 rounded-xl"
+            >
+              <Text className="text-white p-2">+ Danh sách chương</Text>
+            </TouchableOpacity>
           </View>
-        )}
-      </ScrollView>
 
-      {/* Select Chapters Modal */}
-      <Portal>
-        <Modal visible={showModal} onDismiss={() => setShowModal(false)}>
-          <View className="mx-2">
-            <View className="bg-slate-200 p-3 rounded-lg">
-              <View className="flex-row justify-between items-center">
-                <Text className="text-black font-bold text-base py-2">
-                  Danh sách chương - Tổng: {chaptersArray.length} chương
-                </Text>
-                <IconButton
-                  icon="close"
-                  className="self-end"
-                  onPress={() => {
-                    setShowModal(false);
-                  }}
-                />
+          {selectedChapter.length == 0 ? (
+            <View className="flex justify-center items-center h-96 mt-16">
+              <View className="justify-center items-center">
+                <Text className="italic">Chưa có chương nào được chọn</Text>
+                <MaterialIcons name="amp-stories" size={64} color="#9CA3AF" />
               </View>
-              <ScrollView
-                className="max-h-96 w-[100%]"
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  flexGrow: 1, // Đảm bảo nội dung chiếm hết không gian của ScrollView
-                }}
-              >
-                {chaptersArray.map((chapter) => (
-                  <TouchableOpacity
-                    key={chapter.id}
-                    className={`${
-                      selectedChapter.some((c) => c.id === chapter.id)
-                        ? "bg-cyan-200"
-                        : "bg-white"
-                    } rounded-xl p-2 m-1 border-gray-300 w-[100%]`}
-                    onPress={() => handleAddChapter(chapter)}
+            </View>
+          ) : (
+            <View>
+              <View className="flex items-end">
+                <Text className="text-gray-500 italic mr-2 p-2">
+                  Đã chọn: {selectedChapter.length} chương
+                </Text>
+              </View>
+              {selectedChapter.map((chapter) => (
+                <View
+                  key={chapter.id}
+                  className="bg-cyan-50 rounded-xl p-2 m-1 border-gray-300 border-[2px]"
+                >
+                  <Pressable
+                    onPress={() => removeSelectedChapter(chapter)}
+                    hitSlop={8}
+                    className="self-end"
                   >
-                    <Text numberOfLines={1} className="font-semibold">
+                    <MaterialIcons
+                      name={"remove-circle-outline"}
+                      size={24}
+                      color={"gray"}
+                    />
+                  </Pressable>
+                  <View>
+                    <Text numberOfLines={1} className="font-semibold text-sm">
                       {chapter.title}
                     </Text>
-                    <Text className="font-semibold">
+                    <Text className="font-semibold text-sm">
                       {chapter.totalLesson} bài
                     </Text>
 
-                    <Text numberOfLines={4}>{chapter.description}</Text>
+                    <Text className="mb-1" numberOfLines={3}>
+                      {chapter.description}
+                    </Text>
                     <View>
                       {chapter.lessons.map((lesson) => (
                         <View
@@ -292,47 +243,125 @@ export default function CustomCourseScreen() {
                                 : "library-books"
                             }
                             size={20}
-                            color="blue"
+                            color="green"
                           />
                           <Text
                             numberOfLines={2}
-                            className="font-semibold pl-1"
+                            className="pl-1 font-semibold"
                           >
                             {lesson.title}
                           </Text>
                         </View>
                       ))}
                     </View>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
+                  </View>
+                </View>
+              ))}
             </View>
-          </View>
-        </Modal>
-      </Portal>
+          )}
+        </ScrollView>
 
-      {/* Bottom Bar */}
-      <View className="p-2 border-t border-gray-200 bg-white justify-between items-center">
-        <Pressable
-          className={`px-8 py-4 rounded-2xl ${
-            !isProcessing && selectedChapter.length > 0
-              ? "bg-blue-600"
-              : "bg-gray-300"
-          }`}
-          onPress={handleCustomCourse}
-          disabled={selectedChapter.length == 0}
-        >
-          <Text
-            className={`font-bold text-base ${
+        {/* Select Chapters Modal */}
+        <Portal>
+          <Modal visible={showModal} onDismiss={() => setShowModal(false)}>
+            <View className="mx-2">
+              <View className="bg-white p-3 rounded-lg">
+                <View className="flex-row justify-between items-center">
+                  <Text className="text-black font-bold text-base py-2">
+                    Danh sách chương - Tổng: {chaptersArray.length} chương
+                  </Text>
+                  <IconButton
+                    icon="close"
+                    className="self-end"
+                    onPress={() => {
+                      setShowModal(false);
+                    }}
+                  />
+                </View>
+                <ScrollView
+                  className="max-h-96 w-[100%]"
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{
+                    justifyContent: "center",
+                    alignItems: "center",
+                    flexGrow: 1, // Đảm bảo nội dung chiếm hết không gian của ScrollView
+                  }}
+                >
+                  {chaptersArray.map((chapter) => (
+                    <TouchableOpacity
+                      key={chapter.id}
+                      className={`${
+                        selectedChapter.some((c) => c.id === chapter.id)
+                          ? "bg-cyan-50"
+                          : "bg-gray-100"
+                      } rounded-xl p-2 m-1 border-gray-300 w-[100%]`}
+                      onPress={() => handleAddChapter(chapter)}
+                    >
+                      <Text numberOfLines={1} className="font-semibold">
+                        {chapter.title}
+                      </Text>
+                      <Text className="font-semibold">
+                        {chapter.totalLesson} bài
+                      </Text>
+
+                      <Text numberOfLines={4}>{chapter.description}</Text>
+                      <View>
+                        {chapter.lessons.map((lesson) => (
+                          <View
+                            key={lesson.id}
+                            className="flex-row items-center p-1 w-[96%]"
+                          >
+                            <MaterialIcons
+                              name={
+                                lesson.type === "VIDEO"
+                                  ? "videocam"
+                                  : lesson.type === "DOCUMENT"
+                                  ? "description"
+                                  : "library-books"
+                              }
+                              size={20}
+                              color="green"
+                            />
+                            <Text
+                              numberOfLines={2}
+                              className="font-semibold pl-1"
+                            >
+                              {lesson.title}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            </View>
+          </Modal>
+        </Portal>
+
+        {/* Bottom Bar */}
+        <View className="p-2 border-t border-gray-200 bg-gray-100 justify-between items-center">
+          <Pressable
+            className={`px-8 py-4 rounded-2xl ${
               !isProcessing && selectedChapter.length > 0
-                ? "text-white"
-                : "text-gray-500"
+                ? "bg-blue-600"
+                : "bg-gray-300"
             }`}
+            onPress={handleCustomCourse}
+            disabled={selectedChapter.length == 0}
           >
-            Tạo khóa học
-          </Text>
-        </Pressable>
+            <Text
+              className={`font-bold text-base ${
+                !isProcessing && selectedChapter.length > 0
+                  ? "text-white"
+                  : "text-gray-500"
+              }`}
+            >
+              Tạo khóa học
+            </Text>
+          </Pressable>
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }

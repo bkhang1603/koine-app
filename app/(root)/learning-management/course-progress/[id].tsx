@@ -8,6 +8,7 @@ import { useAppStore } from "@/components/app-provider";
 import { useMyChildCoursesProgress } from "@/queries/useUser";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 import { useEditChildCourseVisible } from "@/queries/useCourse";
+import formatDuration from "@/util/formatDuration";
 
 export default function CourseProgressScreen() {
   const { id, accountId } = useLocalSearchParams<{
@@ -71,10 +72,10 @@ export default function CourseProgressScreen() {
       setIsProcessing(true);
 
       Alert.alert(
-        "Xác nhận ẩn",
-        `Bạn có chắc chắn muốn ẩn khóa học?\n${
+        "Xác nhận",
+        `Bạn có chắc chắn muốn ${childCourseProgress.data.isAccessibleByChild == true ? "ẩn" : "hiện"} khóa học?\n${
           account.userDetail.lastName + " " + account.userDetail.firstName
-        } sẽ không thấy khóa học này nữa`,
+        } ${childCourseProgress.data.isAccessibleByChild == true ? "sẽ không thấy khóa học này nữa" : "sẽ thấy khóa học này"}`,
         [
           {
             text: "Hủy",
@@ -84,7 +85,7 @@ export default function CourseProgressScreen() {
             },
           },
           {
-            text: "Ẩn",
+            text: `${childCourseProgress.data.isAccessibleByChild == true ? "ẩn" : "hiện"}`,
             style: "destructive",
             onPress: async () => {
               try {
@@ -139,11 +140,11 @@ export default function CourseProgressScreen() {
             <Text className="text-gray-600 mt-1">Trạng thái:</Text>
 
             {childCourseProgress.data.isAccessibleByChild == true ? (
-              <View className="mt-1 ml-1 px-2 bg-cyan-400 rounded-xl">
+              <View className="mt-1 ml-1 p-1 px-2 bg-cyan-400 rounded-xl">
                 <Text className="text-gray-600">Đang hiển thị</Text>
               </View>
             ) : (
-              <View className="mt-1 ml-1 px-2 bg-gray-400 rounded-xl">
+              <View className="mt-1 ml-1 p-1 px-2 bg-gray-400 rounded-xl">
                 <Text className="text-gray-600">Đang ẩn</Text>
               </View>
             )}
@@ -205,7 +206,7 @@ export default function CourseProgressScreen() {
             <View className="flex-1">
               <Text className="text-gray-600">Thời gian học</Text>
               <Text className="font-bold text-lg">
-                {course?.totalLearningTime || 0}
+                {formatDuration(course?.totalLearningTime || "0")}
               </Text>
             </View>
           </View>
@@ -250,7 +251,7 @@ export default function CourseProgressScreen() {
 
                 {/* Lessons List */}
                 <View className="mt-3">
-                  {chapter.lessons.map((lesson) => (
+                  {chapter.lessons.map((lesson, index) => (
                     <View
                       key={lesson.lessonId}
                       className="flex-row items-center py-2 border-t border-gray-100"
@@ -274,7 +275,7 @@ export default function CourseProgressScreen() {
                               : "text-gray-900"
                           }`}
                         >
-                          {lesson.lessonTitle}
+                          Bài {index+1}: {lesson.lessonTitle}
                         </Text>
                         <View className="flex-row items-center mt-1">
                           <MaterialIcons
@@ -287,7 +288,7 @@ export default function CourseProgressScreen() {
                             color="#6B7280"
                           />
                           <Text className="text-gray-500 text-sm ml-1">
-                            {lesson.lessonDurationDisplay}
+                            {formatDuration(lesson.lessonDurationDisplay)}
                           </Text>
                         </View>
                       </View>

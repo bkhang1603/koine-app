@@ -19,13 +19,8 @@ import {
   useRePurchaseOrder,
 } from "@/queries/useOrder";
 import { useAppStore } from "@/components/app-provider";
-import {
-  GetOrderDetailsResType,
-  orderDetailsRes,
-  UpdatePaymentMethodBodyType,
-} from "@/schema/order-schema";
+import { orderDetailsRes } from "@/schema/order-schema";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
-import ErrorScreen from "@/components/ErrorScreen";
 import { useUpdatePaymentMethod } from "@/queries/useOrder";
 
 export default function OrderDetailScreen() {
@@ -38,6 +33,7 @@ export default function OrderDetailScreen() {
   const [isCancelling, setIsCancelling] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState("");
+
 
   const {
     data: orderDetailsData,
@@ -90,13 +86,11 @@ export default function OrderDetailScreen() {
 
   if (orderDetailsLoading) return <ActivityIndicatorScreen />;
   if (orderDetailsError)
-    return (
-      <ErrorScreen message="Failed to load order details. Showing default order details." />
-    );
+    return console.log("Lấy chi tiết đơn hàng lỗi, thử lại sau");
 
   if (orderDetails == null)
-    return (
-      <ErrorScreen message="Failed to load order details. Order is null." />
+    return console.log(
+      "Lấy chi tiết đơn hàng lỗi. Chi tiết đơn hàng không tồn tại"
     );
 
   const order = orderDetails;
@@ -357,7 +351,7 @@ export default function OrderDetailScreen() {
 
     return (
       <View className="p-4 border-b border-gray-100">
-        <View className="flex-row items-center justify-between mb-4">
+        <View className="flex items-start mb-4">
           <View className="flex-row items-center">
             <MaterialIcons name="credit-card" size={20} color="#3B82F6" />
             <Text className="text-xl font-bold ml-2">

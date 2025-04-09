@@ -16,6 +16,7 @@ const orderApiRequest = {
     http.post<CreateOrderResType>(`orders`, body, {
       headers: {
         Authorization: `Bearer ${token}`, // Thêm token vào headers
+        "User-Agent": "MobileKoine",
       },
     }),
   rePurchaseOrder: (token: string, orderId: string) =>

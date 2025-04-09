@@ -3,6 +3,7 @@ import { useAppStore } from "@/components/app-provider";
 import VideoPlayer from "@/components/video-player";
 import { useEventDetail } from "@/queries/useEvent";
 import { EventDetailResType, getEventDetail } from "@/schema/event-schema";
+import formatDurationForString from "@/util/formatDurationForString";
 import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { router, useLocalSearchParams } from "expo-router";
@@ -174,8 +175,38 @@ export default function EventDetailUser() {
     return localTime.getTime() >= endDate.getTime(); // chỉ mở khi trong khoảng startTime -> endDate
   };
 
+  const formatStartAtDisplay = (startAtDisplay: string): string => {
+    // Tách phần thời gian và ngày
+    const [timePart, datePart] = startAtDisplay.split("-"); // "19:04:00", "09/04/2025"
+    const [hour, minute, second] = timePart.split(":").map(Number);
+    const [day, month, year] = datePart.split("/").map(Number);
+
+    // Tạo đối tượng Date (chú ý: tháng trong JS bắt đầu từ 0)
+    const date = new Date(year, month - 1, day, hour, minute, second);
+
+    // Trừ đi 7 giờ
+    date.setHours(date.getHours() - 7);
+
+    // Format lại thành chuỗi "HH:mm:ss-DD/MM/YYYY"
+    const pad = (n: number): string => n.toString().padStart(2, "0");
+    const formatted = `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
+      date.getSeconds()
+    )}-${pad(date.getDate())}/${pad(
+      date.getMonth() + 1
+    )}/${date.getFullYear()}`;
+
+    return formatted;
+  };
+
+  const formatStartAt = (startAt: string): string => {
+    //2025-04-09T05:04:00.000Z
+    const startAtOTC = new Date(startAt);
+    const startAtGMT7 = new Date(startAtOTC.getTime() + 7 * 3600 * 1000);
+    return startAtGMT7.toString();
+  };
+
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView className="flex-1 bg-white">
       {/* Headers */}
       <View
         style={{ paddingTop: insets.top }}
@@ -212,32 +243,32 @@ export default function EventDetailUser() {
               ) : (
                 <Image
                   source={{ uri: eventDetail.imageUrl }}
-                  className="w-full h-60"
+                  className="w-full h-72"
                 />
               )}
 
               <View className="p-2">
-                <Text className="font-bold text-lg">{eventDetail.title}</Text>
+                <Text className="font-bold text-xl">{eventDetail.title}</Text>
                 <Text className="ml-1">{eventDetail.description}</Text>
 
                 <View className="flex-row  py-2">
-                  <Feather name="mic" size={24} color="black" />
+                  <Feather name="mic" size={20} color="black" />
                   <Text className="font-semibold ml-1">
                     {eventDetail.hostInfo.fullName}
                   </Text>
                 </View>
 
                 <View className="flex-row  py-2 items-center">
-                  <AntDesign name="calendar" size={24} color="black" />
+                  <AntDesign name="calendar" size={20} color="black" />
                   <Text className="ml-1 font-semibold">
-                    {eventDetail.startAtFormatted}
+                    {formatStartAtDisplay(eventDetail.startAtFormatted)}
                   </Text>
                 </View>
 
                 <View className="flex-row pl-[1.5px] py-2 items-center">
-                  <AntDesign name="clockcircleo" size={21} color="black" />
+                  <AntDesign name="clockcircleo" size={19} color="black" />
                   <Text className="font-semibold pl-[5px]">
-                    {eventDetail.durationsDisplay}
+                    {formatDurationForString(eventDetail.durationsDisplay)}
                   </Text>
                 </View>
 
@@ -258,7 +289,10 @@ export default function EventDetailUser() {
                       } font-semibold`}
                     >
                       {eventDetail.status.toUpperCase() == "OPENING" &&
-                      isClosed(eventDetail.startedAt, eventDetail.durations)
+                      isClosed(
+                        formatStartAt(eventDetail.startedAt),
+                        eventDetail.durations
+                      )
                         ? "Đã kết thúc"
                         : statusStyles[
                             eventDetail.status.toUpperCase() as keyof typeof statusStyles
@@ -273,6 +307,7 @@ export default function EventDetailUser() {
           )}
         </View>
         <View className="flex-1 p-2">
+          <Text className="ml-1 font-semibold">Nội dung:</Text>
           <View className="mt-4">
             <WebView
               source={{ html: htmlContent }}

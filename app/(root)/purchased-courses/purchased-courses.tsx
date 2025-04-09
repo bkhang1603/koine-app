@@ -11,16 +11,12 @@ import {
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import HeaderWithBack from "@/components/HeaderWithBack";
-import {
-  MOCK_USER,
-  MOCK_COURSES,
-  MOCK_PURCHASED_COURSES,
-} from "@/constants/mock-data";
 import { useAppStore } from "@/components/app-provider";
 import { useAssignCourse, useMyCourseStore } from "@/queries/useCourse";
-import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 import { MyCourseType } from "@/model/course";
 import { Childs } from "@/model/child";
+import { useFocusEffect } from "@react-navigation/native";
+import formatDuration from "@/util/formatDuration";
 
 export default function PurchasedCoursesScreen() {
   const [selectedCourse, setSelectedCourse] = useState<
@@ -37,6 +33,15 @@ export default function PurchasedCoursesScreen() {
 
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
+  const {
+    data: myCourseData,
+    isLoading: isLoadingMyCourse,
+    isError: isErrorMyCourse,
+    refetch: refetchMyCourseStore,
+  } = useMyCourseStore({ token: token ? token : "", enabled: true });
+  useFocusEffect(() => {
+    refetchMyCourseStore();
+  });
   const assignCourse = useAssignCourse();
 
   // Lọc ra các khóa học còn slot để kích hoạt
@@ -64,7 +69,6 @@ export default function PurchasedCoursesScreen() {
 
   const handleAssignToChild = async (chosenChild: Childs[0]) => {
     try {
-      console.log("Đang chạy cho con");
       if (isProcessing) return;
       setIsProcessing(true);
       if (!chosenChild) {
@@ -246,7 +250,15 @@ export default function PurchasedCoursesScreen() {
                     color="#6B7280"
                   />
                   <Text className="text-gray-600 ml-1">
-                    {course.course.level}
+                    {course.course.level == null
+                          ? "Chưa có cấp độ"
+                          : course.course.level == "ALL"
+                          ? "Tất cả"
+                          : course.course.level == "BEGINNER"
+                          ? "Khởi đầu"
+                          : course.course.level == "INTERMEDIATE"
+                          ? "Trung cấp"
+                          : "Nâng cao"}
                   </Text>
                 </View>
 
@@ -254,11 +266,10 @@ export default function PurchasedCoursesScreen() {
                 <View className="flex-row items-center mb-3">
                   <MaterialIcons name="schedule" size={16} color="#6B7280" />
                   <Text className="text-gray-600 ml-1">
-                    {course.course.durationDisplay}
+                    {formatDuration(course.course.durationDisplay)}
                   </Text>
-                  <Text className="text-gray-400 mx-2">•</Text>
 
-                  <View className="flex-row items-center">
+                  <View className="ml-1 flex-row items-center">
                     <MaterialCommunityIcons
                       name="tag-outline"
                       size={16}
@@ -273,7 +284,7 @@ export default function PurchasedCoursesScreen() {
                     ) : (
                       <View className="flex-row flex-wrap">
                         {course.course.categories
-                          .slice(0, 3)
+                          .slice(0, 2)
                           .map((category) => (
                             <View
                               key={category.id}
@@ -285,7 +296,7 @@ export default function PurchasedCoursesScreen() {
                             </View>
                           ))}
 
-                        {course.course.categories.length > 3 && (
+                        {course.course.categories.length > 2 && (
                           <View className="bg-orange-200 px-2 py-1 rounded-2xl ml-2">
                             <Text className="text-gray-500">...</Text>
                           </View>

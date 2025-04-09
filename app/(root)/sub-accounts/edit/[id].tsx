@@ -29,6 +29,21 @@ export default function EditSubAccountScreen() {
   const token = accessToken == undefined ? "" : accessToken.accessToken;
   const editChild = useEditChildProfile();
 
+  const nowUtc = new Date(); // Lấy thời gian hiện tại theo UTC
+  const nowGmt7 = new Date(nowUtc.getTime() + 7 * 60 * 60 * 1000); // Cộng thêm 7 giờ để đúng với GMT+7
+
+  // Tính ngày giới hạn tuổi
+  const minDate = new Date(
+    nowGmt7.getFullYear() - 18,
+    nowGmt7.getMonth(),
+    nowGmt7.getDate()
+  ); // Lớn nhất 18 tuổi
+  const maxDate = new Date(
+    nowGmt7.getFullYear() - 6,
+    nowGmt7.getMonth(),
+    nowGmt7.getDate()
+  ); // Nhỏ nhất 6 tuổi
+
   const uploadToS3 = useUploadImage();
 
   if (!account) {
@@ -329,6 +344,8 @@ export default function EditSubAccountScreen() {
                 mode="date"
                 display="default"
                 onChange={onChange}
+                minimumDate={minDate}
+                maximumDate={maxDate}
               />
             )}
           </View>

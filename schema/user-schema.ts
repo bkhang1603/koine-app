@@ -234,7 +234,7 @@ export const myChildCourseProgressResType = z.object({
     courseCompletionRate: z.number(),
     totalLesson: z.number(),
     totalLessonFinished: z.number(),
-    totalLearningTime: z.number(),
+    totalLearningTime: z.string(),
     enrollmentDate: z.string(),
     completionDate: z.string(),
     chapters: z.array(

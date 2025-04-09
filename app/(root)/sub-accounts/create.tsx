@@ -5,7 +5,6 @@ import {
   ScrollView,
   TextInput,
   Pressable,
-  Button,
   Alert,
   Platform,
 } from "react-native";
@@ -23,7 +22,7 @@ export default function CreateSubAccountScreen() {
   const token = accessToken == undefined ? "" : accessToken.accessToken;
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const [date, setDate] = useState(new Date(2000,9,20));
+  const [date, setDate] = useState(new Date(2010, 9, 20));
   const createChild = useCreateChildMutation();
   const [formData, setFormData] = useState({
     username: "",
@@ -31,6 +30,21 @@ export default function CreateSubAccountScreen() {
     password: "",
     gender: "" as "MALE" | "FEMALE" | "OTHER",
   });
+
+  const nowUtc = new Date(); // Lấy thời gian hiện tại theo UTC
+  const nowGmt7 = new Date(nowUtc.getTime() + 7 * 60 * 60 * 1000); // Cộng thêm 7 giờ để đúng với GMT+7
+
+  // Tính ngày giới hạn tuổi
+  const minDate = new Date(
+    nowGmt7.getFullYear() - 18,
+    nowGmt7.getMonth(),
+    nowGmt7.getDate()
+  ); // Lớn nhất 18 tuổi
+  const maxDate = new Date(
+    nowGmt7.getFullYear() - 6,
+    nowGmt7.getMonth(),
+    nowGmt7.getDate()
+  ); // Nhỏ nhất 6 tuổi
 
   const [show, setShow] = useState(false);
 
@@ -43,22 +57,20 @@ export default function CreateSubAccountScreen() {
   function convertToSubmit(dateStr: string): string {
     // Tạo Date object từ chuỗi ISO 8601
     const [day, month, year] = dateStr.split("/");
-    return `${year}/${month}/${day}`;
+    return `${year}/${day}/${month}`;
   }
 
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     setShow(Platform.OS === "ios"); // Ẩn picker nếu là Android
     if (!selectedDate) return;
     setDate(selectedDate);
-    const submitDate = convertDateFormat(selectedDate.toLocaleDateString())
-    setFormData({ ...formData, dob: submitDate })
+    const submitDate = convertDateFormat(selectedDate.toLocaleDateString());
+    setFormData({ ...formData, dob: submitDate });
   };
-
- 
 
   const handleCreate = async () => {
     try {
-      if(isProcessing) return;
+      if (isProcessing) return;
       setIsProcessing(true);
       if (
         !formData.dob.trim() ||
@@ -80,24 +92,27 @@ export default function CreateSubAccountScreen() {
         return;
       }
       const info = {
-        dob: convertToSubmit(formData.dob).trim(),
+        dob: convertToSubmit(formData.dob),
         password: formData.password.trim(),
         username: formData.username.trim(),
-        gender: formData.gender.trim()
-      }
+        gender: formData.gender.trim(),
+      };
       const res = await createChild.mutateAsync({
         body: info,
         token: token,
       });
-     
+
       if (res) {
         Alert.alert("Thông báo", "Tạo tài khoản con thành công", [
           {
-            text: "tắt",
+            text: "Tắt",
+            onPress: async () => {
+              setIsProcessing(false);
+              router.push("/(tabs)/profile/profile");
+            },
             style: "cancel",
           },
         ]);
-        setIsProcessing(false);
       }
     } catch (error) {
       Alert.alert("Lỗi", `${error}`, [
@@ -106,6 +121,7 @@ export default function CreateSubAccountScreen() {
           style: "cancel",
         },
       ]);
+    } finally {
       setIsProcessing(false);
     }
   };
@@ -147,7 +163,9 @@ export default function CreateSubAccountScreen() {
             <Text className="text-gray-700 mb-2">Ngày sinh</Text>
             <View className="flex-row items-center">
               <View className="border border-gray-200 p-4 rounded-xl">
-                <Text className="text-black font-bold text-center">{date.toLocaleDateString()}</Text>
+                <Text className="text-black font-bold text-center">
+                  {date.toLocaleDateString()}
+                </Text>
               </View>
               <Pressable
                 className="bg-cyan-200 p-2 rounded-xl ml-3"
@@ -163,6 +181,8 @@ export default function CreateSubAccountScreen() {
                 mode="date"
                 display="default"
                 onChange={onChange}
+                minimumDate={minDate}
+                maximumDate={maxDate}
               />
             )}
           </View>
@@ -225,7 +245,10 @@ export default function CreateSubAccountScreen() {
       <View className="p-4 border-t border-gray-100">
         <Pressable
           className={`p-4 rounded-xl ${
-            !isProcessing && (formData.username && formData.dob && formData.gender)
+            !isProcessing &&
+            formData.username &&
+            formData.dob &&
+            formData.gender
               ? "bg-blue-500"
               : "bg-gray-100"
           }`}
@@ -233,7 +256,10 @@ export default function CreateSubAccountScreen() {
         >
           <Text
             className={`text-center font-bold ${
-              !isProcessing && (formData.username && formData.dob && formData.gender)
+              !isProcessing &&
+              formData.username &&
+              formData.dob &&
+              formData.gender
                 ? "text-white"
                 : "text-gray-400"
             }`}

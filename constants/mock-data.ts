@@ -938,7 +938,7 @@ export const MOCK_CHILD = {
             title: "Hiểu về cơ thể trong giai đoạn dậy thì",
             description:
                 "Khóa học giúp bạn hiểu về cơ thể trong giai đoạn dậy thì",
-            thumbnail: "https://example.com/puberty.jpg",
+            thumbnail: "https://i.pravatar.cc/300?img=3",
             progress: 65,
             lastLesson: {
                 id: "l3",
@@ -953,7 +953,7 @@ export const MOCK_CHILD = {
             title: "Kỹ năng giao tiếp cơ bản",
             description:
                 "Khóa học giúp bạn hiểu về cơ thể trong giai đoạn dậy thì",
-            thumbnail: "https://example.com/communication.jpg",
+            thumbnail: "https://i.pravatar.cc/300?img=3",
             progress: 30,
             lastLesson: {
                 id: "l2",
@@ -1012,7 +1012,7 @@ export const MOCK_GAMES = [
         id: "1",
         title: "Quiz Sức khỏe",
         description: "Kiểm tra kiến thức về sức khỏe",
-        thumbnail: "https://example.com/health-quiz.jpg",
+        thumbnail: "https://i.pravatar.cc/300?img=3",
         type: "quiz",
         category: "health",
         points: 100,
@@ -1036,7 +1036,7 @@ export const MOCK_GAMES = [
         id: "2",
         title: "Memory Match",
         description: "Trò chơi rèn luyện trí nhớ",
-        thumbnail: "https://example.com/memory.jpg",
+        thumbnail: "https://i.pravatar.cc/300?img=3",
         type: "memory",
         category: "brain",
         points: 50,
@@ -1048,7 +1048,7 @@ export const MOCK_GAMES = [
         id: "3",
         title: "Puzzle",
         description: "Xếp hình các con số",
-        thumbnail: "https://example.com/puzzle.jpg",
+        thumbnail: "https://i.pravatar.cc/300?img=3",
         type: "puzzle",
         category: "anatomy",
         points: 80,

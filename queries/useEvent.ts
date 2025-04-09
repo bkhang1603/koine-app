@@ -57,32 +57,6 @@ export const useCreateEventMutation = () => {
   });
 };
 
-export const useUpdateEventWhenCreateRoomMutation = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      body,
-      token,
-      eventId,
-    }: {
-      body: CreateEventRoomRequestType;
-      token: string;
-      eventId: string;
-    }) => eventRequestApi.updateEventWhenCreateRoom(token, body, eventId),
-    onSuccess: () => {
-      // Invalidate queries liên quan đến giỏ hàng sau khi update
-      queryClient.invalidateQueries({
-        queryKey: ["events"],
-        exact: true, // Tùy chọn, nếu bạn muốn invalidate chỉ những query khớp chính xác
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["events-host"],
-        exact: true, // Tùy chọn, nếu bạn muốn invalidate chỉ những query khớp chính xác
-      });
-    },
-  });
-};
-
 export const useUpdateEventMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({

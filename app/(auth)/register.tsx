@@ -32,6 +32,21 @@ export default function RegisterScreen() {
   const [date, setDate] = useState(new Date(2000, 9, 20));
   const [show, setShow] = useState(false);
 
+  const nowUtc = new Date(); // Lấy thời gian hiện tại theo UTC
+  const nowGmt7 = new Date(nowUtc.getTime() + 7 * 60 * 60 * 1000); // Cộng thêm 7 giờ để đúng với GMT+7
+
+  // Tính ngày giới hạn tuổi
+  const minDate = new Date(
+    nowGmt7.getFullYear() - 60,
+    nowGmt7.getMonth(),
+    nowGmt7.getDate()
+  ); // Lớn nhất 60 tuổi
+  const maxDate = new Date(
+    nowGmt7.getFullYear() - 18,
+    nowGmt7.getMonth(),
+    nowGmt7.getDate()
+  ); // Nhỏ nhất 18 tuổi
+
   const register = useRegisterMutation();
 
   function convertDateFormat(dateStr: string): string {
@@ -260,6 +275,8 @@ export default function RegisterScreen() {
                   mode="date"
                   display="default"
                   onChange={onChange}
+                  minimumDate={minDate}
+                  maximumDate={maxDate}
                 />
               )}
             </View>

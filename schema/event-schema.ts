@@ -107,7 +107,7 @@ export const getEventDetail = z.object({
     totalParticipants: z.number(),
     note: z.string(),
     createdAt: z.string(),
-    updateAt: z.string(),
+    updatedAt: z.string(),
     hostInfo: z.object({
       id: z.string(),
       fullName: z.string(),

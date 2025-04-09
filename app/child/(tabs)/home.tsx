@@ -38,11 +38,13 @@ export default function HomeScreen() {
               />
               <View className="ml-3">
                 <Text className="text-white text-lg font-bold">
-                  Xin chào,{" "}
+                  Xin chào 👋
+                </Text>
+                <Text className="text-white text-lg font-bold">
                   {profileData?.data.lastName +
                     " " +
                     profileData?.data.firstName}
-                  ! 👋
+                  ! 
                 </Text>
                 <View className="flex-row items-center mt-1">
                   <MaterialIcons name="stars" size={16} color="#FCD34D" />
@@ -117,16 +119,16 @@ export default function HomeScreen() {
                   key={course.id}
                   className="mr-4 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
                   style={{ width: 280 }}
-                  onPress={() =>
-                    router.push({
-                      pathname:
-                        "/child/courses/[courseId]/lessons/[lessonId]" as any,
-                      params: {
-                        courseId: course.id,
-                        lessonId: course.lastLesson.id,
-                      },
-                    })
-                  }
+                  onPress={() => {
+                    // router.push({
+                    //   pathname:
+                    //     "/child/courses/[courseId]/lessons/[lessonId]" as any,
+                    //   params: {
+                    //     courseId: course.id,
+                    //     lessonId: course.lastLesson.id,
+                    //   },
+                    // });
+                  }}
                 >
                   <Image
                     source={{ uri: course.thumbnail }}

@@ -204,7 +204,7 @@ export default function HomeScreen() {
         {/* Header with Avatar */}
         <View className="px-4 flex-row items-center justify-between">
           <View>
-            <Text className="text-2xl font-bold">
+            <Text className="text-xl font-bold">
               Xin chào, {profile?.data.firstName}!
             </Text>
             <Text className="text-gray-600 mt-1">Hôm nay bạn muốn học gì?</Text>
@@ -245,7 +245,7 @@ export default function HomeScreen() {
                   <MaterialIcons name="school" size={20} color="#fff" />
                 </View>
                 <Text className="font-bold text-lg pl-2">
-                  {myCourse.length}
+                  {myCourse.length || 0}
                 </Text>
               </View>
               <Text className="text-gray-600 text-sm">Khóa học</Text>
@@ -263,7 +263,7 @@ export default function HomeScreen() {
                 <Text className="font-bold text-lg ml-2">
                   {
                     myCourse.filter((course) => course.completionRate === 100)
-                      .length
+                      .length || 0
                   }
                 </Text>
               </View>
@@ -281,7 +281,7 @@ export default function HomeScreen() {
                       (acc, course) => acc + course.completionRate,
                       0
                     ) / myCourse.length
-                  )}
+                  ) || 0} 
                   %
                 </Text>
               </View>
