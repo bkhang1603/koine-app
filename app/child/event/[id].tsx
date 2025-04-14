@@ -7,7 +7,7 @@ import formatDurationForString from "@/util/formatDurationForString";
 import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import React, { useRef, useState } from "react";
 import { View, Text, Image, ScrollView, Pressable } from "react-native";
 import {
   SafeAreaView,
@@ -21,14 +21,29 @@ export default function EventDetailUser() {
   const token = accessToken == undefined ? "" : accessToken.accessToken;
   const insets = useSafeAreaInsets();
   const [webViewHeight, setWebViewHeight] = useState(0);
-  const { data, isLoading, isError, error, refetch } = useEventDetail(
+  const { data, isLoading, isError, error} = useEventDetail(
     token,
     id
   );
 
-  useFocusEffect(() => {
-    refetch();
-  });
+  const intervalRef = useRef<NodeJS.Timeout | null>(null); // Reference to interval
+
+  // Flag to track if component is mounted or focused
+  const isMounted = useRef(true);
+
+  //unmount signal send to video player to release
+  const [unmountSignal, setUnmountSignal] = useState(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      isMounted.current = true;
+      return () => {
+        clearInterval(intervalRef.current as NodeJS.Timeout);
+        isMounted.current = false;
+        setUnmountSignal(true);
+      };
+    }, [])
+  );
 
   let eventDetail: EventDetailResType["data"] | null = null;
 
@@ -205,6 +220,8 @@ export default function EventDetailUser() {
     return startAtGMT7.toString();
   };
 
+  
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Headers */}
@@ -237,8 +254,8 @@ export default function EventDetailUser() {
             <View className="flex-1">
               {/* Video */}
               {eventDetail.recordUrl && eventDetail.recordUrl.length > 0 ? (
-                <View className="w-full p-2">
-                  <VideoPlayer videoUrl={eventDetail.recordUrl} />
+                <View className="w-full">
+                  <VideoPlayer onUnmountSignal={unmountSignal} videoUrl={eventDetail.recordUrl} />
                 </View>
               ) : (
                 <Image

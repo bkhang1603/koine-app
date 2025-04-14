@@ -161,15 +161,9 @@ export default function MyCoursesScreen() {
         <View className="px-4 pt-6">
           {filteredCourses.map((course) => {
             return (
-              <Pressable
+              <View
                 key={course.id}
                 className="bg-white rounded-2xl mb-6 border border-gray-100 shadow-sm overflow-hidden"
-                onPress={() =>
-                  router.push({
-                    pathname: "/learn/course/[courseId]" as any,
-                    params: { courseId: course.id },
-                  })
-                }
               >
                 {/* Course Thumbnail */}
                 <Image
@@ -278,7 +272,7 @@ export default function MyCoursesScreen() {
                     </Text>
                   </Pressable>
                 </View>
-              </Pressable>
+              </View>
             );
           })}
         </View>

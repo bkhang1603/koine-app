@@ -6,6 +6,8 @@ import { MOCK_CHILD } from "@/constants/mock-data";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAppStore } from "@/components/app-provider";
 import { useChildProfileAtChild, useMyCourse } from "@/queries/useUser";
+import { GetMyCoursesResType, myCourseRes } from "@/schema/user-schema";
+import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 
 export default function HomeScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
@@ -13,6 +15,7 @@ export default function HomeScreen() {
   const {
     data: profileData,
     isError: isProfileError,
+    isLoading: profileLoading,
     refetch: refetchProfile,
   } = useChildProfileAtChild({ token: token ? token : "", enabled: true });
   const {
@@ -30,6 +33,23 @@ export default function HomeScreen() {
   useEffect(() => {
     refetchProfile();
   }, [token]);
+
+  if (profileLoading || myCourseLoading)
+    return <ActivityIndicatorScreen></ActivityIndicatorScreen>
+  let myCourse: GetMyCoursesResType["data"] = [];
+  if (myCourseData && !myCourseError) {
+    if (myCourseData.data.length === 0) {
+    } else {
+      const parsedResult = myCourseRes.safeParse(myCourseData);
+      if (parsedResult.success) {
+        myCourse = parsedResult.data.data.filter(
+          (course) => course.isVisible === true
+        );
+      } else {
+        console.error("Validation errors:", parsedResult.error.errors);
+      }
+    }
+  }
 
   return (
     <View className="flex-1 bg-gray-50">
@@ -55,7 +75,7 @@ export default function HomeScreen() {
                   {profileData?.data.lastName +
                     " " +
                     profileData?.data.firstName}
-                  ! 
+                  !
                 </Text>
                 <View className="flex-row items-center mt-1">
                   <MaterialIcons name="stars" size={16} color="#FCD34D" />
@@ -125,7 +145,7 @@ export default function HomeScreen() {
               showsHorizontalScrollIndicator={false}
               className="-mx-4 px-4"
             >
-              {myCourseData?.data.map((course) => (
+              {myCourse?.map((course) => (
                 <Pressable
                   key={course.id}
                   className="mr-4 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
@@ -155,7 +175,7 @@ export default function HomeScreen() {
                         />
                         <Text className="text-violet-600 text-sm ml-1">
                           {/* Bài {course.completedLessons + 1} */} 15 bài
-                         </Text>
+                        </Text>
                       </View>
                       <Text className="text-gray-500 text-sm">
                         {/* {course.lastLesson.duration} */} 30 phút

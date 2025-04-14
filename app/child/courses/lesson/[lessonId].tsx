@@ -1,10 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
   ScrollView
 } from "react-native";
-import { useLocalSearchParams, router } from "expo-router";
+import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
 import HeaderWithBack from "@/components/HeaderWithBack";
 import WebView from "react-native-webview";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -14,6 +14,25 @@ import formatDuration from "@/util/formatDuration";
 export default function LessonScreen() {
   const { courseId, chapterId, lessonData } = useLocalSearchParams();
   const lesson = JSON.parse(lessonData as string);
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null); // Reference to interval
+
+  // Flag to track if component is mounted or focused
+  const isMounted = useRef(true);
+
+  //unmount signal send to video player to release
+  const [unmountSignal, setUnmountSignal] = useState(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      isMounted.current = true;
+      return () => {
+        clearInterval(intervalRef.current as NodeJS.Timeout);
+        isMounted.current = false;
+        setUnmountSignal(true);
+      };
+    }, [])
+  );
 
   const htmlContent = `
     <html>
@@ -97,7 +116,7 @@ export default function LessonScreen() {
         {(lesson.type === "VIDEO" || lesson.type === "BOTH") &&
           lesson.videoUrl && (
             <View className="w-full">
-              <VideoPlayer videoUrl={lesson.videoUrl} />
+              <VideoPlayer onUnmountSignal={unmountSignal} videoUrl={lesson.videoUrl} />
             </View>
           )}
 

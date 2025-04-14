@@ -57,16 +57,21 @@ export default function LessonScreen() {
   // Flag to track if component is mounted or focused
   const isMounted = useRef(true);
 
+  //unmount signal send to video player to release
+  const [unmountSignal, setUnmountSignal] = useState(false);
+
   useFocusEffect(
     React.useCallback(() => {
-      isMounted.current = true; // Component is focused
+      isMounted.current = true;
 
-      // Setup interval when screen is focused
+      // Nếu lessonData chưa có, không setup interval
+      if (!lessonData) {
+        return;
+      }
       intervalRef.current = setInterval(async () => {
-        if (!isMounted.current) return; // Skip if not mounted
+        if (!isMounted.current) return;
 
         try {
-          // Refetch API to check status
           const result = await refetchStill();
 
           if (result.isError) {
@@ -74,13 +79,13 @@ export default function LessonScreen() {
               pathname: "/child/learn/chapter/[chapterId]",
               params: { chapterId, courseId, message: "error" },
             });
-            return;
           }
 
           const res = await updateLearningTime.mutateAsync({
-            body: { lessonId, learningTime: 5 * 60 },
+            body: { lessonId, learningTime: 30 },
             token,
           });
+          console.log("refetch chạy ở con không lỗi");
         } catch (error) {
           console.error("Lỗi khi refetchStill hoặc updateLearningTime:", error);
           router.push({
@@ -88,13 +93,14 @@ export default function LessonScreen() {
             params: { chapterId, courseId, message: "error" },
           });
         }
-      }, 5 * 60 * 1000); // Every 30 seconds
+      }, 30 * 1000);
 
       return () => {
-        clearInterval(intervalRef.current as NodeJS.Timeout); // Cleanup on focus loss
-        isMounted.current = false; // Component is no longer focused
+        clearInterval(intervalRef.current as NodeJS.Timeout);
+        isMounted.current = false;
+        setUnmountSignal(true);
       };
-    }, [lessonId, courseId, chapterId, refetchStill, token, updateLearningTime])
+    }, [lessonId, token])
   );
 
   const createProgressMutation = useCreateProgressMutation(token as string);
@@ -137,6 +143,8 @@ export default function LessonScreen() {
 
   const lesson = myLesson;
   const windowWidth = Dimensions.get("window").width;
+
+  
 
   // HTML wrapper for WebView content
   const htmlContent = `
@@ -233,21 +241,21 @@ export default function LessonScreen() {
             </View>
           </View>
         </View>
-
+ 
         <View className="flex-1">
           {/* Video Section */}
           {(lesson.type === "VIDEO" || lesson.type === "BOTH") &&
             lesson.videoUrl && (
               <View className="w-full">
-                <VideoPlayer videoUrl={lesson.videoUrl} />
+                <VideoPlayer videoUrl={lesson.videoUrl} onUnmountSignal={unmountSignal} />
               </View>
-            )}
+            )} 
 
           {/* Content Section */}
           {(lesson.type === "DOCUMENT" || lesson.type === "BOTH") &&
             lesson.content && (
               <View className="flex-1 bg-white p-4">
-                <WebView
+                <WebView  
                   source={{ html: htmlContent }}
                   style={{ flex: 1 }}
                   scrollEnabled={false}

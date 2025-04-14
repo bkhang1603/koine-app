@@ -11,7 +11,7 @@ const DIFFICULTY_OPTIONS = [
 ] as const;
 
 export default function GameSettingsScreen() {
-    const { settings, updateSettings } = useGame();
+    const { settings, updateSettings } = useGame();  
 
     const handleDifficultyChange = (difficulty: typeof settings.difficulty) => {
         updateSettings({ difficulty });
