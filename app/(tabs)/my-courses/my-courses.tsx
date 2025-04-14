@@ -60,35 +60,39 @@ export default function MyCoursesScreen() {
 
   if (myCourse.length == 0) {
     return (
-      <View className="flex-1 bg-white">
-        <View className="px-4 flex-row items-center justify-between">
-          <View>
-            <Text className="text-2xl font-bold">Khóa học của tôi</Text>
-            <Text className="text-gray-600 mt-1">Tiếp tục học tập nào!</Text>
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-1 ">
+          <View className="px-4 flex-row items-center justify-between mt-3">
+            <View>
+              <Text className="text-2xl font-bold">Khóa học của tôi</Text>
+              <Text className="text-gray-600 mt-1">Tiếp tục học tập nào!</Text>
+            </View>
+            <View className="flex-row items-center">
+              <CartButton />
+              <Pressable
+                className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 ml-2"
+                onPress={() =>
+                  router.push("/(root)/notifications/notifications")
+                }
+              >
+                <MaterialIcons name="notifications" size={24} color="#374151" />
+              </Pressable>
+            </View>
           </View>
-          <View className="flex-row items-center">
-            <CartButton />
+          <View className="flex-1 items-center justify-center p-4">
+            <MaterialIcons name="school" size={64} color="#9CA3AF" />
+            <Text className="text-gray-500 text-lg mt-4 text-center">
+              Bạn chưa đăng kí khóa học nào?
+            </Text>
             <Pressable
-              className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 ml-2"
-              onPress={() => router.push("/(root)/notifications/notifications")}
+              className="mt-4 bg-blue-500 px-6 py-3 rounded-xl"
+              onPress={() => router.push("/(tabs)/home")}
             >
-              <MaterialIcons name="notifications" size={24} color="#374151" />
+              <Text className="text-white font-bold">Mua/Đăng kí ngay!</Text>
             </Pressable>
           </View>
         </View>
-        <View className="flex-1 items-center justify-center p-4">
-          <MaterialIcons name="school" size={64} color="#9CA3AF" />
-          <Text className="text-gray-500 text-lg mt-4 text-center">
-            Bạn chưa đăng kí khóa học nào?
-          </Text>
-          <Pressable
-            className="mt-4 bg-blue-500 px-6 py-3 rounded-xl"
-            onPress={() => router.push("/(tabs)/home")}
-          >
-            <Text className="text-white font-bold">Mua/Đăng kí ngay!</Text>
-          </Pressable>
-        </View>
-      </View>
+      </SafeAreaView>
     );
   }
 

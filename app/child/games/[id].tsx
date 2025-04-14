@@ -47,7 +47,7 @@ export default function GameScreen() {
 
     return (
         <View className="flex-1 bg-white">
-            <HeaderWithBack title={game.title} />
+            <HeaderWithBack title={game.title} returnTab="/child/(tabs)/games" showMoreOptions={false}/>
             {renderGame()}
         </View>
     );

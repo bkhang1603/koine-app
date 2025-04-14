@@ -135,7 +135,15 @@ export default function CourseDetailScreen() {
         token,
         courseId: id as string,
       });
-      router.back();
+      Alert.alert("Thông báo", "Đăng kí thành công", [
+        {
+          text: "Trang chủ",
+          onPress: async () => {
+            router.push("/(tabs)/home");
+          },
+          style: "cancel",
+        },
+      ]);
     } catch (error) {
       console.error("Failed to enroll:", error);
     }

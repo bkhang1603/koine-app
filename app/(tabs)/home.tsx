@@ -39,6 +39,7 @@ export default function HomeScreen() {
     isError: isErrorShipping,
     refetch: refetchShipping,
   } = useShippingInfos({ token: token ? token : "", enabled: true });
+  
 
   // Gọi API cart
   const {
@@ -197,6 +198,7 @@ export default function HomeScreen() {
   const latestBlog = blog[0];
 
   // console.log('Fetched Data:', JSON.stringify(coursesData, null, 2))
+
 
   return (
     <ScrollView className="flex-1 pt-4 bg-white">
@@ -477,7 +479,7 @@ export default function HomeScreen() {
               </Pressable>
             ))}
           </ScrollView>
-          <View className="pr-1 justify-between items-end mb-3">
+          {/* <View className="pr-1 justify-between items-end mb-3">
             <Pressable
               onPress={() => router.push("/custom-course/custom-course")}
               disabled={
@@ -487,7 +489,7 @@ export default function HomeScreen() {
             >
               <Text className="text-white p-2">+ Khóa học tùy chỉnh</Text>
             </Pressable>
-          </View>
+          </View> */}
         </View>
 
         {/* Featured Product */}

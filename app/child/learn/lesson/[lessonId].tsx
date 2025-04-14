@@ -78,7 +78,7 @@ export default function LessonScreen() {
           }
 
           const res = await updateLearningTime.mutateAsync({
-            body: { lessonId, learningTime: 30 },
+            body: { lessonId, learningTime: 5 * 60 },
             token,
           });
         } catch (error) {
@@ -88,7 +88,7 @@ export default function LessonScreen() {
             params: { chapterId, courseId, message: "error" },
           });
         }
-      }, 30 * 1000); // Every 30 seconds
+      }, 5 * 60 * 1000); // Every 30 seconds
 
       return () => {
         clearInterval(intervalRef.current as NodeJS.Timeout); // Cleanup on focus loss

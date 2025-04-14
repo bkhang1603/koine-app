@@ -26,9 +26,6 @@ export default function Index() {
       router.push("/(auth)/login");
     } else {
       if (user.role == RoleValues[0]) {
-        // router.push(
-        //   "/(root)/learn/question/34518330-359b-40cf-9ec0-1ab29d0e0c65"
-        // );
         router.push("/(tabs)/home");
       } else if (user.role == RoleValues[3]) {
         router.push("/child/(tabs)/home");

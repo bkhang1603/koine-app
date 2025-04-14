@@ -43,13 +43,14 @@ export default function CheckoutScreen() {
   const token = accessToken ? accessToken.accessToken : "";
   const [isProduct, setIsProduct] = useState(false);
   const payment = useCreateOrder();
+  
 
   const [isProcessing, setIsProcessing] = useState(false);
 
   const [paymentMethod, setPaymentMethod] = useState<string>("BANKING");
   const shippingInfos = useAppStore((state) => state.shippingInfos);
   const [deliveryPace, setDeliveryPace] = useState("STANDARD");
-
+  
   const { itemsToCheckout } = useLocalSearchParams();
 
   const {
@@ -578,7 +579,10 @@ export default function CheckoutScreen() {
       <View className="p-4 border-t border-gray-100">
         <View className="flex-row justify-between mb-4">
           <Text className="text-gray-600">
-            Tổng <Text className="italic">({isProduct ? "đơn và vận chuyển" : "đơn"})</Text>
+            Tổng{" "}
+            <Text className="italic">
+              ({isProduct ? "đơn và vận chuyển" : "đơn"})
+            </Text>
           </Text>
           <Text className="font-bold text-lg">
             {totalToPay.toLocaleString("vi-VN")} ₫

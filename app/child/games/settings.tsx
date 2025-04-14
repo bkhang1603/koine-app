@@ -19,7 +19,7 @@ export default function GameSettingsScreen() {
 
     return (
         <View className="flex-1 bg-white">
-            <HeaderWithBack title="Cài đặt trò chơi" />
+            <HeaderWithBack title="Cài đặt trò chơi" returnTab="/child/(tabs)/games" showMoreOptions={false}/>
             <ScrollView>
                 {/* Difficulty Settings */}
                 <View className="p-4">

@@ -24,6 +24,9 @@ export const useCreateOrder = () => {
       queryClient.invalidateQueries({
         queryKey: ["my-courses-store"], // Tùy chọn, nếu bạn muốn invalidate chỉ những query khớp chính xác
       });
+      queryClient.invalidateQueries({
+        queryKey: ["my-courses"],
+      });
     },
   });
 };
@@ -39,6 +42,9 @@ export const useRePurchaseOrder = () => {
       });
       queryClient.invalidateQueries({
         queryKey: ["my-courses-store"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["my-courses"], // Tùy chọn, nếu bạn muốn invalidate chỉ những query khớp chính xác
       });
     },
   });
