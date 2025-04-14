@@ -1,9 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, ActivityIndicator, Dimensions } from "react-native";
 import { useVideoPlayer, VideoView } from "expo-video";
 import * as ScreenOrientation from "expo-screen-orientation";
 
-const VideoPlayer = ({ videoUrl }: { videoUrl: string }) => {
+interface VideoPlayerProps {
+  videoUrl: string;
+  onUnmountSignal: boolean; // Tín hiệu từ component cha để thông báo khi unmount
+}
+
+const VideoPlayer = ({ videoUrl, onUnmountSignal }: VideoPlayerProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -11,7 +16,7 @@ const VideoPlayer = ({ videoUrl }: { videoUrl: string }) => {
   const videoHeight = width * (9 / 16);
 
   const player = useVideoPlayer(videoUrl, (player) => {
-    player.loop = true;
+    player.loop = false;
   });
 
   const toggleFullscreen = async () => {
@@ -27,7 +32,19 @@ const VideoPlayer = ({ videoUrl }: { videoUrl: string }) => {
     setIsFullscreen(!isFullscreen);
   };
 
-  return (
+  // useEffect để lắng nghe tín hiệu từ cha khi component unmount
+  useEffect(() => {
+    if (onUnmountSignal) {
+      // Giải phóng tài nguyên video khi nhận tín hiệu
+      if (player) {
+        player.pause()     
+        player.release(); // Dừng video
+        // Thực hiện các thao tác giải phóng tài nguyên nếu cần
+      }
+    }
+  }, [onUnmountSignal, player]);
+
+  return ( 
     <View
       className={`justify-center items-center bg-black overflow-hidden ${
         isFullscreen ? "w-full h-full" : ""

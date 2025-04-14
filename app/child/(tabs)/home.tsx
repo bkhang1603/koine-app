@@ -1,11 +1,13 @@
 import React, { useEffect } from "react";
 import { View, Text, ScrollView, Pressable, Image } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { MOCK_CHILD } from "@/constants/mock-data";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAppStore } from "@/components/app-provider";
-import { useChildProfileAtChild } from "@/queries/useUser";
+import { useChildProfileAtChild, useMyCourse } from "@/queries/useUser";
+import { GetMyCoursesResType, myCourseRes } from "@/schema/user-schema";
+import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 
 export default function HomeScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
@@ -13,12 +15,41 @@ export default function HomeScreen() {
   const {
     data: profileData,
     isError: isProfileError,
+    isLoading: profileLoading,
     refetch: refetchProfile,
   } = useChildProfileAtChild({ token: token ? token : "", enabled: true });
+  const {
+    data: myCourseData,
+    isLoading: myCourseLoading,
+    isError: myCourseError,
+    refetch,
+  } = useMyCourse({
+    token: token as string,
+  });
+  useFocusEffect(() => {
+    refetch();
+  });
 
   useEffect(() => {
     refetchProfile();
   }, [token]);
+
+  if (profileLoading || myCourseLoading)
+    return <ActivityIndicatorScreen></ActivityIndicatorScreen>
+  let myCourse: GetMyCoursesResType["data"] = [];
+  if (myCourseData && !myCourseError) {
+    if (myCourseData.data.length === 0) {
+    } else {
+      const parsedResult = myCourseRes.safeParse(myCourseData);
+      if (parsedResult.success) {
+        myCourse = parsedResult.data.data.filter(
+          (course) => course.isVisible === true
+        );
+      } else {
+        console.error("Validation errors:", parsedResult.error.errors);
+      }
+    }
+  }
 
   return (
     <View className="flex-1 bg-gray-50">
@@ -44,7 +75,7 @@ export default function HomeScreen() {
                   {profileData?.data.lastName +
                     " " +
                     profileData?.data.firstName}
-                  ! 
+                  !
                 </Text>
                 <View className="flex-row items-center mt-1">
                   <MaterialIcons name="stars" size={16} color="#FCD34D" />
@@ -114,24 +145,20 @@ export default function HomeScreen() {
               showsHorizontalScrollIndicator={false}
               className="-mx-4 px-4"
             >
-              {MOCK_CHILD.activeCourses.map((course) => (
+              {myCourse?.map((course) => (
                 <Pressable
                   key={course.id}
                   className="mr-4 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
                   style={{ width: 280 }}
-                  onPress={() => {
-                    // router.push({
-                    //   pathname:
-                    //     "/child/courses/[courseId]/lessons/[lessonId]" as any,
-                    //   params: {
-                    //     courseId: course.id,
-                    //     lessonId: course.lastLesson.id,
-                    //   },
-                    // });
-                  }}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/child/learn/course/[courseId]",
+                      params: { courseId: course.id },
+                    })
+                  }
                 >
                   <Image
-                    source={{ uri: course.thumbnail }}
+                    source={{ uri: course.imageUrl }}
                     className="w-full h-36"
                     resizeMode="cover"
                   />
@@ -147,28 +174,28 @@ export default function HomeScreen() {
                           color="#7C3AED"
                         />
                         <Text className="text-violet-600 text-sm ml-1">
-                          Bài {course.completedLessons + 1}
+                          {/* Bài {course.completedLessons + 1} */} 15 bài
                         </Text>
                       </View>
                       <Text className="text-gray-500 text-sm">
-                        {course.lastLesson.duration}
+                        {/* {course.lastLesson.duration} */} 30 phút
                       </Text>
                     </View>
                     <View className="mt-3">
                       <View className="flex-row justify-between mb-1">
                         <Text className="text-gray-500 text-sm">
-                          {course.completedLessons}/{course.totalLessons} bài
-                          học
+                          {/* {course.completedLessons}/{course.totalLessons}  */}
+                          15/40 bài học
                         </Text>
                         <Text className="text-violet-600 font-medium">
-                          {course.progress}%
+                          {course.completionRate}%
                         </Text>
                       </View>
                       <View className="bg-gray-100 h-1.5 rounded-full overflow-hidden">
                         <View
                           className="h-full bg-violet-500 rounded-full"
                           style={{
-                            width: `${course.progress}%`,
+                            width: `${course.completionRate}%`,
                           }}
                         />
                       </View>

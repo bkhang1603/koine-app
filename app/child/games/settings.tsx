@@ -11,7 +11,7 @@ const DIFFICULTY_OPTIONS = [
 ] as const;
 
 export default function GameSettingsScreen() {
-    const { settings, updateSettings } = useGame();
+    const { settings, updateSettings } = useGame();  
 
     const handleDifficultyChange = (difficulty: typeof settings.difficulty) => {
         updateSettings({ difficulty });
@@ -19,7 +19,7 @@ export default function GameSettingsScreen() {
 
     return (
         <View className="flex-1 bg-white">
-            <HeaderWithBack title="Cài đặt trò chơi" />
+            <HeaderWithBack title="Cài đặt trò chơi" returnTab="/child/(tabs)/games" showMoreOptions={false}/>
             <ScrollView>
                 {/* Difficulty Settings */}
                 <View className="p-4">

@@ -10,7 +10,6 @@ import {
 } from "@/schema/user-schema";
 import { useAppStore } from "@/components/app-provider";
 import { useMyCourseDetail } from "@/queries/useUser";
-import blog from "@/app/(tabs)/blog/blog";
 import formatDuration from "@/util/formatDuration";
 
 export default function CourseLearnScreen() {

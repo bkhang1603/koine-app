@@ -43,7 +43,9 @@ export default function ChildMyCoursesScreen() {
     } else {
       const parsedResult = myCourseRes.safeParse(myCourseData);
       if (parsedResult.success) {
-        myCourse = parsedResult.data.data;
+        myCourse = parsedResult.data.data.filter(
+          (course) => course.isVisible === true
+        );
       } else {
         console.error("Validation errors:", parsedResult.error.errors);
       }
@@ -153,15 +155,9 @@ export default function ChildMyCoursesScreen() {
         <ScrollView className="flex-1">
           <View className="p-4">
             {filteredCourses.map((course) => (
-              <Pressable
+              <View
                 key={course.id}
                 className="bg-white rounded-2xl border border-gray-100 mb-4 shadow-sm overflow-hidden"
-                onPress={() =>
-                  router.push({
-                    pathname: "/child/learn/course/[courseId]",
-                    params: { courseId: course.id },
-                  })
-                }
               >
                 {/* Course Thumbnail */}
                 <Image
@@ -173,16 +169,33 @@ export default function ChildMyCoursesScreen() {
                 {/* Course Info */}
                 <View className="p-4">
                   <View className="flex-row flex-wrap gap-2 mb-1">
-                    {course.categories.map((category) => (
-                      <View
-                        key={category.id}
-                        className="bg-blue-50 px-3 py-1 rounded-full"
-                      >
+                  {!course.categories.length ? (
+                      <View className="bg-blue-50 px-3 py-1 rounded-full">
                         <Text className="text-blue-600 text-xs font-medium">
-                          {category.name}
+                          --
                         </Text>
                       </View>
-                    ))}
+                    ) : (
+                      <View className="flex-row flex-wrap gap-1">
+                        {course.categories.slice(0, 4).map((category) => (
+                          <View
+                            key={category.id}
+                            className="bg-blue-50 px-3 py-1 rounded-full"
+                          >
+                            <Text className="text-blue-600 text-xs font-medium">
+                              {category.name}
+                            </Text>
+                          </View>
+                        ))}
+                        {course.categories.length > 4 && (
+                          <View className="bg-blue-50 px-3 py-1 rounded-full">
+                            <Text className="text-blue-600 text-xs font-medium">
+                              ...
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                    )}
                   </View>
                   <View className="flex-row justify-between items-start">
                     <View className="flex-1">
@@ -262,7 +275,7 @@ export default function ChildMyCoursesScreen() {
                     <Text className="text-white font-bold">Tiếp tục học</Text>
                   </Pressable>
                 </View>
-              </Pressable>
+              </View>
             ))}
           </View>
           <View className="h-20" />

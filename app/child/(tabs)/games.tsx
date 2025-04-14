@@ -13,7 +13,7 @@ export default function GamesScreen() {
   const handleCategoryPress = (category: string) => {
     setSelectedCategory(category);
   }; 
-
+ 
   const handleGamePress = (gameId: string) => {
     router.push({
       pathname: "/child/games/[id]",

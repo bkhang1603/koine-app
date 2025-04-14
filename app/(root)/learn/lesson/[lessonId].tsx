@@ -59,10 +59,16 @@ export default function LessonScreen() {
   // Flag to track if component is mounted or focused
   const isMounted = useRef(true);
 
+  //unmount signal send to video player to release
+  const [unmountSignal, setUnmountSignal] = useState(false);
   useFocusEffect(
     React.useCallback(() => {
       isMounted.current = true; // Component is focused
 
+      // Nếu lessonData chưa có, không setup interval
+      if (!lessonData) {
+        return;
+      }
       // Setup interval when screen is focused
       intervalRef.current = setInterval(async () => {
         if (!isMounted.current) return; // Skip if not mounted
@@ -83,6 +89,7 @@ export default function LessonScreen() {
             body: { lessonId, learningTime: 30 },
             token,
           });
+          console.log("refetch chạy ở cha không lỗi");
         } catch (error) {
           console.error("Lỗi khi refetchStill hoặc updateLearningTime:", error);
           router.push({
@@ -95,8 +102,17 @@ export default function LessonScreen() {
       return () => {
         clearInterval(intervalRef.current as NodeJS.Timeout); // Cleanup on focus loss
         isMounted.current = false; // Component is no longer focused
+        setUnmountSignal(true);
       };
-    }, [lessonId, courseId, chapterId, refetchStill, token, updateLearningTime])
+    }, [
+      lessonData,
+      lessonId,
+      courseId,
+      chapterId,
+      refetchStill,
+      token,
+      updateLearningTime,
+    ])
   );
 
   const createProgressMutation = useCreateProgressMutation(token as string);
@@ -241,7 +257,7 @@ export default function LessonScreen() {
           {(lesson.type === "VIDEO" || lesson.type === "BOTH") &&
             lesson.videoUrl && (
               <View className="w-full">
-                <VideoPlayer videoUrl={lesson.videoUrl} />
+                <VideoPlayer videoUrl={lesson.videoUrl} onUnmountSignal={unmountSignal} />
               </View>
             )}
 
@@ -250,7 +266,6 @@ export default function LessonScreen() {
             lesson.content && (
               <View className="flex-1 px-4 py-2">
                 <WebView
-       
                   source={{ html: htmlContent }}
                   style={{ flex: 1 }}
                   scrollEnabled={false}

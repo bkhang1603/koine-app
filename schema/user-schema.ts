@@ -51,6 +51,7 @@ export const myCourseRes = z.object({
       ),
       completionRate: z.number(),
       author: z.string(),
+      isVisible: z.boolean(),
       imageUrl: z.string(),
       level: z.string(),
       createdAtFormatted: z.string(),

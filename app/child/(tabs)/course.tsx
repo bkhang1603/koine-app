@@ -71,16 +71,31 @@ export default function CourseScreen() {
         />
         <View className="p-4">
           <View className="flex-row flex-wrap gap-2 mb-1">
-            {courses[0].categories.map((category) => (
-              <View
-                key={category.id}
-                className="bg-blue-50 px-3 py-1 rounded-full"
-              >
-                <Text className="text-blue-600 text-xs font-medium">
-                  {category.name}
-                </Text>
+            {!courses[0].categories.length ? (
+              <View className="bg-blue-50 px-3 py-1 rounded-full">
+                <Text className="text-blue-600 text-xs font-medium">--</Text>
               </View>
-            ))}
+            ) : (
+              <View className="flex-row flex-wrap gap-1">
+                {courses[0].categories.slice(0, 4).map((category) => (
+                  <View
+                    key={category.id}
+                    className="bg-blue-50 px-3 py-1 rounded-full"
+                  >
+                    <Text className="text-blue-600 text-xs font-medium">
+                      {category.name}
+                    </Text>
+                  </View>
+                ))}
+                {courses[0].categories.length > 4 && (
+                  <View className="bg-blue-50 px-3 py-1 rounded-full">
+                    <Text className="text-blue-600 text-xs font-medium">
+                      ...
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
           </View>
           <Text className="text-lg font-bold mt-2">{courses[0].title}</Text>
           <Text className="text-gray-600 mt-1" numberOfLines={2}>
@@ -154,16 +169,33 @@ export default function CourseScreen() {
           <View>
             <View className="flex-row items-center mb-1">
               <View className="flex-row flex-wrap gap-2 mb-1">
-                {course.categories.map((category) => (
-                  <View
-                    key={category.id}
-                    className="bg-blue-50 px-3 py-1 rounded-full"
-                  >
+                {!course.categories.length ? (
+                  <View className="bg-blue-50 px-3 py-1 rounded-full">
                     <Text className="text-blue-600 text-xs font-medium">
-                      {category.name}
+                      --
                     </Text>
                   </View>
-                ))}
+                ) : (
+                  <View className="flex-row flex-wrap gap-1">
+                    {course.categories.slice(0, 2).map((category) => (
+                      <View
+                        key={category.id}
+                        className="bg-blue-50 px-3 py-1 rounded-full"
+                      >
+                        <Text className="text-blue-600 text-xs font-medium">
+                          {category.name}
+                        </Text>
+                      </View>
+                    ))}
+                    {course.categories.length > 2 && (
+                      <View className="bg-blue-50 px-3 py-1 rounded-full">
+                        <Text className="text-blue-600 text-xs font-medium">
+                          ...
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                )}
               </View>
             </View>
             <Text className="font-bold text-base" numberOfLines={1}>

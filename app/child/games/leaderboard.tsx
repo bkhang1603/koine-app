@@ -23,7 +23,7 @@ export default function LeaderboardScreen() {
 
     return (
         <View className="flex-1 bg-white">
-            <HeaderWithBack title="Bảng xếp hạng" />
+            <HeaderWithBack title="Bảng xếp hạng" returnTab="/child/(tabs)/games" showMoreOptions={false}/>
             <ScrollView>
                 {/* Top Scores */}
                 <View className="p-4">

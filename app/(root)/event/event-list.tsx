@@ -53,10 +53,10 @@ export default function EventScreen() {
     []
   );
 
-  const openMeet = async (roomHostUrl: string | null) => {
+  const openMeet = async (roomUrl: string | null) => {
     try {
-      if (!roomHostUrl) roomHostUrl = "";
-      await WebBrowser.openBrowserAsync(roomHostUrl);
+      if (!roomUrl) roomUrl = "";
+      await WebBrowser.openBrowserAsync(roomUrl);
       refetch();
     } catch (error) {
       console.log("Lỗi khi mở meet ", error);
@@ -260,7 +260,7 @@ export default function EventScreen() {
                               : true
                           }
                           onPress={() => {
-                            openMeet(event.roomHostUrl);
+                            openMeet(event.roomUrl);
                           }}
                         >
                           <Text
