@@ -27,7 +27,7 @@ const CERTIFICATES = [
 export default function CertificatesScreen() {
     return (
         <View className="flex-1 bg-white">
-            <HeaderWithBack title="Chứng chỉ" />
+            <HeaderWithBack title="Chứng chỉ" returnTab={"/(tabs)/profile/profile"}/>
 
             <ScrollView>
                 <View className="p-4">
