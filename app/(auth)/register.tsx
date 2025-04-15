@@ -310,7 +310,7 @@ export default function RegisterScreen() {
                                     </Text>
                                     <View className="flex-row space-x-4">
                                         <Pressable
-                                            className={`flex-1 flex-row items-center justify-center py-4 rounded-2xl border ${
+                                            className={`flex-1 flex-row items-center justify-center py-3.5 rounded-2xl border ${
                                                 gender === "MALE"
                                                     ? "border-blue-500 bg-blue-50"
                                                     : "border-gray-200 bg-gray-50"
@@ -337,7 +337,7 @@ export default function RegisterScreen() {
                                             </Text>
                                         </Pressable>
                                         <Pressable
-                                            className={`flex-1 flex-row items-center justify-center py-4 rounded-2xl border ${
+                                            className={`flex-1 flex-row items-center justify-center py-3.5 rounded-2xl border ${
                                                 gender === "FEMALE"
                                                     ? "border-pink-500 bg-pink-50"
                                                     : "border-gray-200 bg-gray-50"
