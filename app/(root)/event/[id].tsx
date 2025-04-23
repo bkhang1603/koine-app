@@ -1,10 +1,10 @@
+import React, { useRef, useState } from "react";
 import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { View, Text, Image, ScrollView, Pressable } from "react-native";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
+import { StatusBar } from "expo-status-bar";
 
 import VideoPlayer from "@/components/video-player";
 import { useAppStore } from "@/components/app-provider";
@@ -12,159 +12,167 @@ import { useEventDetail } from "@/queries/useEvent";
 import { EventDetailResType, getEventDetail } from "@/schema/event-schema";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 import WebView from "react-native-webview";
-import React, { useRef, useState } from "react";
 import formatDurationForString from "@/util/formatDurationForString";
 
 export default function EventDetailUser() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const accessToken = useAppStore((state) => state.accessToken);
-  const token = accessToken == undefined ? "" : accessToken.accessToken;
-  const insets = useSafeAreaInsets();
-  const [webViewHeight, setWebViewHeight] = useState(0);
-  const { data, isLoading, isError, error} = useEventDetail(
-    token,
-    id
-  );
+    const { id } = useLocalSearchParams<{ id: string }>();
+    const accessToken = useAppStore((state) => state.accessToken);
+    const token = accessToken == undefined ? "" : accessToken.accessToken;
+    const insets = useSafeAreaInsets();
+    const [webViewHeight, setWebViewHeight] = useState(0);
+    const { data, isLoading, isError, error } = useEventDetail(token, id);
 
-  const intervalRef = useRef<NodeJS.Timeout | null>(null); // Reference to interval
+    const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    const isMounted = useRef(true);
+    const [unmountSignal, setUnmountSignal] = useState(false);
 
-  // Flag to track if component is mounted or focused
-  const isMounted = useRef(true);
-
-  //unmount signal send to video player to release
-  const [unmountSignal, setUnmountSignal] = useState(false);
-  useFocusEffect(
-    React.useCallback(() => {
-      isMounted.current = true;
-      return () => {
-        clearInterval(intervalRef.current as NodeJS.Timeout);
-        isMounted.current = false;
-        setUnmountSignal(true);
-      };
-    }, [])
-  );
-
-  const formatStartAtDisplay = (startAtDisplay: string): string => {
-    // Tách phần thời gian và ngày
-    const [timePart, datePart] = startAtDisplay.split("-"); // "19:04:00", "09/04/2025"
-    const [hour, minute, second] = timePart.split(":").map(Number);
-    const [day, month, year] = datePart.split("/").map(Number);
-
-    // Tạo đối tượng Date (chú ý: tháng trong JS bắt đầu từ 0)
-    const date = new Date(year, month - 1, day, hour, minute, second);
-
-    // Trừ đi 7 giờ
-    date.setHours(date.getHours() - 7);
-
-    // Format lại thành chuỗi "HH:mm:ss-DD/MM/YYYY"
-    const pad = (n: number): string => n.toString().padStart(2, "0");
-    const formatted = `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
-      date.getSeconds()
-    )}-${pad(date.getDate())}/${pad(
-      date.getMonth() + 1
-    )}/${date.getFullYear()}`;
-
-    return formatted;
-  };
-
-  const formatStartAt = (startAt: string): string => {
-    //2025-04-09T05:04:00.000Z
-    const startAtOTC = new Date(startAt);
-    const startAtGMT7 = new Date(startAtOTC.getTime() + 7 * 3600 * 1000);
-    return startAtGMT7.toString();
-  };
-
-  let eventDetail: EventDetailResType["data"] | null = null;
-
-  if (data && !error) {
-    if (data.data === null) {
-    } else {
-      const parsedResult = getEventDetail.safeParse(data);
-      if (parsedResult.success) {
-        eventDetail = parsedResult.data.data;
-      } else {
-        console.error("Validation errors:", parsedResult.error.errors);
-      }
-    }
-  }
-
-  if (isLoading) return <ActivityIndicatorScreen></ActivityIndicatorScreen>;
-  if (isError) console.log("Lỗi khi lấy event detail ", error);
-
-  if (eventDetail == null) {
-    return (
-      <SafeAreaView className="flex-1">
-        {/* Headers */}
-        <View
-          style={{ paddingTop: insets.top }}
-          className="absolute top-0 left-0 right-0 z-10"
-        >
-          <View className="px-4 py-3 flex-row items-center justify-between">
-            <Pressable
-              onPress={() => router.push("/(root)/event/event-list")}
-              className="w-10 h-10 bg-black/30 rounded-full items-center justify-center ml-2"
-            >
-              <MaterialIcons name="arrow-back" size={24} color="white" />
-            </Pressable>
-
-            <View className="flex-row items-center">
-              <Pressable
-                className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
-                onPress={() =>
-                  router.push("/(root)/notifications/notifications")
-                }
-              >
-                <MaterialIcons name="notifications" size={24} color="white" />
-              </Pressable>
-            </View>
-          </View>
-        </View>
-        <View className="flex-1 items-center justify-center p-4">
-          <MaterialIcons name="event-busy" size={64} color="#9CA3AF" />
-          <Text className="text-gray-500 text-lg mt-4 text-center">
-            Không tìm thấy dữ liệu sự kiện
-          </Text>
-        </View>
-      </SafeAreaView>
+    useFocusEffect(
+        React.useCallback(() => {
+            isMounted.current = true;
+            return () => {
+                clearInterval(intervalRef.current as NodeJS.Timeout);
+                isMounted.current = false;
+                setUnmountSignal(true);
+            };
+        }, [])
     );
-  }
 
-  const statusStyles = {
-    OPENING: {
-      textBackgroundColor: "bg-green-500",
-      text: "Đang diễn ra",
-      textColor: "black",
-      backgroundColor: "bg-green-500",
-    },
-    PENDING: {
-      textBackgroundColor: "bg-yellow-500",
-      text: "Chưa mở",
-      textColor: "black",
-      backgroundColor: "bg-gray-300",
-    },
-    DONE: {
-      textBackgroundColor: "bg-gray-300",
-      text: "Đã kết thúc",
-      textColor: "black",
-      backgroundColor: "bg-gray-300",
-    },
-    CANCELLED: {
-      textBackgroundColor: "bg-gray-300",
-      text: "Đã hủy",
-      textColor: "black",
-      backgroundColor: "bg-gray-300",
-    },
-  } as const;
+    const formatStartAtDisplay = (startAtDisplay: string): string => {
+        const [timePart, datePart] = startAtDisplay.split("-");
+        const [hour, minute] = timePart.split(":");
+        const [day, month, year] = datePart.split("/");
+        return `${hour}:${minute} - ${day}/${month}/${year}`;
+    };
 
-  const isClosed = (eventStartAt: string, duration: number): boolean => {
-    const now = new Date();
-    // Chuyển giờ về GMT+7 (đảm bảo giờ giữ nguyên)
-    const localTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
-    const startTime = new Date(eventStartAt);
-    const endDate = new Date(startTime.getTime() + duration * 1000); // duration tính theo giây
-    return localTime.getTime() >= endDate.getTime(); // chỉ mở khi trong khoảng startTime -> endDate
-  };
-  const htmlContent = `
+    const formatStartAt = (startAt: string): string => {
+        const startAtOTC = new Date(startAt);
+        const startAtGMT7 = new Date(startAtOTC.getTime() + 7 * 3600 * 1000);
+        return startAtGMT7.toString();
+    };
+
+    let eventDetail: EventDetailResType["data"] | null = null;
+
+    if (data && !error) {
+        if (data.data === null) {
+        } else {
+            const parsedResult = getEventDetail.safeParse(data);
+            if (parsedResult.success) {
+                eventDetail = parsedResult.data.data;
+            } else {
+                console.error("Validation errors:", parsedResult.error.errors);
+            }
+        }
+    }
+
+    if (isLoading) return <ActivityIndicatorScreen />;
+    if (isError) console.log("Lỗi khi lấy event detail ", error);
+
+    if (eventDetail == null) {
+        return (
+            <View className="flex-1 bg-[#f5f7f9]">
+                <StatusBar style="dark" />
+                {/* Header with gradient */}
+                <LinearGradient
+                    colors={["#3b82f6", "#1d4ed8"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    className="pt-14 pb-6 px-5"
+                >
+                    <View className="flex-row items-center">
+                        <Pressable
+                            onPress={() =>
+                                router.push("/(root)/event/event-list")
+                            }
+                            className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
+                        >
+                            <MaterialIcons
+                                name="arrow-back"
+                                size={22}
+                                color="white"
+                            />
+                        </Pressable>
+                        <Text className="text-white text-lg font-bold ml-4">
+                            Chi tiết sự kiện
+                        </Text>
+                    </View>
+                </LinearGradient>
+
+                <View className="flex-1 items-center justify-center p-8">
+                    <MaterialIcons
+                        name="event-busy"
+                        size={64}
+                        color="#9CA3AF"
+                    />
+                    <Text className="text-gray-500 text-lg mt-4 text-center">
+                        Không tìm thấy dữ liệu sự kiện
+                    </Text>
+                    <Text className="text-gray-400 text-center mb-4">
+                        Sự kiện có thể đã bị xóa hoặc không tồn tại
+                    </Text>
+                    <Pressable
+                        className="mt-4 bg-blue-500 px-5 py-2.5 rounded-xl"
+                        onPress={() => router.push("/(root)/event/event-list")}
+                    >
+                        <Text className="text-white font-medium">
+                            Quay lại danh sách
+                        </Text>
+                    </Pressable>
+                </View>
+            </View>
+        );
+    }
+
+    const statusStyles = {
+        OPENING: {
+            bgColor: "bg-green-500",
+            textColor: "text-white",
+            text: "Đang diễn ra",
+        },
+        PENDING: {
+            bgColor: "bg-yellow-500",
+            textColor: "text-white",
+            text: "Chưa mở",
+        },
+        DONE: {
+            bgColor: "bg-gray-400",
+            textColor: "text-white",
+            text: "Đã kết thúc",
+        },
+        CANCELLED: {
+            bgColor: "bg-red-500",
+            textColor: "text-white",
+            text: "Đã hủy",
+        },
+    } as const;
+
+    const isClosed = (eventStartAt: string, duration: number): boolean => {
+        const now = new Date();
+        const localTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+        const startTime = new Date(eventStartAt);
+        const endDate = new Date(startTime.getTime() + duration * 1000);
+        return localTime.getTime() >= endDate.getTime();
+    };
+
+    const getEventStatus = () => {
+        if (
+            eventDetail?.status.toUpperCase() === "OPENING" &&
+            isClosed(
+                formatStartAt(eventDetail.startedAt),
+                eventDetail.durations
+            )
+        ) {
+            return {
+                bgColor: "bg-gray-400",
+                textColor: "text-white",
+                text: "Đã kết thúc",
+            };
+        }
+        return statusStyles[
+            eventDetail?.status.toUpperCase() as keyof typeof statusStyles
+        ];
+    };
+
+    const htmlContent = `
   <html>
   <head>
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -220,124 +228,167 @@ export default function EventDetailUser() {
 </html>
   `;
 
-  return (
-    <SafeAreaView className="flex-1 bg-white">
-      {/* Headers */}
-      <View
-        style={{ paddingTop: insets.top }}
-        className="absolute top-0 left-0 right-0 z-10"
-      >
-        <View className="px-4 py-3 flex-row items-center justify-between">
-          <Pressable
-            onPress={() => router.push("/(root)/event/event-list")}
-            className="w-10 h-10 bg-black/30 rounded-full items-center justify-center ml-2"
-          >
-            <MaterialIcons name="arrow-back" size={24} color="white" />
-          </Pressable>
+    return (
+        <View className="flex-1 bg-[#f5f7f9]">
+            <StatusBar style="dark" />
 
-          <View className="flex-row items-center">
-            <Pressable
-              className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
-              onPress={() => router.push("/(root)/notifications/notifications")}
+            {/* Header with gradient */}
+            <LinearGradient
+                colors={["#3b82f6", "#1d4ed8"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                className="pt-14 pb-6 px-5"
             >
-              <MaterialIcons name="notifications" size={24} color="white" />
-            </Pressable>
-          </View>
-        </View>
-      </View>
+                <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center">
+                        <Pressable
+                            onPress={() =>
+                                router.push("/(root)/event/event-list")
+                            }
+                            className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
+                        >
+                            <MaterialIcons
+                                name="arrow-back"
+                                size={22}
+                                color="white"
+                            />
+                        </Pressable>
+                        <Text className="text-white text-lg font-bold ml-4">
+                            Chi tiết sự kiện
+                        </Text>
+                    </View>
 
-      <ScrollView className="flex-1">
-        <View className="flex-1">
-          {/* Hiển thị thông tin sự kiện từ eventData */}
-          {eventDetail ? (
-            <View className="flex-1">
-              {/* Video */}
-              {eventDetail.recordUrl && eventDetail.recordUrl.length > 0 ? (
-                <View className="w-full">
-                  <VideoPlayer  onUnmountSignal={unmountSignal}  videoUrl={eventDetail.recordUrl} />
-                </View>
-              ) : (
-                <Image
-                  source={{ uri: eventDetail.imageUrl }}
-                  className="w-full h-72"
-                />
-              )}
-
-              <View className="p-2">
-                <Text className="font-bold text-xl">{eventDetail.title}</Text>
-                <Text className="ml-1">{eventDetail.description}</Text>
-
-                <View className="flex-row py-2">
-                  <Feather name="mic" size={24} color="black" />
-                  <Text className="font-semibold ml-1">
-                    {eventDetail.hostInfo.fullName}
-                  </Text>
-                </View>
-
-                <View className="flex-row  py-2 items-center">
-                  <AntDesign name="calendar" size={24} color="black" />
-                  <Text className="ml-1 font-semibold">
-                    {formatStartAtDisplay(eventDetail.startAtFormatted)}
-                  </Text>
-                </View>
-
-                <View className="flex-row pl-[1.5px] py-2 items-center">
-                  <AntDesign name="clockcircleo" size={21} color="black" />
-                  <Text className="font-semibold pl-[5px]">
-                    {formatDurationForString(eventDetail.durationsDisplay)}
-                  </Text>
-                </View>
-
-                <View className="flex-row pl-[1.5px] py-2 items-center">
-                  <Text className="font-semibold">Trạng thái:</Text>
-                  <View
-                    className={`ml-1 p-1 ${
-                      statusStyles[
-                        eventDetail.status.toUpperCase() as keyof typeof statusStyles
-                      ]?.textBackgroundColor
-                    } rounded-lg self-start`}
-                  >
-                    <Text
-                      className={`${
-                        statusStyles[
-                          eventDetail.status.toUpperCase() as keyof typeof statusStyles
-                        ]?.textColor
-                      } font-semibold`}
+                    <Pressable
+                        className="w-10 h-10 items-center justify-center rounded-full bg-white/20"
+                        onPress={() =>
+                            router.push("/(root)/notifications/notifications")
+                        }
                     >
-                      {eventDetail.status.toUpperCase() == "OPENING" &&
-                      isClosed(
-                        formatStartAt(eventDetail.startedAt),
-                        eventDetail.durations
-                      )
-                        ? "Đã kết thúc"
-                        : statusStyles[
-                            eventDetail.status.toUpperCase() as keyof typeof statusStyles
-                          ]?.text}
-                    </Text>
-                  </View>
+                        <MaterialIcons
+                            name="notifications-none"
+                            size={22}
+                            color="white"
+                        />
+                    </Pressable>
                 </View>
-              </View>
-            </View>
-          ) : (
-            <Text>Không có thông tin sự kiện</Text>
-          )}
+            </LinearGradient>
+
+            <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+                {/* Video or Image Section */}
+                <View>
+                    {eventDetail.recordUrl &&
+                    eventDetail.recordUrl.length > 0 ? (
+                        <View className="w-full">
+                            <VideoPlayer
+                                onUnmountSignal={unmountSignal}
+                                videoUrl={eventDetail.recordUrl}
+                            />
+                        </View>
+                    ) : (
+                        <Image
+                            source={{ uri: eventDetail.imageUrl }}
+                            className="w-full h-64"
+                            style={{ resizeMode: "cover" }}
+                        />
+                    )}
+
+                    {/* Status Badge */}
+                    <View
+                        className={`absolute top-3 right-3 ${
+                            getEventStatus()?.bgColor
+                        } px-3 py-1.5 rounded-full`}
+                    >
+                        <Text
+                            className={`${
+                                getEventStatus()?.textColor
+                            } text-xs font-medium`}
+                        >
+                            {getEventStatus()?.text}
+                        </Text>
+                    </View>
+                </View>
+
+                {/* Content Section */}
+                <View className="bg-white rounded-t-3xl -mt-5 px-5 pt-6 pb-2">
+                    <Text className="font-bold text-gray-900 text-xl mb-2">
+                        {eventDetail.title}
+                    </Text>
+
+                    <Text className="text-gray-600 mb-5">
+                        {eventDetail.description}
+                    </Text>
+
+                    {/* Event Info */}
+                    <View className="mb-5 p-4 bg-blue-50 rounded-xl">
+                        <View className="space-y-3">
+                            <View className="flex-row items-center">
+                                <View className="w-8 h-8 rounded-full bg-blue-100 items-center justify-center">
+                                    <Feather
+                                        name="mic"
+                                        size={16}
+                                        color="#3b82f6"
+                                    />
+                                </View>
+                                <Text className="text-gray-800 font-medium ml-3">
+                                    {eventDetail.hostInfo.fullName}
+                                </Text>
+                            </View>
+
+                            <View className="flex-row items-center">
+                                <View className="w-8 h-8 rounded-full bg-blue-100 items-center justify-center">
+                                    <AntDesign
+                                        name="calendar"
+                                        size={16}
+                                        color="#3b82f6"
+                                    />
+                                </View>
+                                <Text className="text-gray-800 ml-3">
+                                    {formatStartAtDisplay(
+                                        eventDetail.startAtFormatted
+                                    )}
+                                </Text>
+                            </View>
+
+                            <View className="flex-row items-center">
+                                <View className="w-8 h-8 rounded-full bg-blue-100 items-center justify-center">
+                                    <AntDesign
+                                        name="clockcircleo"
+                                        size={16}
+                                        color="#3b82f6"
+                                    />
+                                </View>
+                                <Text className="text-gray-800 ml-3">
+                                    {formatDurationForString(
+                                        eventDetail.durationsDisplay
+                                    )}
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+
+                    {/* Content */}
+                    <View className="mb-6">
+                        <Text className="font-bold text-gray-900 text-lg mb-3">
+                            Nội dung sự kiện
+                        </Text>
+                        <WebView
+                            source={{ html: htmlContent }}
+                            style={{
+                                height: webViewHeight,
+                                backgroundColor: "transparent",
+                            }}
+                            scrollEnabled={false}
+                            showsVerticalScrollIndicator={false}
+                            scalesPageToFit={false}
+                            onMessage={(event) => {
+                                setWebViewHeight(
+                                    parseInt(event.nativeEvent.data)
+                                );
+                            }}
+                        />
+                    </View>
+                </View>
+            </ScrollView>
         </View>
-        <View className="flex-1 p-2">
-          <Text className="font-semibold ml-1">Trạng thái:</Text>
-          <View className="mt-4">
-            <WebView
-              source={{ html: htmlContent }}
-              style={{ height: webViewHeight }}
-              scrollEnabled={false}
-              showsVerticalScrollIndicator={false}
-              scalesPageToFit={false}
-              onMessage={(event) => {
-                setWebViewHeight(parseInt(event.nativeEvent.data));
-              }}
-            />
-          </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
+    );
 }
