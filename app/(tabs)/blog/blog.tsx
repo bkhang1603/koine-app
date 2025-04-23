@@ -92,7 +92,10 @@ export default function BlogScreen() {
 
                         <View className="flex-row">
                             <View className="mr-2">
-                                <CartButton />
+                                <CartButton
+                                    bgColor="bg-white/20"
+                                    iconColor="white"
+                                />
                             </View>
                             <Pressable
                                 className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
@@ -260,7 +263,14 @@ export default function BlogScreen() {
                                     </View>
 
                                     {/* Read More Button */}
-                                    <Pressable className="mt-4 border border-blue-500 rounded-full py-2.5 flex-row justify-center items-center">
+                                    <Pressable
+                                        className="mt-4 border border-blue-500 rounded-full py-2.5 flex-row justify-center items-center"
+                                        onPress={() =>
+                                            router.push(
+                                                `/blog/${featuredPost.id}` as any
+                                            )
+                                        }
+                                    >
                                         <Text className="text-blue-500 font-medium text-sm">
                                             Đọc tiếp
                                         </Text>

@@ -1,4 +1,4 @@
 export const WHEREBY_API_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmFwcGVhci5pbiIsImF1ZCI6Imh0dHBzOi8vYXBpLmFwcGVhci5pbi92MSIsImV4cCI6OTAwNzE5OTI1NDc0MDk5MSwiaWF0IjoxNzQyMzEyOTg3LCJvcmdhbml6YXRpb25JZCI6MzEyNzU3LCJqdGkiOiI4Y2FhY2VkMi04YjcyLTQzOTctYjJiNi0zN2JhYzgyOTdlM2EifQ.sM_8dW4ZFJiflG41wSAxLgKTWvFo1FKmOAPxMi7504M";
-export const LOCAL_HOST = "http://192.168.1.8:8080";
+export const LOCAL_HOST = "http://192.168.1.12:8080";
 export const DEPLOY_HOST = "https://koinebackend.site";

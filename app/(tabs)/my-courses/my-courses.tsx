@@ -10,274 +10,408 @@ import { useMyCourse } from "@/queries/useUser";
 import CartButton from "@/components/CartButton";
 import { useFocusEffect } from "expo-router";
 import formatDuration from "@/util/formatDuration";
+import { StatusBar } from "expo-status-bar";
+import { LinearGradient } from "expo-linear-gradient";
 
 const STATUS_FILTERS = [
-  { id: "all", label: "Tất cả" },
-  { id: "PROCESSING", label: "Đang học" },
-  { id: "PENDING", label: "Chưa học" },
-  { id: "COMPLETED", label: "Hoàn thành" },
+    { id: "all", label: "Tất cả" },
+    { id: "PROCESSING", label: "Đang học" },
+    { id: "PENDING", label: "Chưa học" },
+    { id: "COMPLETED", label: "Hoàn thành" },
 ] as const;
 
 export default function MyCoursesScreen() {
-  const accessToken = useAppStore((state) => state.accessToken);
-  const token = accessToken == undefined ? "" : accessToken.accessToken;
-  const [selectedStatus, setSelectedStatus] = useState<
-    "all" | "COMPLETED" | "PROCESSING" | "PENDING"
-  >("all");
-  const {
-    data: myCourseData,
-    isLoading: myCourseLoading,
-    isError: myCourseError,
-    refetch,
-  } = useMyCourse({
-    token: token as string,
-  });
+    const accessToken = useAppStore((state) => state.accessToken);
+    const token = accessToken == undefined ? "" : accessToken.accessToken;
+    const [selectedStatus, setSelectedStatus] = useState<
+        "all" | "COMPLETED" | "PROCESSING" | "PENDING"
+    >("all");
+    const {
+        data: myCourseData,
+        isLoading: myCourseLoading,
+        isError: myCourseError,
+        refetch,
+    } = useMyCourse({
+        token: token as string,
+    });
 
-  useFocusEffect(() => {
-    refetch();
-  });
+    const profile = useAppStore((state) => state.profile);
+    const firstName = profile?.data.firstName || "User";
+    const firstName_Initial = firstName
+        ? firstName.charAt(0).toUpperCase()
+        : "K";
 
-  let myCourse: GetMyCoursesResType["data"] = [];
+    useFocusEffect(() => {
+        refetch();
+    });
 
-  if (myCourseData && !myCourseError) {
-    if (myCourseData.data.length === 0) {
-    } else {
-      const parsedResult = myCourseRes.safeParse(myCourseData);
-      if (parsedResult.success) {
-        myCourse = parsedResult.data.data;
-      } else {
-        console.error("Validation errors:", parsedResult.error.errors);
-      }
-    }
-  }
+    let myCourse: GetMyCoursesResType["data"] = [];
 
-  if (myCourseLoading) return <ActivityIndicatorScreen />;
-  if (myCourseError)
-    return (
-      // <ErrorScreen message="Lỗi khi tải dữ liệu khóa học" />
-      console.log("Lỗi khi tải dữ liệu khóa học")
-    );
-
-  if (myCourse.length == 0) {
-    return (
-      <SafeAreaView className="flex-1 bg-white">
-        <View className="flex-1 ">
-          <View className="px-4 flex-row items-center justify-between mt-3">
-            <View>
-              <Text className="text-2xl font-bold">Khóa học của tôi</Text>
-              <Text className="text-gray-600 mt-1">Tiếp tục học tập nào!</Text>
-            </View>
-            <View className="flex-row items-center">
-              <CartButton />
-              <Pressable
-                className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 ml-2"
-                onPress={() =>
-                  router.push("/(root)/notifications/notifications")
-                }
-              >
-                <MaterialIcons name="notifications" size={24} color="#374151" />
-              </Pressable>
-            </View>
-          </View>
-          <View className="flex-1 items-center justify-center p-4">
-            <MaterialIcons name="school" size={64} color="#9CA3AF" />
-            <Text className="text-gray-500 text-lg mt-4 text-center">
-              Bạn chưa đăng kí khóa học nào?
-            </Text>
-            <Pressable
-              className="mt-4 bg-blue-500 px-6 py-3 rounded-xl"
-              onPress={() => router.push("/(tabs)/home")}
-            >
-              <Text className="text-white font-bold">Mua/Đăng kí ngay!</Text>
-            </Pressable>
-          </View>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  const filteredCourses = myCourse.filter((course) => {
-    // Quy đổi completionRate thành trạng thái
-    let courseStatus = "PENDING"; // Mặc định là PENDING
-    if (course.completionRate === null || course.completionRate === 0) {
-      courseStatus = "PENDING";
-    } else if (course.completionRate >= 1 && course.completionRate <= 99) {
-      courseStatus = "PROCESSING";
-    } else if (course.completionRate === 100) {
-      courseStatus = "COMPLETED";
+    if (myCourseData && !myCourseError) {
+        if (myCourseData.data.length === 0) {
+        } else {
+            const parsedResult = myCourseRes.safeParse(myCourseData);
+            if (parsedResult.success) {
+                myCourse = parsedResult.data.data;
+            } else {
+                console.error("Validation errors:", parsedResult.error.errors);
+            }
+        }
     }
 
-    // Kiểm tra điều kiện lọc
-    return selectedStatus === "all" || courseStatus === selectedStatus;
-  });
+    if (myCourseLoading) return <ActivityIndicatorScreen />;
+    if (myCourseError)
+        return (
+            // <ErrorScreen message="Lỗi khi tải dữ liệu khóa học" />
+            console.log("Lỗi khi tải dữ liệu khóa học")
+        );
 
-  return (
-    <ScrollView className="flex-1 pt-4 bg-white">
-      <SafeAreaView>
-        <View className="px-4 flex-row items-center justify-between">
-          <View>
-            <Text className="text-2xl font-bold">Khóa học của tôi</Text>
-            <Text className="text-gray-600 mt-1">Tiếp tục học tập nào!</Text>
-          </View>
-          <View className="flex-row items-center">
-            <CartButton />
-            <Pressable
-              className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 ml-2"
-              onPress={() => router.push("/notifications/notifications")}
-            >
-              <MaterialIcons name="notifications" size={24} color="#374151" />
-            </Pressable>
-          </View>
-        </View>
+    if (myCourse.length == 0) {
+        return (
+            <View className="flex-1 bg-[#f5f7f9]">
+                <StatusBar style="dark" />
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    {/* Header Section - Modern Gradient */}
+                    <LinearGradient
+                        colors={["#3b82f6", "#1d4ed8"]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        className="pt-14 pb-8 px-5"
+                    >
+                        <View className="flex-row items-center justify-between mb-6">
+                            <View className="flex-row items-center">
+                                <View className="w-12 h-12 rounded-full bg-white/20 items-center justify-center mr-3">
+                                    <Text className="text-white text-lg font-bold">
+                                        {firstName_Initial}
+                                    </Text>
+                                </View>
+                                <View>
+                                    <Text className="text-white/80 text-sm font-medium">
+                                        Khoá học
+                                    </Text>
+                                    <Text className="text-white text-lg font-bold">
+                                        Khóa học của tôi
+                                    </Text>
+                                </View>
+                            </View>
+                            <View className="flex-row items-center">
+                                <CartButton
+                                    bgColor="bg-white/20"
+                                    iconColor="white"
+                                />
+                                <Pressable
+                                    className="w-10 h-10 items-center justify-center rounded-full bg-white/20 ml-2"
+                                    onPress={() =>
+                                        router.push(
+                                            "/(root)/notifications/notifications"
+                                        )
+                                    }
+                                >
+                                    <MaterialIcons
+                                        name="notifications-none"
+                                        size={22}
+                                        color="white"
+                                    />
+                                </Pressable>
+                            </View>
+                        </View>
+                        <Pressable
+                            className="flex-row items-center bg-white/20 rounded-xl p-3.5 mt-2"
+                            onPress={() => router.push("/search/searchCourse")}
+                        >
+                            <MaterialIcons
+                                name="search"
+                                size={20}
+                                color="white"
+                            />
+                            <Text className="ml-2 text-white/80 flex-1">
+                                Tìm kiếm khóa học...
+                            </Text>
+                        </Pressable>
+                    </LinearGradient>
 
-        {/* filter */}
-        <ScrollView
-          className="px-4 pt-6"
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingRight: 20 }}
-        >
-          {STATUS_FILTERS.map((filter) => (
-            <Pressable
-              key={filter.id}
-              className={`px-4 py-2 rounded-full mr-2 ${
-                selectedStatus === filter.id ? "bg-blue-500" : "bg-gray-100"
-              }`}
-              onPress={() => setSelectedStatus(filter.id)}
-            >
-              <Text
-                className={
-                  selectedStatus === filter.id
-                    ? "text-white font-medium"
-                    : "text-gray-600"
-                }
-              >
-                {filter.label}
-              </Text>
-            </Pressable>
-          ))}
-        </ScrollView>
-
-        <View className="px-4 pt-6">
-          {filteredCourses.map((course) => {
-            return (
-              <View
-                key={course.id}
-                className="bg-white rounded-2xl mb-6 border border-gray-100 shadow-sm overflow-hidden"
-              >
-                {/* Course Thumbnail */}
-                <Image
-                  source={{ uri: course.imageUrl }}
-                  className="w-full h-40"
-                  resizeMode="cover"
-                />
-
-                {/* Course Info */}
-                <View className="p-4">
-                  <View className="flex-row flex-wrap gap-2 mb-1">
-                    {course.categories.map((category) => (
-                      <View
-                        key={category.id}
-                        className="bg-blue-50 px-3 py-1 rounded-full"
-                      >
-                        <Text className="text-blue-600 text-xs font-medium">
-                          {category.name}
+                    <View className="flex-1 items-center justify-center p-4 mt-8">
+                        <MaterialIcons
+                            name="school"
+                            size={64}
+                            color="#9CA3AF"
+                        />
+                        <Text className="text-gray-500 text-lg mt-4 text-center">
+                            Bạn chưa đăng kí khóa học nào?
                         </Text>
-                      </View>
+                        <Pressable
+                            className="mt-4 bg-blue-500 px-6 py-3 rounded-xl"
+                            onPress={() => router.push("/(tabs)/home")}
+                        >
+                            <Text className="text-white font-bold">
+                                Mua/Đăng kí ngay!
+                            </Text>
+                        </Pressable>
+                    </View>
+                </ScrollView>
+            </View>
+        );
+    }
+
+    const filteredCourses = myCourse.filter((course) => {
+        // Quy đổi completionRate thành trạng thái
+        let courseStatus = "PENDING"; // Mặc định là PENDING
+        if (course.completionRate === null || course.completionRate === 0) {
+            courseStatus = "PENDING";
+        } else if (course.completionRate >= 1 && course.completionRate <= 99) {
+            courseStatus = "PROCESSING";
+        } else if (course.completionRate === 100) {
+            courseStatus = "COMPLETED";
+        }
+
+        // Kiểm tra điều kiện lọc
+        return selectedStatus === "all" || courseStatus === selectedStatus;
+    });
+
+    return (
+        <View className="flex-1 bg-[#f5f7f9]">
+            <StatusBar style="dark" />
+            <ScrollView showsVerticalScrollIndicator={false}>
+                {/* Header Section - Modern Gradient */}
+                <LinearGradient
+                    colors={["#3b82f6", "#1d4ed8"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    className="pt-14 pb-8 px-5"
+                >
+                    <View className="flex-row items-center justify-between mb-6">
+                        <View className="flex-row items-center">
+                            <View className="w-12 h-12 rounded-full bg-white/20 items-center justify-center mr-3">
+                                <Text className="text-white text-lg font-bold">
+                                    {firstName_Initial}
+                                </Text>
+                            </View>
+                            <View>
+                                <Text className="text-white/80 text-sm font-medium">
+                                    Khoá học
+                                </Text>
+                                <Text className="text-white text-lg font-bold">
+                                    Khóa học của tôi
+                                </Text>
+                            </View>
+                        </View>
+                        <View className="flex-row items-center">
+                            <CartButton
+                                bgColor="bg-white/20"
+                                iconColor="white"
+                            />
+                            <Pressable
+                                className="w-10 h-10 items-center justify-center rounded-full bg-white/20 ml-2"
+                                onPress={() =>
+                                    router.push(
+                                        "/(root)/notifications/notifications"
+                                    )
+                                }
+                            >
+                                <MaterialIcons
+                                    name="notifications-none"
+                                    size={22}
+                                    color="white"
+                                />
+                            </Pressable>
+                        </View>
+                    </View>
+                    <Pressable
+                        className="flex-row items-center bg-white/20 rounded-xl p-3.5 mt-2"
+                        onPress={() => router.push("/search/searchCourse")}
+                    >
+                        <MaterialIcons name="search" size={20} color="white" />
+                        <Text className="ml-2 text-white/80 flex-1">
+                            Tìm kiếm khóa học...
+                        </Text>
+                    </Pressable>
+                </LinearGradient>
+
+                {/* filter */}
+                <ScrollView
+                    className="px-4 pt-6"
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingRight: 20 }}
+                >
+                    {STATUS_FILTERS.map((filter) => (
+                        <Pressable
+                            key={filter.id}
+                            className={`px-4 py-2 rounded-xl mr-2 ${
+                                selectedStatus === filter.id
+                                    ? "bg-blue-500"
+                                    : "bg-white border border-gray-200"
+                            }`}
+                            onPress={() => setSelectedStatus(filter.id)}
+                        >
+                            <Text
+                                className={
+                                    selectedStatus === filter.id
+                                        ? "text-white font-medium"
+                                        : "text-gray-600"
+                                }
+                            >
+                                {filter.label}
+                            </Text>
+                        </Pressable>
                     ))}
-                  </View>
-                  <View className="flex-row justify-between items-start">
-                    <View className="flex-1">
-                      <Text className="font-bold text-lg">{course.title}</Text>
-                      <Text className="text-gray-600 mt-1">
-                        {course.description.length > 50
-                          ? course.description.substring(0, 100) + "..."
-                          : course.description}
-                      </Text>
-                    </View>
-                  </View>
+                </ScrollView>
 
-                  {/* Course Details */}
-                  <View className="mt-4 ">
-                    <Text className="text-gray-600">
-                      Thời gian học:
-                      {(() => {
-                        const duration = course.durationDisplay;
-                        const hours = parseInt(duration.split("h")[0]) || 0;
-                        const minutes =
-                          parseInt(duration.split("h")[1].replace("p", "")) ||
-                          0;
+                <View className="px-4 pt-6">
+                    {filteredCourses.map((course) => {
+                        return (
+                            <View
+                                key={course.id}
+                                className="bg-white rounded-2xl mb-6 border border-gray-100 shadow-sm overflow-hidden"
+                            >
+                                {/* Course Thumbnail */}
+                                <Image
+                                    source={{ uri: course.imageUrl }}
+                                    className="w-full h-40"
+                                    resizeMode="cover"
+                                />
 
-                        const totalMinutes = hours * 60 + minutes;
-                        const learnedMinutes = Math.round(
-                          (totalMinutes * (course.completionRate || 0)) / 100
+                                {/* Course Info */}
+                                <View className="p-4">
+                                    <View className="flex-row flex-wrap gap-2 mb-1">
+                                        {course.categories.map((category) => (
+                                            <View
+                                                key={category.id}
+                                                className="bg-blue-50 px-3 py-1 rounded-full"
+                                            >
+                                                <Text className="text-blue-600 text-xs font-medium">
+                                                    {category.name}
+                                                </Text>
+                                            </View>
+                                        ))}
+                                    </View>
+                                    <View className="flex-row justify-between items-start">
+                                        <View className="flex-1">
+                                            <Text className="font-bold text-lg">
+                                                {course.title}
+                                            </Text>
+                                            <Text className="text-gray-600 mt-1">
+                                                {course.description.length > 50
+                                                    ? course.description.substring(
+                                                          0,
+                                                          100
+                                                      ) + "..."
+                                                    : course.description}
+                                            </Text>
+                                        </View>
+                                    </View>
+
+                                    {/* Course Details */}
+                                    <View className="mt-4 ">
+                                        <Text className="text-gray-600">
+                                            Thời gian học:
+                                            {(() => {
+                                                const duration =
+                                                    course.durationDisplay;
+                                                const hours =
+                                                    parseInt(
+                                                        duration.split("h")[0]
+                                                    ) || 0;
+                                                const minutes =
+                                                    parseInt(
+                                                        duration
+                                                            .split("h")[1]
+                                                            .replace("p", "")
+                                                    ) || 0;
+
+                                                const totalMinutes =
+                                                    hours * 60 + minutes;
+                                                const learnedMinutes =
+                                                    Math.round(
+                                                        (totalMinutes *
+                                                            (course.completionRate ||
+                                                                0)) /
+                                                            100
+                                                    );
+                                                const learnedHours = Math.floor(
+                                                    learnedMinutes / 60
+                                                );
+                                                const remainingMinutes =
+                                                    learnedMinutes % 60;
+
+                                                let learned = "";
+                                                if (learnedHours > 0) {
+                                                    learned += `${learnedHours} giờ `;
+                                                }
+                                                if (
+                                                    remainingMinutes > 0 ||
+                                                    learned === ""
+                                                ) {
+                                                    learned += `${remainingMinutes} phút`;
+                                                }
+                                                if (learned === "")
+                                                    learned = "0 phút";
+
+                                                return ` ${learned} / ${formatDuration(
+                                                    course.durationDisplay
+                                                )}`;
+                                            })()}
+                                        </Text>
+                                    </View>
+                                    <Text className="text-gray-600">
+                                        Tác giả: {course.author}
+                                    </Text>
+
+                                    {/* Progress Bar */}
+                                    <View className="mt-4">
+                                        <View className="bg-gray-200 h-2 rounded-full overflow-hidden">
+                                            <View
+                                                className={`h-full rounded-full ${
+                                                    course.completionRate ===
+                                                    100
+                                                        ? "bg-green-500"
+                                                        : "bg-blue-500"
+                                                }`}
+                                                style={{
+                                                    width: `${Math.max(
+                                                        2,
+                                                        course.completionRate ||
+                                                            0
+                                                    )}%`,
+                                                    opacity:
+                                                        course.completionRate ===
+                                                        0
+                                                            ? 0.5
+                                                            : 1,
+                                                }}
+                                            />
+                                        </View>
+                                        <Text className="text-gray-600 mt-2">
+                                            {course.completionRate || 0}% hoàn
+                                            thành
+                                        </Text>
+                                    </View>
+
+                                    {/* Continue Button */}
+                                    <Pressable
+                                        className="bg-blue-500 p-3 rounded-xl mt-4 flex-row items-center justify-center"
+                                        onPress={() =>
+                                            router.push({
+                                                pathname:
+                                                    "/learn/course/[courseId]" as any,
+                                                params: { courseId: course.id },
+                                            })
+                                        }
+                                    >
+                                        <Text className="text-white font-bold">
+                                            {course.completionRate == null ||
+                                            course.completionRate == 0
+                                                ? "Bắt đầu học"
+                                                : "Tiếp tục học"}
+                                        </Text>
+                                    </Pressable>
+                                </View>
+                            </View>
                         );
-                        const learnedHours = Math.floor(learnedMinutes / 60);
-                        const remainingMinutes = learnedMinutes % 60;
-
-                        let learned = "";
-                        if (learnedHours > 0) {
-                          learned += `${learnedHours} giờ `;
-                        }
-                        if (remainingMinutes > 0 || learned === "") {
-                          learned += `${remainingMinutes} phút`;
-                        }
-                        if (learned === "") learned = "0 phút";
-
-                        return ` ${learned} / ${formatDuration(
-                          course.durationDisplay
-                        )}`;
-                      })()}
-                    </Text>
-                  </View>
-                  <Text className="text-gray-600">
-                    Tác giả: {course.author}
-                  </Text>
-
-                  {/* Progress Bar */}
-                  <View className="mt-4">
-                    <View className="bg-gray-200 h-2 rounded-full overflow-hidden">
-                      <View
-                        className={`h-full rounded-full ${
-                          course.completionRate === 100
-                            ? "bg-green-500"
-                            : "bg-blue-500"
-                        }`}
-                        style={{
-                          width: `${Math.max(2, course.completionRate || 0)}%`,
-                          opacity: course.completionRate === 0 ? 0.5 : 1,
-                        }}
-                      />
-                    </View>
-                    <Text className="text-gray-600 mt-2">
-                      {course.completionRate || 0}% hoàn thành
-                    </Text>
-                  </View>
-
-                  {/* Continue Button */}
-                  <Pressable
-                    className="bg-blue-500 p-3 rounded-xl mt-4 flex-row items-center justify-center"
-                    onPress={() =>
-                      router.push({
-                        pathname: "/learn/course/[courseId]" as any,
-                        params: { courseId: course.id },
-                      })
-                    }
-                  >
-                    <Text className="text-white font-bold">
-                      {course.completionRate == null ||
-                      course.completionRate == 0
-                        ? "Bắt đầu học"
-                        : "Tiếp tục học"}
-                    </Text>
-                  </Pressable>
+                    })}
                 </View>
-              </View>
-            );
-          })}
+                <View className="h-20"></View>
+            </ScrollView>
         </View>
-        <View className="h-20"></View>
-      </SafeAreaView>
-    </ScrollView>
-  );
+    );
 }

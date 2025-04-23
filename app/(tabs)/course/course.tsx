@@ -67,7 +67,10 @@ export default function CourseScreen() {
 
                             <View className="flex-row">
                                 <View className="mr-2">
-                                    <CartButton />
+                                    <CartButton
+                                        bgColor="bg-white/20"
+                                        iconColor="white"
+                                    />
                                 </View>
                                 <Pressable
                                     className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
@@ -169,7 +172,10 @@ export default function CourseScreen() {
 
                         <View className="flex-row">
                             <View className="mr-2">
-                                <CartButton />
+                                <CartButton
+                                    bgColor="bg-white/20"
+                                    iconColor="white"
+                                />
                             </View>
                             <Pressable
                                 className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"

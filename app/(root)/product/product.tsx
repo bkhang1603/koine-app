@@ -1,386 +1,602 @@
-import React from "react";
-import { View, Text, ScrollView, Pressable, Image } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
-import HeaderWithBack from "@/components/HeaderWithBack";
+import React, { useState } from "react";
+import { View, Text, ScrollView, Pressable, Image, Modal } from "react-native";
+import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GetAllProductResType, productRes } from "@/schema/product-schema";
 import CartButton from "@/components/CartButton";
 import { Foundation, MaterialIcons } from "@expo/vector-icons";
 import { useAllProduct } from "@/queries/useProduct";
 import { useAppStore } from "@/components/app-provider";
-import { useFocusEffect } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
+import HeaderWithBack from "@/components/HeaderWithBack";
+import { LinearGradient } from "expo-linear-gradient";
+
+// Menu options giống như trong HeaderWithBack
+const MENU_OPTIONS = [
+    {
+        id: "home",
+        title: "Trang chủ",
+        icon: "home",
+        route: "/(tabs)/home",
+    },
+    {
+        id: "courses",
+        title: "Khóa học",
+        icon: "menu-book",
+        route: "/(tabs)/course/course",
+    },
+    {
+        id: "my-courses",
+        title: "Khóa học của tôi",
+        icon: "school",
+        route: "/(tabs)/my-courses/my-courses",
+    },
+    {
+        id: "profile",
+        title: "Tài khoản",
+        icon: "person",
+        route: "/(tabs)/profile/profile",
+    },
+    {
+        id: "blog",
+        title: "Blog",
+        icon: "article",
+        route: "/(tabs)/blog/blog",
+    },
+];
 
 export default function ProductsScreen() {
-  const accessToken = useAppStore((state) => state.accessToken);
-  const token = accessToken == undefined ? "" : accessToken.accessToken;
-  const insets = useSafeAreaInsets();
-  const {
-    data: productListData,
-    isLoading: productListDataLoading,
-    isError: productListDataError,
-    refetch: refetchProductList,
-  } = useAllProduct({
-    token: token as string,
-  });
+    const accessToken = useAppStore((state) => state.accessToken);
+    const token = accessToken == undefined ? "" : accessToken.accessToken;
+    const insets = useSafeAreaInsets();
+    const [showMenu, setShowMenu] = useState(false);
 
-  useFocusEffect(() => {
-    refetchProductList();
-  });
+    const profile = useAppStore((state) => state.profile);
+    const firstName = profile?.data.firstName || "User";
+    const firstName_Initial = firstName
+        ? firstName.charAt(0).toUpperCase()
+        : "K";
 
-  if (!productListData || productListDataLoading) {
-    return (
-      <View className="flex-1 bg-white">
-        <HeaderWithBack
-          title="Danh sách sản phẩm"
-          returnTab={"/(tabs)/home"}
-          showMoreOptions={false}
-        />
-        <View className="flex-1 items-center justify-center p-4">
-          <MaterialIcons name="shopping-cart" size={34} color="#9CA3AF" />
-          <Text className="text-gray-500 text-lg mt-4 text-center">
-            Danh sách sản phẩm trống
-          </Text>
-        </View>
-      </View>
-    );
-  }
+    const {
+        data: productListData,
+        isLoading: productListDataLoading,
+        isError: productListDataError,
+        refetch: refetchProductList,
+    } = useAllProduct({
+        token: token as string,
+    });
 
-  let parsedProductList: GetAllProductResType["data"] = [];
+    useFocusEffect(() => {
+        refetchProductList();
+    });
 
-  const result = productRes.safeParse(productListData);
-  if (result.success) {
-    parsedProductList = result.data.data;
-  } else {
-    console.error("My course validation errors:", result.error.errors);
-  }
+    if (productListDataLoading) {
+        return <ActivityIndicatorScreen />;
+    }
 
-  return (
-    <View className="flex-1 bg-white">
-      {parsedProductList.length == 0 ? (
-        <View className="flex-1 bg-white">
-          <HeaderWithBack
-            title="Danh sách sản phẩm"
-            returnTab={"/(tabs)/home"}
-            showMoreOptions={false}
-          />
-          <View className="flex-1 items-center justify-center p-4">
-            <MaterialIcons name="shopping-cart" size={34} color="#9CA3AF" />
-            <Text className="text-gray-500 text-lg mt-4 text-center">
-              Danh sách sản phẩm trống
-            </Text>
-          </View>
-        </View>
-      ) : (
-        <SafeAreaView className="flex-1 bg-white">
-          {/* Header */}
-          <View className="px-4 mt-2 flex-row items-center justify-between">
-            <View>
-              <Text className="text-2xl font-bold">Sản phẩm</Text>
-              <Text className="text-gray-600 mt-1">Khám phá các sản phẩm</Text>
-            </View>
+    let parsedProductList: GetAllProductResType["data"] = [];
 
-            <View
-              style={{ paddingTop: insets.top }}
-              className="absolute top-0 left-0 right-0 z-10"
-            >
-              <View className="px-4 py-3 flex-row items-center justify-between">
-                <Pressable
-                  onPress={() => router.push("/(tabs)/home")}
-                  className="w-10 h-10 bg-black/30 rounded-full items-center justify-center ml-2"
+    if (productListData) {
+        const result = productRes.safeParse(productListData);
+        if (result.success) {
+            parsedProductList = result.data.data;
+        } else {
+            console.error("Product validation errors:", result.error.errors);
+        }
+    }
+
+    // Màn hình khi không có sản phẩm
+    if (!parsedProductList || parsedProductList.length === 0) {
+        return (
+            <View className="flex-1 bg-[#f5f7f9]">
+                <StatusBar style="dark" />
+
+                {/* Custom Gradient Header with Back Button and More Options */}
+                <LinearGradient
+                    colors={["#3b82f6", "#1d4ed8"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    className="pt-14 pb-6 px-5"
                 >
-                  <MaterialIcons name="arrow-back" size={24} color="white" />
-                </Pressable>
+                    <View className="flex-row items-center justify-between">
+                        <View className="flex-row items-center">
+                            <Pressable
+                                onPress={() =>
+                                    router.push("/(tabs)/profile/profile")
+                                }
+                                className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
+                            >
+                                <MaterialIcons
+                                    name="arrow-back"
+                                    size={22}
+                                    color="white"
+                                />
+                            </Pressable>
+                            <Text className="text-white text-lg font-bold ml-4">
+                                Danh sách sản phẩm
+                            </Text>
+                        </View>
 
-                <View className="flex-row items-center">
-                  <CartButton
-                    bgColor="bg-black/30"
-                    iconColor="white"
-                  ></CartButton>
-                  <Pressable
-                    className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2"
-                    onPress={() => router.push("/(root)/notifications/notifications")}
-                  >
+                        <View className="flex-row items-center">
+                            <Pressable
+                                className="w-10 h-10 items-center justify-center rounded-full bg-white/20 mr-2"
+                                onPress={() =>
+                                    router.push(
+                                        "/(root)/notifications/notifications"
+                                    )
+                                }
+                            >
+                                <MaterialIcons
+                                    name="notifications-none"
+                                    size={22}
+                                    color="white"
+                                />
+                            </Pressable>
+
+                            <Pressable
+                                className="w-10 h-10 items-center justify-center rounded-full bg-white/20"
+                                onPress={() => setShowMenu(true)}
+                            >
+                                <MaterialIcons
+                                    name="more-vert"
+                                    size={22}
+                                    color="white"
+                                />
+                            </Pressable>
+                        </View>
+                    </View>
+                </LinearGradient>
+
+                <View className="flex-1 items-center justify-center p-4">
                     <MaterialIcons
-                      name="notifications"
-                      size={24}
-                      color="white"
+                        name="shopping-cart"
+                        size={64}
+                        color="#9CA3AF"
                     />
-                  </Pressable>
-                </View>
-              </View>
-            </View>
-          </View>
-
-          <ScrollView>
-            {/* Search Bar */}
-            <Pressable
-              className="mx-4 mt-4 flex-row items-center bg-gray-100 rounded-xl p-3"
-              onPress={() => {
-                router.push("/search/searchProduct");
-              }}
-            >
-              <MaterialIcons name="search" size={24} color="#6B7280" />
-              <Text className="ml-2 text-gray-500 flex-1">
-                Tìm kiếm sản phẩm...
-              </Text>
-            </Pressable>
-
-            {/* Featured Course */}
-            {parsedProductList && (
-              <View className="p-4">
-                <Text className="text-lg font-bold mb-3">Nổi bật</Text>
-                <Pressable
-                  className="bg-white rounded-2xl overflow-hidden"
-                  style={{
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.05,
-                    shadowRadius: 4,
-                    elevation: 3,
-                  }}
-                  onPress={() => {
-                    const productDetail = JSON.stringify(parsedProductList[0]);
-                    router.push({
-                      pathname: "/product/[id]",
-                      params: {
-                        id: parsedProductList[0].id,
-                        productDetail: productDetail,
-                      },
-                    });
-                  }}
-                >
-                  <Image
-                    source={{ uri: parsedProductList[0].images[0].imageUrl }}
-                    className="w-full h-48"
-                  />
-                  <View className="p-2">
-                    <View className="flex-row flex-wrap gap-1">
-                      {!parsedProductList[0].categories.length ? (
-                        <View className="bg-blue-50 px-3 py-1 rounded-full">
-                          <Text className="text-blue-600 text-xs font-medium">
-                            --
-                          </Text>
-                        </View>
-                      ) : (
-                        <View className="flex-row flex-wrap gap-1">
-                          {parsedProductList[0].categories
-                            .slice(0, 4)
-                            .map((category) => (
-                              <View
-                                key={category.id}
-                                className="bg-blue-50 px-3 py-1 rounded-full"
-                              >
-                                <Text className="text-blue-600 text-xs font-medium">
-                                  {category.name}
-                                </Text>
-                              </View>
-                            ))}
-                          {parsedProductList[0].categories.length > 4 && (
-                            <View className="bg-blue-50 px-3 py-1 rounded-full">
-                              <Text className="text-blue-600 text-xs font-medium">
-                                ...
-                              </Text>
-                            </View>
-                          )}
-                        </View>
-                      )}
-                    </View>
-                    <Text className="text-lg font-bold mt-2">
-                      {parsedProductList[0].name}
+                    <Text className="text-gray-500 text-lg mt-4 text-center">
+                        Danh sách sản phẩm trống
                     </Text>
-                    <Text className="text-gray-600 mt-1" numberOfLines={2}>
-                      {parsedProductList[0].description}
-                    </Text>
-                    <View className="flex-row items-center mt-3">
-                      <MaterialIcons
-                        name="schedule"
-                        size={16}
-                        color="#6B7280"
-                      />
-                      <Text className="text-gray-600 ml-1">
-                        {parsedProductList[0].createdAtFormatted.split("-")[1]}
-                      </Text>
-                    </View>
-                    <View className="flex-row items-center justify-between mt-3">
-                      <View className="flex-row items-center gap-2">
-                        <View className="flex-row items-center bg-yellow-50 px-2 py-1 rounded-full">
-                          <MaterialIcons
-                            name="star"
-                            size={14}
-                            color="#F59E0B"
-                          />
-                          <Text className="ml-1 text-sm font-medium text-yellow-600">
-                            {parsedProductList[0].averageRating == 0
-                              ? 5
-                              : parsedProductList[0].averageRating}
-                          </Text>
-                        </View>
-                        {parsedProductList[0] &&
-                        parsedProductList[0].discount != 0 ? (
-                          <View className="flex-row items-center bg-purple-50 px-2 py-1 rounded-full">
-                            <Foundation
-                              name="burst-sale"
-                              size={14}
-                              color="#8B5CF6"
-                            />
-
-                            <Text className="ml-1 text-sm font-medium text-purple-600">
-                              {parsedProductList[0].discount
-                                ? `${parsedProductList[0].discount * 100}%`
-                                : "0%"}
-                            </Text>
-                          </View>
-                        ) : (
-                          <></>
-                        )}
-                      </View>
-                      <Text
-                        className={`font-bold ${
-                          parsedProductList[0].price === 0
-                            ? "text-green-500"
-                            : "text-blue-500"
-                        }`}
-                      >
-                        {parsedProductList[0].price !== 0
-                          ? parsedProductList[0].price.toLocaleString("vi-VN") +
-                            " ₫"
-                          : "Miễn phí"}
-                      </Text>
-                    </View>
-                  </View>
-                </Pressable>
-              </View>
-            )}
-
-            {/* Product List */}
-            <View className="px-4">
-              <Text className="text-lg font-bold mb-4">Tất cả sản phẩm</Text>
-              {parsedProductList.map((product) => (
-                <Pressable
-                  key={product.id}
-                  className="bg-white rounded-2xl mb-4 overflow-hidden flex-row"
-                  style={{
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 8,
-                    elevation: 4,
-                  }}
-                  onPress={() => {
-                    const productDetail = JSON.stringify(product);
-                    router.push({
-                      pathname: "/product/[id]",
-                      params: { id: product.id, productDetail: productDetail },
-                    });
-                  }}
-                >
-                  <Image
-                    source={{ uri: product.images[0].imageUrl }}
-                    className="w-32 h-full rounded-l-2xl"
-                    style={{ resizeMode: "cover" }}
-                  />
-                  <View className="flex-1 p-2 justify-between">
-                    <View>
-                      <View className="flex-row items-center mb-1">
-                        <View className="flex-row flex-wrap gap-1">
-                          {!product.categories.length ? (
-                            <View className="bg-blue-50 px-1 py-1 rounded-full">
-                              <Text className="text-blue-600 text-xs font-medium">
-                                --
-                              </Text>
-                            </View>
-                          ) : (
-                            <View className="flex-row flex-wrap gap-1">
-                              {product.categories
-                                .slice(0, 2)
-                                .map((category) => (
-                                  <View
-                                    key={category.id}
-                                    className="bg-blue-50 px-2 py-1 rounded-full"
-                                  >
-                                    <Text className="text-blue-600 text-xs font-medium">
-                                      {category.name}
-                                    </Text>
-                                  </View>
-                                ))}
-                              {product.categories.length > 2 && (
-                                <View className="bg-blue-50 px-3 py-1 rounded-full">
-                                  <Text className="text-blue-600 text-xs font-medium">
-                                    ...
-                                  </Text>
-                                </View>
-                              )}
-                            </View>
-                          )}
-                        </View>
-                      </View>
-                      <Text className="font-bold text-base" numberOfLines={2}>
-                        {product.name.length > 20
-                          ? product.name.substring(0, 20) + "..."
-                          : product.name}
-                      </Text>
-                    </View>
-
-                    <View>
-                      <Text className="text-gray-600 mt-1" numberOfLines={2}>
-                        {parsedProductList[0].description}
-                      </Text>
-
-                      <View className="flex-row items-center justify-between mt-2">
-                        <View className="flex-row items-center gap-2">
-                          <View className="flex-row items-center bg-yellow-50 px-2 py-1 rounded-full">
-                            <MaterialIcons
-                              name="star"
-                              size={14}
-                              color="#F59E0B"
-                            />
-                            <Text className="ml-1 text-sm font-medium text-yellow-600">
-                              {product.averageRating == 0
-                                ? 5
-                                : product.averageRating}
-                            </Text>
-                          </View>
-                          {product && product.discount != 0 ? (
-                            <View className="flex-row items-center bg-purple-50 px-2 py-1 rounded-full">
-                              <Foundation
-                                name="burst-sale"
-                                size={14}
-                                color="#8B5CF6"
-                              />
-
-                              <Text className="ml-1 text-sm font-medium text-purple-600">
-                                {product.discount
-                                  ? `${product.discount * 100}%`
-                                  : "0%"}
-                              </Text>
-                            </View>
-                          ) : (
-                            <></>
-                          )}
-                        </View>
-                        <Text
-                          className={`font-bold ${
-                            product.price === 0
-                              ? "text-green-500"
-                              : "text-blue-500"
-                          }`}
-                        >
-                          {product.price !== 0
-                            ? product.price.toLocaleString("vi-VN") + " ₫"
-                            : "Miễn phí"}
+                    <Pressable
+                        className="mt-4 bg-blue-500 px-6 py-3 rounded-xl"
+                        onPress={() => router.push("/(tabs)/home")}
+                    >
+                        <Text className="text-white font-bold">
+                            Quay lại trang chủ
                         </Text>
-                      </View>
-                    </View>
-                  </View>
-                </Pressable>
-              ))}
+                    </Pressable>
+                </View>
+
+                {/* Menu Dropdown */}
+                <Modal
+                    visible={showMenu}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={() => setShowMenu(false)}
+                >
+                    <Pressable
+                        className="flex-1 bg-black/50"
+                        onPress={() => setShowMenu(false)}
+                    >
+                        <View
+                            className="absolute top-16 right-4 bg-white rounded-2xl shadow-xl w-64"
+                            style={{
+                                shadowColor: "#000",
+                                shadowOffset: { width: 0, height: 2 },
+                                shadowOpacity: 0.25,
+                                shadowRadius: 3.84,
+                                elevation: 5,
+                            }}
+                        >
+                            {MENU_OPTIONS.map((option, index) => (
+                                <Pressable
+                                    key={option.id}
+                                    onPress={() => {
+                                        setShowMenu(false);
+                                        router.replace(option.route as any);
+                                    }}
+                                    className={`flex-row items-center p-4 ${
+                                        index !== MENU_OPTIONS.length - 1
+                                            ? "border-b border-gray-100"
+                                            : ""
+                                    }`}
+                                >
+                                    <MaterialIcons
+                                        name={option.icon as any}
+                                        size={24}
+                                        color="#374151"
+                                    />
+                                    <Text className="ml-3 text-gray-700">
+                                        {option.title}
+                                    </Text>
+                                </Pressable>
+                            ))}
+                        </View>
+                    </Pressable>
+                </Modal>
             </View>
-          </ScrollView>
-        </SafeAreaView>
-      )}
-    </View>
-  );
+        );
+    }
+
+    // Màn hình chính có sản phẩm
+    return (
+        <View className="flex-1 bg-[#f5f7f9]">
+            <StatusBar style="dark" />
+
+            {/* Custom Gradient Header with Back Button and More Options */}
+            <LinearGradient
+                colors={["#3b82f6", "#1d4ed8"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                className="pt-14 pb-6 px-5"
+            >
+                <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center">
+                        <Pressable
+                            onPress={() =>
+                                router.push("/(tabs)/profile/profile")
+                            }
+                            className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
+                        >
+                            <MaterialIcons
+                                name="arrow-back"
+                                size={22}
+                                color="white"
+                            />
+                        </Pressable>
+                        <Text className="text-white text-lg font-bold ml-4">
+                            Danh sách sản phẩm
+                        </Text>
+                    </View>
+
+                    <View className="flex-row items-center">
+                        <Pressable
+                            className="w-10 h-10 items-center justify-center rounded-full bg-white/20 mr-2"
+                            onPress={() =>
+                                router.push(
+                                    "/(root)/notifications/notifications"
+                                )
+                            }
+                        >
+                            <MaterialIcons
+                                name="notifications-none"
+                                size={22}
+                                color="white"
+                            />
+                        </Pressable>
+
+                        <Pressable
+                            className="w-10 h-10 items-center justify-center rounded-full bg-white/20"
+                            onPress={() => setShowMenu(true)}
+                        >
+                            <MaterialIcons
+                                name="more-vert"
+                                size={22}
+                                color="white"
+                            />
+                        </Pressable>
+                    </View>
+                </View>
+
+                {/* Search Bar in Gradient Header */}
+                <Pressable
+                    className="flex-row items-center bg-white/20 rounded-xl p-3.5 mt-4"
+                    onPress={() => router.push("/search/searchProduct")}
+                >
+                    <MaterialIcons name="search" size={20} color="white" />
+                    <Text className="ml-2 text-white/80 flex-1">
+                        Tìm kiếm sản phẩm...
+                    </Text>
+                </Pressable>
+            </LinearGradient>
+
+            <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+                {/* Featured Product */}
+                {parsedProductList.length > 0 && (
+                    <View className="px-5 mt-8">
+                        <View className="flex-row items-center justify-between mb-4">
+                            <Text className="text-xl font-bold text-gray-800">
+                                Sản phẩm nổi bật
+                            </Text>
+                            <Pressable className="flex-row items-center">
+                                <Text className="text-blue-500 font-medium mr-1">
+                                    Xem tất cả
+                                </Text>
+                                <MaterialIcons
+                                    name="chevron-right"
+                                    size={20}
+                                    color="#3B82F6"
+                                />
+                            </Pressable>
+                        </View>
+
+                        <Pressable
+                            className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100"
+                            onPress={() => {
+                                const productDetail = JSON.stringify(
+                                    parsedProductList[0]
+                                );
+                                router.push({
+                                    pathname: "/product/[id]",
+                                    params: {
+                                        id: parsedProductList[0].id,
+                                        productDetail: productDetail,
+                                    },
+                                });
+                            }}
+                        >
+                            <View>
+                                <Image
+                                    source={{
+                                        uri: parsedProductList[0].images[0]
+                                            .imageUrl,
+                                    }}
+                                    className="w-full h-48 rounded-t-2xl"
+                                    style={{ resizeMode: "cover" }}
+                                />
+                                {parsedProductList[0].discount != null &&
+                                    parsedProductList[0].discount > 0 && (
+                                        <View className="absolute top-3 right-3 bg-red-500 rounded-full px-2 py-1">
+                                            <Text className="text-white font-bold text-xs">
+                                                -
+                                                {Math.round(
+                                                    parsedProductList[0]
+                                                        .discount * 100
+                                                )}
+                                                %
+                                            </Text>
+                                        </View>
+                                    )}
+                            </View>
+
+                            <View className="p-4">
+                                <View className="flex-row flex-wrap gap-2 mb-2">
+                                    {parsedProductList[0].categories
+                                        .slice(0, 2)
+                                        .map((category) => (
+                                            <View
+                                                key={category.id}
+                                                className="bg-blue-50 px-3 py-1 rounded-full"
+                                            >
+                                                <Text className="text-blue-600 text-xs font-medium">
+                                                    {category.name}
+                                                </Text>
+                                            </View>
+                                        ))}
+                                </View>
+
+                                <Text className="text-lg font-bold text-gray-800 mb-2">
+                                    {parsedProductList[0].name}
+                                </Text>
+
+                                <Text
+                                    className="text-gray-600 mb-3"
+                                    numberOfLines={2}
+                                >
+                                    {parsedProductList[0].description}
+                                </Text>
+
+                                <View className="flex-row items-center justify-between">
+                                    <View className="flex-row items-center">
+                                        <MaterialIcons
+                                            name="star"
+                                            size={16}
+                                            color="#F59E0B"
+                                        />
+                                        <Text className="ml-1 text-gray-700">
+                                            {parsedProductList[0]
+                                                .averageRating === 0
+                                                ? 5
+                                                : parsedProductList[0]
+                                                      .averageRating}
+                                        </Text>
+                                    </View>
+
+                                    <View>
+                                        {parsedProductList[0].discount !=
+                                            null &&
+                                            parsedProductList[0].discount >
+                                                0 && (
+                                                <Text className="text-gray-400 line-through text-xs">
+                                                    {Math.round(
+                                                        parsedProductList[0]
+                                                            .price /
+                                                            (1 -
+                                                                parsedProductList[0]
+                                                                    .discount)
+                                                    ).toLocaleString(
+                                                        "vi-VN"
+                                                    )}{" "}
+                                                    ₫
+                                                </Text>
+                                            )}
+                                        <Text
+                                            className={`font-bold ${
+                                                parsedProductList[0].price === 0
+                                                    ? "text-green-500"
+                                                    : "text-blue-500"
+                                            }`}
+                                        >
+                                            {parsedProductList[0].price === 0
+                                                ? "Miễn phí"
+                                                : `${parsedProductList[0].price.toLocaleString(
+                                                      "vi-VN"
+                                                  )} ₫`}
+                                        </Text>
+                                    </View>
+                                </View>
+                            </View>
+                        </Pressable>
+                    </View>
+                )}
+
+                {/* All Products */}
+                <View className="px-5 mt-8 pb-20">
+                    <Text className="text-xl font-bold text-gray-800 mb-4">
+                        Tất cả sản phẩm
+                    </Text>
+
+                    <View className="space-y-4">
+                        {parsedProductList.map((product) => (
+                            <Pressable
+                                key={product.id}
+                                className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 flex-row h-32"
+                                onPress={() => {
+                                    const productDetail =
+                                        JSON.stringify(product);
+                                    router.push({
+                                        pathname: "/product/[id]",
+                                        params: {
+                                            id: product.id,
+                                            productDetail: productDetail,
+                                        },
+                                    });
+                                }}
+                            >
+                                <View className="w-1/3 relative">
+                                    <Image
+                                        source={{
+                                            uri: product.images[0].imageUrl,
+                                        }}
+                                        className="w-full h-full"
+                                        style={{ resizeMode: "cover" }}
+                                    />
+                                    {product.discount != null &&
+                                        product.discount > 0 && (
+                                            <View className="absolute top-2 left-2 bg-red-500 rounded-full px-2 py-1">
+                                                <Text className="text-white font-bold text-xs">
+                                                    -
+                                                    {Math.round(
+                                                        product.discount * 100
+                                                    )}
+                                                    %
+                                                </Text>
+                                            </View>
+                                        )}
+                                </View>
+
+                                <View className="flex-1 p-3 justify-between">
+                                    <View>
+                                        <View className="flex-row flex-wrap gap-1 mb-1">
+                                            {product.categories
+                                                .slice(0, 1)
+                                                .map((category) => (
+                                                    <View
+                                                        key={category.id}
+                                                        className="bg-blue-50 px-2 py-0.5 rounded-full"
+                                                    >
+                                                        <Text className="text-blue-600 text-xs">
+                                                            {category.name}
+                                                        </Text>
+                                                    </View>
+                                                ))}
+                                        </View>
+
+                                        <Text
+                                            className="font-bold text-gray-800"
+                                            numberOfLines={2}
+                                        >
+                                            {product.name}
+                                        </Text>
+                                    </View>
+
+                                    <View className="flex-row items-center justify-between">
+                                        <View className="flex-row items-center">
+                                            <MaterialIcons
+                                                name="star"
+                                                size={14}
+                                                color="#F59E0B"
+                                            />
+                                            <Text className="ml-1 text-xs text-gray-600">
+                                                {product.averageRating === 0
+                                                    ? 5
+                                                    : product.averageRating}
+                                            </Text>
+                                        </View>
+
+                                        <View>
+                                            {product.discount != null &&
+                                                product.discount > 0 && (
+                                                    <Text className="text-gray-400 line-through text-xs text-right">
+                                                        {Math.round(
+                                                            product.price /
+                                                                (1 -
+                                                                    product.discount)
+                                                        ).toLocaleString(
+                                                            "vi-VN"
+                                                        )}{" "}
+                                                        ₫
+                                                    </Text>
+                                                )}
+                                            <Text
+                                                className={`font-bold ${
+                                                    product.price === 0
+                                                        ? "text-green-500"
+                                                        : "text-blue-500"
+                                                }`}
+                                            >
+                                                {product.price === 0
+                                                    ? "Miễn phí"
+                                                    : `${product.price.toLocaleString(
+                                                          "vi-VN"
+                                                      )} ₫`}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                </View>
+                            </Pressable>
+                        ))}
+                    </View>
+                </View>
+            </ScrollView>
+
+            {/* Menu Dropdown */}
+            <Modal
+                visible={showMenu}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setShowMenu(false)}
+            >
+                <Pressable
+                    className="flex-1 bg-black/50"
+                    onPress={() => setShowMenu(false)}
+                >
+                    <View
+                        className="absolute top-16 right-4 bg-white rounded-2xl shadow-xl w-64"
+                        style={{
+                            shadowColor: "#000",
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowOpacity: 0.25,
+                            shadowRadius: 3.84,
+                            elevation: 5,
+                        }}
+                    >
+                        {MENU_OPTIONS.map((option, index) => (
+                            <Pressable
+                                key={option.id}
+                                onPress={() => {
+                                    setShowMenu(false);
+                                    router.replace(option.route as any);
+                                }}
+                                className={`flex-row items-center p-4 ${
+                                    index !== MENU_OPTIONS.length - 1
+                                        ? "border-b border-gray-100"
+                                        : ""
+                                }`}
+                            >
+                                <MaterialIcons
+                                    name={option.icon as any}
+                                    size={24}
+                                    color="#374151"
+                                />
+                                <Text className="ml-3 text-gray-700">
+                                    {option.title}
+                                </Text>
+                            </Pressable>
+                        ))}
+                    </View>
+                </Pressable>
+            </Modal>
+        </View>
+    );
 }
