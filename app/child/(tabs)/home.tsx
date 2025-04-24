@@ -77,12 +77,12 @@ export default function HomeScreen() {
                     profileData?.data.firstName}
                   !
                 </Text>
-                <View className="flex-row items-center mt-1">
+                {/* <View className="flex-row items-center mt-1">
                   <MaterialIcons name="stars" size={16} color="#FCD34D" />
                   <Text className="text-white/90 ml-1">
                     {MOCK_CHILD.points} điểm
                   </Text>
-                </View>
+                </View> */}
               </View>
             </View>
             <Pressable
