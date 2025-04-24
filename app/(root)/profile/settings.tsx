@@ -123,17 +123,7 @@ export default function SettingsScreen() {
                     icon: "description",
                     type: "link",
                     route: "/terms",
-                },
-                {
-                    id: "logout",
-                    title: "Đăng xuất",
-                    icon: "logout",
-                    type: "button",
-                    color: "text-red-500",
-                    onPress: () => {
-                        router.replace("/(auth)/login");
-                    },
-                },
+                }
             ],
         },
     ];
@@ -157,13 +147,13 @@ export default function SettingsScreen() {
                                             ? "border-b border-gray-100"
                                             : ""
                                     }`}
-                                    onPress={() => {
-                                        if (item.type === "link") {
-                                            router.push(item.route as any);
-                                        } else if (item.type === "button") {
-                                            item.onPress();
-                                        }
-                                    }}
+                                    // onPress={() => {
+                                    //     if (item.type === "link") {
+                                    //         router.push(item.route as any);
+                                    //     } else if (item.type === "button") {
+                                    //         item.onPress();
+                                    //     }
+                                    // }}
                                 >
                                     <MaterialIcons
                                         name={item.icon as any}

@@ -315,7 +315,7 @@ export default function SubAccountsScreen() {
                     {STATS.map((stat) => (
                         <View
                             key={stat.id}
-                            className={`bg-${stat.color}-50 rounded-xl p-4 mr-3 shadow-sm`}
+                            className={`bg-${stat.color}-500 rounded-xl p-4 mr-3 shadow-sm`}
                             style={{ minWidth: 150 }}
                         >
                             <View className="flex-row">

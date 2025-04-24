@@ -363,7 +363,7 @@ export default function HomeScreen() {
                                 <View className="pr-10">
                                     <View className="bg-white/20 self-start px-3 py-1 rounded-full mb-3">
                                         <Text className="text-white text-xs font-semibold">
-                                            PREMIUM
+                                            Ưu việt
                                         </Text>
                                     </View>
                                     <Text className="text-white text-xl font-bold mb-2">

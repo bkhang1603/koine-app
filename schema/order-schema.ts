@@ -55,19 +55,19 @@ export const orderRes = z.object({
         ),
         orderDetails: z.array(
           z.object({
-            id: z.string(),
-            orderId: z.string(),
+            id: z.string().nullable(),
+            orderId: z.string().nullable(),
             productId: z.string().nullable(),
             courseId: z.string().nullable(),
             comboId: z.string().nullable(),
-            quantity: z.number(),
-            unitPrice: z.number(),
-            discount: z.number(),
-            totalPrice: z.number(),
-            itemTitle: z.string(),
-            itemImageUrl: z.string(),
+            quantity: z.number().nullable(),
+            unitPrice: z.number().nullable(),
+            discount: z.number().nullable(),
+            totalPrice: z.number().nullable(),
+            itemTitle: z.string().nullable(),
+            itemImageUrl: z.string().nullable(),
           })
-        ),
+        ).nullable(),
         deliveryInfo: z
           .object({
             name: z.string().nullable().optional(),
