@@ -11,6 +11,12 @@ export const loginBody = z
 
 export type LoginBodyType = z.TypeOf<typeof loginBody>;
 
+export const forgotBody = z.object({
+  email: z.string(),
+});
+
+export type ForgotPasswordBody = z.TypeOf<typeof forgotBody>;
+
 export const loginRes = z.object({
   data: z.object({
     accessToken: z.string(),

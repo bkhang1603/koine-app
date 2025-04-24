@@ -32,6 +32,7 @@ export default function RegisterScreen() {
     const [dob, setDob] = useState("2000-10-20");
     const [date, setDate] = useState(new Date(2000, 9, 20));
     const [show, setShow] = useState(false);
+    
 
     const nowUtc = new Date(); // Lấy thời gian hiện tại theo UTC
     const nowGmt7 = new Date(nowUtc.getTime() + 7 * 60 * 60 * 1000); // Cộng thêm 7 giờ để đúng với GMT+7
@@ -59,7 +60,7 @@ export default function RegisterScreen() {
     function convertToSubmit(dateStr: string): string {
         // Tạo Date object từ chuỗi ISO 8601
         const [day, month, year] = dateStr.split("/");
-        return `${year}-${month}-${day}`;
+        return `${year}-${day}-${month}`;
     }
 
     const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
@@ -72,6 +73,8 @@ export default function RegisterScreen() {
 
     const handleRegister = async () => {
         try {
+            if(isProcessing) return;
+            setIsProcessing(true)
             // Validate form
             if (
                 !name.trim() ||
@@ -132,7 +135,7 @@ export default function RegisterScreen() {
                 dob: convertToSubmit(dob).trim(),
                 role: "ADULT",
             };
-
+            console.log(body)
             const res = await register.mutateAsync(body);
             if (res) {
                 Alert.alert(

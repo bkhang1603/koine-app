@@ -5,6 +5,7 @@ import {
   ConfirmOtpResType,
   CreateChildBodyType,
   CreateChildResType,
+  ForgotPasswordBody,
   LoginBodyType,
   LoginResType,
   RefreshAccessBodyType,
@@ -28,8 +29,9 @@ const authApiRequest = {
     }),
   confirmOtp: (body: ConfirmOtpBodyType) =>
     http.post<ConfirmOtpResType>("auth/active", body),
-  loginGoogle: (deviceId: string) =>
-    http.get(`auth/google/login?deviceId=${deviceId}`),
+  forgotPassword: (body: ForgotPasswordBody) =>
+    http.post(`auth/forgot-password/request`, body),
+
   //ví dụ 1 hàm post cần token thì cần sửa ở đây và ở queries
   /*
   getNewAccessToken: (body: RefreshAccessBodyType, token: string) => 

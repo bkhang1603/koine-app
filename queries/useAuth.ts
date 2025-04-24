@@ -1,5 +1,5 @@
 import authApiRequest from "@/api/auth";
-import { CreateChildBodyType } from "@/schema/auth-schema";
+import { CreateChildBodyType, ForgotPasswordBody } from "@/schema/auth-schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useLoginMutation = () => {
@@ -74,9 +74,10 @@ export const useConfirmOtpMutation = () => {
   });
 };
 
-export const useLoginGoogle = (deviceId: string) => {
-  return useQuery({
-    queryKey: ["login-google"],
-    queryFn: () => authApiRequest.loginGoogle(deviceId),
+export const useForgotPasswordMutation = () => {
+  return useMutation({
+    mutationFn: ({ body }: { body: ForgotPasswordBody }) =>
+      authApiRequest.forgotPassword(body),
   });
 };
+
