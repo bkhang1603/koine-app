@@ -7,7 +7,6 @@ import { useAppStore } from "@/components/app-provider";
 import { blogRes, GetAllBlogResType } from "@/schema/blog-schema";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 import ErrorScreen from "@/components/ErrorScreen";
-import CartButton from "@/components/CartButton";
 import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -42,8 +41,12 @@ export default function BlogScreen() {
         }
     }
 
-    if (blogLoading) return <ActivityIndicatorScreen />;
-    if (blogError) return <ErrorScreen message="Lỗi khi tải bài viết" />;
+    if (blogLoading) {
+        console.log("Loading blog child")
+    }
+    if (blogError) {
+        console.log("Lỗi blog child")
+    }
 
     const [selectedCategory, setSelectedCategory] = useState("Tất cả");
 
@@ -91,17 +94,11 @@ export default function BlogScreen() {
                         </View>
 
                         <View className="flex-row">
-                            <View className="mr-2">
-                                <CartButton
-                                    bgColor="bg-white/20"
-                                    iconColor="white"
-                                />
-                            </View>
                             <Pressable
                                 className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
                                 onPress={() =>
                                     router.push(
-                                        "/(root)/notifications/notifications"
+                                        "/child/notifications"
                                     )
                                 }
                             >
@@ -170,7 +167,7 @@ export default function BlogScreen() {
                             </Text>
                             {/* <Pressable
                                 onPress={() => {
-                                   
+                                 
                                 }}
                             >
                                 <Text className="text-blue-500 font-medium">
@@ -185,7 +182,7 @@ export default function BlogScreen() {
                                 borderColor: "#f1f5f9",
                             }}
                             onPress={() =>
-                                router.push(`/blog/${featuredPost.id}` as any)
+                                router.push(`/child/blog/${featuredPost.id}` as any)
                             }
                         >
                             <View>
@@ -267,7 +264,7 @@ export default function BlogScreen() {
                                         className="mt-4 border border-blue-500 rounded-full py-2.5 flex-row justify-center items-center"
                                         onPress={() =>
                                             router.push(
-                                                `/blog/${featuredPost.id}` as any
+                                                `/child/blog/${featuredPost.id}` as any
                                             )
                                         }
                                     >
@@ -295,7 +292,7 @@ export default function BlogScreen() {
                         </Text>
                         {/* <Pressable
                             onPress={() => {
-                          
+                             
                             }}
                         >
                             <Text className="text-blue-500 font-medium">
@@ -323,7 +320,7 @@ export default function BlogScreen() {
                                     borderColor: "#f1f5f9",
                                 }}
                                 onPress={() =>
-                                    router.push(`/blog/${post.id}` as any)
+                                    router.push(`/child/blog/${post.id}` as any)
                                 }
                             >
                                 {/* Phần hình ảnh */}
@@ -422,7 +419,7 @@ export default function BlogScreen() {
                     >
                         <Pressable
                             className="p-6"
-                            onPress={() => router.push("/(tabs)/blog/blog")}
+                            onPress={() => router.push("/child/blog/blog")}
                         >
                             <View className="relative">
                                 {/* Decorative circles */}

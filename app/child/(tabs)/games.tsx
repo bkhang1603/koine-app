@@ -206,15 +206,15 @@ export default function GamesScreen() {
                             <Text className="text-xl font-bold">
                                 Trò chơi phổ biến
                             </Text>
-                            <Pressable
+                            {/* <Pressable
                                 onPress={() => {
-                                    /* Xem tất cả */
+                                   
                                 }}
                             >
                                 <Text className="text-violet-500 font-medium">
                                     Xem tất cả
                                 </Text>
-                            </Pressable>
+                            </Pressable> */}
                         </View>
 
                         <View className="flex-row flex-wrap -mx-2">

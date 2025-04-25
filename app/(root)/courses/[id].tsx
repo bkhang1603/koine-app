@@ -144,9 +144,9 @@ export default function CourseDetailScreen() {
                     style: "cancel",
                 },
                 {
-                    text: "Trang chủ",
+                    text: "Khóa học của tôi",
                     onPress: () => {
-                        router.push("/(tabs)/home");
+                        router.push("/(tabs)/my-courses/my-courses");
                     },
                     style: "destructive",
                 },

@@ -56,13 +56,7 @@ const MENU_ITEMS = [
         title: "Thông báo",
         icon: "notifications",
         route: "/(root)/notifications/notifications",
-    },
-    {
-        id: "settings",
-        title: "Cài đặt",
-        icon: "settings",
-        route: "/profile/settings",
-    },
+    }
 ];
 
 export default function ProfileScreen() {
@@ -221,7 +215,7 @@ export default function ProfileScreen() {
                                     color="#3B82F6"
                                 />
                             </View>
-                            <View className="p-2">
+                            <View className="">
                                 <Text
                                     className="text-blue-500 text-center font-medium"
                                     numberOfLines={1}

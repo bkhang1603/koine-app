@@ -25,7 +25,7 @@ export default function CourseScreen() {
     isError: coursesError,
   } = useCourses({
     keyword: "",
-    page_size: 10,
+    page_size: 100,
     page_index: 1,
   });
 
@@ -184,7 +184,7 @@ export default function CourseScreen() {
         </LinearGradient>
 
         {/* Categories */}
-        <ScrollView
+        {/* <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           className="mt-6 pl-5"
@@ -211,20 +211,20 @@ export default function CourseScreen() {
               </Text>
             </Pressable>
           ))}
-        </ScrollView>
+        </ScrollView> */}
 
         {/* Featured Course */}
         {courses && (
           <View className="px-5 mt-8">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-xl font-bold">Khóa học nổi bật</Text>
-              <Pressable
+              {/* <Pressable
                 onPress={() => {
-                  /* Xem tất cả */
+                 
                 }}
               >
                 <Text className="text-blue-500 font-medium">Xem tất cả</Text>
-              </Pressable>
+              </Pressable> */}
             </View>
             <Pressable
               className="bg-white rounded-3xl overflow-hidden"
@@ -320,11 +320,15 @@ export default function CourseScreen() {
                       </Text>
                     </View>
                     <View className="flex-row items-center">
-                        <MaterialIcons name="signal-cellular-alt" size={14} color="#8B5CF6" />
-                        <Text className="text-gray-500 text-xs ml-1">
+                      <MaterialIcons
+                        name="signal-cellular-alt"
+                        size={14}
+                        color="#8B5CF6"
+                      />
+                      <Text className="text-gray-500 text-xs ml-1">
                         {courses[0].ageStage} tuổi
-                        </Text>
-                      </View>
+                      </Text>
+                    </View>
                   </View>
 
                   {/* Divider */}
@@ -374,13 +378,13 @@ export default function CourseScreen() {
         <View className="mt-8 px-5 mb-20">
           <View className="flex-row items-center justify-between mb-5">
             <Text className="text-xl font-bold">Tất cả khóa học</Text>
-            <Pressable
+            {/* <Pressable
               onPress={() => {
-                /* Xem tất cả */
+              
               }}
             >
               <Text className="text-blue-500 font-medium">Xem tất cả</Text>
-            </Pressable>
+            </Pressable> */}
           </View>
 
           <View className="space-y-4">
@@ -461,9 +465,13 @@ export default function CourseScreen() {
                         </Text>
                       </View>
                       <View className="flex-row items-center">
-                        <MaterialIcons name="signal-cellular-alt" size={14} color="#8B5CF6" />
+                        <MaterialIcons
+                          name="signal-cellular-alt"
+                          size={14}
+                          color="#8B5CF6"
+                        />
                         <Text className="text-gray-500 text-xs ml-1">
-                        {course.ageStage} tuổi
+                          {course.ageStage} tuổi
                         </Text>
                       </View>
                     </View>
