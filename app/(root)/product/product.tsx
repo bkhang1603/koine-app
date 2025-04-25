@@ -298,7 +298,7 @@ export default function ProductsScreen() {
                             <Text className="text-xl font-bold text-gray-800">
                                 Sản phẩm nổi bật
                             </Text>
-                            <Pressable className="flex-row items-center">
+                            {/* <Pressable className="flex-row items-center">
                                 <Text className="text-blue-500 font-medium mr-1">
                                     Xem tất cả
                                 </Text>
@@ -307,7 +307,7 @@ export default function ProductsScreen() {
                                     size={20}
                                     color="#3B82F6"
                                 />
-                            </Pressable>
+                            </Pressable> */}
                         </View>
 
                         <Pressable

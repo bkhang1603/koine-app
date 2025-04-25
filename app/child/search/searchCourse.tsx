@@ -69,7 +69,7 @@ export default function SearchScreen() {
       try {
         const parsedResult = courseRes.safeParse(coursesData);
         if (parsedResult.success) {
-          setAllCourses(parsedResult.data.data || []);
+          setAllCourses(parsedResult.data.data.filter((course) => course.price == 0) || []);
         } else {
           console.error("Validation errors:", parsedResult.error.errors);
         }
@@ -290,7 +290,7 @@ export default function SearchScreen() {
                     <View className="flex-row items-center">
                       <MaterialIcons name="people" size={16} color="#6B7280" />
                       <Text className="text-gray-500 text-sm ml-1">
-                        {course.totalEnrollment || 0} học viên
+                      {course.ageStage || "18+"} tuổi
                       </Text>
                     </View>
                   </View>
@@ -395,7 +395,7 @@ export default function SearchScreen() {
                     <View className="flex-row items-center">
                       <MaterialIcons name="people" size={16} color="#6B7280" />
                       <Text className="text-gray-500 text-sm ml-1">
-                        {course.totalEnrollment || 0} học viên
+                      {course.ageStage || "18+"} tuổi
                       </Text>
                     </View>
                   </View>

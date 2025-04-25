@@ -67,10 +67,10 @@ export default function CourseLearnScreen() {
           <Text className="text-gray-600 mt-2">{course.description}</Text>
 
           {/* Author Info */}
-          <View className="flex-row items-center mt-4">
+          {/* <View className="flex-row items-center mt-4">
             <MaterialIcons name="person" size={20} color="#3B82F6" />
             <Text className="text-gray-600 ml-2">Tác giả: {course.author}</Text>
-          </View>
+          </View> */}
 
           {/* Course Categories */}
           <View className="flex-row flex-wrap gap-2 mt-1 mb-4">
@@ -108,7 +108,7 @@ export default function CourseLearnScreen() {
           </View>
 
           {/* Time Stats */}
-          <View className="mt-4 flex-row items-center">
+          {/* <View className="mt-4 flex-row items-center">
             <MaterialIcons name="schedule" size={20} color="#3B82F6" />
             <Text className="text-gray-600 ml-2">
               {(() => {
@@ -139,7 +139,7 @@ export default function CourseLearnScreen() {
                 )}`;
               })()}
             </Text>
-          </View>
+          </View> */}
 
           {/* Chapters */}
           <View className="mt-6">

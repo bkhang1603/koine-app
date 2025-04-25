@@ -31,7 +31,7 @@ export default function CourseScreen() {
     isError: coursesError,
   } = useCourses({
     keyword: "",
-    page_size: 10,
+    page_size: 100,
     page_index: 1,
   });
 
@@ -41,7 +41,7 @@ export default function CourseScreen() {
       if (coursesData.data.length !== 0) {
         const parsedResult = courseRes.safeParse(coursesData);
         if (parsedResult.success) {
-          result = parsedResult.data.data;
+          result = parsedResult.data.data.filter((course) => course.price == 0);
         } else {
           console.error("Validation errors:", parsedResult.error.errors);
         }
@@ -310,6 +310,16 @@ export default function CourseScreen() {
                           {courses[0].totalEnrollment}
                         </Text>
                       </View>
+                      <View className="flex-row items-center">
+                        <MaterialIcons
+                          name="signal-cellular-alt"
+                          size={14}
+                          color="#8B5CF6"
+                        />
+                        <Text className="text-gray-500 text-xs ml-1">
+                          {courses[0].ageStage} tuổi
+                        </Text>
+                      </View>
                     </View>
 
                     {/* Divider */}
@@ -437,6 +447,8 @@ export default function CourseScreen() {
                               : course.aveRating.toFixed(1)}
                           </Text>
                         </View>
+                      </View>
+                      <View className="flex-row flex-wrap items-center gap-3 mb-2">
                         <View className="flex-row items-center">
                           <MaterialIcons
                             name="people"
@@ -445,6 +457,16 @@ export default function CourseScreen() {
                           />
                           <Text className="text-gray-500 text-xs ml-1">
                             {course.totalEnrollment} học viên
+                          </Text>
+                        </View>
+                        <View className="flex-row items-center">
+                          <MaterialIcons
+                            name="signal-cellular-alt"
+                            size={14}
+                            color="#8B5CF6"
+                          />
+                          <Text className="text-gray-500 text-xs ml-1">
+                            {course.ageStage} tuổi
                           </Text>
                         </View>
                       </View>

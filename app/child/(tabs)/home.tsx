@@ -72,7 +72,7 @@ export default function HomeScreen() {
                 <Text className="text-white text-lg font-bold">
                   Xin chào 👋
                 </Text>
-                <Text className="text-white text-lg font-bold">
+                <Text className="text-white text-lg font-bold" numberOfLines={1}>
                   {profileData?.data.lastName +
                     " " +
                     profileData?.data.firstName}
@@ -177,7 +177,7 @@ export default function HomeScreen() {
                             color="#7C3AED"
                           />
                           <Text className="text-violet-600 text-sm ml-1">
-                            {course.totalLessonFinished}
+                            Đã học: {course.totalLessonFinished}
                           </Text>
                         </View>
                         <Text className="text-gray-500 text-sm">Đã học: {formatDurationForString(course.totalLearningTimeDisplay)}</Text>
@@ -185,7 +185,7 @@ export default function HomeScreen() {
                       <View className="mt-3">
                         <View className="flex-row justify-between mb-1">
                           <Text className="text-gray-500 text-sm">
-                            {course.totalLessonFinished +"/"+ course.totalLesson}
+                           Tiến độ: {course.totalLessonFinished +"/"+ course.totalLesson}
                           </Text>
                           <Text className="text-violet-600 font-medium">
                             {course.completionRate}%

@@ -16,7 +16,6 @@ export default function CourseLearnScreen() {
   const { courseId } = useLocalSearchParams<{ courseId: string }>();
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
-console.log("ở đây rồi")
   const {
     data: courseData,
     isLoading,
@@ -45,7 +44,6 @@ console.log("ở đây rồi")
   if (myCourse == null) return null;
 
   const course = myCourse;
-  console.log("data ", courseData)
 
   return (
     <View className="flex-1 bg-white">
@@ -67,10 +65,10 @@ console.log("ở đây rồi")
           <Text className="text-gray-600 mt-2">{course.description}</Text>
 
           {/* Author Info */}
-          <View className="flex-row items-center mt-4">
+          {/* <View className="flex-row items-center mt-4">
             <MaterialIcons name="person" size={20} color="#8B5CF6" />
             <Text className="text-gray-600 ml-2">Tác giả: {course.author}</Text>
-          </View>
+          </View> */}
 
           {/* Course Categories */}
           <View className="flex-row flex-wrap gap-2 mt-1 mb-4">
@@ -107,39 +105,7 @@ console.log("ở đây rồi")
             />
           </View>
 
-          {/* Time Stats */}
-          <View className="mt-4 flex-row items-center">
-            <MaterialIcons name="schedule" size={20} color="#8B5CF6" />
-            <Text className="text-gray-600 ml-2">
-              {(() => {
-                const duration = course.durationDisplay;
-                const hours = parseInt(duration.split("h")[0]) || 0;
-                const minutes =
-                  parseInt(duration.split("h")[1].replace("p", "")) || 0;
-
-                const totalMinutes = hours * 60 + minutes;
-                const completionRate = Number(course.completionRate);
-                const learnedMinutes = Math.round(
-                  (totalMinutes * completionRate) / 100
-                );
-                const learnedHours = Math.floor(learnedMinutes / 60);
-                const remainingMinutes = learnedMinutes % 60;
-
-                let learned = "";
-                if (learnedHours > 0) {
-                  learned += `${learnedHours} giờ `;
-                }
-                if (remainingMinutes > 0 || learned === "") {
-                  learned += `${remainingMinutes} phút`;
-                }
-                if (learned === "") learned = "0 phút";
-
-                return `Đã học ${learned} / ${formatDuration(
-                  course.durationDisplay
-                )}`;
-              })()}
-            </Text>
-          </View>
+          
 
           {/* Chapters */}
           <View className="mt-6">
