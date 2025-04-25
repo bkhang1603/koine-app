@@ -69,7 +69,11 @@ export default function SearchScreen() {
       try {
         const parsedResult = courseRes.safeParse(coursesData);
         if (parsedResult.success) {
-          setAllCourses(parsedResult.data.data || []);
+          setAllCourses(
+            parsedResult.data.data.filter(
+              (course) => course.isVisible == true && course.isCombo != true
+            ) || []
+          );
         } else {
           console.error("Validation errors:", parsedResult.error.errors);
         }

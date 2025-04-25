@@ -41,7 +41,13 @@ export default function CourseScreen() {
       if (coursesData.data.length !== 0) {
         const parsedResult = courseRes.safeParse(coursesData);
         if (parsedResult.success) {
-          result = parsedResult.data.data.filter((course) => course.price == 0);
+          result = parsedResult.data.data.filter(
+            (course) =>
+              course.isVisible == true &&
+              course.isCombo != true &&
+              course.price == 0 &&
+              course.ageStage != "18+"
+          );
         } else {
           console.error("Validation errors:", parsedResult.error.errors);
         }

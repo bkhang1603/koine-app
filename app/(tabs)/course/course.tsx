@@ -36,7 +36,10 @@ export default function CourseScreen() {
     } else {
       const parsedResult = courseRes.safeParse(coursesData);
       if (parsedResult.success) {
-        courses = parsedResult.data.data;
+        // courses = parsedResult.data.data;
+        courses = parsedResult.data.data.filter(
+          (course) => (course.isVisible == true && course.isCombo != true)
+        );
       } else {
         console.error("Validation errors:", parsedResult.error.errors);
       }

@@ -50,7 +50,9 @@ export default function MyCoursesScreen() {
     } else {
       const parsedResult = myCourseRes.safeParse(myCourseData);
       if (parsedResult.success) {
-        myCourse = parsedResult.data.data;
+        myCourse = parsedResult.data.data.filter(
+          (course) => course.isVisible == true
+        );
       } else {
         console.error("Validation errors:", parsedResult.error.errors);
       }

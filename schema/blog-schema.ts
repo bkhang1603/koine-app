@@ -62,7 +62,6 @@ export const blogDetailRes = z.object({
     isBanned: z.boolean().nullable(),
     createdAtFormatted: z.string(),
     updatedAtFormatted: z.string(),
-    isReact: z.boolean(),
     creatorInfo: z.object({
       id: z.string(),
       firstName: z.string(),
