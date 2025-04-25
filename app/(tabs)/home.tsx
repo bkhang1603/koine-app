@@ -471,6 +471,17 @@ export default function HomeScreen() {
                                             </Text>
                                         </View>
 
+                                        <View className="absolute bottom-3 right-16 flex-row items-center bg-black/40 rounded-full px-2 py-1">
+                                            <MaterialIcons
+                                                name="signal-cellular-alt"
+                                                size={14}
+                                                color="white"
+                                            />
+                                            <Text className="ml-1 text-white text-xs font-medium">
+                                                {course.ageStage || "18+"} tuổi
+                                            </Text>
+                                        </View>
+
                                         {/* Enrollment Badge */}
                                         <View className="absolute bottom-3 right-3 flex-row items-center bg-black/40 rounded-full px-2 py-1">
                                             <MaterialIcons

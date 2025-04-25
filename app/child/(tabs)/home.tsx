@@ -8,6 +8,7 @@ import { useAppStore } from "@/components/app-provider";
 import { useChildProfileAtChild, useMyCourse } from "@/queries/useUser";
 import { GetMyCoursesResType, myCourseRes } from "@/schema/user-schema";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
+import formatDurationForString from "@/util/formatDurationForString";
 
 export default function HomeScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
@@ -35,7 +36,7 @@ export default function HomeScreen() {
   }, [token]);
 
   if (profileLoading || myCourseLoading)
-    return <ActivityIndicatorScreen></ActivityIndicatorScreen>
+    return <ActivityIndicatorScreen></ActivityIndicatorScreen>;
   let myCourse: GetMyCoursesResType["data"] = [];
   if (myCourseData && !myCourseError) {
     if (myCourseData.data.length === 0) {
@@ -104,7 +105,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Streak Card */}
-          <View className="bg-violet-400/50 rounded-2xl p-4 mt-6">
+          {/* <View className="bg-violet-400/50 rounded-2xl p-4 mt-6">
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center">
                 <MaterialIcons
@@ -123,7 +124,7 @@ export default function HomeScreen() {
                 <Text className="text-white font-bold text-lg">🔥</Text>
               </View>
             </View>
-          </View>
+          </View> */}
         </View>
 
         {/* Main Content */}
@@ -145,69 +146,68 @@ export default function HomeScreen() {
               showsHorizontalScrollIndicator={false}
               className="-mx-4 px-4"
             >
-              {myCourse?.map((course) => (
-                <Pressable
-                  key={course.id}
-                  className="mr-4 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
-                  style={{ width: 280 }}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/child/learn/course/[courseId]",
-                      params: { courseId: course.id },
-                    })
-                  }
-                >
-                  <Image
-                    source={{ uri: course.imageUrl }}
-                    className="w-full h-36"
-                    resizeMode="cover"
-                  />
-                  <View className="p-4">
-                    <Text className="font-bold text-lg" numberOfLines={1}>
-                      {course.title}
-                    </Text>
-                    <View className="flex-row items-center justify-between mt-2">
-                      <View className="flex-row items-center">
-                        <MaterialIcons
-                          name="play-circle-fill"
-                          size={16}
-                          color="#7C3AED"
-                        />
-                        <Text className="text-violet-600 text-sm ml-1">
-                          {/* Bài {course.completedLessons + 1} */} 15 bài
-                        </Text>
-                      </View>
-                      <Text className="text-gray-500 text-sm">
-                        {/* {course.lastLesson.duration} */} 30 phút
+              {myCourse
+                ?.filter((course) => course.isVisible == true)
+                .map((course) => (
+                  <Pressable
+                    key={course.id}
+                    className="mr-4 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+                    style={{ width: 280 }}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/child/learn/course/[courseId]",
+                        params: { courseId: course.id },
+                      })
+                    }
+                  >
+                    <Image
+                      source={{ uri: course.imageUrl }}
+                      className="w-full h-36"
+                      resizeMode="cover"
+                    />
+                    <View className="p-4">
+                      <Text className="font-bold text-lg" numberOfLines={1}>
+                        {course.title}
                       </Text>
-                    </View>
-                    <View className="mt-3">
-                      <View className="flex-row justify-between mb-1">
-                        <Text className="text-gray-500 text-sm">
-                          {/* {course.completedLessons}/{course.totalLessons}  */}
-                          15/40 bài học
-                        </Text>
-                        <Text className="text-violet-600 font-medium">
-                          {course.completionRate}%
-                        </Text>
+                      <View className="flex-row items-center justify-between mt-2">
+                        <View className="flex-row items-center">
+                          <MaterialIcons
+                            name="play-circle-fill"
+                            size={16}
+                            color="#7C3AED"
+                          />
+                          <Text className="text-violet-600 text-sm ml-1">
+                            {course.totalLessonFinished}
+                          </Text>
+                        </View>
+                        <Text className="text-gray-500 text-sm">Đã học: {formatDurationForString(course.totalLearningTimeDisplay)}</Text>
                       </View>
-                      <View className="bg-gray-100 h-1.5 rounded-full overflow-hidden">
-                        <View
-                          className="h-full bg-violet-500 rounded-full"
-                          style={{
-                            width: `${course.completionRate}%`,
-                          }}
-                        />
+                      <View className="mt-3">
+                        <View className="flex-row justify-between mb-1">
+                          <Text className="text-gray-500 text-sm">
+                            {course.totalLessonFinished +"/"+ course.totalLesson}
+                          </Text>
+                          <Text className="text-violet-600 font-medium">
+                            {course.completionRate}%
+                          </Text>
+                        </View>
+                        <View className="bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                          <View
+                            className="h-full bg-violet-500 rounded-full"
+                            style={{
+                              width: `${course.completionRate}%`,
+                            }}
+                          />
+                        </View>
                       </View>
                     </View>
-                  </View>
-                </Pressable>
-              ))}
+                  </Pressable>
+                ))}
             </ScrollView>
           </View>
 
           {/* Daily Tasks */}
-          <View className="mt-8 px-4">
+          {/* <View className="mt-8 px-4">
             <Text className="text-lg font-bold mb-4">Nhiệm vụ hôm nay</Text>
             {MOCK_CHILD.dailyTasks.map((task) => (
               <View
@@ -254,7 +254,7 @@ export default function HomeScreen() {
                 </View>
               </View>
             ))}
-          </View>
+          </View> */}
 
           {/* Quick Actions */}
           <View className="mt-8 px-4 pb-4">

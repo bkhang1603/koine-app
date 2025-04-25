@@ -103,7 +103,7 @@ const TicTacToeGame = () => {
         return (
             <Pressable
                 key={index}
-                className={`w-24 h-24 bg-white m-1 justify-center items-center rounded-lg shadow-sm ${
+                className={`w-20 h-20 bg-white m-1 justify-center items-center rounded-lg shadow-sm ${
                     board[index] === "X"
                         ? "bg-violet-50"
                         : board[index] === "O"

@@ -151,7 +151,7 @@ const ColorSequenceGame = () => {
     const renderStatusMessage = () => {
         switch (gameState) {
             case "waiting":
-                return 'Nhấn "Bắt đầu" để chơi!';
+                return '"Bắt đầu" để chơi!';
             case "watching":
                 return "Quan sát chuỗi màu sắc...";
             case "repeating":

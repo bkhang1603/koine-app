@@ -24,6 +24,7 @@ export const courseRes = z.object({
             aveRating: z.number(),
             isBanned: z.boolean(),
             isCustom: z.boolean(),
+            isVisible: z.boolean(),
             level: z.string(),
             censorId: z.string().nullable(),
             isDraft: z.boolean(),
@@ -46,6 +47,8 @@ export const courseRes = z.object({
             ),
             createdAtFormatted: z.string(),
             updatedAtFormatted: z.string(),
+            isCombo: z.boolean().nullable(),
+            ageStage: z.string().nullable(),
         })
     ),
     pagination: z.object({
@@ -77,6 +80,7 @@ export const courseDetailRes = z.object({
         imageUrl: z.string(),
         imageBanner: z.string(),
         price: z.number(),
+        status: z.string(),
         discount: z.number().optional(),
         totalEnrollment: z.number(),
         aveRating: z.number(),

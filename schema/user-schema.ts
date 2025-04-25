@@ -43,12 +43,16 @@ export const myCourseRes = z.object({
       title: z.string(),
       description: z.string(),
       durationDisplay: z.string(),
+      totalLearningTime: z.number(),
+      totalLearningTimeDisplay: z.string(),
       categories: z.array(
         z.object({
           id: z.string(),
           name: z.string(),
         })
       ),
+      totalLesson: z.number(),
+      totalLessonFinished: z.number(),
       completionRate: z.number(),
       author: z.string(),
       isVisible: z.boolean(),
@@ -56,6 +60,10 @@ export const myCourseRes = z.object({
       level: z.string(),
       createdAtFormatted: z.string(),
       updatedAtFormatted: z.string(),
+      nextChapter: z.object({
+        id: z.string(),
+        title: z.string()
+      }).nullable()
     })
   ),
   message: z.string(),
@@ -328,7 +336,7 @@ export const childProfileChildPage = z.object({
     level: z.string(),
     gender: z.string(),
     totalCourses: z.number(),
-    totalLearningDays: z.number(),
+    totalLearningTimes: z.number(),
     totalPoints: z.number(),
   }),
 });

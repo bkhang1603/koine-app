@@ -83,7 +83,7 @@ export default function ProfileScreen() {
               </View>
               <View className="items-center flex-1 border-x border-violet-200">
                 <Text className="text-2xl font-bold text-violet-600">
-                  {childProfile?.totalLearningDays || 1}
+                  {childProfile?.totalLearningTimes || 1}
                 </Text>
                 <Text className="text-gray-600">Ngày học</Text>
               </View>
@@ -113,8 +113,9 @@ export default function ProfileScreen() {
               </View>
               <MaterialIcons name="chevron-right" size={24} color="#9CA3AF" />
             </Pressable>
+            
 
-            <Pressable
+            {/* <Pressable
               className="flex-row items-center p-4 bg-white rounded-2xl mb-3 shadow-sm shadow-gray-100 border border-gray-50"
               onPress={() => router.push("/child/settings")}
             >
@@ -128,7 +129,7 @@ export default function ProfileScreen() {
                 </Text>
               </View>
               <MaterialIcons name="chevron-right" size={24} color="#9CA3AF" />
-            </Pressable>
+            </Pressable> */}
 
             <Pressable
               className="flex-row items-center p-4 bg-white rounded-2xl mb-3 shadow-sm shadow-gray-100 border border-gray-50"
