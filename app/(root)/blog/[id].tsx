@@ -79,6 +79,7 @@ export default function BlogDetailScreen() {
     useState<NodeJS.Timeout | null>(null);
   const [showMenu, setShowMenu] = useState(false);
   const insets = useSafeAreaInsets();
+  const [totalComment, setTotalComment] = useState(0)
 
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
@@ -138,6 +139,7 @@ export default function BlogDetailScreen() {
       const parsedResult = blogCommentRes.safeParse(commentsData);
       if (parsedResult.success) {
         blogComments = parsedResult.data.data;
+        setTotalComment(parsedResult.data.data.commentsWithReplies?.length || 0)
       } else {
         console.error("Validation errors:", parsedResult.error.errors);
       }
@@ -426,7 +428,7 @@ export default function BlogDetailScreen() {
         >
           <MaterialIcons name="chat-bubble-outline" size={28} color="#657786" />
           <Text className="ml-2 text-base font-medium text-gray-700">
-            {blog.totalComment} Bình luận
+            {totalComment} Bình luận
           </Text>
         </TouchableOpacity>
       </View>

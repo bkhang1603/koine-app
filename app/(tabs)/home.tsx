@@ -159,7 +159,10 @@ export default function HomeScreen() {
         } else {
             const parsedResult = courseRes.safeParse(coursesData);
             if (parsedResult.success) {
-                courses = parsedResult.data.data;
+                // courses = parsedResult.data.data;
+                courses = parsedResult.data.data.filter(
+                    (course) => (course.isVisible == true && course.isCombo != true)
+                  );
             } else {
                 console.error(
                     "Course validation errors:",
