@@ -27,7 +27,7 @@ export const childProfile = z.object({
   gender: z.string(),
   level: z.string(),
   totalCourses: z.number(),
-  totalLearningDays: z.number(),
+  totalLearningTimes: z.number(),
   totalPoints: z.number(),
 });
 

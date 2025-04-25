@@ -96,11 +96,11 @@ export default function GameDetailScreen() {
                         />
                     </Pressable>
 
-                    <Text className="text-white text-xl font-bold">
+                    <Text className="text-white text-center text-xl font-bold">
                         {gameInfo.title}
                     </Text>
 
-                    <Pressable
+                    {/* <Pressable
                         className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
                         onPress={() => router.push("/child/games/settings")}
                     >
@@ -109,7 +109,7 @@ export default function GameDetailScreen() {
                             size={24}
                             color="white"
                         />
-                    </Pressable>
+                    </Pressable> */}
                 </View>
             </View>
 

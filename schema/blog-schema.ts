@@ -58,6 +58,7 @@ export const blogDetailRes = z.object({
     content: z.string(),
     imageUrl: z.string(),
     status: z.string(),
+    isBanned: z.boolean().nullable(),
     createdAtFormatted: z.string(),
     updatedAtFormatted: z.string(),
     creatorInfo: z.object({
@@ -65,10 +66,15 @@ export const blogDetailRes = z.object({
       firstName: z.string(),
       avatarUrl: z.string(),
     }),
-    isReact: z.boolean(),
     totalReact: z.number(),
     totalComment: z.number(),
-    categories: z.array(z.any()),
+    categories: z.array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+      })
+    ),
+    hashtags: z.array(z.string()).nullable(),
   }),
 });
 
@@ -152,8 +158,7 @@ export type CreateBlogReactBodyType = z.infer<typeof createBlogReactBody>;
 export const createBlogReactRes = z.object({
   statusCode: z.number(),
   info: z.string(),
-  message: z.string()
+  message: z.string(),
 });
 
 export type CreateBlogReactResType = z.infer<typeof createBlogReactRes>;
-

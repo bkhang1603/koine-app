@@ -114,17 +114,17 @@ export default function BlogScreen() {
                         </View>
                     </View>
 
-                    <Pressable
+                    {/* <Pressable
                         className="flex-row items-center bg-white/20 rounded-xl p-3.5 mt-2"
                         onPress={() => {
-                            /* Tính năng tìm kiếm */
+                           
                         }}
                     >
                         <MaterialIcons name="search" size={20} color="white" />
                         <Text className="ml-2 text-white/80 flex-1">
                             Tìm kiếm bài viết...
                         </Text>
-                    </Pressable>
+                    </Pressable> */}
                 </LinearGradient>
 
                 {/* Categories */}

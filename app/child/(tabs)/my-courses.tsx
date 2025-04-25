@@ -231,7 +231,7 @@ export default function ChildMyCoursesScreen() {
                 </Pressable>
               </View>
             ) : (
-              filteredCourses.map((course) => (
+              filteredCourses?.filter((course) => course.isVisible == true).map((course) => (
                 <Pressable
                   key={course.id}
                   className="bg-white rounded-2xl border border-gray-100 mb-5 shadow-sm overflow-hidden"

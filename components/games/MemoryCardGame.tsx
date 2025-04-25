@@ -6,7 +6,7 @@ import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 const CARD_ICONS = [
     { name: "star", color: "#F59E0B" },
     { name: "heart", color: "#EF4444" },
-    { name: "moon", color: "#3B82F6" },
+    { name: "car", color: "#3B82F6" },
     { name: "flower", color: "#EC4899" },
     { name: "music-note", color: "#10B981" },
     { name: "camera", color: "#6366F1" },
@@ -179,7 +179,7 @@ const MemoryCardGame = () => {
                     ]}
                 >
                     <MaterialCommunityIcons
-                        name={card.name}
+                        name={card.name as any}
                         size={36}
                         color={card.color}
                     />
@@ -231,8 +231,8 @@ const MemoryCardGame = () => {
 
 const styles = StyleSheet.create({
     cardContainer: {
-        width: 80,
-        height: 80,
+        width: 70,
+        height: 70,
         margin: 5,
         position: "relative",
     },

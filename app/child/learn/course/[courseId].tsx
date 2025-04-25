@@ -16,7 +16,7 @@ export default function CourseLearnScreen() {
   const { courseId } = useLocalSearchParams<{ courseId: string }>();
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
-
+console.log("ở đây rồi")
   const {
     data: courseData,
     isLoading,
@@ -45,6 +45,7 @@ export default function CourseLearnScreen() {
   if (myCourse == null) return null;
 
   const course = myCourse;
+  console.log("data ", courseData)
 
   return (
     <View className="flex-1 bg-white">
