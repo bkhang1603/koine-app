@@ -98,7 +98,7 @@ export default function CourseDetailScreen() {
       });
       Alert.alert("Thông báo", "Đăng kí thành công", [
         {
-          text: "Trang chủ",
+          text: "Khóa học của tôi",
           onPress: async () => {
             router.push("/child/(tabs)/my-courses")
           },

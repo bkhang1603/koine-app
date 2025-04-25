@@ -110,7 +110,7 @@ export default function HomeScreen() {
         refetch: refetchCourseList,
     } = useCourses({
         keyword: "",
-        page_size: 10,
+        page_size: 100,
         page_index: 1,
     });
 
@@ -121,7 +121,7 @@ export default function HomeScreen() {
         refetch: refetchBlogList,
     } = useBlog({
         keyword: "",
-        page_size: 10,
+        page_size: 100,
         page_index: 1,
     });
 
@@ -271,7 +271,7 @@ export default function HomeScreen() {
                         </View>
                     </View>
 
-                    <Pressable
+                    {/* <Pressable
                         className="flex-row items-center bg-white/20 rounded-xl p-3.5 mt-2"
                         onPress={() => router.push("/search/searchCourse")}
                     >
@@ -279,7 +279,7 @@ export default function HomeScreen() {
                         <Text className="ml-2 text-white/80 flex-1">
                             Tìm kiếm khóa học...
                         </Text>
-                    </Pressable>
+                    </Pressable> */}
                 </LinearGradient>
 
                 {/* Stats Cards - Modern Elevated Card Style */}

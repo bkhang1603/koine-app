@@ -152,31 +152,37 @@ export default function ProfileScreen() {
               <MaterialIcons name="chevron-right" size={24} color="#9CA3AF" />
             </Pressable> */}
 
-                        <Pressable
-                            className="flex-row items-center p-4 bg-white rounded-2xl mb-3 shadow-sm shadow-gray-100 border border-gray-50"
-                            onPress={() => router.push("/child/profile/edit")}
-                        >
-                            <View className="w-10 h-10 rounded-full bg-green-100 items-center justify-center">
-                                <MaterialIcons
-                                    name="edit"
-                                    size={24}
-                                    color="#10B981"
-                                />
-                            </View>
-                            <View className="flex-1 ml-3">
-                                <Text className="font-bold">
-                                    Chỉnh sửa hồ sơ
-                                </Text>
-                                <Text className="text-gray-600 text-sm">
-                                    Cập nhật thông tin cá nhân
-                                </Text>
-                            </View>
-                            <MaterialIcons
-                                name="chevron-right"
-                                size={24}
-                                color="#9CA3AF"
-                            />
-                        </Pressable>
+            <Pressable
+              className="flex-row items-center p-4 bg-white rounded-2xl mb-3 shadow-sm shadow-gray-100 border border-gray-50"
+              onPress={() => router.push("/child/profile/edit")}
+            >
+              <View className="w-10 h-10 rounded-full bg-green-100 items-center justify-center">
+                <MaterialIcons name="edit" size={24} color="#10B981" />
+              </View>
+              <View className="flex-1 ml-3">
+                <Text className="font-bold">Chỉnh sửa hồ sơ</Text>
+                <Text className="text-gray-600 text-sm">
+                  Cập nhật thông tin cá nhân
+                </Text>
+              </View>
+              <MaterialIcons name="chevron-right" size={24} color="#9CA3AF" />
+            </Pressable>
+
+            <Pressable
+              className="flex-row items-center p-4 bg-white rounded-2xl mb-3 shadow-sm shadow-gray-100 border border-gray-50"
+              onPress={() => router.push("/child/blog/blog")}
+            >
+              <View className="w-10 h-10 rounded-full bg-blue-100 items-center justify-center">
+                <MaterialIcons name="library-books" size={24} color="blue" />
+              </View>
+              <View className="flex-1 ml-3">
+                <Text className="font-bold">Danh sách bài viết</Text>
+                <Text className="text-gray-600 text-sm">
+                  Nơi chia sẻ kiến thức
+                </Text>
+              </View>
+              <MaterialIcons name="chevron-right" size={24} color="#9CA3AF" />
+            </Pressable>
 
                         <Pressable
                             className="flex-row items-center p-4 bg-white rounded-2xl mb-3 shadow-sm shadow-gray-100 border border-gray-50"

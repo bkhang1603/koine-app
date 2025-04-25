@@ -298,33 +298,10 @@ export default function ChildMyCoursesScreen() {
                         />
                         <Text className="text-gray-600 ml-1 text-sm">
                           {(() => {
-                            const duration = course.durationDisplay;
-                            const hours = parseInt(duration.split("h")[0]) || 0;
-                            const minutes =
-                              parseInt(
-                                duration.split("h")[1].replace("p", "")
-                              ) || 0;
+                            
 
-                            const totalMinutes = hours * 60 + minutes;
-                            const learnedMinutes = Math.round(
-                              (totalMinutes * course.completionRate) / 100
-                            );
-                            const learnedHours = Math.floor(
-                              learnedMinutes / 60
-                            );
-                            const remainingMinutes = learnedMinutes % 60;
-
-                            let learned = "";
-                            if (learnedHours > 0) {
-                              learned += `${learnedHours} giờ `;
-                            }
-                            if (remainingMinutes > 0 || learned === "") {
-                              learned += `${remainingMinutes} phút`;
-                            }
-                            if (learned === "") learned = "0 phút";
-
-                            return `${learned} / ${formatDuration(
-                              course.durationDisplay
+                            return `Đã học: ${formatDuration(
+                              course.totalLearningTimeDisplay
                             )}`;
                           })()}
                         </Text>

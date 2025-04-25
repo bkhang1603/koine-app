@@ -25,7 +25,7 @@ export const blogRes = z.object({
         firstName: z.string(),
         avatarUrl: z.string(),
       }),
-      totalReact: z.number(),
+      totalReact: z.number().nullable(),
       totalComment: z.number(),
       categories: z.array(z.any()),
     })
@@ -62,6 +62,7 @@ export const blogDetailRes = z.object({
     isBanned: z.boolean().nullable(),
     createdAtFormatted: z.string(),
     updatedAtFormatted: z.string(),
+    isReact: z.boolean(),
     creatorInfo: z.object({
       id: z.string(),
       firstName: z.string(),

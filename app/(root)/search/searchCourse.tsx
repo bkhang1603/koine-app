@@ -286,7 +286,7 @@ export default function SearchScreen() {
                     <View className="flex-row items-center">
                       <MaterialIcons name="people" size={16} color="#6B7280" />
                       <Text className="text-gray-500 text-sm ml-1">
-                        {course.totalEnrollment || 0} học viên
+                        {course.ageStage || "18+"} tuổi
                       </Text>
                     </View>
                   </View>
@@ -391,7 +391,7 @@ export default function SearchScreen() {
                     <View className="flex-row items-center">
                       <MaterialIcons name="people" size={16} color="#6B7280" />
                       <Text className="text-gray-500 text-sm ml-1">
-                        {course.totalEnrollment || 0} học viên
+                        {course.ageStage || "18+"} tuổi
                       </Text>
                     </View>
                   </View>

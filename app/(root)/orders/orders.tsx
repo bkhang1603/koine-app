@@ -132,7 +132,7 @@ export default function OrdersScreen() {
     isError: ordersError,
     error,
   } = useOrder({
-    page_size: 10,
+    page_size: 100,
     page_index: 1,
     token,
   });
