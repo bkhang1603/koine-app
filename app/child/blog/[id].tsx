@@ -12,12 +12,7 @@ import {
 import { useLocalSearchParams, router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { WebView } from "react-native-webview";
-import {
-    useBlogComments,
-    useBlogDetail,
-    useCreateBlogComment,
-    useCreateBlogReact,
-} from "@/queries/useBlog";
+import { useBlogComments, useBlogDetail } from "@/queries/useBlog";
 import {
     blogCommentRes,
     blogDetailRes,
@@ -31,9 +26,12 @@ import { formatTimeAgo } from "@/util/date";
 import { useQueryClient } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+    SafeAreaView,
+    useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
-// Menu options giống như trong HeaderWithBack
+// Menu options for child
 const MENU_OPTIONS = [
     {
         id: "home",
@@ -54,16 +52,16 @@ const MENU_OPTIONS = [
         route: "/child/(tabs)/my-courses",
     },
     {
-        id: "profile",
-        title: "Tài khoản",
-        icon: "person",
-        route: "/child/(tabs)/profile",
-    },
-    {
-        id: "game",
-        title: "Game",
+        id: "games",
+        title: "Trò chơi",
         icon: "sports-esports",
         route: "/child/(tabs)/games",
+    },
+    {
+        id: "profile",
+        title: "Hồ sơ",
+        icon: "person",
+        route: "/child/(tabs)/profile",
     },
 ];
 
@@ -71,13 +69,7 @@ export default function BlogDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const [webViewHeight, setWebViewHeight] = useState(0);
     const [showComments, setShowComments] = useState(false);
-    const [commentText, setCommentText] = useState("");
-    const [lastCommentTime, setLastCommentTime] = useState<Date | null>(null);
-    const [showValidationMessage, setShowValidationMessage] = useState(false);
-    const [localIsReact, setLocalIsReact] = useState(false);
     const [localTotalReact, setLocalTotalReact] = useState(0);
-    const [pendingReactUpdate, setPendingReactUpdate] =
-        useState<NodeJS.Timeout | null>(null);
     const [showMenu, setShowMenu] = useState(false);
     const insets = useSafeAreaInsets();
 
@@ -102,7 +94,6 @@ export default function BlogDetailScreen() {
         page_size: 100,
         page_index: 1,
     });
-
 
     let blog: GetBlogDetailResType["data"] | null = null;
 
@@ -135,41 +126,19 @@ export default function BlogDetailScreen() {
     // Initialize local states when blog data is loaded
     useEffect(() => {
         if (blogData?.data) {
-            setLocalIsReact(blogData.data.totalReact > 0 ? true : false);
             setLocalTotalReact(blogData.data.totalReact);
         }
     }, [blogData?.data]);
 
     if (blogLoading && commentsLoading) return <ActivityIndicatorScreen />;
 
-    if (blogError) return null;
+    if (blogError) return <ErrorScreen message="Lỗi khi tải bài viết" />;
 
-    if (blog == null) return null;
+    if (blog == null) return <ErrorScreen message="Không tìm thấy bài viết" />;
 
     if (commentsError) return null;
 
     if (blogComments == null) return null;
-
-    const canComment = () => {
-        if (!commentText.trim() || commentText.trim().length < 2) {
-            return false;
-        }
-
-        if (lastCommentTime) {
-            const timeSinceLastComment =
-                new Date().getTime() - lastCommentTime.getTime();
-            const cooldownPeriod = 10 * 1000;
-            if (timeSinceLastComment < cooldownPeriod) {
-                return false;
-            }
-        }
-
-        return true;
-    };
-
-
-
-  
 
     // HTML wrapper for WebView content
     const htmlContent = `
@@ -203,13 +172,13 @@ export default function BlogDetailScreen() {
               margin: 1.5em 0;
           }
           a {
-              color: #2563eb;
+              color: #8B5CF6;
               text-decoration: none;
           }
           blockquote {
               margin: 1.5em 0;
               padding: 1em 1.5em;
-              border-left: 4px solid #2563eb;
+              border-left: 4px solid #8B5CF6;
               background: #f3f4f6;
               border-radius: 4px;
           }
@@ -230,20 +199,20 @@ export default function BlogDetailScreen() {
 
     return (
         <View className="flex-1 bg-gray-50">
-            <StatusBar style="dark" />
+            {/* Top SafeArea */}
+            <View className="bg-violet-500">
+                <SafeAreaView edges={["top"]} className="bg-violet-500" />
+            </View>
 
-            {/* Header with Gradient Background */}
-            <LinearGradient
-                colors={["#3b82f6", "#1d4ed8"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                className="pt-14 pb-6 px-5"
-            >
+            <StatusBar style="light" />
+
+            {/* Header */}
+            <View className="pt-4 pb-6 px-5 bg-violet-500">
                 <View className="flex-row items-center justify-between">
                     <View className="flex-row items-center">
                         <Pressable
-                            onPress={() => router.push("/child/blog/blog")}
-                            className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
+                            onPress={() => router.back()}
+                            className="w-10 h-10 bg-violet-400/50 rounded-full items-center justify-center"
                         >
                             <MaterialIcons
                                 name="arrow-back"
@@ -258,22 +227,20 @@ export default function BlogDetailScreen() {
 
                     <View className="flex-row items-center">
                         <Pressable
-                            className="w-10 h-10 items-center justify-center rounded-full bg-white/20 mr-2"
+                            className="w-10 h-10 items-center justify-center rounded-full bg-violet-400/50 mr-2"
                             onPress={() =>
-                                router.push(
-                                    "/child/notifications"
-                                )
+                                router.push("/child/notifications" as any)
                             }
                         >
                             <MaterialIcons
-                                name="notifications-none"
+                                name="notifications"
                                 size={22}
                                 color="white"
                             />
                         </Pressable>
 
                         <Pressable
-                            className="w-10 h-10 items-center justify-center rounded-full bg-white/20"
+                            className="w-10 h-10 items-center justify-center rounded-full bg-violet-400/50"
                             onPress={() => setShowMenu(true)}
                         >
                             <MaterialIcons
@@ -284,66 +251,98 @@ export default function BlogDetailScreen() {
                         </Pressable>
                     </View>
                 </View>
-            </LinearGradient>
+            </View>
 
-            <ScrollView className="flex-1">
-                <Image
-                    source={{ uri: blog.imageUrl }}
-                    className="w-full h-56"
-                    resizeMode="cover"
-                />
-
-                <View className="p-5 -mt-6 bg-white rounded-t-3xl">
-                    <View className="flex-row flex-wrap items-center mb-4">
-                        {blog.categories.map((category, index) => (
-                            <React.Fragment key={category.id || index}>
-                                <Text className="text-blue-600 text-xs font-semibold px-3 py-1.5 bg-blue-50 rounded-full">
-                                    {category.name}
-                                </Text>
-                                {index < blog.categories.length - 1 && (
-                                    <Text className="text-gray-300 mx-2">
-                                        •
-                                    </Text>
-                                )}
-                            </React.Fragment>
-                        ))}
-                    </View>
-
-                    <Text className="text-2xl font-bold text-gray-900 tracking-tight">
-                        {blog.title}
-                    </Text>
-
-                    <View className="flex-row items-center mt-4 pb-4 border-b border-gray-100">
+            {/* Main Content with rounded top corners */}
+            <View className="bg-gray-50 rounded-t-3xl -mt-4 flex-1 overflow-hidden">
+                <ScrollView className="flex-1">
+                    <View>
                         <Image
-                            source={{ uri: blog.creatorInfo.avatarUrl }}
-                            className="w-10 h-10 rounded-full"
+                            source={{ uri: blog.imageUrl }}
+                            className="w-full h-56"
+                            resizeMode="cover"
                         />
-                        <View className="ml-3">
-                            <Text className="text-gray-900 font-medium">
-                                {blog.creatorInfo.firstName}
+
+                        <View className="p-5 mt-4 bg-white rounded-2xl mx-4 shadow-sm">
+                            <View className="flex-row flex-wrap items-center mb-4">
+                                {blog.categories.map((category, index) => (
+                                    <React.Fragment key={category.id || index}>
+                                        <Text className="text-violet-600 text-xs font-semibold px-3 py-1.5 bg-violet-50 rounded-full">
+                                            {category.name}
+                                        </Text>
+                                        {index < blog.categories.length - 1 && (
+                                            <Text className="text-gray-300 mx-2">
+                                                •
+                                            </Text>
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                            </View>
+
+                            <Text className="text-2xl font-bold text-gray-900 tracking-tight">
+                                {blog.title}
                             </Text>
-                            <Text className="text-gray-500 text-sm">
-                                {blog.createdAtFormatted}
-                            </Text>
+
+                            <View className="flex-row items-center mt-4 pb-4 border-b border-gray-100 overflow-hidden">
+                                <Image
+                                    source={{ uri: blog.creatorInfo.avatarUrl }}
+                                    className="w-10 h-10 rounded-full"
+                                />
+                                <View className="ml-3">
+                                    <Text className="text-gray-900 font-medium">
+                                        {blog.creatorInfo.firstName}
+                                    </Text>
+                                    <Text className="text-gray-500 text-sm">
+                                        {blog.createdAtFormatted}
+                                    </Text>
+                                </View>
+                            </View>
+
+                            <View className="mt-4">
+                                <WebView
+                                    source={{ html: htmlContent }}
+                                    style={{ height: webViewHeight }}
+                                    scrollEnabled={false}
+                                    showsVerticalScrollIndicator={false}
+                                    scalesPageToFit={false}
+                                    onMessage={(event) => {
+                                        setWebViewHeight(
+                                            parseInt(event.nativeEvent.data)
+                                        );
+                                    }}
+                                />
+                            </View>
+                        </View>
+
+                        {/* Article Info */}
+                        <View className="bg-white rounded-2xl mx-4 mt-4 p-4 mb-16 shadow-sm">
+                            <View className="flex-row items-center justify-between">
+                                <View className="flex-row items-center">
+                                    <MaterialIcons
+                                        name="comment"
+                                        size={20}
+                                        color="#6B7280"
+                                    />
+                                    <Text className="text-gray-500 ml-2">
+                                        {blog.totalComment || 0} bình luận
+                                    </Text>
+                                </View>
+
+                                <View className="flex-row items-center">
+                                    <MaterialIcons
+                                        name="favorite"
+                                        size={20}
+                                        color="#6B7280"
+                                    />
+                                    <Text className="text-gray-500 ml-2">
+                                        {localTotalReact || 0} thích
+                                    </Text>
+                                </View>
+                            </View>
                         </View>
                     </View>
-
-                    <View className="mt-4">
-                        <WebView
-                            source={{ html: htmlContent }}
-                            style={{ height: webViewHeight }}
-                            scrollEnabled={false}
-                            showsVerticalScrollIndicator={false}
-                            scalesPageToFit={false}
-                            onMessage={(event) => {
-                                setWebViewHeight(
-                                    parseInt(event.nativeEvent.data)
-                                );
-                            }}
-                        />
-                    </View>
-                </View>
-            </ScrollView>
+                </ScrollView>
+            </View>
 
             {/* Menu Dropdown */}
             <Modal
@@ -357,7 +356,7 @@ export default function BlogDetailScreen() {
                     onPress={() => setShowMenu(false)}
                 >
                     <View
-                        className="absolute top-16 right-4 bg-white rounded-2xl shadow-xl w-64"
+                        className="absolute top-20 right-4 bg-white rounded-2xl shadow-xl w-64"
                         style={{
                             shadowColor: "#000",
                             shadowOffset: { width: 0, height: 2 },
@@ -382,7 +381,7 @@ export default function BlogDetailScreen() {
                                 <MaterialIcons
                                     name={option.icon as any}
                                     size={24}
-                                    color="#374151"
+                                    color="#8B5CF6"
                                 />
                                 <Text className="ml-3 text-gray-700">
                                     {option.title}
