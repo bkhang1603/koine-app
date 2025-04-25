@@ -9,113 +9,134 @@ import { useState } from "react";
 import { useAppStore } from "@/components/app-provider";
 
 export default function ProfileScreen() {
-  const childProfile = useAppStore((state) => state.childProfile);
-  const setRefreshExpired = useAppStore((state) => state.setRefreshExpired);
-  const clearAuth = useAppStore((state) => state.clearAuth);
-  const [isProcessing, setIsProcessing] = useState(false);
+    const childProfile = useAppStore((state) => state.childProfile);
+    const setRefreshExpired = useAppStore((state) => state.setRefreshExpired);
+    const clearAuth = useAppStore((state) => state.clearAuth);
+    const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleLogout = async () => {
-    // Định nghĩa hàm xử lý logout sau
-    try {
-      if (isProcessing) return;
-      setIsProcessing(true);
-      setRefreshExpired(true);
-      clearAuth();
-      await SecureStore.deleteItemAsync("loginData");
-      router.push("/(auth)/login");
-      setTimeout(() => setIsProcessing(false), 1000);
-    } catch (error) {
-      console.log("Error when log out: ", error);
-    }
-  };
-  if (!childProfile) return;
+    const handleLogout = async () => {
+        // Định nghĩa hàm xử lý logout sau
+        try {
+            if (isProcessing) return;
+            setIsProcessing(true);
+            setRefreshExpired(true);
+            clearAuth();
+            await SecureStore.deleteItemAsync("loginData");
+            router.push("/(auth)/login");
+            setTimeout(() => setIsProcessing(false), 1000);
+        } catch (error) {
+            console.log("Error when log out: ", error);
+        }
+    };
+    if (!childProfile) return;
 
-  return (
-    <View className="flex-1 bg-white">
-      {/* Top SafeArea với background violet */}
-      <View className="bg-violet-500">
-        <SafeAreaView edges={["top"]} className="bg-violet-500" />
-      </View>
-
-      <ScrollView className="flex-1">
-        {/* Profile Header */}
-        <View className="bg-violet-500 pt-6 pb-20 px-4 rounded-b-[40px]">
-          <View className="flex-row justify-between items-center mb-6">
-            <Text className="text-white text-xl font-bold">Hồ sơ của tôi</Text>
-            <Pressable
-              className="w-10 h-10 bg-violet-400 rounded-full items-center justify-center"
-              onPress={() => router.push("/child/notifications")}
-            >
-              <MaterialIcons name="notifications" size={24} color="white" />
-              <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
-                <Text className="text-white text-xs font-bold">3</Text>
-              </View>
-            </Pressable>
-          </View>
-        </View>
-
-        {/* Profile Card */}
-        <View className="px-4 -mt-16">
-          <View className="bg-white rounded-3xl p-6 shadow-lg shadow-violet-100">
-            <View className="items-center">
-              <Image
-                source={{ uri: childProfile?.avatarUrl }}
-                className="w-24 h-24 rounded-full border-4 border-white"
-              />
-              <Text className="text-xl font-bold mt-4">
-                {childProfile?.lastName + " " + childProfile?.firstName}
-              </Text>
-              <View className="flex-row items-center mt-1">
-                <MaterialIcons name="school" size={16} color="#7C3AED" />
-                <Text className="text-violet-600 ml-1 font-medium">
-                  Cấp độ {childProfile?.level}
-                </Text>
-              </View>
+    return (
+        <View className="flex-1 bg-white">
+            {/* Top SafeArea với background violet */}
+            <View className="bg-violet-500">
+                <SafeAreaView edges={["top"]} className="bg-violet-500" />
             </View>
 
-            {/* Stats */}
-            <View className="flex-row justify-between mt-6 bg-violet-50 rounded-2xl p-4">
-              <View className="items-center flex-1">
-                <Text className="text-2xl font-bold text-violet-600">
-                  {childProfile?.totalPoints || 0} 
-                </Text>
-                <Text className="text-gray-600">Điểm</Text>
-              </View>
-              <View className="items-center flex-1 border-x border-violet-200">
-                <Text className="text-2xl font-bold text-violet-600">
-                  {childProfile?.totalLearningTimes || 1}
-                </Text>
-                <Text className="text-gray-600">Ngày học</Text>
-              </View>
-              <View className="items-center flex-1">
-                <Text className="text-2xl font-bold text-violet-600">
-                  {childProfile?.totalCourses}
-                </Text>
-                <Text className="text-gray-600">Khóa học</Text>
-              </View>
-            </View>
-          </View>
+            <ScrollView className="flex-1">
+                {/* Profile Header */}
+                <View className="bg-violet-500 pt-6 pb-20 px-4 rounded-b-[40px]">
+                    <View className="flex-row justify-between items-center mb-6">
+                        <Text className="text-white text-xl font-bold">
+                            Hồ sơ của tôi
+                        </Text>
+                        <Pressable
+                            className="w-10 h-10 bg-violet-400 rounded-full items-center justify-center"
+                            onPress={() => router.push("/child/notifications")}
+                        >
+                            <MaterialIcons
+                                name="notifications"
+                                size={24}
+                                color="white"
+                            />
+                            <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
+                                <Text className="text-white text-xs font-bold">
+                                    3
+                                </Text>
+                            </View>
+                        </Pressable>
+                    </View>
+                </View>
 
-          {/* Menu Items */}
-          <View className="mt-6">
-            <Pressable
-              className="flex-row items-center p-4 bg-white rounded-2xl mb-3 shadow-sm shadow-gray-100 border border-gray-50"
-              onPress={() => router.push("/child/achievements")}
-            >
-              <View className="w-10 h-10 rounded-full bg-yellow-100 items-center justify-center">
-                <MaterialIcons name="emoji-events" size={24} color="#F59E0B" />
-              </View>
-              <View className="flex-1 ml-3">
-                <Text className="font-bold">Thành tích</Text>
-                <Text className="text-gray-600 text-sm">
-                  Xem các thành tích đã đạt được
-                </Text>
-              </View>
-              <MaterialIcons name="chevron-right" size={24} color="#9CA3AF" />
-            </Pressable>
-            
+                {/* Profile Card */}
+                <View className="px-4 -mt-16">
+                    <View className="bg-white rounded-3xl p-6 shadow-lg shadow-violet-100">
+                        <View className="items-center">
+                            <Image
+                                source={{ uri: childProfile?.avatarUrl }}
+                                className="w-24 h-24 rounded-full border-4 border-white"
+                            />
+                            <Text className="text-xl font-bold mt-4">
+                                {childProfile?.lastName +
+                                    " " +
+                                    childProfile?.firstName}
+                            </Text>
+                            <View className="flex-row items-center mt-1">
+                                <MaterialIcons
+                                    name="school"
+                                    size={16}
+                                    color="#7C3AED"
+                                />
+                                <Text className="text-violet-600 ml-1 font-medium">
+                                    Cấp độ {childProfile?.level}
+                                </Text>
+                            </View>
+                        </View>
 
-            {/* <Pressable
+                        {/* Stats */}
+                        <View className="flex-row justify-between mt-6 bg-violet-50 rounded-2xl p-4">
+                            <View className="items-center flex-1">
+                                <Text className="text-2xl font-bold text-violet-600">
+                                    {childProfile?.totalPoints || 0}
+                                </Text>
+                                <Text className="text-gray-600">Điểm</Text>
+                            </View>
+                            <View className="items-center flex-1 border-x border-violet-200">
+                                <Text className="text-2xl font-bold text-violet-600">
+                                    {childProfile?.totalLearningTimes || 1}
+                                </Text>
+                                <Text className="text-gray-600">Ngày học</Text>
+                            </View>
+                            <View className="items-center flex-1">
+                                <Text className="text-2xl font-bold text-violet-600">
+                                    {childProfile?.totalCourses}
+                                </Text>
+                                <Text className="text-gray-600">Khóa học</Text>
+                            </View>
+                        </View>
+                    </View>
+
+                    {/* Menu Items */}
+                    <View className="mt-6">
+                        <Pressable
+                            className="flex-row items-center p-4 bg-white rounded-2xl mb-3 shadow-sm shadow-gray-100 border border-gray-50"
+                            onPress={() => router.push("/child/achievements")}
+                        >
+                            <View className="w-10 h-10 rounded-full bg-yellow-100 items-center justify-center">
+                                <MaterialIcons
+                                    name="emoji-events"
+                                    size={24}
+                                    color="#F59E0B"
+                                />
+                            </View>
+                            <View className="flex-1 ml-3">
+                                <Text className="font-bold">Thành tích</Text>
+                                <Text className="text-gray-600 text-sm">
+                                    Xem các thành tích đã đạt được
+                                </Text>
+                            </View>
+                            <MaterialIcons
+                                name="chevron-right"
+                                size={24}
+                                color="#9CA3AF"
+                            />
+                        </Pressable>
+
+                        {/* <Pressable
               className="flex-row items-center p-4 bg-white rounded-2xl mb-3 shadow-sm shadow-gray-100 border border-gray-50"
               onPress={() => router.push("/child/settings")}
             >
@@ -131,56 +152,70 @@ export default function ProfileScreen() {
               <MaterialIcons name="chevron-right" size={24} color="#9CA3AF" />
             </Pressable> */}
 
-            <Pressable
-              className="flex-row items-center p-4 bg-white rounded-2xl mb-3 shadow-sm shadow-gray-100 border border-gray-50"
-              onPress={() => router.push("/child/profile/edit")}
-            >
-              <View className="w-10 h-10 rounded-full bg-green-100 items-center justify-center">
-                <MaterialIcons name="edit" size={24} color="#10B981" />
-              </View>
-              <View className="flex-1 ml-3">
-                <Text className="font-bold">Chỉnh sửa hồ sơ</Text>
-                <Text className="text-gray-600 text-sm">
-                  Cập nhật thông tin cá nhân
-                </Text>
-              </View>
-              <MaterialIcons name="chevron-right" size={24} color="#9CA3AF" />
-            </Pressable>
+                        <Pressable
+                            className="flex-row items-center p-4 bg-white rounded-2xl mb-3 shadow-sm shadow-gray-100 border border-gray-50"
+                            onPress={() => router.push("/child/profile/edit")}
+                        >
+                            <View className="w-10 h-10 rounded-full bg-green-100 items-center justify-center">
+                                <MaterialIcons
+                                    name="edit"
+                                    size={24}
+                                    color="#10B981"
+                                />
+                            </View>
+                            <View className="flex-1 ml-3">
+                                <Text className="font-bold">
+                                    Chỉnh sửa hồ sơ
+                                </Text>
+                                <Text className="text-gray-600 text-sm">
+                                    Cập nhật thông tin cá nhân
+                                </Text>
+                            </View>
+                            <MaterialIcons
+                                name="chevron-right"
+                                size={24}
+                                color="#9CA3AF"
+                            />
+                        </Pressable>
 
-            <Pressable
-              className="flex-row items-center p-4 bg-white rounded-2xl mb-3 shadow-sm shadow-gray-100 border border-gray-50"
-              onPress={handleLogout}
-            >
-              <View className="w-10 h-10 rounded-full bg-red-100 items-center justify-center">
-                <MaterialIcons
-                  name="logout"
-                  size={24}
-                  color={isProcessing ? "#808080" : "#EF4444"}
-                />
-              </View>
-              <View className="flex-1 ml-3">
-                <Text
-                  className={
-                    isProcessing
-                      ? "font-bold text-gray-500"
-                      : "font-bold text-red-500"
-                  }
-                >
-                  Đăng xuất
-                </Text>
-                <Text className="text-gray-600 text-sm">
-                  Thoát khỏi tài khoản
-                </Text>
-              </View>
-              <MaterialIcons name="chevron-right" size={24} color="#9CA3AF" />
-            </Pressable>
-          </View>
-          <View className="h-10" />
+                        <Pressable
+                            className="flex-row items-center p-4 bg-white rounded-2xl mb-3 shadow-sm shadow-gray-100 border border-gray-50"
+                            onPress={handleLogout}
+                        >
+                            <View className="w-10 h-10 rounded-full bg-red-100 items-center justify-center">
+                                <MaterialIcons
+                                    name="logout"
+                                    size={24}
+                                    color={isProcessing ? "#808080" : "#EF4444"}
+                                />
+                            </View>
+                            <View className="flex-1 ml-3">
+                                <Text
+                                    className={
+                                        isProcessing
+                                            ? "font-bold text-gray-500"
+                                            : "font-bold text-red-500"
+                                    }
+                                >
+                                    Đăng xuất
+                                </Text>
+                                <Text className="text-gray-600 text-sm">
+                                    Thoát khỏi tài khoản
+                                </Text>
+                            </View>
+                            <MaterialIcons
+                                name="chevron-right"
+                                size={24}
+                                color="#9CA3AF"
+                            />
+                        </Pressable>
+                    </View>
+                    <View className="h-10" />
+                </View>
+            </ScrollView>
+
+            {/* Bottom SafeArea với background trắng */}
+            <SafeAreaView edges={["bottom"]} className="bg-white h-10" />
         </View>
-      </ScrollView>
-
-      {/* Bottom SafeArea với background trắng */}
-      <SafeAreaView edges={["bottom"]} className="bg-white h-10" />
-    </View>
-  );
+    );
 }

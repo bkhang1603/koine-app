@@ -46,6 +46,7 @@ export const blogDetailRes = z.object({
   info: z.string(),
   message: z.string(),
   data: z.object({
+    isReact: z.boolean(),
     isDeleted: z.boolean(),
     createdAt: z.string(),
     updatedAt: z.string(),

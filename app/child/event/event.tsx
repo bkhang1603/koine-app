@@ -293,19 +293,29 @@ export default function EventScreen() {
                                         }}
                                         disabled={isProcessing}
                                     >
-                                        <Image
-                                            source={{ uri: event.imageUrl }}
-                                            className="w-full h-48 rounded-t-2xl"
-                                        />
-
-                                        <View className="p-4">
-                                            <View className="flex-row justify-between items-center">
-                                                <Text className="font-bold text-lg text-gray-900">
-                                                    {event.title}
-                                                </Text>
-
-                                                <View
-                                                    className={`px-3 py-1 rounded-full ${
+                                        <View className="relative">
+                                            <Image
+                                                source={{ uri: event.imageUrl }}
+                                                className="w-full h-48 rounded-t-2xl"
+                                            />
+                                            <View
+                                                className={`absolute top-3 right-3 px-3 py-1 rounded-full ${
+                                                    event.status.toUpperCase() ==
+                                                        "OPENING" &&
+                                                    isClosed(
+                                                        formatStartAt(
+                                                            event.startedAt
+                                                        ),
+                                                        event.durations
+                                                    )
+                                                        ? "bg-gray-400"
+                                                        : statusStyles[
+                                                              event.status.toUpperCase() as keyof typeof statusStyles
+                                                          ]?.backgroundColor
+                                                }`}
+                                            >
+                                                <Text
+                                                    className={`text-xs font-medium ${
                                                         event.status.toUpperCase() ==
                                                             "OPENING" &&
                                                         isClosed(
@@ -314,42 +324,33 @@ export default function EventScreen() {
                                                             ),
                                                             event.durations
                                                         )
-                                                            ? "bg-gray-400"
+                                                            ? "text-white"
                                                             : statusStyles[
                                                                   event.status.toUpperCase() as keyof typeof statusStyles
-                                                              ]?.backgroundColor
+                                                              ]?.textColor
                                                     }`}
                                                 >
-                                                    <Text
-                                                        className={`text-xs font-medium ${
-                                                            event.status.toUpperCase() ==
-                                                                "OPENING" &&
-                                                            isClosed(
-                                                                formatStartAt(
-                                                                    event.startedAt
-                                                                ),
-                                                                event.durations
-                                                            )
-                                                                ? "text-white"
-                                                                : statusStyles[
-                                                                      event.status.toUpperCase() as keyof typeof statusStyles
-                                                                  ]?.textColor
-                                                        }`}
-                                                    >
-                                                        {event.status.toUpperCase() ==
-                                                            "OPENING" &&
-                                                        isClosed(
-                                                            formatStartAt(
-                                                                event.startedAt
-                                                            ),
-                                                            event.durations
-                                                        )
-                                                            ? "Đã kết thúc"
-                                                            : statusStyles[
-                                                                  event.status.toUpperCase() as keyof typeof statusStyles
-                                                              ]?.text}
-                                                    </Text>
-                                                </View>
+                                                    {event.status.toUpperCase() ==
+                                                        "OPENING" &&
+                                                    isClosed(
+                                                        formatStartAt(
+                                                            event.startedAt
+                                                        ),
+                                                        event.durations
+                                                    )
+                                                        ? "Đã kết thúc"
+                                                        : statusStyles[
+                                                              event.status.toUpperCase() as keyof typeof statusStyles
+                                                          ]?.text}
+                                                </Text>
+                                            </View>
+                                        </View>
+
+                                        <View className="p-4">
+                                            <View className="flex-row justify-between items-center">
+                                                <Text className="font-bold text-lg text-gray-900">
+                                                    {event.title}
+                                                </Text>
                                             </View>
 
                                             <Text className="text-gray-600 text-sm mt-2 mb-3">

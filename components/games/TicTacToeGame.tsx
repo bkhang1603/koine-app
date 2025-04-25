@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, Text, Pressable, StyleSheet, Dimensions } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 type Player = "X" | "O" | null;
@@ -10,6 +10,12 @@ const TicTacToeGame = () => {
     const [isXNext, setIsXNext] = useState<boolean>(true);
     const [winner, setWinner] = useState<Player | "draw" | null>(null);
     const [scores, setScores] = useState({ X: 0, O: 0, draws: 0 });
+    const [boardSize, setBoardSize] = useState(
+        Math.min(300, Dimensions.get("window").width - 40)
+    );
+    const [squareSize, setSquareSize] = useState(
+        Math.floor((boardSize - 12) / 3)
+    ); // -12 for margins
 
     // Check for winner
     const calculateWinner = (squares: BoardState): Player | "draw" | null => {
@@ -74,6 +80,28 @@ const TicTacToeGame = () => {
         setWinner(null);
     };
 
+    // Update board size when window dimensions change
+    useEffect(() => {
+        const updateLayout = () => {
+            const width = Dimensions.get("window").width;
+            const newBoardSize = Math.min(300, width - 40);
+            setBoardSize(newBoardSize);
+            setSquareSize(Math.floor((newBoardSize - 12) / 3)); // Account for margins between squares
+        };
+
+        // Set initial size
+        updateLayout();
+
+        // Listen for dimension changes
+        const subscription = Dimensions.addEventListener(
+            "change",
+            updateLayout
+        );
+
+        // Cleanup
+        return () => subscription.remove();
+    }, []);
+
     // Computer move
     useEffect(() => {
         // If game is over or it's player's turn (X), do nothing
@@ -100,30 +128,44 @@ const TicTacToeGame = () => {
 
     // Render a square
     const renderSquare = (index: number) => {
+        const iconSize = Math.floor(squareSize * 0.7);
+
         return (
             <Pressable
                 key={index}
-                className={`w-20 h-20 bg-white m-1 justify-center items-center rounded-lg shadow-sm ${
-                    board[index] === "X"
-                        ? "bg-violet-50"
-                        : board[index] === "O"
-                        ? "bg-pink-50"
-                        : "bg-white"
-                }`}
+                style={{
+                    width: squareSize,
+                    height: squareSize,
+                    margin: 2,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    borderRadius: 8,
+                    backgroundColor:
+                        board[index] === "X"
+                            ? "#F5F3FF" // bg-violet-50
+                            : board[index] === "O"
+                            ? "#FDF2F8" // bg-pink-50
+                            : "white",
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 1 },
+                    shadowOpacity: 0.05,
+                    shadowRadius: 1,
+                    elevation: 1,
+                }}
                 onPress={() => handlePress(index)}
                 disabled={!!winner || !!board[index] || !isXNext}
             >
                 {board[index] === "X" && (
                     <MaterialCommunityIcons
                         name="close"
-                        size={50}
+                        size={iconSize}
                         color="#8B5CF6"
                     />
                 )}
                 {board[index] === "O" && (
                     <MaterialCommunityIcons
                         name="circle-outline"
-                        size={45}
+                        size={iconSize - 5}
                         color="#EC4899"
                     />
                 )}
@@ -139,16 +181,37 @@ const TicTacToeGame = () => {
         return isXNext ? "Lượt của bạn" : "Lượt của máy";
     };
 
+    // Build the grid in 3 rows of 3 squares
+    const renderBoard = () => {
+        const rows = [];
+        for (let row = 0; row < 3; row++) {
+            const columns = [];
+            for (let col = 0; col < 3; col++) {
+                const index = row * 3 + col;
+                columns.push(renderSquare(index));
+            }
+            rows.push(
+                <View key={row} style={{ flexDirection: "row" }}>
+                    {columns}
+                </View>
+            );
+        }
+        return rows;
+    };
+
     return (
         <View className="flex-1 items-center">
             {/* Game Board */}
             <View
-                className="flex-row flex-wrap justify-center items-center mt-2"
-                style={styles.board}
+                style={{
+                    width: boardSize,
+                    height: boardSize,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginTop: 8,
+                }}
             >
-                {Array(9)
-                    .fill(null)
-                    .map((_, index) => renderSquare(index))}
+                {renderBoard()}
             </View>
 
             {/* Status and Controls */}
@@ -205,12 +268,5 @@ const TicTacToeGame = () => {
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    board: {
-        width: 300,
-        height: 300,
-    },
-});
 
 export default TicTacToeGame;

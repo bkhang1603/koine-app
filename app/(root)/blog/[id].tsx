@@ -25,7 +25,6 @@ import {
     GetBlogDetailResType,
 } from "@/schema/blog-schema";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
-import ErrorScreen from "@/components/ErrorScreen";
 import { useAppStore } from "@/components/app-provider";
 import { formatTimeAgo } from "@/util/date";
 import { useQueryClient } from "@tanstack/react-query";
@@ -79,7 +78,6 @@ export default function BlogDetailScreen() {
     const [pendingReactUpdate, setPendingReactUpdate] =
         useState<NodeJS.Timeout | null>(null);
     const [showMenu, setShowMenu] = useState(false);
-    const insets = useSafeAreaInsets();
 
     const accessToken = useAppStore((state) => state.accessToken);
     const token = accessToken == undefined ? "" : accessToken.accessToken;
