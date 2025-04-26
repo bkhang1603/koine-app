@@ -1,9 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import HeaderWithBack from "@/components/HeaderWithBack";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useSocket } from "@/util/SocketProvider";
+import { useAppStore } from "@/components/app-provider";
+import {
+  useMarkNotificationAsRead,
+  useMyNotification,
+} from "@/queries/useNotification";
 
 const NOTIFICATIONS = [
   {
@@ -43,9 +49,52 @@ const NOTIFICATIONS = [
 ];
 
 export default function NotificationsScreen() {
+  const { socket } = useSocket();
+  // console.log(socket)
+
+  const accessToken = useAppStore((state) => state.accessToken);
+  const token = accessToken == undefined ? "" : accessToken.accessToken;
+
+  //cái này là get all
+  const {
+    data: allNotification,
+    isError,
+    isLoading,
+    error,
+    refetch,
+  } = useMyNotification(token);
+
+  //get detail không tạo trang noti detail thì bỏ cái này được
+  //   const {
+  //     data: notificationDetail,
+  //     isError,
+  //     isLoading,
+  //     error,
+  //     refetch,
+  //   } = useMyNotificationDetail(token, notificationId);
+
+  //mark as read
+  const markAsRead = useMarkNotificationAsRead();
+
+  //này kết nối socket t không biết đúng k, có gì check cái until socketprovider
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("notification", (data: any) => {
+      console.log("📩 Nhận thông báo:", data);
+    });
+
+    return () => {
+      socket.off("notification");
+    };
+  }, [socket]);
   return (
     <View className="flex-1 bg-white">
-      <HeaderWithBack title="Thông báo" returnTab="/child/(tabs)/home" showMoreOptions={false} />
+      <HeaderWithBack
+        title="Thông báo"
+        returnTab="/child/(tabs)/home"
+        showMoreOptions={false}
+      />
 
       <ScrollView>
         <View className="p-4">

@@ -305,3 +305,10 @@ export const useUpdateLearningTimeMutation = () => {
     }) => userApiRequest.updateLearningTime(body, token),
   });
 };
+
+export const useMyCertificates = ({ token }: { token: string }) => {
+  return useQuery({
+    queryKey: ["my-certificates"],
+    queryFn: () => userApiRequest.getMyCertificate(token),
+  });
+};

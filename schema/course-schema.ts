@@ -281,3 +281,45 @@ export const updateChapterScoreBodyType = z.object({
 });
 
 export type ChapterScoreBodyType = z.infer<typeof updateChapterScoreBodyType>;
+
+export const getCourseReviews = z.object({
+  statusCode: z.number(),
+  info: z.string(),
+  message: z.string(),
+  data: z.array(
+    z.object({
+      ratingInfos: z.array(
+        z.object({
+          review: z.string(),
+          rating: z.number(),
+          createdAtFormatted: z.string(),
+          updatedAtFormatted: z.string(),
+          user: z.object({
+            id: z.string(),
+            username: z.string(),
+          }),
+        })
+      ),
+      stars: z.object({
+        totalRating: z.number(),
+        ratings: z.object({
+          1: z.number(),
+          2: z.number(),
+          3: z.number(),
+          4: z.number(),
+          5: z.number(),
+        }),
+        averageRating: z.number(),
+      }),
+    })
+  ),
+  pagination: z.object({
+    pageSize: z.number(),
+    totalItem: z.number(),
+    currentPage: z.number(),
+    maxPageSize: z.number(),
+    totalPage: z.number(),
+  }),
+});
+
+export type GetCourseReviews = z.infer<typeof getCourseReviews>;

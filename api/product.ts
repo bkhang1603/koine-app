@@ -1,4 +1,4 @@
-import { GetAllProductResType } from "@/schema/product-schema";
+import { GetAllProductResType, GetProductReviews } from "@/schema/product-schema";
 import http from "@/util/http";
 
 const productApiRequest = {
@@ -12,6 +12,18 @@ const productApiRequest = {
         Authorization: `Bearer ${token}`, // Thêm token vào headers
       },
     }),
+    getProductReviews: ({
+      token, //để authen
+      productId
+    }: {
+      token: string;
+      productId: string
+    }) =>
+      http.get<GetProductReviews>(`products/${productId}/reviews`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Thêm token vào headers
+        },
+      }),
 };
 
 export default productApiRequest;

@@ -3,6 +3,7 @@ import {
   CreateProgressBodyType,
   EditProfileBodyType,
   EditProfileResType,
+  GetMyCertificates,
   GetMyChapterDetailResType,
   GetMyChildCourseProgressResType,
   GetMyChildCoursesResType,
@@ -164,6 +165,12 @@ const userApiRequest = {
     }),
   updateLearningTime: (body: LearningTimeBodyType, token: string) =>
     http.put<any>("user-progresses/learning-time", body, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Thêm token vào headers
+      },
+    }),
+  getMyCertificate: (token: string) =>
+    http.get<GetMyCertificates>(`users/my-certificates`, {
       headers: {
         Authorization: `Bearer ${token}`, // Thêm token vào headers
       },
