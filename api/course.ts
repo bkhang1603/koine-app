@@ -10,6 +10,7 @@ import {
   CreateCustomCourseType,
   GetChapterQuestionResType,
   ChapterScoreBodyType,
+  GetCourseReviews,
 } from "@/schema/course-schema";
 import http from "@/util/http";
 import { string } from "zod";
@@ -118,6 +119,18 @@ const courseApiRequest = {
         Authorization: `Bearer ${token}`,
       },
     }),
+    getCourseReviews: ({
+      token,
+      courseId,
+    }: {
+      token: string;
+      courseId: string;
+    }) =>
+      http.get<GetCourseReviews>(`courses/${courseId}/reviews`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
 };
 
 export default courseApiRequest;

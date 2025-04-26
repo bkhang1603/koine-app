@@ -60,10 +60,12 @@ export const myCourseRes = z.object({
       level: z.string(),
       createdAtFormatted: z.string(),
       updatedAtFormatted: z.string(),
-      nextChapter: z.object({
-        id: z.string(),
-        title: z.string()
-      }).nullable()
+      nextChapter: z
+        .object({
+          id: z.string(),
+          title: z.string(),
+        })
+        .nullable(),
     })
   ),
   message: z.string(),
@@ -351,3 +353,28 @@ export const updateLearningTime = z.object({
 });
 
 export type LearningTimeBodyType = z.TypeOf<typeof updateLearningTime>;
+
+export const getMyCertificates = z.object({
+  statusCode: z.number(),
+  info: z.string(),
+  message: z.string(),
+  data: z.array(
+    z.object({
+      courseId: z.string(),
+      courseTitle: z.string(),
+      courseImageUrl: z.string(),
+      certificateUrl: z.string(),
+      completedDate: z.string(), // ISO date string
+      score: z.number(),
+    })
+  ),
+  pagination: z.object({
+    pageSize: z.number(),
+    totalItem: z.number(),
+    currentPage: z.number(),
+    maxPageSize: z.number(),
+    totalPage: z.number(),
+  }),
+});
+
+export type GetMyCertificates = z.TypeOf<typeof getMyCertificates>;

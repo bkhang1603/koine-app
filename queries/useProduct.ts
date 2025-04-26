@@ -10,3 +10,20 @@ export const useAllProduct = ({ token }: { token: string }) => {
       }),
   });
 };
+
+export const useProductReviews = ({
+  token,
+  productId,
+}: {
+  token: string;
+  productId: string;
+}) => {
+  return useQuery({
+    queryKey: ["product-reviews", productId],
+    queryFn: () =>
+      productApiRequest.getProductReviews({
+        token, // Truyền token vào khi gọi API
+        productId,
+      }),
+  });
+};

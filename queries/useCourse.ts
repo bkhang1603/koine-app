@@ -191,3 +191,20 @@ export const useUpdateChapterScoreMutation = (
     },
   });
 };
+
+export const useCourseReviews = ({
+  token,
+  courseId,
+}: {
+  token: string;
+  courseId: string;
+}) => {
+  return useQuery({
+    queryKey: ["course-reviews", courseId],
+    queryFn: () =>
+      courseApiRequest.getCourseReviews({
+        token, // Truyền token vào khi gọi API
+        courseId,
+      }),
+  });
+};

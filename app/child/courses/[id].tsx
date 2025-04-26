@@ -9,9 +9,13 @@ import {
   Alert,
 } from "react-native";
 import { MaterialIcons, SimpleLineIcons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useCourseDetail, useAssignCourse } from "@/queries/useCourse";
+import {
+  useCourseDetail,
+  useAssignCourse,
+  useCourseReviews,
+} from "@/queries/useCourse";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 import {
   courseDetailRes,
@@ -31,7 +35,24 @@ export default function CourseDetailScreen() {
   const [expandedChapters, setExpandedChapters] = useState<string[]>([]);
 
   const accessToken = useAppStore((state) => state.accessToken);
-  const token = accessToken?.accessToken;
+  const token = accessToken == undefined ? "" : accessToken.accessToken;
+
+  const {
+    data: myCourseReviews,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useCourseReviews({ token, courseId: id as string });
+
+  useFocusEffect(() => {
+    refetch();
+  });
+
+  if (isLoading) console.log("course review loading");
+  if (isError) console.log("course review error ", error);
+
+  console.log("course review data ", myCourseReviews?.data);
 
   const assignCourseMutation = useAssignCourse();
 
@@ -100,11 +121,11 @@ export default function CourseDetailScreen() {
         {
           text: "Khóa học của tôi",
           onPress: async () => {
-            router.push("/child/(tabs)/my-courses")
+            router.push("/child/(tabs)/my-courses");
           },
           style: "cancel",
         },
-      ])
+      ]);
     } catch (error) {
       console.error("Failed to assign course:", error);
     }
@@ -232,9 +253,7 @@ export default function CourseDetailScreen() {
                         </Text>
                         <View className="flex-row items-center mt-1">
                           <MaterialIcons
-                            name={
-                              "schedule"
-                            }
+                            name={"schedule"}
                             size={14}
                             color="#6B7280"
                           />
@@ -262,16 +281,12 @@ export default function CourseDetailScreen() {
   }, [course, expandedChapters]);
 
   if (courseLoading && myCourseLoading) return <ActivityIndicatorScreen />;
-  if (courseError)
-    console.log("Lỗi khi tải dữ liệu khóa học")
-    // return <ErrorScreen message="Lỗi khi tải dữ liệu khóa học" />;
+  if (courseError) console.log("Lỗi khi tải dữ liệu khóa học");
+  // return <ErrorScreen message="Lỗi khi tải dữ liệu khóa học" />;
 
   if (course == null)
-    return (
-      console.log("Lỗi khi tải dữ liệu khóa học. Không tìm thấy khóa học")
-      // <ErrorScreen message="Lỗi khi tải dữ liệu khóa học. Không tìm thấy khóa học" />
-    );
-
+    return console.log("Lỗi khi tải dữ liệu khóa học. Không tìm thấy khóa học");
+    // <ErrorScreen message="Lỗi khi tải dữ liệu khóa học. Không tìm thấy khóa học" />
 
   return (
     <View className="flex-1 bg-white">
