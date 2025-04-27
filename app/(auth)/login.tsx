@@ -107,10 +107,6 @@ export default function LoginScreen() {
         } else if (account.role == RoleValues[3]) {
           router.push("/child/(tabs)/home");
           setTimeout(() => setIsProcessing(false), 1000);
-        } else if (account.role == RoleValues[1]) {
-          router.push("/(expert)/menu/home");
-
-          setTimeout(() => setIsProcessing(false), 1000);
         }
       }
     } catch (error) {
