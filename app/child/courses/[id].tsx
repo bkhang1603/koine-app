@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo } from 'react'
 import {
   View,
   Text,
@@ -7,35 +7,33 @@ import {
   Pressable,
   ActivityIndicator,
   Alert,
-} from "react-native";
-import { MaterialIcons, SimpleLineIcons } from "@expo/vector-icons";
-import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+} from 'react-native'
+import { MaterialIcons, SimpleLineIcons } from '@expo/vector-icons'
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   useCourseDetail,
   useAssignCourse,
   useCourseReviews,
-} from "@/queries/useCourse";
-import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
-import {
-  courseDetailRes,
-  GetCourseDetailResType,
-} from "@/schema/course-schema";
-import { useAppStore } from "@/components/app-provider";
-import { useMyCourse } from "@/queries/useUser";
-import { GetMyCoursesResType, myCourseRes } from "@/schema/user-schema";
-import formatDuration from "@/util/formatDuration";
+} from '@/queries/useCourse'
+import ActivityIndicatorScreen from '@/components/ActivityIndicatorScreen'
+import { courseDetailRes, GetCourseDetailResType } from '@/schema/course-schema'
+import { useAppStore } from '@/components/app-provider'
+import { useMyCourse } from '@/queries/useUser'
+import { GetMyCoursesResType, myCourseRes } from '@/schema/user-schema'
+import formatDuration from '@/util/formatDuration'
+import { getCourseReviews } from '@/schema/course-schema'
 
 export default function CourseDetailScreen() {
-  const { id } = useLocalSearchParams();
-  const insets = useSafeAreaInsets();
+  const { id } = useLocalSearchParams()
+  const insets = useSafeAreaInsets()
   const [selectedTab, setSelectedTab] = useState<
-    "overview" | "content" | "reviews"
-  >("overview");
-  const [expandedChapters, setExpandedChapters] = useState<string[]>([]);
+    'overview' | 'content' | 'reviews'
+  >('overview')
+  const [expandedChapters, setExpandedChapters] = useState<string[]>([])
 
-  const accessToken = useAppStore((state) => state.accessToken);
-  const token = accessToken == undefined ? "" : accessToken.accessToken;
+  const accessToken = useAppStore((state) => state.accessToken)
+  const token = accessToken == undefined ? '' : accessToken.accessToken
 
   const {
     data: myCourseReviews,
@@ -43,18 +41,16 @@ export default function CourseDetailScreen() {
     isError,
     error,
     refetch,
-  } = useCourseReviews({ token, courseId: id as string });
+  } = useCourseReviews({ token, courseId: id as string })
 
   useFocusEffect(() => {
-    refetch();
-  });
+    refetch()
+  })
 
-  if (isLoading) console.log("course review loading");
-  if (isError) console.log("course review error ", error);
+  if (isLoading) console.log('course review loading')
+  if (isError) console.log('course review error ', error)
 
-  console.log("course review data ", myCourseReviews?.data);
-
-  const assignCourseMutation = useAssignCourse();
+  const assignCourseMutation = useAssignCourse()
 
   const {
     data: courseData,
@@ -62,18 +58,18 @@ export default function CourseDetailScreen() {
     isError: courseError,
   } = useCourseDetail({
     courseId: id as string,
-  });
+  })
 
-  let course: GetCourseDetailResType["data"] | null = null;
+  let course: GetCourseDetailResType['data'] | null = null
 
   if (courseData && !courseError) {
     if (courseData.data === null) {
     } else {
-      const parsedResult = courseDetailRes.safeParse(courseData);
+      const parsedResult = courseDetailRes.safeParse(courseData)
       if (parsedResult.success) {
-        course = parsedResult.data.data;
+        course = parsedResult.data.data
       } else {
-        console.error("Validation errors:", parsedResult.error.errors);
+        console.error('Validation errors:', parsedResult.error.errors)
       }
     }
   }
@@ -84,29 +80,29 @@ export default function CourseDetailScreen() {
     isError: myCourseError,
   } = useMyCourse({
     token: token as string,
-  });
+  })
 
-  let myCourse: GetMyCoursesResType["data"] = [];
+  let myCourse: GetMyCoursesResType['data'] = []
 
   if (myCourseData && !myCourseError) {
     if (myCourseData.data.length === 0) {
     } else {
-      const parsedResult = myCourseRes.safeParse(myCourseData);
+      const parsedResult = myCourseRes.safeParse(myCourseData)
       if (parsedResult.success) {
-        myCourse = parsedResult.data.data;
+        myCourse = parsedResult.data.data
       } else {
-        console.error("Validation errors:", parsedResult.error.errors);
+        console.error('Validation errors:', parsedResult.error.errors)
       }
     }
   }
 
   const isEnrolled = useMemo(() => {
-    return myCourse.some((course) => course.id === id);
-  }, [myCourse, id]);
+    return myCourse.some((course) => course.id === id)
+  }, [myCourse, id])
 
   const handleAssignCourse = async () => {
     if (!token) {
-      return;
+      return
     }
 
     try {
@@ -116,31 +112,31 @@ export default function CourseDetailScreen() {
           childId: null,
         },
         token,
-      });
-      Alert.alert("Thông báo", "Đăng kí thành công", [
+      })
+      Alert.alert('Thông báo', 'Đăng kí thành công', [
         {
-          text: "Khóa học của tôi",
+          text: 'Khóa học của tôi',
           onPress: async () => {
-            router.push("/child/(tabs)/my-courses");
+            router.push('/child/(tabs)/my-courses')
           },
-          style: "cancel",
+          style: 'cancel',
         },
-      ]);
+      ])
     } catch (error) {
-      console.error("Failed to assign course:", error);
+      console.error('Failed to assign course:', error)
     }
-  };
+  }
 
   const toggleChapter = (chapterId: string) => {
     setExpandedChapters((prev) =>
       prev.includes(chapterId)
         ? prev.filter((id) => id !== chapterId)
         : [...prev, chapterId]
-    );
-  };
+    )
+  }
 
   const courseContent = useMemo(() => {
-    if (!course || !course.chapters) return null;
+    if (!course || !course.chapters) return null
 
     return (
       <View>
@@ -171,8 +167,8 @@ export default function CourseDetailScreen() {
                     <MaterialIcons
                       name={
                         expandedChapters.includes(chapter.id)
-                          ? "keyboard-arrow-up"
-                          : "keyboard-arrow-down"
+                          ? 'keyboard-arrow-up'
+                          : 'keyboard-arrow-down'
                       }
                       size={28}
                       color="#4B5563"
@@ -187,7 +183,7 @@ export default function CourseDetailScreen() {
                     <MaterialIcons name="menu-book" size={16} color="#6B7280" />
 
                     <Text className="text-gray-500 text-xs ml-1">
-                      {chapter.lessons.length + " bài học"}
+                      {chapter.lessons.length + ' bài học'}
                     </Text>
 
                     {chapter.questions.length != 0 ? (
@@ -207,24 +203,24 @@ export default function CourseDetailScreen() {
               <View className="ml-11">
                 {chapter.lessons.map((lesson, index) => {
                   const isFirstChapterFirstLesson =
-                    chapterIndex === 0 && index === 0;
+                    chapterIndex === 0 && index === 0
                   return (
                     <Pressable
                       key={lesson.id}
                       className={`flex-row items-center px-4 py-3 border-t border-gray-100
-                        ${!isFirstChapterFirstLesson ? "opacity-50" : ""}`}
+                        ${!isFirstChapterFirstLesson ? 'opacity-50' : ''}`}
                       disabled={!isFirstChapterFirstLesson}
                       onPress={() => {
                         if (isFirstChapterFirstLesson) {
                           router.push({
-                            pathname: "/child/courses/lesson/[lessonId]",
+                            pathname: '/child/courses/lesson/[lessonId]',
                             params: {
                               lessonId: lesson.id,
                               courseId: id,
                               chapterId: chapter.id,
                               lessonData: JSON.stringify(lesson),
                             },
-                          });
+                          })
                         }
                       }}
                     >
@@ -232,12 +228,12 @@ export default function CourseDetailScreen() {
                         <MaterialIcons
                           name={
                             isFirstChapterFirstLesson
-                              ? "play-circle-fill"
-                              : "lock"
+                              ? 'play-circle-fill'
+                              : 'lock'
                           }
                           size={22}
                           color={
-                            isFirstChapterFirstLesson ? "#2563EB" : "#9CA3AF"
+                            isFirstChapterFirstLesson ? '#2563EB' : '#9CA3AF'
                           }
                         />
                       </View>
@@ -245,15 +241,15 @@ export default function CourseDetailScreen() {
                         <Text
                           className={`font-medium ${
                             isFirstChapterFirstLesson
-                              ? "text-gray-800"
-                              : "text-gray-400"
+                              ? 'text-gray-800'
+                              : 'text-gray-400'
                           }`}
                         >
                           {lesson.title}
                         </Text>
                         <View className="flex-row items-center mt-1">
                           <MaterialIcons
-                            name={"schedule"}
+                            name={'schedule'}
                             size={14}
                             color="#6B7280"
                           />
@@ -270,23 +266,33 @@ export default function CourseDetailScreen() {
                         />
                       )}
                     </Pressable>
-                  );
+                  )
                 })}
               </View>
             )}
           </View>
         ))}
       </View>
-    );
-  }, [course, expandedChapters]);
+    )
+  }, [course, expandedChapters])
 
-  if (courseLoading && myCourseLoading) return <ActivityIndicatorScreen />;
-  if (courseError) console.log("Lỗi khi tải dữ liệu khóa học");
+  let reviews = null
+  if (myCourseReviews && !isError) {
+    const parsedResult = getCourseReviews.safeParse(myCourseReviews)
+    if (parsedResult.success) {
+      reviews = parsedResult.data.data
+    } else {
+      console.error('Validation errors:', parsedResult.error.errors)
+    }
+  }
+
+  if (courseLoading && myCourseLoading) return <ActivityIndicatorScreen />
+  if (courseError) console.log('Lỗi khi tải dữ liệu khóa học')
   // return <ErrorScreen message="Lỗi khi tải dữ liệu khóa học" />;
 
   if (course == null)
-    return console.log("Lỗi khi tải dữ liệu khóa học. Không tìm thấy khóa học");
-    // <ErrorScreen message="Lỗi khi tải dữ liệu khóa học. Không tìm thấy khóa học" />
+    return console.log('Lỗi khi tải dữ liệu khóa học. Không tìm thấy khóa học')
+  // <ErrorScreen message="Lỗi khi tải dữ liệu khóa học. Không tìm thấy khóa học" />
 
   return (
     <View className="flex-1 bg-white">
@@ -297,7 +303,7 @@ export default function CourseDetailScreen() {
       >
         <View className="px-4 py-3 flex-row items-center justify-between backdrop-blur-sm">
           <Pressable
-            onPress={() => router.push("/child/(tabs)/course")}
+            onPress={() => router.push('/child/(tabs)/course')}
             className="w-10 h-10 bg-black/30 rounded-full items-center justify-center"
           >
             <MaterialIcons name="arrow-back" size={24} color="white" />
@@ -335,14 +341,14 @@ export default function CourseDetailScreen() {
               <MaterialIcons name="bar-chart" size={22} color="#7B1FA2" />
               <Text className="ml-1 font-medium text-base">
                 {course.level == null
-                  ? "Chưa có cấp độ"
-                  : course.level == "ALL"
-                  ? "Tất cả"
-                  : course.level == "BEGINNER"
-                  ? "Khởi đầu"
-                  : course.level == "INTERMEDIATE"
-                  ? "Trung cấp"
-                  : "Nâng cao"}
+                  ? 'Chưa có cấp độ'
+                  : course.level == 'ALL'
+                  ? 'Tất cả'
+                  : course.level == 'BEGINNER'
+                  ? 'Khởi đầu'
+                  : course.level == 'INTERMEDIATE'
+                  ? 'Trung cấp'
+                  : 'Nâng cao'}
               </Text>
             </View>
           </View>
@@ -361,26 +367,26 @@ export default function CourseDetailScreen() {
 
         {/* Tabs - Redesigned with pill style */}
         <View className="mx-4 mt-3 mb-1 p-1 flex-row bg-gray-100 rounded-full">
-          {(["overview", "content", "reviews"] as const).map((tab) => (
+          {(['overview', 'content', 'reviews'] as const).map((tab) => (
             <Pressable
               key={tab}
               onPress={() => setSelectedTab(tab)}
               className={`flex-1 py-2.5 ${
                 selectedTab === tab
-                  ? "bg-white rounded-full shadow-sm"
-                  : "bg-transparent"
+                  ? 'bg-white rounded-full shadow-sm'
+                  : 'bg-transparent'
               }`}
             >
               <Text
                 className={`text-center font-medium ${
-                  selectedTab === tab ? "text-blue-600" : "text-gray-500"
+                  selectedTab === tab ? 'text-blue-600' : 'text-gray-500'
                 }`}
               >
-                {tab === "overview"
-                  ? "Tổng quan"
-                  : tab === "content"
-                  ? "Nội dung"
-                  : "Đánh giá"}
+                {tab === 'overview'
+                  ? 'Tổng quan'
+                  : tab === 'content'
+                  ? 'Nội dung'
+                  : 'Đánh giá'}
               </Text>
             </Pressable>
           ))}
@@ -388,7 +394,7 @@ export default function CourseDetailScreen() {
 
         {/* Tab Content - Redesigned with better spacing */}
         <View className="p-4 mt-2">
-          {selectedTab === "overview" && course && course.chapters && (
+          {selectedTab === 'overview' && course && course.chapters && (
             <View>
               <Text className="text-xl font-bold mb-4">
                 Bạn sẽ học được gì?
@@ -411,14 +417,121 @@ export default function CourseDetailScreen() {
             </View>
           )}
 
-          {selectedTab === "content" && courseContent}
+          {selectedTab === 'content' && courseContent}
 
-          {selectedTab === "reviews" && (
-            <View className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 items-center justify-center py-12">
-              <MaterialIcons name="star-border" size={48} color="#9CA3AF" />
-              <Text className="text-center text-gray-500 mt-3 text-base">
-                Chưa có đánh giá nào cho khóa học này
-              </Text>
+          {selectedTab === 'reviews' && (
+            <View className="space-y-6">
+              {/* Rating Summary */}
+              {reviews && (
+                <View className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                  <View className="flex-row items-center justify-between mb-4">
+                    <View className="items-center">
+                      <Text className="text-4xl font-bold text-gray-900">
+                        {reviews.stars.averageRating.toFixed(1)}
+                      </Text>
+                      <View className="flex-row items-center mt-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <MaterialIcons
+                            key={star}
+                            name="star"
+                            size={16}
+                            color={
+                              star <= reviews.stars.averageRating
+                                ? '#F59E0B'
+                                : '#E5E7EB'
+                            }
+                            style={{ marginHorizontal: 1 }}
+                          />
+                        ))}
+                      </View>
+                      <Text className="text-gray-500 text-sm mt-1">
+                        {reviews.stars.totalRating} đánh giá
+                      </Text>
+                    </View>
+                    <View className="flex-1 ml-8">
+                      {[5, 4, 3, 2, 1].map((rating) => (
+                        <View
+                          key={rating}
+                          className="flex-row items-center mb-1"
+                        >
+                          <Text className="text-gray-600 text-sm w-6">
+                            {rating}
+                          </Text>
+                          <View className="flex-1 h-2 bg-gray-100 rounded-full mx-2">
+                            <View
+                              className="h-2 bg-yellow-500 rounded-full"
+                              style={{
+                                width: `${
+                                  (reviews.stars.ratings[
+                                    rating as keyof typeof reviews.stars.ratings
+                                  ] /
+                                    reviews.stars.totalRating) *
+                                  100
+                                }%`,
+                              }}
+                            />
+                          </View>
+                          <Text className="text-gray-500 text-sm w-8">
+                            {
+                              reviews.stars.ratings[
+                                rating as keyof typeof reviews.stars.ratings
+                              ]
+                            }
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {/* Reviews List */}
+              {reviews && reviews.ratingInfos.length > 0 ? (
+                <View className="space-y-4">
+                  {reviews.ratingInfos.map((review, index) => (
+                    <View
+                      key={index}
+                      className="bg-white p-4 rounded-xl shadow-sm border border-gray-100"
+                    >
+                      <View className="flex-row items-center justify-between mb-2">
+                        <View className="flex-row items-center">
+                          <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center">
+                            <Text className="text-blue-600 font-semibold">
+                              {review.user.username.charAt(0).toUpperCase()}
+                            </Text>
+                          </View>
+                          <View className="ml-3">
+                            <Text className="font-semibold text-gray-900">
+                              {review.user.username}
+                            </Text>
+                            <Text className="text-gray-500 text-sm">
+                              {review.createdAtFormatted}
+                            </Text>
+                          </View>
+                        </View>
+                        <View className="flex-row items-center">
+                          <MaterialIcons
+                            name="star"
+                            size={16}
+                            color="#F59E0B"
+                          />
+                          <Text className="ml-1 font-semibold text-gray-900">
+                            {review.rating}
+                          </Text>
+                        </View>
+                      </View>
+                      <Text className="text-gray-700">{review.review}</Text>
+                    </View>
+                  ))}
+                </View>
+              ) : (
+                <View className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 items-center justify-center py-12">
+                  <MaterialIcons name="star-border" size={48} color="#9CA3AF" />
+                  <Text className="text-center text-gray-500 mt-3 text-base">
+                    Chưa có đánh giá nào cho khóa học này
+                  </Text>
+                </View>
+              )}
             </View>
           )}
         </View>
@@ -432,10 +545,10 @@ export default function CourseDetailScreen() {
         <Pressable
           className={`py-4 rounded-xl items-center flex-row justify-center ${
             isEnrolled
-              ? "bg-green-500"
+              ? 'bg-green-500'
               : course.price === 0
-              ? "bg-blue-600"
-              : "bg-gray-400"
+              ? 'bg-blue-600'
+              : 'bg-gray-400'
           }`}
           onPress={
             !isEnrolled && course.price === 0 ? handleAssignCourse : undefined
@@ -488,5 +601,5 @@ export default function CourseDetailScreen() {
         </Pressable>
       </View>
     </View>
-  );
+  )
 }

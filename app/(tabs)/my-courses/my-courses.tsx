@@ -35,6 +35,9 @@ export default function MyCoursesScreen() {
     token: token as string,
   });
 
+  // log myCourseData with json format
+  console.log(JSON.stringify(myCourseData, null, 2));
+
   const profile = useAppStore((state) => state.profile);
   const firstName = profile?.data.firstName || "User";
   const firstName_Initial = firstName ? firstName.charAt(0).toUpperCase() : "K";
@@ -50,9 +53,10 @@ export default function MyCoursesScreen() {
     } else {
       const parsedResult = myCourseRes.safeParse(myCourseData);
       if (parsedResult.success) {
-        myCourse = parsedResult.data.data.filter(
-          (course) => course.isVisible == true
-        );
+        myCourse = parsedResult.data.data
+        //   .filter(
+        //   (course) => course.isVisible == true
+        // );
       } else {
         console.error("Validation errors:", parsedResult.error.errors);
       }

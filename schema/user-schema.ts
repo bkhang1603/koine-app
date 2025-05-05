@@ -364,7 +364,7 @@ export const getMyCertificates = z.object({
       courseTitle: z.string(),
       courseImageUrl: z.string(),
       certificateUrl: z.string(),
-      completedDate: z.string(), // ISO date string
+      completedDate: z.string(),
       score: z.number(),
     })
   ),
@@ -375,6 +375,6 @@ export const getMyCertificates = z.object({
     maxPageSize: z.number(),
     totalPage: z.number(),
   }),
-});
+})
 
 export type GetMyCertificates = z.TypeOf<typeof getMyCertificates>;

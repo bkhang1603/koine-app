@@ -1,14 +1,14 @@
-import z from "zod";
+import z from 'zod'
 
 const ImageSchema = z.object({
   name: z.string(),
   imageUrl: z.string().url(),
-});
+})
 
 const CategorySchema = z.object({
   id: z.string(),
   name: z.string(),
-});
+})
 
 export const productRes = z.object({
   statusCode: z.number(),
@@ -45,9 +45,9 @@ export const productRes = z.object({
     maxPageSize: z.number(),
     totalPage: z.number(),
   }),
-});
+})
 
-export type GetAllProductResType = z.infer<typeof productRes>;
+export type GetAllProductResType = z.infer<typeof productRes>
 
 export const getProductReviews = z.object({
   statusCode: z.number(),
@@ -56,14 +56,20 @@ export const getProductReviews = z.object({
   data: z.object({
     ratingInfos: z.array(
       z.object({
-        review: z.string(),
+        isDeleted: z.boolean(),
+        createdAt: z.string(),
+        updatedAt: z.string(),
+        productId: z.string(),
+        userId: z.string(),
+        orderDetailId: z.string(),
         rating: z.number(),
-        createdAtFormatted: z.string(),
-        updatedAtFormatted: z.string(),
+        review: z.string(),
         user: z.object({
           id: z.string(),
           username: z.string(),
         }),
+        createdAtFormatted: z.string(),
+        updatedAtFormatted: z.string(),
       })
     ),
     stars: z.object({
@@ -85,6 +91,6 @@ export const getProductReviews = z.object({
     maxPageSize: z.number(),
     totalPage: z.number(),
   }),
-});
+})
 
-export type GetProductReviews = z.infer<typeof getProductReviews>;
+export type GetProductReviews = z.infer<typeof getProductReviews>
