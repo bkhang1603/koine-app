@@ -9,6 +9,7 @@ dist/
 web-build/
 expo-env.d.ts
 config.jsx
+config.tsx
 
 # Native
 *.orig.*

@@ -68,6 +68,8 @@ export default function SearchScreen() {
     isError: productsError,
   } = useAllProduct({
     token: token, // Cần thêm token vào đây
+    page_index: 1,
+    page_size: 100,
   });
 
   // Effect to set all products when data is loaded
@@ -234,7 +236,7 @@ export default function SearchScreen() {
                     {product.name}
                   </Text>
                   <View className="flex-row flex-wrap gap-1 mb-2">
-                  {!product.categories.length ? (
+                    {!product.categories.length ? (
                       <View className=" bg-blue-50 px-3 py-1 rounded-full">
                         <Text className="pl-1 text-blue-600 text-xs font-medium">
                           --

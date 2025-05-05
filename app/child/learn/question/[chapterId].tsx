@@ -35,6 +35,8 @@ export default function QuestionScreen() {
   const { data, isError, error, isLoading } = useChapterQuestion({
     chapterId,
     token,
+    page_index: 1,
+    page_size: 100,
   }) as {
     data?: GetChapterQuestionResType;
     isError: boolean;

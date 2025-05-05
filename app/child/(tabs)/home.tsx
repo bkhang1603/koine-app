@@ -9,10 +9,21 @@ import { useChildProfileAtChild, useMyCourse } from "@/queries/useUser";
 import { GetMyCoursesResType, myCourseRes } from "@/schema/user-schema";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
 import formatDurationForString from "@/util/formatDurationForString";
+import { useMyNotification } from "@/queries/useNotification";
 
 export default function HomeScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
+
+  const notificationBadge = useAppStore((state) => state.notificationBadge);
+
+  const {
+    data: allNotification,
+    isError,
+    isLoading,
+    error,
+  } = useMyNotification({ token, page_index: 1, page_size: 100 });
+
   const {
     data: profileData,
     isError: isProfileError,
@@ -26,6 +37,8 @@ export default function HomeScreen() {
     refetch,
   } = useMyCourse({
     token: token as string,
+    page_index: 1,
+    page_size: 100,
   });
   useFocusEffect(() => {
     refetch();
@@ -72,7 +85,10 @@ export default function HomeScreen() {
                 <Text className="text-white text-lg font-bold">
                   Xin chào 👋
                 </Text>
-                <Text className="text-white text-lg font-bold" numberOfLines={1}>
+                <Text
+                  className="text-white text-lg font-bold"
+                  numberOfLines={1}
+                >
                   {profileData?.data.lastName +
                     " " +
                     profileData?.data.firstName}
@@ -87,13 +103,20 @@ export default function HomeScreen() {
               </View>
             </View>
             <Pressable
-              className="w-10 h-10 bg-violet-400/50 rounded-full items-center justify-center"
+              className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
               onPress={() => router.push("/child/notifications")}
             >
-              <MaterialIcons name="notifications" size={24} color="white" />
-              <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
-                <Text className="text-white text-xs font-bold">3</Text>
-              </View>
+              <MaterialIcons name="notifications" size={26} color="white" />
+              {/* Rating Badge */}
+              {notificationBadge && notificationBadge != 0 ? (
+                <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
+                  <Text className="text-white text-xs font-bold">
+                    {notificationBadge > 9 ? "9+" : notificationBadge}
+                  </Text>
+                </View>
+              ) : (
+                <></>
+              )}
             </Pressable>
 
             <Pressable
@@ -180,12 +203,20 @@ export default function HomeScreen() {
                             Đã học: {course.totalLessonFinished}
                           </Text>
                         </View>
-                        <Text className="text-gray-500 text-sm">Đã học: {formatDurationForString(course.totalLearningTimeDisplay)}</Text>
+                        <Text className="text-gray-500 text-sm">
+                          Đã học:{" "}
+                          {formatDurationForString(
+                            course.totalLearningTimeDisplay
+                          )}
+                        </Text>
                       </View>
                       <View className="mt-3">
                         <View className="flex-row justify-between mb-1">
                           <Text className="text-gray-500 text-sm">
-                           Tiến độ: {course.totalLessonFinished +"/"+ course.totalLesson}
+                            Tiến độ:{" "}
+                            {course.totalLessonFinished +
+                              "/" +
+                              course.totalLesson}
                           </Text>
                           <Text className="text-violet-600 font-medium">
                             {course.completionRate}%

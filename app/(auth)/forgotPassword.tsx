@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -10,15 +10,10 @@ import {
   ScrollView,
   Image,
   Keyboard,
-  TouchableOpacity,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
-import { useAppStore } from "@/components/app-provider";
-import * as SecureStore from "expo-secure-store";
-import { RoleValues } from "@/constants/type";
+import { router } from "expo-router";
 import { Alert } from "react-native";
-import * as Device from "expo-device";
 import { useForgotPasswordMutation } from "@/queries/useAuth";
 
 export default function ForgotPasswordScreen() {
@@ -58,7 +53,7 @@ export default function ForgotPasswordScreen() {
         ]);
       }
     } catch (error) {
-      Alert.alert("Lỗi", `${error}`, [
+      Alert.alert("Lỗi", `Email không tồn tại`, [
         {
           text: "tắt",
           style: "cancel",

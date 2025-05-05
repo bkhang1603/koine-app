@@ -11,6 +11,7 @@ import NetInfo from "@react-native-community/netinfo";
 import { useAppStore } from "@/components/app-provider";
 import { AccessTokenType } from "@/model/access-token";
 import { LOCAL_HOST, DEPLOY_HOST } from "@/config";
+import { useMyNotification } from "@/queries/useNotification";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -27,12 +28,20 @@ const SocketContext = createContext<SocketContextType>({
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  
   const accessToken: AccessTokenType | null = useAppStore(
     (state) => state.accessToken
   );
   const [socket, setSocket] = useState<Socket | null>(null);
   const socketRef = useRef<Socket | null>(null);
   const hasConnected = useRef(false);
+  const token = accessToken == undefined ? "" : accessToken.accessToken;
+  const { data: notificationData, refetch: refetchNotification } =
+    useMyNotification({
+      token,
+      page_index: 1,
+      page_size: 100,
+    });
 
   const connectSocket = useCallback(() => {
     if (!accessToken?.accessToken || socketRef.current) return;
@@ -51,8 +60,8 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
     setSocket(newSocket);
 
     newSocket.on("connect", () => {
-      console.log("✅ Socket connected:", newSocket.id);
       newSocket.emit("login", { token: accessToken.accessToken });
+      console.log("✅ Socket connected:", newSocket.id);
     });
 
     newSocket.on("disconnect", () => {
@@ -69,6 +78,13 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
       setSocket(null);
     }
   }, []);
+
+  //được rồi
+  socket?.on("notification", () => {
+    console.log("OK");
+    refetchNotification();
+    
+  });
 
   useEffect(() => {
     if (accessToken?.accessToken && !hasConnected.current) {

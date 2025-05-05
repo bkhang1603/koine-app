@@ -121,6 +121,7 @@ export default function LessonScreen() {
     try {
       await createProgressMutation.mutateAsync({
         lessonId: lessonId as string,
+        courseId: courseId as string,
       });
       router.push({
         pathname: "/learn/chapter/[chapterId]" as any,
@@ -257,7 +258,10 @@ export default function LessonScreen() {
           {(lesson.type === "VIDEO" || lesson.type === "BOTH") &&
             lesson.videoUrl && (
               <View className="w-full">
-                <VideoPlayer videoUrl={lesson.videoUrl} onUnmountSignal={unmountSignal} />
+                <VideoPlayer
+                  videoUrl={lesson.videoUrl}
+                  onUnmountSignal={unmountSignal}
+                />
               </View>
             )}
 

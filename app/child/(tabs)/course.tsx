@@ -21,6 +21,7 @@ export default function CourseScreen() {
   const token = accessToken == undefined ? "" : accessToken.accessToken;
   const profile = useAppStore((state) => state.profile);
 
+  const notificationBadge = useAppStore((state) => state.notificationBadge);
   // Lấy initial từ tên người dùng
   const firstName = profile?.data.firstName || "Bạn";
   const lastName = profile?.data.lastName || "";
@@ -77,13 +78,20 @@ export default function CourseScreen() {
               </View>
               <View className="flex-row">
                 <Pressable
-                  className="w-10 h-10 bg-violet-400/50 rounded-full items-center justify-center"
+                  className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
                   onPress={() => router.push("/child/notifications")}
                 >
-                  <MaterialIcons name="notifications" size={24} color="white" />
-                  <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
-                    <Text className="text-white text-xs font-bold">3</Text>
-                  </View>
+                  <MaterialIcons name="notifications" size={26} color="white" />
+                  {/* Rating Badge */}
+                  {notificationBadge && notificationBadge != 0 ? (
+                    <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
+                      <Text className="text-white text-xs font-bold">
+                        {notificationBadge > 9 ? "9+" : notificationBadge}
+                      </Text>
+                    </View>
+                  ) : (
+                    <></>
+                  )}
                 </Pressable>
 
                 <Pressable
@@ -152,13 +160,20 @@ export default function CourseScreen() {
             </View>
             <View className="flex-row">
               <Pressable
-                className="w-10 h-10 bg-violet-400/50 rounded-full items-center justify-center"
+                className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
                 onPress={() => router.push("/child/notifications")}
               >
-                <MaterialIcons name="notifications" size={24} color="white" />
-                <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
-                  <Text className="text-white text-xs font-bold">3</Text>
-                </View>
+                <MaterialIcons name="notifications" size={26} color="white" />
+                {/* Rating Badge */}
+                {notificationBadge && notificationBadge != 0 ? (
+                  <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
+                    <Text className="text-white text-xs font-bold">
+                      {notificationBadge > 9 ? "9+" : notificationBadge}
+                    </Text>
+                  </View>
+                ) : (
+                  <></>
+                )}
               </Pressable>
 
               <Pressable

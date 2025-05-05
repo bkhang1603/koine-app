@@ -1,16 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import HeaderWithBack from "@/components/HeaderWithBack";
 import { MOCK_NOTIFICATIONS } from "@/constants/mock-data";
-import { useSocket } from "@/util/SocketProvider";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useAppStore } from "@/components/app-provider";
 import {
   useMarkNotificationAsRead,
-  useMyNotification,
-  useMyNotificationDetail,
+  useMyNotification
 } from "@/queries/useNotification";
+import {
+  GetMyAllNotificationResType,
+  myNotification,
+} from "@/schema/notification";
 
 const getNotificationIcon = (type: string) => {
   switch (type) {
@@ -26,12 +28,9 @@ const getNotificationIcon = (type: string) => {
 };
 
 export default function NotificationsScreen() {
-  const { socket } = useSocket();
-  // console.log(socket)
-
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
-
+  const badge = useAppStore((state) => state.notificationBadge);
   //cái này là get all
   const {
     data: allNotification,
@@ -39,32 +38,47 @@ export default function NotificationsScreen() {
     isLoading,
     error,
     refetch,
-  } = useMyNotification(token);
+  } = useMyNotification({ token, page_index: 1, page_size: 100 });
+  const [isProcessing, setProcessing] = useState(false);
 
-  //get detail không tạo trang noti detail thì bỏ cái này được
-  //   const {
-  //     data: notificationDetail,
-  //     isError,
-  //     isLoading,
-  //     error,
-  //     refetch,
-  //   } = useMyNotificationDetail(token, notificationId);
+  if (isLoading) console.log("Loading notification");
+  if (isError) console.log(error);
+
+  let myNoti: GetMyAllNotificationResType["data"] = [];
+
+  if (allNotification && !isError) {
+    if (allNotification.data.length > 0) {
+      // Bổ sung giá trị mặc định nếu thiếu
+      const parsedResult = myNotification.safeParse(allNotification);
+      if (parsedResult.success) {
+        myNoti = parsedResult.data.data;
+      } else {
+        console.error("Validation errors:", parsedResult.error.errors);
+      }
+    }
+  }
 
   //mark as read
   const markAsRead = useMarkNotificationAsRead();
 
-  //này kết nối socket t không biết đúng k, có gì check cái until socketprovider
-  useEffect(() => {
-    if (!socket) return;
+  const markNotiRead = async () => {
+    try {
+      if (isProcessing) return;
+      setProcessing(true);
+      await markAsRead.mutateAsync(token);
+      console.log("xong")
+    } catch (error) {
+      console.log("Error ", error);
+    } finally {
+      setProcessing(false);
+    }
+  };
 
-    socket.on("notification", (data: any) => {
-      console.log("📩 Nhận thông báo:", data);
-    });
+  const convertTimeSend = (str: string): string => {
+    const [time, date] = str.split("-");
 
-    return () => {
-      socket.off("notification");
-    };
-  }, [socket]);
+    return `${time} ${date}`;
+  };
 
   return (
     <View className="flex-1 bg-white">
@@ -72,45 +86,58 @@ export default function NotificationsScreen() {
       <HeaderWithBack
         title="Thông báo"
         returnTabFunction={() => router.back()}
+        showMoreOptions={false}
       />
-
+      <Pressable
+        onPress={() => {
+          markNotiRead();
+        }}
+        disabled={badge == 0 ? true : false}
+        className="self-end mt-1 mr-3 p-1 bg-slate-300 rounded-lg"
+      >
+        <Text className="p-1 font-semibold">Đánh dấu đã đọc</Text>
+      </Pressable>
       <ScrollView>
         <View className="p-4">
-          {MOCK_NOTIFICATIONS.map((notification) => (
+          {myNoti.map((notification) => (
             <Pressable
               key={notification.id}
               className={`flex-row items-start p-4 mb-2 rounded-xl ${
-                notification.read ? "bg-white" : "bg-blue-50"
+                notification.isRead ? "bg-gray-100" : "bg-blue-50"
               }`}
             >
               <View
                 className={`w-10 h-10 rounded-full items-center justify-center ${
-                  notification.read ? "bg-gray-100" : "bg-blue-100"
+                  notification.isRead ? "bg-gray-200" : "bg-blue-100"
                 }`}
               >
                 <MaterialIcons
                   name={getNotificationIcon(notification.type)}
                   size={20}
-                  color={notification.read ? "#6B7280" : "#3B82F6"}
+                  color={notification.isRead ? "#6B7280" : "#3B82F6"}
                 />
               </View>
               <View className="flex-1 ml-3">
                 <Text
                   className={`font-bold ${
-                    notification.read ? "text-gray-900" : "text-blue-900"
+                    notification.isRead ? "text-gray-900" : "text-blue-900"
                   }`}
                 >
                   {notification.title}
                 </Text>
                 <Text
                   className={
-                    notification.read ? "text-gray-600" : "text-blue-800"
+                    notification.isRead ? "text-gray-600" : "text-blue-800"
                   }
                 >
-                  {notification.message}
+                  {notification.description}
                 </Text>
-                <Text className="text-gray-500 text-sm mt-1">
-                  {notification.time}
+                <Text
+                  className={`${
+                    notification.isRead ? "text-gray-600" : "text-blue-800"
+                  } mt-2 `}
+                >
+                  {convertTimeSend(notification.timeSend)}
                 </Text>
               </View>
             </Pressable>

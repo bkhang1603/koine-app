@@ -24,7 +24,7 @@ export default function ChildLayout() {
                 <Stack.Screen name="event/event" />
                 <Stack.Screen name="event/[id]" />
                 <Stack.Screen name="blog/blog" />
-                <Stack.Screen name="blog/[id]" />
+                <Stack.Screen name="blog/detail/[id]" />
             </Stack>
         </View>
     );

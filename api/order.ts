@@ -39,11 +39,14 @@ const orderApiRequest = {
     page_index: number;
     token: string;
   }) =>
-    http.get<GetAllOrderResType>(`orders/my-orders`, {
-      headers: {
-        Authorization: `Bearer ${token}`, // Thêm token vào headers
-      },
-    }),
+    http.get<GetAllOrderResType>(
+      `orders/my-orders?page_size=${page_size}&page_index=${page_index}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Thêm token vào headers
+        },
+      }
+    ),
   getOrderDetails: ({ orderId, token }: { orderId: string; token: string }) =>
     http.get<GetOrderDetailsResType>(`orders/${orderId}`, {
       headers: {

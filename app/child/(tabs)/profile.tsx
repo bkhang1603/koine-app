@@ -14,6 +14,7 @@ export default function ProfileScreen() {
   const clearAuth = useAppStore((state) => state.clearAuth);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const notificationBadge = useAppStore((state) => state.notificationBadge);
   const handleLogout = async () => {
     // Định nghĩa hàm xử lý logout sau
     try {
@@ -43,13 +44,20 @@ export default function ProfileScreen() {
           <View className="flex-row justify-between items-center mb-6">
             <Text className="text-white text-xl font-bold">Hồ sơ của tôi</Text>
             <Pressable
-              className="w-10 h-10 bg-violet-400 rounded-full items-center justify-center"
+              className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
               onPress={() => router.push("/child/notifications")}
             >
-              <MaterialIcons name="notifications" size={24} color="white" />
-              <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
-                <Text className="text-white text-xs font-bold">3</Text>
-              </View>
+              <MaterialIcons name="notifications" size={26} color="white" />
+              {/* Rating Badge */}
+              {notificationBadge && notificationBadge != 0 ? (
+                <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
+                  <Text className="text-white text-xs font-bold">
+                    {notificationBadge > 9 ? "9+" : notificationBadge}
+                  </Text>
+                </View>
+              ) : (
+                <></>
+              )}
             </Pressable>
           </View>
         </View>

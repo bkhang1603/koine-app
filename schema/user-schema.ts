@@ -161,6 +161,7 @@ export type GetMyLessonDetailResType = z.TypeOf<typeof myLessonDetailRes>;
 export const createProgressBody = z
   .object({
     lessonId: z.string(),
+    courseId: z.string()
   })
   .strict();
 

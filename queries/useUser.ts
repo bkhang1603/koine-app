@@ -4,10 +4,8 @@ import {
   ChildProfileChildPageResType,
   CreateProgressBodyType,
   EditProfileBodyType,
-  GetMyChildCourseProgressResType,
   GetMyChildCoursesResType,
   GetMyChildsResType,
-  GetMyCoursesResType,
   GetUserProfileResType,
   LearningTimeBodyType,
   UpdateChildProfileByParent,
@@ -42,12 +40,22 @@ export const useUser = ({
   });
 };
 
-export const useMyCourse = ({ token }: { token: string }) => {
+export const useMyCourse = ({
+  token,
+  page_index,
+  page_size,
+}: {
+  token: string;
+  page_index: number;
+  page_size: number;
+}) => {
   return useQuery({
     queryKey: ["my-courses"],
     queryFn: () =>
       userApiRequest.getMyCourses({
         token, // Truyền token vào khi gọi API
+        page_index,
+        page_size,
       }),
     staleTime: 60 * 1000, // Cache 1 phút
     //refetchOnWindowFocus: false
