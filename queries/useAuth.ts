@@ -1,6 +1,6 @@
 import authApiRequest from "@/api/auth";
 import { CreateChildBodyType, ForgotPasswordBody } from "@/schema/auth-schema";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const useLoginMutation = () => {
   return useMutation({
@@ -13,24 +13,6 @@ export const useRefreshAccessMutation = () => {
     mutationFn: authApiRequest.getNewAccessToken,
   });
 };
-//ví dụ cho có dùng token
-/*
-//cách này thì đc recommend hơn
-export const useRefreshAccessMutation = () => {
-  const { token } = useContext(AuthContext) // Lấy token từ context hoặc nơi lưu trữ khác
-  return useMutation({
-    mutationFn: (body: RefreshAccessBodyType) => 
-      authApiRequest.getNewAccessToken(body, token)  // Truyền token vào khi gọi API
-  })
-}
-//hoặc dùng cách dưới này không recommend vì token có thể bị thay đổi
-export const useRefreshAccessMutation = (token: string) => {
-  return useMutation({
-    mutationFn: (body: RefreshAccessBodyType) => 
-      authApiRequest.getNewAccessToken(body, token)  // Truyền token vào khi gọi API
-  })
-}
-*/
 
 export const useRegisterMutation = () => {
   return useMutation({
@@ -43,9 +25,6 @@ export const useCheckRefreshMutation = () => {
     mutationFn: authApiRequest.checkRefreshToken,
   });
 };
-
-//tất cả method khác thì viết như trên còn get thì dùng useQuery + 1 cái query key
-//để những api chung 1 query key sẽ tự gọi nhau lúc 1 thg trigger
 
 export const useCreateChildMutation = () => {
   const queryClient = useQueryClient();
@@ -80,4 +59,3 @@ export const useForgotPasswordMutation = () => {
       authApiRequest.forgotPassword(body),
   });
 };
-

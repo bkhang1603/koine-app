@@ -40,12 +40,23 @@ const userApiRequest = {
         },
       }
     ),
-  getMyCourses: ({ token }: { token: string }) =>
-    http.get<GetMyCoursesResType>(`mobile/user-progress/my-courses`, {
-      headers: {
-        Authorization: `Bearer ${token}`, // Thêm token vào headers
-      },
-    }),
+  getMyCourses: ({
+    token,
+    page_size,
+    page_index,
+  }: {
+    token: string;
+    page_size: number;
+    page_index: number;
+  }) =>
+    http.get<GetMyCoursesResType>(
+      `mobile/user-progress/my-courses?page_size=${page_size}&page_index=${page_index}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Thêm token vào headers
+        },
+      }
+    ),
   getCourseDetail: ({ courseId, token }: { courseId: string; token: string }) =>
     http.get<GetMyCourseDetailResType>(
       `mobile/user-progress/my-courses/${courseId}`,

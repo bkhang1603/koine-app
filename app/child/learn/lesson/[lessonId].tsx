@@ -109,6 +109,7 @@ export default function LessonScreen() {
     try {
       await createProgressMutation.mutateAsync({
         lessonId: lessonId as string,
+        courseId: courseId as string,
       });
       // Sau khi hoàn thành, quay lại trang chapter
       router.push({
@@ -143,8 +144,6 @@ export default function LessonScreen() {
 
   const lesson = myLesson;
   const windowWidth = Dimensions.get("window").width;
-
-  
 
   // HTML wrapper for WebView content
   const htmlContent = `
@@ -241,21 +240,24 @@ export default function LessonScreen() {
             </View>
           </View>
         </View>
- 
+
         <View className="flex-1">
           {/* Video Section */}
           {(lesson.type === "VIDEO" || lesson.type === "BOTH") &&
             lesson.videoUrl && (
               <View className="w-full">
-                <VideoPlayer videoUrl={lesson.videoUrl} onUnmountSignal={unmountSignal} />
+                <VideoPlayer
+                  videoUrl={lesson.videoUrl}
+                  onUnmountSignal={unmountSignal}
+                />
               </View>
-            )} 
+            )}
 
           {/* Content Section */}
           {(lesson.type === "DOCUMENT" || lesson.type === "BOTH") &&
             lesson.content && (
               <View className="flex-1 bg-white p-4">
-                <WebView  
+                <WebView
                   source={{ html: htmlContent }}
                   style={{ flex: 1 }}
                   scrollEnabled={false}

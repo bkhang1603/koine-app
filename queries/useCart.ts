@@ -1,4 +1,4 @@
-import { createCartDetailBody, CreateCartDetailBodyType } from './../schema/cart-schema';
+import { CreateCartDetailBodyType } from "./../schema/cart-schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import cartApiRequest from "@/api/cart";
 import {
@@ -10,12 +10,22 @@ import { useAppStore } from "@/components/app-provider";
 import { useEffect } from "react";
 import { RoleValues } from "@/constants/type";
 
-export const useCart = ({ token, enabled }: { token: string; enabled: boolean }) => {
+export const useCart = ({
+  token,
+  enabled,
+  page_size,
+  page_index,
+}: {
+  token: string;
+  enabled: boolean;
+  page_size: number;
+  page_index: number;
+}) => {
   const setCart = useAppStore((state) => state.setCart); // Lấy setCart từ Zustand
   const currentUser = useAppStore((state) => state.user);
   const query = useQuery<GetAllCartDetailResType>({
     queryKey: ["carts"],
-    queryFn: () => cartApiRequest.getAll({ token }),
+    queryFn: () => cartApiRequest.getAll({ token, page_index, page_size }),
     enabled: enabled && !!token && currentUser?.role === RoleValues[0],
   });
 

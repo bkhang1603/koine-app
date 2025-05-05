@@ -47,9 +47,13 @@ export const useCourseDetail = ({ courseId }: { courseId: string }) => {
 export const useMyCourseStore = ({
   token,
   enabled,
+  page_index,
+  page_size,
 }: {
   token: string;
   enabled: boolean;
+  page_index: number;
+  page_size: number;
 }) => {
   const setMyCourse = useAppStore((state) => state.setMyCourse);
   const currentUser = useAppStore((state) => state.user);
@@ -57,7 +61,9 @@ export const useMyCourseStore = ({
     queryKey: ["my-courses-store"],
     queryFn: () =>
       courseApiRequest.getCourseInStorage(
-        token // Truyền token vào khi gọi API
+        token, // Truyền token vào khi gọi API,
+        page_index,
+        page_size
       ),
     enabled: enabled && !!token && currentUser?.role === RoleValues[0],
   });
@@ -116,12 +122,22 @@ export const useEditChildCourseVisible = () => {
   });
 };
 
-export const useCourseElement = ({ token }: { token: string }) => {
+export const useCourseElement = ({
+  token,
+  page_index,
+  page_size,
+}: {
+  token: string;
+  page_index: number;
+  page_size: number;
+}) => {
   const query = useQuery<CourseElementResType>({
     queryKey: ["course-element"],
     queryFn: () =>
       courseApiRequest.getCourseElement(
-        token // Truyền token vào khi gọi API
+        token, // Truyền token vào khi gọi API
+        page_index,
+        page_size
       ),
   });
 
@@ -150,9 +166,13 @@ export const useCreateCustomCourse = () => {
 export const useChapterQuestion = ({
   chapterId,
   token,
+  page_index,
+  page_size,
 }: {
   chapterId: string;
   token: string;
+  page_index: number;
+  page_size: number;
 }) => {
   return useQuery({
     queryKey: ["chapter-question", chapterId],
@@ -160,6 +180,8 @@ export const useChapterQuestion = ({
       courseApiRequest.getChapterQuestions({
         token,
         chapterId,
+        page_index,
+        page_size,
       }),
     enabled: !!chapterId,
   });
@@ -195,9 +217,13 @@ export const useUpdateChapterScoreMutation = (
 export const useCourseReviews = ({
   token,
   courseId,
+  page_index,
+  page_size,
 }: {
   token: string;
   courseId: string;
+  page_index: number;
+  page_size: number;
 }) => {
   return useQuery({
     queryKey: ["course-reviews", courseId],
@@ -205,6 +231,8 @@ export const useCourseReviews = ({
       courseApiRequest.getCourseReviews({
         token, // Truyền token vào khi gọi API
         courseId,
+        page_index,
+        page_size,
       }),
   });
 };

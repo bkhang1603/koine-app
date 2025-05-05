@@ -14,10 +14,17 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useAppStore } from "@/components/app-provider";
 
 export default function EventScreen() {
-  const { data: events, isLoading, isError, error, refetch } = useEvent();
+  const {
+    data: events,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useEvent({ page_index: 1, page_size: 100 });
   const insets = useSafeAreaInsets();
   const profile = useAppStore((state) => state.profile);
   const [isProcessing, setIsProcessing] = useState(false);
+  const notificationBadge = useAppStore((state) => state.notificationBadge);
 
   // Lấy initial từ tên người dùng
   const firstName = profile?.data?.firstName || "Bạn";
@@ -141,10 +148,20 @@ export default function EventScreen() {
           </View>
 
           <Pressable
-            className="w-10 h-10 items-center justify-center rounded-full bg-white/20"
+            className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
             onPress={() => router.push("/(root)/notifications/notifications")}
           >
-            <MaterialIcons name="notifications-none" size={22} color="white" />
+            <MaterialIcons name="notifications" size={26} color="white" />
+            {/* Rating Badge */}
+            {notificationBadge && notificationBadge != 0 ? (
+              <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
+                <Text className="text-white text-xs font-bold">
+                  {notificationBadge > 9 ? "9+" : notificationBadge}
+                </Text>
+              </View>
+            ) : (
+              <></>
+            )}
           </Pressable>
         </View>
       </LinearGradient>

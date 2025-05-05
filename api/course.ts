@@ -30,12 +30,15 @@ const courseApiRequest = {
     ),
   getCourseDetail: ({ courseId }: { courseId: string }) =>
     http.get<GetCourseDetailResType>(`courses/${courseId}`, {}),
-  getCourseInStorage: (token: string) =>
-    http.get<GetMyCourseStoreResType>("courses/my-store", {
-      headers: {
-        Authorization: `Bearer ${token}`, // Thêm token vào headers
-      },
-    }),
+  getCourseInStorage: (token: string, page_index: number, page_size: number) =>
+    http.get<GetMyCourseStoreResType>(
+      `courses/my-store?page_size=${page_size}&page_index=${page_index}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Thêm token vào headers
+        },
+      }
+    ),
   assignCourse: ({
     body,
     token,
@@ -76,12 +79,15 @@ const courseApiRequest = {
         Authorization: `Bearer ${token}`,
       },
     }),
-  getCourseElement: (token: string) =>
-    http.get<CourseElementResType>("courses/all-basic-course-info", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }),
+  getCourseElement: (token: string, page_index: number, page_size: number) =>
+    http.get<CourseElementResType>(
+      `courses/all-basic-course-info?page_size=${page_size}&page_index=${page_index}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    ),
   // api/course-customs/request-custom-course
   createCustomCourse: ({
     token,
@@ -98,15 +104,22 @@ const courseApiRequest = {
   getChapterQuestions: ({
     token,
     chapterId,
+    page_index,
+    page_size,
   }: {
     token: string;
     chapterId: string;
+    page_index: number;
+    page_size: number;
   }) =>
-    http.get<GetChapterQuestionResType>(`questions/my-quiz/${chapterId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }),
+    http.get<GetChapterQuestionResType>(
+      `questions/my-quiz/${chapterId}?page_size=${page_size}&page_index=${page_index}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    ),
   updateChapterScore: ({
     token,
     body,
@@ -119,18 +132,26 @@ const courseApiRequest = {
         Authorization: `Bearer ${token}`,
       },
     }),
-    getCourseReviews: ({
-      token,
-      courseId,
-    }: {
-      token: string;
-      courseId: string;
-    }) =>
-      http.get<GetCourseReviews>(`courses/${courseId}/reviews`, {
+  getCourseReviews: ({
+    token,
+    courseId,
+    page_index,
+    page_size,
+  }: {
+    token: string;
+    courseId: string;
+
+    page_index: number;
+    page_size: number;
+  }) =>
+    http.get<GetCourseReviews>(
+      `courses/${courseId}/reviews?page_size=${page_size}&page_index=${page_index}`,
+      {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }),
+      }
+    ),
 };
 
 export default courseApiRequest;

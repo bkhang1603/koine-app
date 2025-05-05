@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -10,6 +10,10 @@ import {
   useMarkNotificationAsRead,
   useMyNotification,
 } from "@/queries/useNotification";
+import {
+  GetMyAllNotificationResType,
+  myNotification,
+} from "@/schema/notification";
 
 const NOTIFICATIONS = [
   {
@@ -49,45 +53,56 @@ const NOTIFICATIONS = [
 ];
 
 export default function NotificationsScreen() {
-  const { socket } = useSocket();
-  // console.log(socket)
-
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
+  const badge = useAppStore((state) => state.notificationBadge);
+  const [isProcessing, setProcessing] = useState(false);
 
-  //cái này là get all
   const {
     data: allNotification,
     isError,
     isLoading,
     error,
     refetch,
-  } = useMyNotification(token);
+  } = useMyNotification({ token, page_index: 1, page_size: 100 });
+  const convertTimeSend = (str: string): string => {
+    const [time, date] = str.split("-");
 
-  //get detail không tạo trang noti detail thì bỏ cái này được
-  //   const {
-  //     data: notificationDetail,
-  //     isError,
-  //     isLoading,
-  //     error,
-  //     refetch,
-  //   } = useMyNotificationDetail(token, notificationId);
+    return `${time} ${date}`;
+  };
+
+  if (isLoading) console.log("Loading notification");
+  if (isError) console.log(error);
+
+  let myNoti: GetMyAllNotificationResType["data"] = [];
+
+  if (allNotification && !isError) {
+    if (allNotification.data.length > 0) {
+      // Bổ sung giá trị mặc định nếu thiếu
+      const parsedResult = myNotification.safeParse(allNotification);
+      if (parsedResult.success) {
+        myNoti = parsedResult.data.data;
+      } else {
+        console.error("Validation errors:", parsedResult.error.errors);
+      }
+    }
+  }
 
   //mark as read
   const markAsRead = useMarkNotificationAsRead();
 
-  //này kết nối socket t không biết đúng k, có gì check cái until socketprovider
-  useEffect(() => {
-    if (!socket) return;
+  const markNotiRead = async () => {
+    try {
+      if (isProcessing) return;
+      setProcessing(true);
+      await markAsRead.mutateAsync(token);
+    } catch (error) {
+      console.log("Error ", error);
+    } finally {
+      setProcessing(false);
+    }
+  };
 
-    socket.on("notification", (data: any) => {
-      console.log("📩 Nhận thông báo:", data);
-    });
-
-    return () => {
-      socket.off("notification");
-    };
-  }, [socket]);
   return (
     <View className="flex-1 bg-white">
       <HeaderWithBack
@@ -95,14 +110,22 @@ export default function NotificationsScreen() {
         returnTab="/child/(tabs)/home"
         showMoreOptions={false}
       />
-
+      <Pressable
+        onPress={() => {
+          markNotiRead();
+        }}
+        disabled={badge == 0 ? true : false}
+        className="self-end mt-1 mr-3 p-1 bg-slate-300 rounded-lg"
+      >
+        <Text className="p-1 font-semibold">Đánh dấu đã đọc</Text>
+      </Pressable>
       <ScrollView>
         <View className="p-4">
-          {NOTIFICATIONS.map((notification) => (
+          {myNoti.map((notification) => (
             <Pressable
               key={notification.id}
               className={`mb-4 rounded-2xl overflow-hidden border border-gray-200 ${
-                notification.read ? "opacity-70" : ""
+                notification.isRead ? "opacity-70" : ""
               }`}
             >
               {/* Header với màu nền tương ứng */}
@@ -121,7 +144,7 @@ export default function NotificationsScreen() {
                   {notification.title}
                 </Text>
                 <Text className="text-white/80 text-sm">
-                  {notification.time}
+                  {convertTimeSend(notification.timeSend)}
                 </Text>
               </View>
 
@@ -163,9 +186,9 @@ export default function NotificationsScreen() {
                   </View>
                   <View className="flex-1 ml-3">
                     <Text className="text-gray-600 text-base leading-5">
-                      {notification.message}
+                      {notification.description}
                     </Text>
-                    {notification.points && (
+                    {/* {notification.points && (
                       <View className="flex-row items-center mt-2">
                         <MaterialIcons name="stars" size={16} color="#F59E0B" />
                         <Text className="text-yellow-500 font-medium ml-1">
@@ -184,7 +207,7 @@ export default function NotificationsScreen() {
                           {notification.streakDays} ngày liên tiếp
                         </Text>
                       </View>
-                    )}
+                    )} */}
                   </View>
                 </View>
               </View>

@@ -15,10 +15,14 @@ import http from "@/util/http";
 const cartApiRequest = {
   getAll: ({
     token, //để authen
+    page_index,
+    page_size
   }: {
     token: string;
+    page_index: number;
+    page_size: number
   }) =>
-    http.get<GetAllCartDetailResType>(`mobile/cart`, {
+    http.get<GetAllCartDetailResType>(`mobile/cart?page_size=${page_size}&page_index=${page_index}`, {
       headers: {
         Authorization: `Bearer ${token}`, // Thêm token vào headers
       },

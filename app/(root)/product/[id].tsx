@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,93 +8,98 @@ import {
   Alert,
   ActivityIndicator,
   Modal,
-} from 'react-native'
-import { Foundation, MaterialIcons, Ionicons } from '@expo/vector-icons'
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useAppStore } from '@/components/app-provider'
+} from "react-native";
+import { Foundation, MaterialIcons, Ionicons } from "@expo/vector-icons";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAppStore } from "@/components/app-provider";
 import {
   GetAllProductResType,
   getProductReviews,
   GetProductReviews,
-} from '@/schema/product-schema'
-import { Animated } from 'react-native'
-import { useCreateCartItemMutation } from '@/queries/useCart'
-import CartButton from '@/components/CartButton'
-import { LinearGradient } from 'expo-linear-gradient'
-import { StatusBar } from 'expo-status-bar'
-import HeaderWithBack from '@/components/HeaderWithBack'
-import { useProductReviews } from '@/queries/useProduct'
+} from "@/schema/product-schema";
+import { Animated } from "react-native";
+import { useCreateCartItemMutation } from "@/queries/useCart";
+import CartButton from "@/components/CartButton";
+import { LinearGradient } from "expo-linear-gradient";
+import { StatusBar } from "expo-status-bar";
+import HeaderWithBack from "@/components/HeaderWithBack";
+import { useProductReviews } from "@/queries/useProduct";
 
 // Menu options giống như trong HeaderWithBack
 const MENU_OPTIONS = [
   {
-    id: 'home',
-    title: 'Trang chủ',
-    icon: 'home',
-    route: '/(tabs)/home',
+    id: "home",
+    title: "Trang chủ",
+    icon: "home",
+    route: "/(tabs)/home",
   },
   {
-    id: 'courses',
-    title: 'Khóa học',
-    icon: 'menu-book',
-    route: '/(tabs)/course/course',
+    id: "courses",
+    title: "Khóa học",
+    icon: "menu-book",
+    route: "/(tabs)/course/course",
   },
   {
-    id: 'my-courses',
-    title: 'Khóa học của tôi',
-    icon: 'school',
-    route: '/(tabs)/my-courses/my-courses',
+    id: "my-courses",
+    title: "Khóa học của tôi",
+    icon: "school",
+    route: "/(tabs)/my-courses/my-courses",
   },
   {
-    id: 'profile',
-    title: 'Tài khoản',
-    icon: 'person',
-    route: '/(tabs)/profile/profile',
+    id: "profile",
+    title: "Tài khoản",
+    icon: "person",
+    route: "/(tabs)/profile/profile",
   },
   {
-    id: 'blog',
-    title: 'Blog',
-    icon: 'article',
-    route: '/(tabs)/blog/blog',
+    id: "blog",
+    title: "Blog",
+    icon: "article",
+    route: "/(tabs)/blog/blog",
   },
-]
+];
 
 export default function ProductDetailScreen() {
-  const { id, productDetail } = useLocalSearchParams()
+  const { id, productDetail } = useLocalSearchParams();
 
-  let parsedProductDetail: GetAllProductResType['data'][0]
-  const insets = useSafeAreaInsets()
-  const [quantity, setQuantity] = useState(1)
-  const shakeAnimation = new Animated.Value(0)
-  const [isProcessing, setProcessing] = useState(false)
-  const [showMenu, setShowMenu] = useState(false)
+  let parsedProductDetail: GetAllProductResType["data"][0];
+  const insets = useSafeAreaInsets();
+  const [quantity, setQuantity] = useState(1);
+  const shakeAnimation = new Animated.Value(0);
+  const [isProcessing, setProcessing] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
-  const accessToken = useAppStore((state) => state.accessToken)
-  const token = accessToken == undefined ? '' : accessToken.accessToken
-
+  const accessToken = useAppStore((state) => state.accessToken);
+  const token = accessToken == undefined ? "" : accessToken.accessToken;
+  const notificationBadge = useAppStore((state) => state.notificationBadge);
   const {
     data: myProductReviews,
     isLoading,
     isError,
     error,
     refetch,
-  } = useProductReviews({ token, productId: id as string })
+  } = useProductReviews({
+    token,
+    productId: id as string,
+    page_index: 1,
+    page_size: 100,
+  });
 
   useFocusEffect(() => {
-    refetch()
-  })
+    refetch();
+  });
 
-  if (isLoading) console.log('course review loading')
-  if (isError) console.log('course review error ', error)
+  if (isLoading) console.log("course review loading");
+  if (isError) console.log("course review error ", error);
 
-  let reviews = null
+  let reviews = null;
   if (myProductReviews && !isError) {
-    const parsedResult = getProductReviews.safeParse(myProductReviews)
+    const parsedResult = getProductReviews.safeParse(myProductReviews);
     if (parsedResult.success) {
-      reviews = parsedResult.data.data
+      reviews = parsedResult.data.data;
     } else {
-      console.error('Validation errors:', parsedResult.error.errors)
+      console.error("Validation errors:", parsedResult.error.errors);
     }
   }
 
@@ -115,14 +120,14 @@ export default function ProductDetailScreen() {
         duration: 100,
         useNativeDriver: true,
       }),
-    ]).start()
-  }
+    ]).start();
+  };
 
-  const createCartItemMutation = useCreateCartItemMutation()
+  const createCartItemMutation = useCreateCartItemMutation();
   const handleAddToCart = async () => {
     try {
-      if (isProcessing) return
-      setProcessing(true)
+      if (isProcessing) return;
+      setProcessing(true);
 
       const res = await createCartItemMutation.mutateAsync({
         body: {
@@ -130,41 +135,41 @@ export default function ProductDetailScreen() {
           quantity: quantity,
         },
         token,
-      })
-      Alert.alert('Thông báo', 'Thêm sản phẩm vào giỏ thành công', [
+      });
+      Alert.alert("Thông báo", "Thêm sản phẩm vào giỏ thành công", [
         {
-          text: 'Mua tiếp',
-          style: 'cancel',
+          text: "Mua tiếp",
+          style: "cancel",
         },
         {
-          text: 'Trang chủ',
+          text: "Trang chủ",
           onPress: () => {
-            router.push('/(tabs)/home')
+            router.push("/(tabs)/home");
           },
-          style: 'destructive',
+          style: "destructive",
         },
-      ])
+      ]);
     } catch (e) {
-      Alert.alert('Lỗi', `Không thêm được sản phẩm ${e}`, [
+      Alert.alert("Lỗi", `Không thêm được sản phẩm ${e}`, [
         {
-          text: 'tắt',
-          style: 'cancel',
+          text: "tắt",
+          style: "cancel",
         },
-      ])
+      ]);
     } finally {
-      setProcessing(false)
+      setProcessing(false);
     }
-  }
+  };
 
   // Màn hình lỗi khi không thể parse sản phẩm
-  if (typeof productDetail !== 'string') {
+  if (typeof productDetail !== "string") {
     return (
       <View className="flex-1 bg-[#f5f7f9]">
         <StatusBar style="dark" />
 
         {/* Custom Gradient Header with Back Button and More Options */}
         <LinearGradient
-          colors={['#3b82f6', '#1d4ed8']}
+          colors={["#3b82f6", "#1d4ed8"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           className="pt-14 pb-6 px-5"
@@ -172,7 +177,7 @@ export default function ProductDetailScreen() {
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center">
               <Pressable
-                onPress={() => router.push('/(root)/product/product')}
+                onPress={() => router.push("/(root)/product/product")}
                 className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
               >
                 <MaterialIcons name="arrow-back" size={22} color="white" />
@@ -183,17 +188,26 @@ export default function ProductDetailScreen() {
             </View>
 
             <View className="flex-row items-center">
+              <View className="mr-2">
+                <CartButton bgColor="bg-white/20" iconColor="white" />
+              </View>
               <Pressable
-                className="w-10 h-10 items-center justify-center rounded-full bg-white/20 mr-2"
+                className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
                 onPress={() =>
-                  router.push('/(root)/notifications/notifications')
+                  router.push("/(root)/notifications/notifications")
                 }
               >
-                <MaterialIcons
-                  name="notifications-none"
-                  size={22}
-                  color="white"
-                />
+                <MaterialIcons name="notifications" size={26} color="white" />
+                {/* Rating Badge */}
+                {notificationBadge && notificationBadge != 0 ? (
+                  <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
+                    <Text className="text-white text-xs font-bold">
+                      {notificationBadge > 9 ? "9+" : notificationBadge}
+                    </Text>
+                  </View>
+                ) : (
+                  <></>
+                )}
               </Pressable>
 
               <Pressable
@@ -213,7 +227,7 @@ export default function ProductDetailScreen() {
           </Text>
           <Pressable
             className="mt-4 bg-blue-500 px-6 py-3 rounded-xl"
-            onPress={() => router.push('/(root)/product/product')}
+            onPress={() => router.push("/(root)/product/product")}
           >
             <Text className="text-white font-bold">Quay lại danh sách</Text>
           </Pressable>
@@ -233,7 +247,7 @@ export default function ProductDetailScreen() {
             <View
               className="absolute top-16 right-4 bg-white rounded-2xl shadow-xl w-64"
               style={{
-                shadowColor: '#000',
+                shadowColor: "#000",
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.25,
                 shadowRadius: 3.84,
@@ -244,13 +258,13 @@ export default function ProductDetailScreen() {
                 <Pressable
                   key={option.id}
                   onPress={() => {
-                    setShowMenu(false)
-                    router.replace(option.route as any)
+                    setShowMenu(false);
+                    router.replace(option.route as any);
                   }}
                   className={`flex-row items-center p-4 ${
                     index !== MENU_OPTIONS.length - 1
-                      ? 'border-b border-gray-100'
-                      : ''
+                      ? "border-b border-gray-100"
+                      : ""
                   }`}
                 >
                   <MaterialIcons
@@ -265,14 +279,14 @@ export default function ProductDetailScreen() {
           </Pressable>
         </Modal>
       </View>
-    )
+    );
   }
 
   try {
     // Parse thông tin sản phẩm
     parsedProductDetail = JSON.parse(
       decodeURIComponent(productDetail)
-    ) as GetAllProductResType['data'][0]
+    ) as GetAllProductResType["data"][0];
 
     return (
       <View className="flex-1 bg-[#f5f7f9]">
@@ -285,12 +299,12 @@ export default function ProductDetailScreen() {
                 uri: parsedProductDetail.images[0].imageUrl,
               }}
               className="w-full h-72"
-              style={{ resizeMode: 'cover' }}
+              style={{ resizeMode: "cover" }}
             />
             <LinearGradient
-              colors={['rgba(0,0,0,0.7)', 'transparent']}
+              colors={["rgba(0,0,0,0.7)", "transparent"]}
               style={{
-                position: 'absolute',
+                position: "absolute",
                 left: 0,
                 right: 0,
                 top: 0,
@@ -305,25 +319,37 @@ export default function ProductDetailScreen() {
             >
               <View className="px-4 py-3 flex-row items-center justify-between">
                 <Pressable
-                  onPress={() => router.push('/(root)/product/product')}
+                  onPress={() => router.push("/(root)/product/product")}
                   className="w-10 h-10 bg-black/30 rounded-full items-center justify-center"
                 >
                   <MaterialIcons name="arrow-back" size={22} color="white" />
                 </Pressable>
 
                 <View className="flex-row items-center">
-                  <CartButton bgColor="bg-black/30" iconColor="white" />
+                  <View className="mr-2">
+                    <CartButton bgColor="bg-white/20" iconColor="white" />
+                  </View>
                   <Pressable
-                    className="w-10 h-10 items-center justify-center rounded-full bg-black/30 ml-2 mr-2"
+                    className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
                     onPress={() =>
-                      router.push('/(root)/notifications/notifications')
+                      router.push("/(root)/notifications/notifications")
                     }
                   >
                     <MaterialIcons
-                      name="notifications-none"
-                      size={22}
+                      name="notifications"
+                      size={26}
                       color="white"
                     />
+                    {/* Rating Badge */}
+                    {notificationBadge && notificationBadge != 0 ? (
+                      <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
+                        <Text className="text-white text-xs font-bold">
+                          {notificationBadge > 9 ? "9+" : notificationBadge}
+                        </Text>
+                      </View>
+                    ) : (
+                      <></>
+                    )}
                   </Pressable>
                   <Pressable
                     className="w-10 h-10 items-center justify-center rounded-full bg-black/30"
@@ -379,8 +405,8 @@ export default function ProductDetailScreen() {
                   </Text>
                 </View>
                 <Text className="text-gray-500 text-sm">
-                  {parsedProductDetail.createdAtFormatted?.split('-')[1] ||
-                    'Sản phẩm mới'}
+                  {parsedProductDetail.createdAtFormatted?.split("-")[1] ||
+                    "Sản phẩm mới"}
                 </Text>
               </View>
 
@@ -391,20 +417,20 @@ export default function ProductDetailScreen() {
                       {Math.round(
                         parsedProductDetail.price /
                           (1 - parsedProductDetail.discount)
-                      ).toLocaleString('vi-VN')}{' '}
+                      ).toLocaleString("vi-VN")}{" "}
                       ₫
                     </Text>
                   )}
                 <Text
                   className={`text-xl font-bold ${
                     parsedProductDetail.price === 0
-                      ? 'text-green-500'
-                      : 'text-blue-500'
+                      ? "text-green-500"
+                      : "text-blue-500"
                   }`}
                 >
                   {parsedProductDetail.price === 0
-                    ? 'Miễn phí'
-                    : `${parsedProductDetail.price.toLocaleString('vi-VN')} ₫`}
+                    ? "Miễn phí"
+                    : `${parsedProductDetail.price.toLocaleString("vi-VN")} ₫`}
                 </Text>
               </View>
             </View>
@@ -441,8 +467,8 @@ export default function ProductDetailScreen() {
                             size={16}
                             color={
                               star <= reviews.stars.averageRating
-                                ? '#F59E0B'
-                                : '#E5E7EB'
+                                ? "#F59E0B"
+                                : "#E5E7EB"
                             }
                             style={{ marginHorizontal: 1 }}
                           />
@@ -494,7 +520,7 @@ export default function ProductDetailScreen() {
                 <View className="space-y-4 pb-10">
                   {reviews.ratingInfos.map(
                     (
-                      review: GetProductReviews['data']['ratingInfos'][0],
+                      review: GetProductReviews["data"]["ratingInfos"][0],
                       index: number
                     ) => (
                       <View
@@ -555,9 +581,9 @@ export default function ProductDetailScreen() {
               <Text className="text-gray-500 text-sm mb-1">Tổng cộng</Text>
               <Text className="text-2xl font-bold text-blue-500">
                 {parsedProductDetail.price === 0
-                  ? 'Miễn phí'
+                  ? "Miễn phí"
                   : `${(parsedProductDetail.price * quantity).toLocaleString(
-                      'vi-VN'
+                      "vi-VN"
                     )} ₫`}
               </Text>
             </View>
@@ -572,7 +598,7 @@ export default function ProductDetailScreen() {
                   <MaterialIcons
                     name="remove"
                     size={20}
-                    color={quantity <= 1 ? '#9CA3AF' : '#374151'}
+                    color={quantity <= 1 ? "#9CA3AF" : "#374151"}
                   />
                 </Pressable>
                 <Animated.Text
@@ -587,9 +613,9 @@ export default function ProductDetailScreen() {
                   className="w-10 h-10 items-center justify-center"
                   onPress={() => {
                     if (quantity >= 3) {
-                      shake()
+                      shake();
                     } else {
-                      setQuantity(quantity + 1)
+                      setQuantity(quantity + 1);
                     }
                   }}
                   disabled={quantity >= 3}
@@ -597,7 +623,7 @@ export default function ProductDetailScreen() {
                   <MaterialIcons
                     name="add"
                     size={20}
-                    color={quantity >= 3 ? '#9CA3AF' : '#374151'}
+                    color={quantity >= 3 ? "#9CA3AF" : "#374151"}
                   />
                 </Pressable>
               </View>
@@ -606,7 +632,7 @@ export default function ProductDetailScreen() {
 
           <Pressable
             className={`w-full py-4 rounded-xl flex-row items-center justify-center ${
-              isProcessing ? 'bg-blue-400' : 'bg-blue-500'
+              isProcessing ? "bg-blue-400" : "bg-blue-500"
             }`}
             onPress={handleAddToCart}
             disabled={isProcessing}
@@ -638,7 +664,7 @@ export default function ProductDetailScreen() {
             <View
               className="absolute top-16 right-4 bg-white rounded-2xl shadow-xl w-64"
               style={{
-                shadowColor: '#000',
+                shadowColor: "#000",
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.25,
                 shadowRadius: 3.84,
@@ -649,13 +675,13 @@ export default function ProductDetailScreen() {
                 <Pressable
                   key={option.id}
                   onPress={() => {
-                    setShowMenu(false)
-                    router.replace(option.route as any)
+                    setShowMenu(false);
+                    router.replace(option.route as any);
                   }}
                   className={`flex-row items-center p-4 ${
                     index !== MENU_OPTIONS.length - 1
-                      ? 'border-b border-gray-100'
-                      : ''
+                      ? "border-b border-gray-100"
+                      : ""
                   }`}
                 >
                   <MaterialIcons
@@ -670,16 +696,16 @@ export default function ProductDetailScreen() {
           </Pressable>
         </Modal>
       </View>
-    )
+    );
   } catch (error) {
-    console.log('Lỗi ở product detail ', error)
+    console.log("Lỗi ở product detail ", error);
     return (
       <View className="flex-1 bg-[#f5f7f9]">
         <StatusBar style="dark" />
 
         {/* Custom Gradient Header with Back Button and More Options */}
         <LinearGradient
-          colors={['#3b82f6', '#1d4ed8']}
+          colors={["#3b82f6", "#1d4ed8"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           className="pt-14 pb-6 px-5"
@@ -687,7 +713,7 @@ export default function ProductDetailScreen() {
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center">
               <Pressable
-                onPress={() => router.push('/(root)/product/product')}
+                onPress={() => router.push("/(root)/product/product")}
                 className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
               >
                 <MaterialIcons name="arrow-back" size={22} color="white" />
@@ -701,7 +727,7 @@ export default function ProductDetailScreen() {
               <Pressable
                 className="w-10 h-10 items-center justify-center rounded-full bg-white/20 mr-2"
                 onPress={() =>
-                  router.push('/(root)/notifications/notifications')
+                  router.push("/(root)/notifications/notifications")
                 }
               >
                 <MaterialIcons
@@ -728,7 +754,7 @@ export default function ProductDetailScreen() {
           </Text>
           <Pressable
             className="mt-4 bg-blue-500 px-6 py-3 rounded-xl"
-            onPress={() => router.push('/(root)/product/product')}
+            onPress={() => router.push("/(root)/product/product")}
           >
             <Text className="text-white font-bold">Quay lại danh sách</Text>
           </Pressable>
@@ -748,7 +774,7 @@ export default function ProductDetailScreen() {
             <View
               className="absolute top-16 right-4 bg-white rounded-2xl shadow-xl w-64"
               style={{
-                shadowColor: '#000',
+                shadowColor: "#000",
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.25,
                 shadowRadius: 3.84,
@@ -759,13 +785,13 @@ export default function ProductDetailScreen() {
                 <Pressable
                   key={option.id}
                   onPress={() => {
-                    setShowMenu(false)
-                    router.replace(option.route as any)
+                    setShowMenu(false);
+                    router.replace(option.route as any);
                   }}
                   className={`flex-row items-center p-4 ${
                     index !== MENU_OPTIONS.length - 1
-                      ? 'border-b border-gray-100'
-                      : ''
+                      ? "border-b border-gray-100"
+                      : ""
                   }`}
                 >
                   <MaterialIcons
@@ -780,6 +806,6 @@ export default function ProductDetailScreen() {
           </Pressable>
         </Modal>
       </View>
-    )
+    );
   }
 }

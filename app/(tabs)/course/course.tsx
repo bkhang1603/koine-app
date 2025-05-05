@@ -19,6 +19,7 @@ export default function CourseScreen() {
   const token = accessToken == undefined ? "" : accessToken.accessToken;
   const profile = useAppStore((state) => state.profile);
 
+  const notificationBadge = useAppStore((state) => state.notificationBadge);
   const {
     data: coursesData,
     isLoading: coursesLoading,
@@ -38,7 +39,7 @@ export default function CourseScreen() {
       if (parsedResult.success) {
         // courses = parsedResult.data.data;
         courses = parsedResult.data.data.filter(
-          (course) => (course.isVisible == true && course.isCombo != true)
+          (course) => course.isVisible == true && course.isCombo != true
         );
       } else {
         console.error("Validation errors:", parsedResult.error.errors);
@@ -78,11 +79,17 @@ export default function CourseScreen() {
                     router.push("/(root)/notifications/notifications")
                   }
                 >
-                  <MaterialIcons
-                    name="notifications-none"
-                    size={22}
-                    color="white"
-                  />
+                  <MaterialIcons name="notifications" size={26} color="white" />
+                  {/* Rating Badge */}
+                  {notificationBadge && notificationBadge != 0 ? (
+                    <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
+                      <Text className="text-white text-xs font-bold">
+                        {notificationBadge > 9 ? "9+" : notificationBadge}
+                      </Text>
+                    </View>
+                  ) : (
+                    <></>
+                  )}
                 </Pressable>
               </View>
             </View>
@@ -142,9 +149,12 @@ export default function CourseScreen() {
           <View className="flex-row items-center justify-between mb-6">
             <View className="flex-row items-center">
               <View className="w-12 h-12 rounded-full bg-white/20 items-center justify-center mr-3">
-                <Text className="text-white text-lg font-bold">
-                  {firstName_Initial}
-                </Text>
+                <Image
+                  source={{
+                    uri: profile?.data.avatarUrl,
+                  }}
+                  className="w-16 h-16 rounded-full"
+                />
               </View>
               <View>
                 <Text className="text-white/80 text-sm font-medium">
@@ -166,11 +176,17 @@ export default function CourseScreen() {
                   router.push("/(root)/notifications/notifications")
                 }
               >
-                <MaterialIcons
-                  name="notifications-none"
-                  size={22}
-                  color="white"
-                />
+                <MaterialIcons name="notifications" size={26} color="white" />
+                {/* Rating Badge */}
+                {notificationBadge && notificationBadge != 0 ? (
+                  <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
+                    <Text className="text-white text-xs font-bold">
+                      {notificationBadge > 9 ? "9+" : notificationBadge}
+                    </Text>
+                  </View>
+                ) : (
+                  <></>
+                )}
               </Pressable>
             </View>
           </View>

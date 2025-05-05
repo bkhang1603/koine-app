@@ -20,6 +20,8 @@ const STATUS_FILTERS = [
 
 export default function ChildMyCoursesScreen() {
   const accessToken = useAppStore((state) => state.accessToken);
+
+  const notificationBadge = useAppStore((state) => state.notificationBadge);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
   const {
     data: profileData,
@@ -42,6 +44,8 @@ export default function ChildMyCoursesScreen() {
     refetch,
   } = useMyCourse({
     token: token as string,
+    page_index: 1,
+    page_size: 100,
   });
   useFocusEffect(() => {
     refetch();
@@ -88,13 +92,20 @@ export default function ChildMyCoursesScreen() {
               </View>
               <View className="flex-row">
                 <Pressable
-                  className="w-10 h-10 bg-violet-400/50 rounded-full items-center justify-center"
+                  className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
                   onPress={() => router.push("/child/notifications")}
                 >
-                  <MaterialIcons name="notifications" size={24} color="white" />
-                  <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
-                    <Text className="text-white text-xs font-bold">3</Text>
-                  </View>
+                  <MaterialIcons name="notifications" size={26} color="white" />
+                  {/* Rating Badge */}
+                  {notificationBadge && notificationBadge != 0 ? (
+                    <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
+                      <Text className="text-white text-xs font-bold">
+                        {notificationBadge > 9 ? "9+" : notificationBadge}
+                      </Text>
+                    </View>
+                  ) : (
+                    <></>
+                  )}
                 </Pressable>
 
                 <Pressable
@@ -164,13 +175,20 @@ export default function ChildMyCoursesScreen() {
             </View>
             <View className="flex-row">
               <Pressable
-                className="w-10 h-10 bg-violet-400/50 rounded-full items-center justify-center"
+                className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
                 onPress={() => router.push("/child/notifications")}
               >
-                <MaterialIcons name="notifications" size={24} color="white" />
-                <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
-                  <Text className="text-white text-xs font-bold">3</Text>
-                </View>
+                <MaterialIcons name="notifications" size={26} color="white" />
+                {/* Rating Badge */}
+                {notificationBadge && notificationBadge != 0 ? (
+                  <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
+                    <Text className="text-white text-xs font-bold">
+                      {notificationBadge > 9 ? "9+" : notificationBadge}
+                    </Text>
+                  </View>
+                ) : (
+                  <></>
+                )}
               </Pressable>
 
               <Pressable
@@ -231,141 +249,141 @@ export default function ChildMyCoursesScreen() {
                 </Pressable>
               </View>
             ) : (
-              filteredCourses?.filter((course) => course.isVisible == true).map((course) => (
-                <Pressable
-                  key={course.id}
-                  className="bg-white rounded-2xl border border-gray-100 mb-5 shadow-sm overflow-hidden"
-                  onPress={() =>
-                    router.push({
-                      pathname: "/child/learn/course/[courseId]",
-                      params: { courseId: course.id },
-                    })
-                  }
-                >
-                  {/* Course Thumbnail */}
-                  <Image
-                    source={{ uri: course.imageUrl }}
-                    className="w-full h-40"
-                    resizeMode="cover"
-                  />
+              filteredCourses
+                ?.filter((course) => course.isVisible == true)
+                .map((course) => (
+                  <Pressable
+                    key={course.id}
+                    className="bg-white rounded-2xl border border-gray-100 mb-5 shadow-sm overflow-hidden"
+                    onPress={() =>
+                      router.push({
+                        pathname: "/child/learn/course/[courseId]",
+                        params: { courseId: course.id },
+                      })
+                    }
+                  >
+                    {/* Course Thumbnail */}
+                    <Image
+                      source={{ uri: course.imageUrl }}
+                      className="w-full h-40"
+                      resizeMode="cover"
+                    />
 
-                  {/* Course Info */}
-                  <View className="p-5">
-                    <View className="flex-row flex-wrap gap-2 mb-3">
-                      {!course.categories.length ? (
-                        <View className="bg-violet-50 rounded-lg px-3 py-1.5">
-                          <Text className="text-violet-700 text-xs font-medium">
-                            --
+                    {/* Course Info */}
+                    <View className="p-5">
+                      <View className="flex-row flex-wrap gap-2 mb-3">
+                        {!course.categories.length ? (
+                          <View className="bg-violet-50 rounded-lg px-3 py-1.5">
+                            <Text className="text-violet-700 text-xs font-medium">
+                              --
+                            </Text>
+                          </View>
+                        ) : (
+                          <View className="flex-row flex-wrap gap-2">
+                            {course.categories.slice(0, 2).map((category) => (
+                              <View
+                                key={category.id}
+                                className="bg-violet-50 rounded-lg px-3 py-1.5"
+                              >
+                                <Text className="text-violet-700 text-xs font-medium">
+                                  {category.name}
+                                </Text>
+                              </View>
+                            ))}
+                            {course.categories.length > 2 && (
+                              <View className="bg-violet-50 rounded-lg px-3 py-1.5">
+                                <Text className="text-violet-700 text-xs font-medium">
+                                  ...
+                                </Text>
+                              </View>
+                            )}
+                          </View>
+                        )}
+                      </View>
+
+                      <Text className="font-bold text-lg text-gray-900 mb-2">
+                        {course.title}
+                      </Text>
+                      <Text className="text-gray-600 mb-4" numberOfLines={2}>
+                        {course.description}
+                      </Text>
+
+                      {/* Course Details */}
+                      <View className="flex-row items-center gap-3 mb-4">
+                        <View className="flex-row items-center">
+                          <MaterialIcons
+                            name="schedule"
+                            size={16}
+                            color="#6B7280"
+                          />
+                          <Text className="text-gray-600 ml-1 text-sm">
+                            {(() => {
+                              return `Đã học: ${formatDuration(
+                                course.totalLearningTimeDisplay
+                              )}`;
+                            })()}
                           </Text>
                         </View>
-                      ) : (
-                        <View className="flex-row flex-wrap gap-2">
-                          {course.categories.slice(0, 2).map((category) => (
-                            <View
-                              key={category.id}
-                              className="bg-violet-50 rounded-lg px-3 py-1.5"
-                            >
-                              <Text className="text-violet-700 text-xs font-medium">
-                                {category.name}
-                              </Text>
-                            </View>
-                          ))}
-                          {course.categories.length > 2 && (
-                            <View className="bg-violet-50 rounded-lg px-3 py-1.5">
-                              <Text className="text-violet-700 text-xs font-medium">
-                                ...
-                              </Text>
-                            </View>
-                          )}
+                        <View className="flex-row items-center">
+                          <MaterialIcons
+                            name="person"
+                            size={16}
+                            color="#6B7280"
+                          />
+                          <Text className="text-gray-600 ml-1 text-sm">
+                            {course.author}
+                          </Text>
                         </View>
-                      )}
-                    </View>
+                      </View>
 
-                    <Text className="font-bold text-lg text-gray-900 mb-2">
-                      {course.title}
-                    </Text>
-                    <Text className="text-gray-600 mb-4" numberOfLines={2}>
-                      {course.description}
-                    </Text>
+                      {/* Divider */}
+                      <View className="h-[1px] bg-gray-100 mb-4" />
 
-                    {/* Course Details */}
-                    <View className="flex-row items-center gap-3 mb-4">
-                      <View className="flex-row items-center">
+                      {/* Progress Bar and Button */}
+                      <View className="mb-3">
+                        <View className="flex-row justify-between mb-2">
+                          <Text className="text-gray-600 text-sm">Tiến độ</Text>
+                          <Text className="text-violet-600 font-medium text-sm">
+                            {course.completionRate}%
+                          </Text>
+                        </View>
+                        <View className="bg-gray-100 h-2 rounded-full overflow-hidden">
+                          <View
+                            className={`h-full rounded-full ${
+                              course.completionRate === 100
+                                ? "bg-green-500"
+                                : "bg-violet-500"
+                            }`}
+                            style={{
+                              width: `${course.completionRate}%`,
+                            }}
+                          />
+                        </View>
+                      </View>
+
+                      {/* Button */}
+                      <Pressable
+                        className="bg-violet-500 rounded-full py-2.5 px-5 flex-row justify-center items-center"
+                        onPress={() =>
+                          router.push({
+                            pathname: "/child/learn/course/[courseId]",
+                            params: { courseId: course.id },
+                          })
+                        }
+                      >
+                        <Text className="text-white font-medium text-sm">
+                          Tiếp tục học
+                        </Text>
                         <MaterialIcons
-                          name="schedule"
+                          name="arrow-forward"
                           size={16}
-                          color="#6B7280"
+                          color="#ffffff"
+                          style={{ marginLeft: 4 }}
                         />
-                        <Text className="text-gray-600 ml-1 text-sm">
-                          {(() => {
-                            
-
-                            return `Đã học: ${formatDuration(
-                              course.totalLearningTimeDisplay
-                            )}`;
-                          })()}
-                        </Text>
-                      </View>
-                      <View className="flex-row items-center">
-                        <MaterialIcons
-                          name="person"
-                          size={16}
-                          color="#6B7280"
-                        />
-                        <Text className="text-gray-600 ml-1 text-sm">
-                          {course.author}
-                        </Text>
-                      </View>
+                      </Pressable>
                     </View>
-
-                    {/* Divider */}
-                    <View className="h-[1px] bg-gray-100 mb-4" />
-
-                    {/* Progress Bar and Button */}
-                    <View className="mb-3">
-                      <View className="flex-row justify-between mb-2">
-                        <Text className="text-gray-600 text-sm">Tiến độ</Text>
-                        <Text className="text-violet-600 font-medium text-sm">
-                          {course.completionRate}%
-                        </Text>
-                      </View>
-                      <View className="bg-gray-100 h-2 rounded-full overflow-hidden">
-                        <View
-                          className={`h-full rounded-full ${
-                            course.completionRate === 100
-                              ? "bg-green-500"
-                              : "bg-violet-500"
-                          }`}
-                          style={{
-                            width: `${course.completionRate}%`,
-                          }}
-                        />
-                      </View>
-                    </View>
-
-                    {/* Button */}
-                    <Pressable
-                      className="bg-violet-500 rounded-full py-2.5 px-5 flex-row justify-center items-center"
-                      onPress={() =>
-                        router.push({
-                          pathname: "/child/learn/course/[courseId]",
-                          params: { courseId: course.id },
-                        })
-                      }
-                    >
-                      <Text className="text-white font-medium text-sm">
-                        Tiếp tục học
-                      </Text>
-                      <MaterialIcons
-                        name="arrow-forward"
-                        size={16}
-                        color="#ffffff"
-                        style={{ marginLeft: 4 }}
-                      />
-                    </Pressable>
-                  </View>
-                </Pressable>
-              ))
+                  </Pressable>
+                ))
             )}
           </View>
         </View>

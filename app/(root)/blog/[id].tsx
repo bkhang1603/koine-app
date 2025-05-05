@@ -79,10 +79,11 @@ export default function BlogDetailScreen() {
     useState<NodeJS.Timeout | null>(null);
   const [showMenu, setShowMenu] = useState(false);
   const insets = useSafeAreaInsets();
-  const [totalComment, setTotalComment] = useState(0)
+  const [totalComment, setTotalComment] = useState(0);
 
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
+  const notificationBadge = useAppStore((state) => state.notificationBadge);
 
   const {
     data: blogData,
@@ -118,7 +119,6 @@ export default function BlogDetailScreen() {
     });
 
   let blog: GetBlogDetailResType["data"] | null = null;
- 
 
   if (blogData && !blogError) {
     if (blogData.data === null) {
@@ -139,7 +139,9 @@ export default function BlogDetailScreen() {
       const parsedResult = blogCommentRes.safeParse(commentsData);
       if (parsedResult.success) {
         blogComments = parsedResult.data.data;
-        setTotalComment(parsedResult.data.data.commentsWithReplies?.length || 0)
+        setTotalComment(
+          parsedResult.data.data.commentsWithReplies?.length || 0
+        );
       } else {
         console.error("Validation errors:", parsedResult.error.errors);
       }
@@ -299,14 +301,20 @@ export default function BlogDetailScreen() {
 
           <View className="flex-row items-center">
             <Pressable
-              className="w-10 h-10 items-center justify-center rounded-full bg-white/20 mr-2"
+              className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
               onPress={() => router.push("/(root)/notifications/notifications")}
             >
-              <MaterialIcons
-                name="notifications-none"
-                size={22}
-                color="white"
-              />
+              <MaterialIcons name="notifications" size={26} color="white" />
+              {/* Rating Badge */}
+              {notificationBadge && notificationBadge != 0 ? (
+                <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
+                  <Text className="text-white text-xs font-bold">
+                    {notificationBadge > 9 ? "9+" : notificationBadge}
+                  </Text>
+                </View>
+              ) : (
+                <></>
+              )}
             </Pressable>
 
             <Pressable
