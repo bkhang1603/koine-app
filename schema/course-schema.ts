@@ -1,4 +1,4 @@
-import z from "zod";
+import z from 'zod'
 
 export const courseRes = z.object({
   statusCode: z.number(),
@@ -58,9 +58,9 @@ export const courseRes = z.object({
     maxPageSize: z.number(),
     totalPage: z.number(),
   }),
-});
+})
 
-export type GetAllCourseResType = z.infer<typeof courseRes>;
+export type GetAllCourseResType = z.infer<typeof courseRes>
 
 export const courseDetailRes = z.object({
   statusCode: z.number(),
@@ -106,7 +106,7 @@ export const courseDetailRes = z.object({
           lessons: z.array(
             z.object({
               id: z.string(),
-              type: z.enum(["DOCUMENT", "VIDEO", "BOTH"]),
+              type: z.enum(['DOCUMENT', 'VIDEO', 'BOTH']),
               title: z.string(),
               description: z.string(),
               durations: z.number(),
@@ -135,9 +135,9 @@ export const courseDetailRes = z.object({
       )
       .optional(),
   }),
-});
+})
 
-export type GetCourseDetailResType = z.infer<typeof courseDetailRes>;
+export type GetCourseDetailResType = z.infer<typeof courseDetailRes>
 
 export const myCourseStore = z.object({
   message: z.string(),
@@ -172,43 +172,43 @@ export const myCourseStore = z.object({
       })
     ),
   }),
-});
+})
 
-export type GetMyCourseStoreResType = z.infer<typeof myCourseStore>;
+export type GetMyCourseStoreResType = z.infer<typeof myCourseStore>
 
 //assigncourse cho con là api/courses/active-course
 
 export const assignCourse = z.object({
   childId: z.string().nullable(),
   courseId: z.string(),
-});
+})
 
-export type AssignCourseStoreBodyType = z.infer<typeof assignCourse>;
+export type AssignCourseStoreBodyType = z.infer<typeof assignCourse>
 
 export const assignCourseResType = z.object({
   statusCode: z.number(),
   message: z.string(),
-});
+})
 
-export type AssignCourseStoreResType = z.infer<typeof assignCourseResType>;
+export type AssignCourseStoreResType = z.infer<typeof assignCourseResType>
 
 export const enrollFreeCourseResType = z.object({
   statusCode: z.number(),
   info: z.string(),
   message: z.string(),
-});
+})
 
-export type EnrollFreeCourseResType = z.infer<typeof enrollFreeCourseResType>;
+export type EnrollFreeCourseResType = z.infer<typeof enrollFreeCourseResType>
 
 export const editChildCourseVisible = z.object({
   childId: z.string(),
   courseId: z.string(),
   isVisible: z.boolean(),
-});
+})
 
 export type EditChildCourseVisibleBodyType = z.infer<
   typeof editChildCourseVisible
->;
+>
 
 export const courseElementResType = z.object({
   data: z.array(
@@ -237,15 +237,15 @@ export const courseElementResType = z.object({
     })
   ),
   message: z.string(),
-});
+})
 
-export type CourseElementResType = z.infer<typeof courseElementResType>;
+export type CourseElementResType = z.infer<typeof courseElementResType>
 
 export const requestCustomCourse = z.object({
   chapterIds: z.array(z.string()),
-});
+})
 
-export type CreateCustomCourseType = z.infer<typeof requestCustomCourse>;
+export type CreateCustomCourseType = z.infer<typeof requestCustomCourse>
 
 export const getChapterQuestionResType = z.object({
   data: z.object({
@@ -269,50 +269,54 @@ export const getChapterQuestionResType = z.object({
       })
     ),
   }),
-});
+})
 
 export type GetChapterQuestionResType = z.infer<
   typeof getChapterQuestionResType
->;
+>
 
 export const updateChapterScoreBodyType = z.object({
   chapterId: z.string(),
   score: z.number(),
-});
+})
 
-export type ChapterScoreBodyType = z.infer<typeof updateChapterScoreBodyType>;
+export type ChapterScoreBodyType = z.infer<typeof updateChapterScoreBodyType>
 
 export const getCourseReviews = z.object({
   statusCode: z.number(),
   info: z.string(),
   message: z.string(),
-  data: z.array(
-    z.object({
-      ratingInfos: z.array(
-        z.object({
-          review: z.string(),
-          rating: z.number(),
-          createdAtFormatted: z.string(),
-          updatedAtFormatted: z.string(),
-          user: z.object({
-            id: z.string(),
-            username: z.string(),
-          }),
-        })
-      ),
-      stars: z.object({
-        totalRating: z.number(),
-        ratings: z.object({
-          1: z.number(),
-          2: z.number(),
-          3: z.number(),
-          4: z.number(),
-          5: z.number(),
+  data: z.object({
+    ratingInfos: z.array(
+      z.object({
+        isDeleted: z.boolean(),
+        createdAt: z.string(),
+        updatedAt: z.string(),
+        courseId: z.string(),
+        userId: z.string(),
+        orderDetailId: z.string(),
+        rating: z.number(),
+        review: z.string(),
+        user: z.object({
+          id: z.string(),
+          username: z.string(),
         }),
-        averageRating: z.number(),
+        createdAtFormatted: z.string(),
+        updatedAtFormatted: z.string(),
+      })
+    ),
+    stars: z.object({
+      totalRating: z.number(),
+      ratings: z.object({
+        1: z.number(),
+        2: z.number(),
+        3: z.number(),
+        4: z.number(),
+        5: z.number(),
       }),
-    })
-  ),
+      averageRating: z.number(),
+    }),
+  }),
   pagination: z.object({
     pageSize: z.number(),
     totalItem: z.number(),
@@ -320,6 +324,6 @@ export const getCourseReviews = z.object({
     maxPageSize: z.number(),
     totalPage: z.number(),
   }),
-});
+})
 
-export type GetCourseReviews = z.infer<typeof getCourseReviews>;
+export type GetCourseReviews = z.infer<typeof getCourseReviews>
