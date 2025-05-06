@@ -34,7 +34,6 @@ export default function OrderDetailScreen() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState("");
 
-
   const {
     data: orderDetailsData,
     isLoading: orderDetailsLoading,
@@ -103,7 +102,7 @@ export default function OrderDetailScreen() {
           text: "text-gray-600",
           label: "Chờ xử lý",
           icon: "info",
-          icon_color: "gray"
+          icon_color: "gray",
         };
       case "DELIVERING":
         return {
@@ -111,7 +110,7 @@ export default function OrderDetailScreen() {
           text: "text-blue-600",
           label: "Đang giao",
           icon: "local-shipping",
-          icon_color: "blue"
+          icon_color: "blue",
         };
       case "DELIVERED":
         return {
@@ -119,14 +118,14 @@ export default function OrderDetailScreen() {
           text: "text-gray-600",
           label: "Đã giao",
           icon: "local-shipping",
-          icon_color: "gray"
+          icon_color: "gray",
         };
       case "FAILED_PAYMENT":
         return {
           bg: "bg-red-100",
           text: "text-red-600",
           label: "Thanh toán thất bại",
-          icon_color: "red"
+          icon_color: "red",
         };
       case "COMPLETED":
         return {
@@ -134,7 +133,7 @@ export default function OrderDetailScreen() {
           text: "text-green-600",
           label: "Đã hoàn thành",
           icon: "check-circle",
-          icon_color: "green"
+          icon_color: "green",
         };
       case "FAILED":
         return {
@@ -142,7 +141,7 @@ export default function OrderDetailScreen() {
           text: "text-red-600",
           label: "Thất bại",
           icon: "remove-circle",
-          icon_color: "red"
+          icon_color: "red",
         };
       case "CANCELLED":
         return {
@@ -150,7 +149,7 @@ export default function OrderDetailScreen() {
           text: "text-gray-600",
           label: "Đã hủy",
           icon: "cancel",
-          icon_color: "gray"
+          icon_color: "gray",
         };
       case "PROCESSING":
         return {
@@ -158,7 +157,7 @@ export default function OrderDetailScreen() {
           text: "text-blue-600",
           label: "Đang xử lý",
           icon: "hourglass-empty",
-          icon_color: "blue"
+          icon_color: "blue",
         };
       case "REFUND_REQUEST":
         return {
@@ -166,7 +165,7 @@ export default function OrderDetailScreen() {
           text: "text-gray-600",
           label: "Yêu cầu hoàn tiền",
           icon: "question-answer",
-          icon_color: "gray"
+          icon_color: "gray",
         };
       case "REFUNDING":
         return {
@@ -174,7 +173,7 @@ export default function OrderDetailScreen() {
           text: "text-blue-600",
           label: "Đang trả tiền",
           icon: "hourglass-empty",
-          icon_color: "blue"
+          icon_color: "blue",
         };
       case "REFUNDED":
         return {
@@ -182,7 +181,7 @@ export default function OrderDetailScreen() {
           text: "text-gray-600",
           icon: "price-check",
           label: "Đã trả tiền",
-          icon_color: "gray"
+          icon_color: "gray",
         };
 
       default:
@@ -191,7 +190,7 @@ export default function OrderDetailScreen() {
           text: "text-gray-600",
           label: "Không xác định",
           icon: "info",
-          icon_color: "gray"
+          icon_color: "gray",
         };
     }
   };
@@ -407,6 +406,7 @@ export default function OrderDetailScreen() {
                     : "bg-white"
                 }`}
                 onPress={() => handlePaymentMethodChange("BANKING")}
+                disabled={orderDetails.payment.payMethod == "BANKING"}
                 activeOpacity={0.7}
               >
                 <View className="w-6 h-6 rounded-full border-2 border-blue-500 justify-center items-center mr-3">

@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, ScrollView, Image, Pressable } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-
+import { InteractionManager } from "react-native";
 import { useState } from "react";
 import { useAppStore } from "@/components/app-provider";
 import * as SecureStore from "expo-secure-store";
@@ -71,7 +71,7 @@ export default function ProfileScreen() {
 
   const [isProcessing, setIsProcessing] = useState(false); // Trạng thái nút
 
-  const firstName = profile?.data.firstName || "User";
+  const firstName = profile?.data.firstName || "Bạn";
   const lastName = profile?.data.lastName || "";
   const firstName_Initial = firstName ? firstName.charAt(0).toUpperCase() : "K";
 
@@ -83,10 +83,14 @@ export default function ProfileScreen() {
       setRefreshExpired(true);
       clearAuth();
       await SecureStore.deleteItemAsync("loginData");
-      router.push("/(auth)/login");
-      setTimeout(() => setIsProcessing(false), 1000);
+
+      InteractionManager.runAfterInteractions(() => {
+        router.push("/(auth)/login");
+      });
     } catch (error) {
       console.log("Error when log out: ", error);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -134,22 +138,18 @@ export default function ProfileScreen() {
               <View className="flex-row items-center mb-1">
                 <MaterialIcons name="people" size={18} color="white" />
                 <Text className="text-white text-xl font-bold ml-3">
-                {childs?.length || 0}
-              </Text>
-                
-              </View>
-              <Text className="text-white/90 ml-1 text-sm">
-                  Tài khoản con
+                  {childs?.length || 0}
                 </Text>
+              </View>
+              <Text className="text-white/90 ml-1 text-sm">Tài khoản con</Text>
             </View>
 
             <View className="flex-1 bg-white/20 rounded-xl p-4 ml-2">
               <View className="flex-row items-center mb-1">
                 <MaterialIcons name="school" size={18} color="white" />
                 <Text className="text-white text-xl font-bold ml-3">
-                {totalPurchased || 0}
-              </Text>
-                
+                  {totalPurchased || 0}
+                </Text>
               </View>
               <Text className="text-white/90 ml-1 text-sm">Loại khóa học</Text>
             </View>

@@ -580,7 +580,7 @@ export default function SubAccountDetailScreen() {
                       </View>
                     ) : (
                       <View className="flex-row flex-wrap">
-                        {course.categories.slice(0, 2).map((category) => (
+                        {course.categories.slice(0, 1).map((category) => (
                           <View
                             key={category.id}
                             className="bg-orange-200 px-2 py-1 rounded-2xl ml-2"
@@ -591,7 +591,7 @@ export default function SubAccountDetailScreen() {
                           </View>
                         ))}
 
-                        {course.categories.length > 2 && (
+                        {course.categories.length > 1 && (
                           <View className="bg-orange-200 px-2 py-1 rounded-2xl ml-2">
                             <Text className="text-gray-500">...</Text>
                           </View>

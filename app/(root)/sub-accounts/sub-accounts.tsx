@@ -220,7 +220,7 @@ export default function SubAccountsScreen() {
     },
     {
       id: "available",
-      label: "Khóa học đang chờ",
+      label: "Khóa đã gán hết",
       value: emptyAssignedCount || 0,
       icon: "pending-actions",
       color: "yellow",

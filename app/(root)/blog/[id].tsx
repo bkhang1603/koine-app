@@ -185,7 +185,6 @@ export default function BlogDetailScreen() {
 
     return true;
   };
-  console.log(blog?.id);
 
   const getRemainingCooldownTime = () => {
     if (!lastCommentTime) return 0;
@@ -341,12 +340,10 @@ export default function BlogDetailScreen() {
           <View className="flex-row flex-wrap items-center mb-4">
             {blog.categories.map((category, index) => (
               <React.Fragment key={category.id || index}>
-                <Text className="text-blue-600 text-xs font-semibold px-3 py-1.5 bg-blue-50 rounded-full">
+                <Text className="text-blue-600 text-xs m-1 font-semibold px-3 py-1.5 bg-blue-50 rounded-full">
                   {category.name}
                 </Text>
-                {index < blog.categories.length - 1 && (
-                  <Text className="text-gray-300 mx-2">•</Text>
-                )}
+              
               </React.Fragment>
             ))}
           </View>

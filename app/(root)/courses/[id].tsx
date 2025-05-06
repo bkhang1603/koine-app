@@ -256,13 +256,8 @@ export default function CourseDetailScreen() {
     );
   };
 
-  if (courseLoading) return <ActivityIndicatorScreen />;
+  if (courseLoading) console.log("Loading course");
   if (courseError) console.log("Lỗi khi tải dữ liệu khóa học");
-  // return <ErrorScreen message="Lỗi khi tải dữ liệu khóa học" />;
-
-  if (course == null)
-    return console.log("Lỗi khi tải dữ liệu khóa học. Không tìm thấy khóa học");
-  // <ErrorScreen message="Lỗi khi tải dữ liệu khóa học. Không tìm thấy khóa học" />
 
   return (
     <View className="flex-1 bg-white">
@@ -306,39 +301,42 @@ export default function CourseDetailScreen() {
       <ScrollView className="flex-1">
         {/* Course Thumbnail with shadow overlay */}
         <View className="relative">
-          <Image source={{ uri: course.imageBanner }} className="w-full h-64" />
+          <Image
+            source={{ uri: course?.imageBanner }}
+            className="w-full h-64"
+          />
           <View className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/70 to-transparent" />
         </View>
 
         {/* Course Info - Redesigned with card style */}
         <View className="p-5 -mt-4 rounded-t-3xl bg-white">
-          <Text className="text-2xl font-bold">{course.title}</Text>
+          <Text className="text-2xl font-bold">{course?.title}</Text>
 
           <View className="flex-row items-center justify-between mt-3 bg-blue-50 p-3 rounded-xl">
             <View className="flex-row items-center">
               <MaterialIcons name="star" size={22} color="#FFA000" />
               <Text className="ml-1 font-semibold text-lg">
-                {course.aveRating == 0 ? 5 : course.aveRating}
+                {course?.aveRating == 0 ? 5 : course?.aveRating}
               </Text>
             </View>
 
             <View className="flex-row items-center">
               <MaterialIcons name="people" size={22} color="#0277BD" />
               <Text className="ml-1 font-medium text-base">
-                {course.totalEnrollment} học viên
+                {course?.totalEnrollment} học viên
               </Text>
             </View>
 
             <View className="flex-row items-center">
               <MaterialIcons name="bar-chart" size={22} color="#7B1FA2" />
               <Text className="ml-1 font-medium text-base">
-                {course.level == null
+                {course?.level == null
                   ? "Chưa có cấp độ"
-                  : course.level == "ALL"
+                  : course?.level == "ALL"
                   ? "Tất cả"
-                  : course.level == "BEGINNER"
+                  : course?.level == "BEGINNER"
                   ? "Khởi đầu"
-                  : course.level == "INTERMEDIATE"
+                  : course?.level == "INTERMEDIATE"
                   ? "Trung cấp"
                   : "Nâng cao"}
               </Text>
@@ -348,12 +346,12 @@ export default function CourseDetailScreen() {
           <View className="mt-4 flex-row items-center bg-amber-50 p-3 rounded-xl">
             <MaterialIcons name="access-time" size={24} color="#E65100" />
             <Text className="ml-2 text-gray-700 text-base font-medium">
-              Thời lượng: {formatDuration(course.durationsDisplay)}
+              Thời lượng: {formatDuration(course?.durationsDisplay || "0")}
             </Text>
           </View>
 
           <Text className="text-gray-700 mt-4 text-base leading-6">
-            {course.description}
+            {course?.description}
           </Text>
         </View>
 
@@ -386,13 +384,13 @@ export default function CourseDetailScreen() {
 
         {/* Tab Content - Redesigned with better spacing */}
         <View className="p-4 mt-2">
-          {selectedTab === "overview" && course && course.chapters && (
+          {selectedTab === "overview" && course && course?.chapters && (
             <View>
               <Text className="text-xl font-bold mb-4">
                 Bạn sẽ học được gì?
               </Text>
               <View className="space-y-3">
-                {course.chapters.map((chapter) => (
+                {course?.chapters.map((chapter) => (
                   <View key={chapter.id} className="flex-row items-start">
                     <MaterialIcons
                       name="check-circle"
@@ -409,10 +407,10 @@ export default function CourseDetailScreen() {
             </View>
           )}
 
-          {selectedTab === "content" && course && course.chapters && (
+          {selectedTab === "content" && course && course?.chapters && (
             <View>
               <Text className="text-xl font-bold mb-4">Nội dung khóa học</Text>
-              {course.chapters.map((chapter, chapterIndex) => (
+              {course?.chapters.map((chapter, chapterIndex) => (
                 <View
                   key={chapter.id}
                   className="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 overflow-hidden"
@@ -725,7 +723,7 @@ export default function CourseDetailScreen() {
         className="bg-white border-t border-gray-100 px-6 py-4 shadow-lg"
         style={{ paddingBottom: insets.bottom + 8 }}
       >
-        {isEnrolled && course.price == 0 ? (
+        {isEnrolled && course?.price == 0 ? (
           <View className="flex-row h-[56px] rounded-xl justify-center items-center mb-4 bg-green-500">
             <MaterialIcons
               name="school"
@@ -741,13 +739,13 @@ export default function CourseDetailScreen() {
               <View>
                 <Text className="text-gray-500 text-sm mb-1">Học phí</Text>
                 <Text className="text-2xl font-bold text-blue-600">
-                  {course.price === 0
+                  {course?.price === 0
                     ? "Miễn phí"
-                    : `${course.price.toLocaleString("vi-VN")} ₫`}
+                    : `${course?.price.toLocaleString("vi-VN")} ₫`}
                 </Text>
               </View>
 
-              {course.price > 0 && (
+              {course && course?.price > 0 && (
                 <View className="bg-gray-50 px-3 py-2 rounded-lg">
                   <Text className="text-gray-500 text-xs mb-2 text-center">
                     Số lượng
@@ -798,10 +796,10 @@ export default function CourseDetailScreen() {
 
             <Pressable
               className={`h-[56px] rounded-xl items-center justify-center ${
-                course.price === 0 ? "bg-green-500" : "bg-blue-600"
+                course?.price === 0 ? "bg-green-500" : "bg-blue-600"
               } ${
                 (
-                  course.price === 0
+                  course?.price === 0
                     ? enrollFreeMutation.isPending
                     : createCartItemMutation.isPending
                 )
@@ -809,16 +807,16 @@ export default function CourseDetailScreen() {
                   : ""
               }`}
               onPress={
-                course.price === 0 ? handleEnrollFreeCourse : handleAddToCart
+                course?.price === 0 ? handleEnrollFreeCourse : handleAddToCart
               }
               disabled={
-                course.price === 0
+                course?.price === 0
                   ? enrollFreeMutation.isPending
                   : createCartItemMutation.isPending
               }
             >
               <View className="flex-row items-center justify-center">
-                {course.price === 0 ? (
+                {course?.price === 0 ? (
                   enrollFreeMutation.isPending ? (
                     <ActivityIndicator color="white" />
                   ) : (
@@ -846,7 +844,10 @@ export default function CourseDetailScreen() {
                     />
                     <Text className="text-white font-bold text-base">
                       Thêm vào giỏ hàng •{" "}
-                      {(course.price * quantity).toLocaleString("vi-VN")} ₫
+                      {((course?.price || 0) * quantity).toLocaleString(
+                        "vi-VN"
+                      )}{" "}
+                      ₫
                     </Text>
                   </>
                 )}

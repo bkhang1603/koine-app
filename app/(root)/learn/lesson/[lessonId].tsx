@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
-  ScrollView,
   Dimensions,
   TouchableOpacity,
   ActivityIndicator,
@@ -13,7 +12,6 @@ import { useAppStore } from "@/components/app-provider";
 import {
   useMyLessonDetail,
   useCreateProgressMutation,
-  useStillLearning,
   useUpdateLearningTimeMutation,
 } from "@/queries/useUser";
 import {
@@ -29,6 +27,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
+import { useSocket } from "@/util/SocketProvider";
 
 export default function LessonScreen() {
   const { lessonId, courseId, chapterId } = useLocalSearchParams<{
@@ -38,7 +37,7 @@ export default function LessonScreen() {
   }>();
   const accessToken = useAppStore((state) => state.accessToken);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
-
+  const { socket } = useSocket();
   const {
     data: lessonData,
     isLoading,
@@ -47,8 +46,6 @@ export default function LessonScreen() {
     lessonId: lessonId as string,
     token: token as string,
   });
-
-  const { refetch: refetchStill } = useStillLearning({ token });
 
   const updateLearningTime = useUpdateLearningTimeMutation();
 
@@ -61,58 +58,102 @@ export default function LessonScreen() {
 
   //unmount signal send to video player to release
   const [unmountSignal, setUnmountSignal] = useState(false);
+
   useFocusEffect(
     React.useCallback(() => {
       isMounted.current = true; // Component is focused
-
       // Nếu lessonData chưa có, không setup interval
       if (!lessonData) {
         return;
       }
-      // Setup interval when screen is focused
+
+      if (!socket) return;
+      if (socket.connected) {
+        onConnect();
+        login();
+      }
+
+      function onConnect() {
+        console.log("socket id", socket?.id);
+      }
+
+      function onDisconnect() {
+        console.log("disconnected");
+        socket?.emit("stopLearning");
+      }
+
+      function getNotifications() {
+        console.log(
+          "Phiên học của bạn đã bị chấm dứt do có thiết bị khác đăng nhập"
+        );
+        router.push({
+          pathname: "/(root)/learn/chapter/[chapterId]",
+          params: { chapterId, courseId, message: "error" },
+        });
+      }
+
+      function handleLearningTimeout(data: any) {
+        console.log(data);
+        console.log("Time out");
+        router.push({
+          pathname: "/(root)/learn/chapter/[chapterId]",
+          params: { chapterId, courseId, message: "error" },
+        });
+      }
+
+      function login() {
+        socket?.emit(
+          "login",
+          {
+            token: token,
+          },
+          (response: any) => {
+            if (response?.statusCode === 200) {
+              socket.emit("startLearning");
+            }
+          }
+        );
+      }
+
+      // Add interval for stillLearning
       intervalRef.current = setInterval(async () => {
         if (!isMounted.current) return; // Skip if not mounted
-
-        try {
-          // Refetch API to check status
-          const result = await refetchStill();
-
-          if (result.isError) {
-            router.push({
-              pathname: "/(root)/learn/chapter/[chapterId]",
-              params: { chapterId, courseId, message: "error" },
-            });
-            return;
-          }
-
-          const res = await updateLearningTime.mutateAsync({
-            body: { lessonId, learningTime: 30 },
-            token,
-          });
-          console.log("refetch chạy ở cha không lỗi");
-        } catch (error) {
-          console.error("Lỗi khi refetchStill hoặc updateLearningTime:", error);
-          router.push({
-            pathname: "/(root)/learn/chapter/[chapterId]",
-            params: { chapterId, courseId, message: "error" },
+        if (socket.connected) {
+          socket?.emit("stillLearning", (response: any) => {
+            if (response?.statusCode === 200) {
+              console.log("stillLearning", response);
+            }
           });
         }
-      }, 30 * 1000); // Every 30 seconds
+        await updateLearningTime.mutateAsync({
+          body: { lessonId, learningTime: 30 },
+          token,
+        });
+        console.log("okd")
+      }, 30 * 1000); // 1 minutes
+
+      socket.on("connect", onConnect);
+      socket.on("login", login);
+      socket.on("learningKicked", getNotifications);
+      socket.on("learningTimeout", handleLearningTimeout);
+      socket.on("disconnect", onDisconnect);
 
       return () => {
-        clearInterval(intervalRef.current as NodeJS.Timeout); // Cleanup on focus loss
+        socket.off("connect", onConnect);
+        socket.off("login", login);
+        socket.off("learningKicked", getNotifications);
+        socket.off("learningTimeout", handleLearningTimeout);
+        socket.off("disconnect", onDisconnect);
+        clearInterval(intervalRef.current as NodeJS.Timeout);
         isMounted.current = false; // Component is no longer focused
         setUnmountSignal(true);
+
+        // Emit stopLearning when component unmounts
+        if (socket.connected) {
+          socket.emit("stopLearning");
+        }
       };
-    }, [
-      lessonData,
-      lessonId,
-      courseId,
-      chapterId,
-      refetchStill,
-      token,
-      updateLearningTime,
-    ])
+    }, [lessonId, socket])
   );
 
   const createProgressMutation = useCreateProgressMutation(token as string);

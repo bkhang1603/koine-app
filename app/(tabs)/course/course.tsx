@@ -202,48 +202,11 @@ export default function CourseScreen() {
           </Pressable>
         </LinearGradient>
 
-        {/* Categories */}
-        {/* <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          className="mt-6 pl-5"
-          contentContainerStyle={{ paddingRight: 20 }}
-        >
-          {CATEGORIES.map((category, index) => (
-            <Pressable
-              key={category}
-              onPress={() => setSelectedCategory(category)}
-              className={`px-4 py-2 rounded-xl ${
-                selectedCategory === category
-                  ? "bg-blue-500"
-                  : "bg-white border border-gray-200"
-              } ${index === CATEGORIES.length - 1 ? "mr-5" : "mr-2"}`}
-            >
-              <Text
-                className={
-                  selectedCategory === category
-                    ? "text-white font-medium"
-                    : "text-gray-700"
-                }
-              >
-                {category}
-              </Text>
-            </Pressable>
-          ))}
-        </ScrollView> */}
-
         {/* Featured Course */}
         {courses && (
           <View className="px-5 mt-8">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-xl font-bold">Khóa học nổi bật</Text>
-              {/* <Pressable
-                onPress={() => {
-                 
-                }}
-              >
-                <Text className="text-blue-500 font-medium">Xem tất cả</Text>
-              </Pressable> */}
             </View>
             <Pressable
               className="bg-white rounded-3xl overflow-hidden"
@@ -282,7 +245,7 @@ export default function CourseScreen() {
                       </View>
                     ) : (
                       <>
-                        {courses[0].categories.slice(0, 2).map((category) => (
+                        {courses[0].categories.slice(0, 3).map((category) => (
                           <View
                             key={category.id}
                             className="bg-blue-50 rounded-lg px-3 py-1.5"
@@ -292,7 +255,7 @@ export default function CourseScreen() {
                             </Text>
                           </View>
                         ))}
-                        {courses[0].categories.length > 2 && (
+                        {courses[0].categories.length > 3 && (
                           <View className="bg-blue-50 rounded-lg px-3 py-1.5">
                             <Text className="text-blue-700 text-xs font-medium">
                               ...

@@ -234,7 +234,6 @@ export default function EditSubAccountScreen() {
         lastName: lastName.trim(),
         gender: gender.trim(),
       };
-      console.log("ngày ", finalDob);
       const res = await editChild.mutateAsync({
         childId: account.id,
         body: newInfo,
