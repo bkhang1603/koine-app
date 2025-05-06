@@ -118,53 +118,56 @@ export default function BlogDetailScreen() {
       blogId: id as string,
     });
 
-  let blog: GetBlogDetailResType["data"] | null = null;
+  // Process blog data within useEffect to avoid render-time processing
+  const [blog, setBlog] = useState<GetBlogDetailResType["data"] | null>(null);
+  const [blogComments, setBlogComments] = useState<
+    GetAllBlogCommentsResType["data"] | null
+  >(null);
 
-  if (blogData && !blogError) {
-    if (blogData.data === null) {
-    } else {
-      const parsedResult = blogDetailRes.safeParse(blogData);
-      if (parsedResult.success) {
-        blog = parsedResult.data.data;
-      } else {
-        console.error("Validation errors:", parsedResult.error.errors);
-      }
-    }
-  }
-  let blogComments: GetAllBlogCommentsResType["data"] | null = null;
-
-  if (commentsData && !commentsError) {
-    if (commentsData.data === null) {
-    } else {
-      const parsedResult = blogCommentRes.safeParse(commentsData);
-      if (parsedResult.success) {
-        blogComments = parsedResult.data.data;
-        setTotalComment(
-          parsedResult.data.data.commentsWithReplies?.length || 0
-        );
-      } else {
-        console.error("Validation errors:", parsedResult.error.errors);
-      }
-    }
-  }
-
-  // Initialize local states when blog data is loaded
+  // Process blog data
   useEffect(() => {
-    if (blogData?.data) {
-      setLocalIsReact(blogData.data.isReact);
-      setLocalTotalReact(blogData.data.totalReact);
+    if (blogData && !blogError) {
+      if (blogData.data === null) {
+        setBlog(null);
+      } else {
+        const parsedResult = blogDetailRes.safeParse(blogData);
+        if (parsedResult.success) {
+          setBlog(parsedResult.data.data);
+          setLocalIsReact(parsedResult.data.data.isReact);
+          setLocalTotalReact(parsedResult.data.data.totalReact);
+        } else {
+          console.error("Validation errors:", parsedResult.error.errors);
+          setBlog(null);
+        }
+      }
     }
-  }, [blogData?.data]);
+  }, [blogData, blogError]);
+
+  // Process comments data
+  useEffect(() => {
+    if (commentsData && !commentsError) {
+      if (commentsData.data === null) {
+        setBlogComments(null);
+      } else {
+        const parsedResult = blogCommentRes.safeParse(commentsData);
+        if (parsedResult.success) {
+          setBlogComments(parsedResult.data.data);
+          setTotalComment(
+            parsedResult.data.data.commentsWithReplies?.length || 0
+          );
+        } else {
+          console.error("Validation errors:", parsedResult.error.errors);
+          setBlogComments(null);
+        }
+      }
+    }
+  }, [commentsData, commentsError]);
 
   if (blogLoading && commentsLoading) return <ActivityIndicatorScreen />;
 
-  if (blogError) return null;
+  if (blogError || blog == null) return null;
 
-  if (blog == null) return null;
-
-  if (commentsError) return null;
-
-  if (blogComments == null) return null;
+  if (commentsError || blogComments == null) return null;
 
   const canComment = () => {
     if (!commentText.trim() || commentText.trim().length < 2) {

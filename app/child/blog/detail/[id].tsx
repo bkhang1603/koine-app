@@ -72,6 +72,11 @@ export default function BlogDetailScreen() {
   const [localTotalReact, setLocalTotalReact] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
   const insets = useSafeAreaInsets();
+  const [blog, setBlog] = useState<GetBlogDetailResType["data"] | null>(null);
+  const [blogComments, setBlogComments] = useState<
+    GetAllBlogCommentsResType["data"] | null
+  >(null);
+  const [htmlContent, setHtmlContent] = useState("");
 
   const notificationBadge = useAppStore((state) => state.notificationBadge);
   const accessToken = useAppStore((state) => state.accessToken);
@@ -96,40 +101,98 @@ export default function BlogDetailScreen() {
     page_index: 1,
   });
 
-  let blog: GetBlogDetailResType["data"] | null = null;
-
-  if (blogData && !blogError) {
-    if (blogData.data === null) {
-    } else {
-      const parsedResult = blogDetailRes.safeParse(blogData);
-      if (parsedResult.success) {
-        blog = parsedResult.data.data;
-      } else {
-        console.error("Validation errors:", parsedResult.error.errors);
-      }
-    }
-  }
-
-  let blogComments: GetAllBlogCommentsResType["data"] | null = null;
-
-  if (commentsData && !commentsError) {
-    if (commentsData.data === null) {
-    } else {
-      const parsedResult = blogCommentRes.safeParse(commentsData);
-      if (parsedResult.success) {
-        blogComments = parsedResult.data.data;
-      } else {
-        console.error("Validation errors:", parsedResult.error.errors);
-      }
-    }
-  }
-
-  // Initialize local states when blog data is loaded
+  // Process blog data
   useEffect(() => {
-    if (blogData?.data) {
-      setLocalTotalReact(blogData.data.totalReact);
+    if (blogData && !blogError) {
+      if (blogData.data === null) {
+        setBlog(null);
+      } else {
+        const parsedResult = blogDetailRes.safeParse(blogData);
+        if (parsedResult.success) {
+          setBlog(parsedResult.data.data);
+          setLocalTotalReact(parsedResult.data.data.totalReact);
+
+          // Create HTML content when blog data is available
+          const content = `
+          <html>
+          <head>
+              <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+              <style>
+                  body {
+                      font-family: -apple-system, system-ui;
+                      font-size: 16px;
+                      line-height: 1.8;
+                      color: #374151;
+                      padding: 0;
+                      margin: 0;
+                      overflow-y: hidden;
+                  }
+                  
+                  h1, h2, h3 {
+                      color: #111827;
+                      margin-top: 1.8em;
+                      margin-bottom: 0.8em;
+                      font-weight: 600;
+                  }
+                  p {
+                      margin-bottom: 1.2em;
+                  }
+                  img {
+                      max-width: 100%;
+                      height: auto;
+                      border-radius: 12px;
+                      margin: 1.5em 0;
+                  }
+                  a {
+                      color: #8B5CF6;
+                      text-decoration: none;
+                  }
+                  blockquote {
+                      margin: 1.5em 0;
+                      padding: 1em 1.5em;
+                      border-left: 4px solid #8B5CF6;
+                      background: #f3f4f6;
+                      border-radius: 4px;
+                  }
+              </style>
+              <script>
+                  window.onload = function() {
+                      window.ReactNativeWebView.postMessage(
+                          Math.max(document.documentElement.scrollHeight, document.body.scrollHeight)
+                      );
+                  }
+              </script>
+          </head>
+          <body>
+              ${parsedResult.data.data.content.trim() || ""}
+          </body>
+        </html>
+          `;
+          setHtmlContent(content);
+        } else {
+          console.error("Validation errors:", parsedResult.error.errors);
+          setBlog(null);
+        }
+      }
     }
-  }, [blogData?.data]);
+  }, [blogData, blogError]);
+
+  // Process comments data
+  useEffect(() => {
+    if (commentsData && !commentsError) {
+      if (commentsData.data === null) {
+        setBlogComments(null);
+      } else {
+        const parsedResult = blogCommentRes.safeParse(commentsData);
+        if (parsedResult.success) {
+          setBlogComments(parsedResult.data.data);
+        } else {
+          console.error("Validation errors:", parsedResult.error.errors);
+          setBlogComments(null);
+        }
+      }
+    }
+  }, [commentsData, commentsError]);
 
   if (blogLoading && commentsLoading) return <ActivityIndicatorScreen />;
 
@@ -140,63 +203,6 @@ export default function BlogDetailScreen() {
   if (commentsError) return null;
 
   if (blogComments == null) return null;
-
-  // HTML wrapper for WebView content
-  const htmlContent = `
-  <html>
-  <head>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-      <style>
-          body {
-              font-family: -apple-system, system-ui;
-              font-size: 16px;
-              line-height: 1.8;
-              color: #374151;
-              padding: 0;
-              margin: 0;
-              overflow-y: hidden;
-          }
-          
-          h1, h2, h3 {
-              color: #111827;
-              margin-top: 1.8em;
-              margin-bottom: 0.8em;
-              font-weight: 600;
-          }
-          p {
-              margin-bottom: 1.2em;
-          }
-          img {
-              max-width: 100%;
-              height: auto;
-              border-radius: 12px;
-              margin: 1.5em 0;
-          }
-          a {
-              color: #8B5CF6;
-              text-decoration: none;
-          }
-          blockquote {
-              margin: 1.5em 0;
-              padding: 1em 1.5em;
-              border-left: 4px solid #8B5CF6;
-              background: #f3f4f6;
-              border-radius: 4px;
-          }
-      </style>
-      <script>
-          window.onload = function() {
-              window.ReactNativeWebView.postMessage(
-                  Math.max(document.documentElement.scrollHeight, document.body.scrollHeight)
-              );
-          }
-      </script>
-  </head>
-  <body>
-      ${blog.content.trim() || ""}
-  </body>
-</html>
-  `;
 
   return (
     <View className="flex-1 bg-gray-50">
