@@ -42,6 +42,7 @@ export default function LessonScreen() {
     data: lessonData,
     isLoading,
     isError,
+    error,
   } = useMyLessonDetail({
     lessonId: lessonId as string,
     token: token as string,
@@ -129,7 +130,6 @@ export default function LessonScreen() {
           body: { lessonId, learningTime: 30 },
           token,
         });
-        console.log("okd")
       }, 30 * 1000); // 1 minutes
 
       socket.on("connect", onConnect);
@@ -191,9 +191,8 @@ export default function LessonScreen() {
   }
 
   if (isLoading) return <ActivityIndicatorScreen />;
-  if (isError || !lessonData) return null;
+  if (isError || !lessonData) console.log("error ", error);
   if (myLesson == null) return null;
-
   const lesson = myLesson;
   const windowWidth = Dimensions.get("window").width;
 

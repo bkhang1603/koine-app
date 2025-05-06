@@ -127,7 +127,7 @@ export const orderDetailsRes = z.object({
         comboId: z.string().nullable(),
         quantity: z.number(),
         unitPrice: z.number(),
-        discount: z.number(),
+        discount: z.number().nullable(),
         totalPrice: z.number(),
         course: z
           .object({

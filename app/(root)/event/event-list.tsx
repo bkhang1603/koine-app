@@ -137,7 +137,7 @@ export default function EventScreen() {
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center">
             <Pressable
-              onPress={() => router.push("/(tabs)/home")}
+              onPress={() => router.push("/(tabs)/profile/profile")}
               className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
             >
               <MaterialIcons name="arrow-back" size={22} color="white" />

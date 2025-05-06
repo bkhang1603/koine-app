@@ -633,7 +633,7 @@ export default function OrderDetailScreen() {
                 description={detail.course?.description || ""}
                 quantity={detail.quantity}
                 price={detail.unitPrice}
-                discount={detail.discount}
+                discount={detail.discount || 0}
                 totalPrice={detail.totalPrice}
               />
             ))}
@@ -658,7 +658,7 @@ export default function OrderDetailScreen() {
                 description={detail.product?.description || ""}
                 quantity={detail.quantity}
                 price={detail.unitPrice}
-                discount={detail.discount}
+                discount={detail.discount || 0}
                 totalPrice={detail.totalPrice}
                 stockQuantity={detail.product?.stockQuantity}
               />
