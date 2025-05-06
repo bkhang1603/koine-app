@@ -1,15 +1,14 @@
 import React, { useState } from "react";
 import { View, Text, ScrollView, Pressable, Image, Modal } from "react-native";
-import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GetAllProductResType, productRes } from "@/schema/product-schema";
 import CartButton from "@/components/CartButton";
-import { Foundation, MaterialIcons } from "@expo/vector-icons";
+import {  MaterialIcons } from "@expo/vector-icons";
 import { useAllProduct } from "@/queries/useProduct";
 import { useAppStore } from "@/components/app-provider";
 import { StatusBar } from "expo-status-bar";
 import ActivityIndicatorScreen from "@/components/ActivityIndicatorScreen";
-import HeaderWithBack from "@/components/HeaderWithBack";
 import { LinearGradient } from "expo-linear-gradient";
 
 // Menu options giống như trong HeaderWithBack
@@ -102,7 +101,7 @@ export default function ProductsScreen() {
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center">
               <Pressable
-                onPress={() => router.push("/(tabs)/profile/profile")}
+                onPress={() => router.push("/(tabs)/home")}
                 className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
               >
                 <MaterialIcons name="arrow-back" size={22} color="white" />
@@ -135,12 +134,6 @@ export default function ProductsScreen() {
                 )}
               </Pressable>
 
-              <Pressable
-                className="w-10 h-10 items-center justify-center rounded-full bg-white/20"
-                onPress={() => setShowMenu(true)}
-              >
-                <MaterialIcons name="more-vert" size={22} color="white" />
-              </Pressable>
             </View>
           </View>
         </LinearGradient>
@@ -222,7 +215,7 @@ export default function ProductsScreen() {
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center">
             <Pressable
-              onPress={() => router.push("/(tabs)/profile/profile")}
+              onPress={() => router.push("/(tabs)/home")}
               className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
             >
               <MaterialIcons name="arrow-back" size={22} color="white" />
@@ -253,12 +246,6 @@ export default function ProductsScreen() {
               )}
             </Pressable>
 
-            <Pressable
-              className="w-10 h-10 items-center justify-center rounded-full bg-white/20"
-              onPress={() => setShowMenu(true)}
-            >
-              <MaterialIcons name="more-vert" size={22} color="white" />
-            </Pressable>
           </View>
         </View>
 
@@ -282,16 +269,6 @@ export default function ProductsScreen() {
               <Text className="text-xl font-bold text-gray-800">
                 Sản phẩm nổi bật
               </Text>
-              {/* <Pressable className="flex-row items-center">
-                                <Text className="text-blue-500 font-medium mr-1">
-                                    Xem tất cả
-                                </Text>
-                                <MaterialIcons
-                                    name="chevron-right"
-                                    size={20}
-                                    color="#3B82F6"
-                                />
-                            </Pressable> */}
             </View>
 
             <Pressable
@@ -487,52 +464,6 @@ export default function ProductsScreen() {
           </View>
         </View>
       </ScrollView>
-
-      {/* Menu Dropdown */}
-      <Modal
-        visible={showMenu}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowMenu(false)}
-      >
-        <Pressable
-          className="flex-1 bg-black/50"
-          onPress={() => setShowMenu(false)}
-        >
-          <View
-            className="absolute top-16 right-4 bg-white rounded-2xl shadow-xl w-64"
-            style={{
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.25,
-              shadowRadius: 3.84,
-              elevation: 5,
-            }}
-          >
-            {MENU_OPTIONS.map((option, index) => (
-              <Pressable
-                key={option.id}
-                onPress={() => {
-                  setShowMenu(false);
-                  router.replace(option.route as any);
-                }}
-                className={`flex-row items-center p-4 ${
-                  index !== MENU_OPTIONS.length - 1
-                    ? "border-b border-gray-100"
-                    : ""
-                }`}
-              >
-                <MaterialIcons
-                  name={option.icon as any}
-                  size={24}
-                  color="#374151"
-                />
-                <Text className="ml-3 text-gray-700">{option.title}</Text>
-              </Pressable>
-            ))}
-          </View>
-        </Pressable>
-      </Modal>
     </View>
   );
 }

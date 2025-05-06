@@ -164,7 +164,7 @@ export default function HomeScreen() {
     } else {
       const parsedResult = myCourseRes.safeParse(myCourseOverviewData);
       if (parsedResult.success) {
-        myCourse = parsedResult.data.data;
+        myCourse = parsedResult.data.data.filter((course) => course.isVisible == true);
       } else {
         console.error(
           "My course validation errors:",
@@ -290,15 +290,6 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* <Pressable
-                        className="flex-row items-center bg-white/20 rounded-xl p-3.5 mt-2"
-                        onPress={() => router.push("/search/searchCourse")}
-                    >
-                        <MaterialIcons name="search" size={20} color="white" />
-                        <Text className="ml-2 text-white/80 flex-1">
-                            Tìm kiếm khóa học...
-                        </Text>
-                    </Pressable> */}
         </LinearGradient>
 
         {/* Stats Cards - Modern Elevated Card Style */}
@@ -316,6 +307,8 @@ export default function HomeScreen() {
                 </View>
                 <Text className="text-2xl font-bold text-gray-800">
                   {myCourse.length || 0}
+                  {/* //đếm length theo ẩn hiện nữa */}
+                  {/* check cái tiến độ trung bình luôn */}
                 </Text>
               </View>
 

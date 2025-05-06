@@ -199,7 +199,7 @@ export default function EditProfileScreen() {
         Alert.alert("Thông báo", "Cập nhật thông tin thành công!", [
           {
             text: "tắt",
-            onPress: async () => {
+            onPress: () => {
               router.push("/child/(tabs)/profile")
             },
             style: "cancel",

@@ -10,7 +10,6 @@ import {
 } from "@/schema/user-schema";
 import { useAppStore } from "@/components/app-provider";
 import { useMyCourseDetail } from "@/queries/useUser";
-import formatDuration from "@/util/formatDuration";
 import { boolean } from "zod";
 
 export default function CourseLearnScreen() {
@@ -163,7 +162,6 @@ export default function CourseLearnScreen() {
                 !previousChapter.isQuestion
               ) {
                 isLocked = false;
-                console.log("check");
               } else if (
                 previousChapter != null &&
                 previousChapter.status == "YET" &&

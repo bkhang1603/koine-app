@@ -89,10 +89,7 @@ export default function HomeScreen() {
                   className="text-white text-lg font-bold"
                   numberOfLines={1}
                 >
-                  {profileData?.data.lastName +
-                    " " +
-                    profileData?.data.firstName}
-                  !
+                  {profileData?.data.firstName}!
                 </Text>
                 {/* <View className="flex-row items-center mt-1">
                   <MaterialIcons name="stars" size={16} color="#FCD34D" />

@@ -103,6 +103,31 @@ export default function NotificationsScreen() {
     }
   };
 
+  if (myNoti.length == 0) {
+    return (
+      <View className="flex-1 bg-white">
+        {/* // Tôi muốn returnTab sẽ trở về màn hình trước đó chứ không phải một màn hình cụ thể */}
+        <HeaderWithBack
+          title="Thông báo"
+          returnTabFunction={() => router.back()}
+          showMoreOptions={false}
+        />
+        <View className="flex-1 items-center justify-center p-4">
+          <MaterialIcons name="notifications" size={64} color="gray" />
+          <Text className="text-gray-500 text-lg mt-4 text-center">
+            Bạn chưa có thông báo
+          </Text>
+          <Pressable
+            className="mt-4 bg-blue-500 px-6 py-3 rounded-xl"
+            onPress={() => router.push("/child/(tabs)/home")}
+          >
+            <Text className="text-white font-bold">Quay về trang chủ?</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1 bg-white">
       <HeaderWithBack
@@ -115,7 +140,7 @@ export default function NotificationsScreen() {
           markNotiRead();
         }}
         disabled={badge == 0 ? true : false}
-        className="self-end mt-1 mr-3 p-1 bg-slate-300 rounded-lg"
+        className="self-end mt-1 mr-3 bg-slate-300 rounded-lg"
       >
         <Text className="p-1 font-semibold">Đánh dấu đã đọc</Text>
       </Pressable>
@@ -188,26 +213,6 @@ export default function NotificationsScreen() {
                     <Text className="text-gray-600 text-base leading-5">
                       {notification.description}
                     </Text>
-                    {/* {notification.points && (
-                      <View className="flex-row items-center mt-2">
-                        <MaterialIcons name="stars" size={16} color="#F59E0B" />
-                        <Text className="text-yellow-500 font-medium ml-1">
-                          +{notification.points} điểm
-                        </Text>
-                      </View>
-                    )}
-                    {notification.streakDays && (
-                      <View className="flex-row items-center mt-2">
-                        <MaterialIcons
-                          name="local-fire-department"
-                          size={16}
-                          color="#F97316"
-                        />
-                        <Text className="text-orange-500 font-medium ml-1">
-                          {notification.streakDays} ngày liên tiếp
-                        </Text>
-                      </View>
-                    )} */}
                   </View>
                 </View>
               </View>

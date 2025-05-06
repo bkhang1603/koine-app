@@ -10,7 +10,7 @@ import { io, Socket } from "socket.io-client";
 import NetInfo from "@react-native-community/netinfo";
 import { useAppStore } from "@/components/app-provider";
 import { AccessTokenType } from "@/model/access-token";
-import { LOCAL_HOST, DEPLOY_HOST } from "@/config";
+import { DEPLOY_HOST } from "@/config";
 import { useMyNotification } from "@/queries/useNotification";
 
 interface SocketContextType {

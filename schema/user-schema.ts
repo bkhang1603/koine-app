@@ -90,7 +90,7 @@ export const myCourseDetailRes = z.object({
       })
     ),
     completionRate: z.number(),
-    author: z.string(),
+    author: z.string().nullable(),
     imageUrl: z.string(),
     createdAtFormatted: z.string(),
     updatedAtFormatted: z.string(),

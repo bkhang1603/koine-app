@@ -41,7 +41,6 @@ export default function MyCoursesScreen() {
 
   const profile = useAppStore((state) => state.profile);
   const firstName = profile?.data.firstName || "User";
-  const firstName_Initial = firstName ? firstName.charAt(0).toUpperCase() : "K";
 
   useFocusEffect(() => {
     refetch();
@@ -54,22 +53,15 @@ export default function MyCoursesScreen() {
     } else {
       const parsedResult = myCourseRes.safeParse(myCourseData);
       if (parsedResult.success) {
-        myCourse = parsedResult.data.data;
-        //   .filter(
-        //   (course) => course.isVisible == true
-        // );
+        myCourse = parsedResult.data.data.filter((course) => course.isVisible == true);
       } else {
         console.error("Validation errors:", parsedResult.error.errors);
       }
     }
   }
 
-  if (myCourseLoading) return <ActivityIndicatorScreen />;
-  if (myCourseError)
-    return (
-      // <ErrorScreen message="Lỗi khi tải dữ liệu khóa học" />
-      console.log("Lỗi khi tải dữ liệu khóa học")
-    );
+  if (myCourseLoading) console.log("Tải ở my-course cha")
+  if (myCourseError) console.log("Lỗi khi tải dữ liệu khóa học")
 
   if (myCourse.length == 0) {
     return (
@@ -128,19 +120,6 @@ export default function MyCoursesScreen() {
                 </Pressable>
               </View>
             </View>
-            {/* <Pressable
-                            className="flex-row items-center bg-white/20 rounded-xl p-3.5 mt-2"
-                            onPress={() => router.push("/search/searchCourse")}
-                        >
-                            <MaterialIcons
-                                name="search"
-                                size={20}
-                                color="white"
-                            />
-                            <Text className="ml-2 text-white/80 flex-1">
-                                Tìm kiếm khóa học...
-                            </Text>
-                        </Pressable> */}
           </LinearGradient>
 
           <View className="flex-1 items-center justify-center p-4 mt-8">

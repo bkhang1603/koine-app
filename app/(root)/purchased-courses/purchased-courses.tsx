@@ -228,7 +228,7 @@ export default function PurchasedCoursesScreen() {
 
             <View className="flex-row items-center">
               <Pressable
-                className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
+                className="w-10 h-10 mr-1 rounded-full bg-white/20 items-center justify-center"
                 onPress={() =>
                   router.push("/(root)/notifications/notifications")
                 }
@@ -348,7 +348,7 @@ export default function PurchasedCoursesScreen() {
 
             <View className="flex-row items-center">
               <Pressable
-                className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
+                className="w-10 h-10 mr-1 rounded-full bg-white/20 items-center justify-center"
                 onPress={() =>
                   router.push("/(root)/notifications/notifications")
                 }

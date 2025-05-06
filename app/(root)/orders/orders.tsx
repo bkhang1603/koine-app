@@ -105,9 +105,6 @@ const getStatusColor = (status: string) => {
 };
 
 export default function OrdersScreen() {
-  const { message } = useLocalSearchParams<{ message: string }>();
-  const [showModal, setShowModal] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<
     | "all"
     | "COMPLETED"
@@ -138,18 +135,6 @@ export default function OrdersScreen() {
   });
 
   let orders: GetAllOrderResType["data"]["orders"] = [];
-
-  useEffect(() => {
-    if (message && message.length != 0 && message == "true") {
-      setModalMessage("Thanh toán thành công!");
-      setShowModal(true);
-      const timeout = setTimeout(() => {
-        setShowModal(false);
-      }, 3000);
-
-      return () => clearTimeout(timeout);
-    }
-  }, [message]);
 
   if (ordersData && !ordersError) {
     if (ordersData.data.orders.length > 0) {
@@ -211,15 +196,6 @@ export default function OrdersScreen() {
       />
 
       <ScrollView>
-        {showModal && (
-          <View className="absolute top-8 left-5 right-5 border-2 border-black bg-gray-100 p-4 rounded-xl shadow-lg z-50">
-            <Text className="text-green-800 text-center font-medium">
-              {/* {modalMessage} */}
-              Thanh toán thành công!
-            </Text>
-          </View>
-        )}
-
         {/* Status Filters */}
         <ScrollView
           horizontal

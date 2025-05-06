@@ -151,6 +151,9 @@ export default function EditProfileScreen() {
           {
             text: "tắt",
             style: "cancel",
+            onPress: () => {
+              router.push('/(tabs)/profile/profile')
+            }
           },
         ]);
         setIsProcessing(false);

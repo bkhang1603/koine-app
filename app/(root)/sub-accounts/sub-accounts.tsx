@@ -73,7 +73,6 @@ export default function SubAccountsScreen() {
   const childs = useAppStore((state) => state.childs);
   const myCourse = useAppStore((state) => state.myCourses);
   const [showMenu, setShowMenu] = useState(false);
-  const insets = useSafeAreaInsets();
   const notificationBadge = useAppStore((state) => state.notificationBadge);
 
   if (!childs || childs.length == 0) {
@@ -122,12 +121,12 @@ export default function SubAccountsScreen() {
               </Pressable>
 
               <Pressable
-                className="w-10 h-10 items-center justify-center rounded-full bg-white/20"
+                className="ml-1 w-10 h-10 items-center justify-center rounded-full bg-white/20"
                 onPress={() => setShowMenu(true)}
               >
                 <MaterialIcons name="more-vert" size={22} color="white" />
               </Pressable>
-            </View>
+            </View>  
           </View>
         </LinearGradient>
 
@@ -197,11 +196,6 @@ export default function SubAccountsScreen() {
   const emptyAssignedCount =
     myCourse?.data.details.filter((item) => item.assignedTo.length === 0)
       .length ?? 0;
-  const totalLearnedCourse =
-    myCourse?.data.details?.reduce(
-      (sum, item) => sum + item.assignedTo.length,
-      0
-    ) ?? 0;
   const totalDifferentAssigned =
     myCourse?.data.details?.reduce(
       (sum, item) =>
@@ -219,14 +213,14 @@ export default function SubAccountsScreen() {
     },
     {
       id: "active",
-      label: "Tổng số khóa học",
+      label: "Tổng loại khóa học",
       value: totalDetails || 0,
       icon: "school",
       color: "green",
     },
     {
       id: "available",
-      label: "Khóa học đang chờ",
+      label: "Khóa đã gán hết",
       value: emptyAssignedCount || 0,
       icon: "pending-actions",
       color: "yellow",
@@ -275,7 +269,7 @@ export default function SubAccountsScreen() {
             </Pressable>
 
             <Pressable
-              className="w-10 h-10 items-center justify-center rounded-full bg-white/20"
+              className="ml-1 w-10 h-10 items-center justify-center rounded-full bg-white/20"
               onPress={() => setShowMenu(true)}
             >
               <MaterialIcons name="more-vert" size={22} color="white" />
@@ -556,18 +550,19 @@ export default function SubAccountsScreen() {
           })}
 
           {/* Learning Stats */}
-          <View className="bg-blue-300 mt-2 py-4 px-4 rounded-xl">
+          <View className="bg-blue-400 mt-2 py-4 px-4 rounded-xl">
             <View className="flex-row items-center">
               <View className="w-10 h-10 bg-white/20 rounded-full items-center justify-center">
                 <MaterialIcons name="auto-stories" size={20} color="white" />
               </View>
               <View className="ml-3">
-                <Text className="text-black text-sm">
-                  Tổng số khóa học đã gán
-                </Text>
-                <Text className="text-white font-bold text-2xl">
+              <Text className="text-white font-bold text-2xl ml-2">
                   {totalDifferentAssigned}
                 </Text>
+                <Text className="text-black text-sm">
+                  Tổng loại khóa học đã gán
+                </Text>
+                
               </View>
             </View>
           </View>

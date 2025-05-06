@@ -137,7 +137,7 @@ export default function EventScreen() {
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center">
             <Pressable
-              onPress={() => router.push("/(tabs)/home")}
+              onPress={() => router.push("/(tabs)/profile/profile")}
               className="w-10 h-10 bg-white/20 rounded-full items-center justify-center"
             >
               <MaterialIcons name="arrow-back" size={22} color="white" />
@@ -167,25 +167,6 @@ export default function EventScreen() {
       </LinearGradient>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Search Bar */}
-        {/* <View className="px-5 py-4">
-                    <View className="flex-row items-center bg-white rounded-xl p-3 shadow-sm">
-                        <MaterialIcons
-                            name="search"
-                            size={20}
-                            color="#6b7280"
-                        />
-                        <Text className="ml-2 text-gray-500 flex-1">
-                            Tìm kiếm sự kiện...
-                        </Text>
-                        <View className="bg-blue-100 rounded-full px-2.5 py-1">
-                            <Text className="text-blue-700 text-xs font-medium">
-                                {events ? events.data.length : 0}
-                            </Text>
-                        </View>
-                    </View>
-                </View> */}
-
         {/* Event List */}
         <View className="px-5 pt-1 pb-20">
           <Text className="text-xl font-bold mb-4">Tất cả sự kiện</Text>

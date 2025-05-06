@@ -91,12 +91,15 @@ export default function CreateSubAccountScreen() {
         setIsProcessing(false);
         return;
       }
+
       const info = {
         dob: convertToSubmit(formData.dob),
         password: formData.password.trim(),
         username: formData.username.trim(),
         gender: formData.gender.trim(),
       };
+      console.log(info);
+
       const res = await createChild.mutateAsync({
         body: info,
         token: token,
@@ -108,7 +111,7 @@ export default function CreateSubAccountScreen() {
             text: "Tắt",
             onPress: async () => {
               setIsProcessing(false);
-              router.push("/(tabs)/profile/profile");
+              router.push("/(root)/sub-accounts/sub-accounts");
             },
             style: "cancel",
           },
@@ -142,7 +145,7 @@ export default function CreateSubAccountScreen() {
               placeholder="Nhập tên đăng nhập"
               value={formData.username}
               onChangeText={(text) =>
-                setFormData({ ...formData, username: text })
+                setFormData({ ...formData, username: text.replace(/\s+/g, "") })
               }
             />
           </View>
@@ -154,7 +157,7 @@ export default function CreateSubAccountScreen() {
               placeholder="Nhập mật khẩu"
               value={formData.password}
               onChangeText={(text) =>
-                setFormData({ ...formData, password: text })
+                setFormData({ ...formData, password: text.replace(/\s+/g, "") })
               }
             />
           </View>

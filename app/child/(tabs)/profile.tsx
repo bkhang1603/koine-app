@@ -1,8 +1,7 @@
 import React from "react";
-import { View, Text, ScrollView, Image, Pressable } from "react-native";
+import { View, Text, ScrollView, Image, Pressable, InteractionManager } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { MOCK_CHILD } from "@/constants/mock-data";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as SecureStore from "expo-secure-store";
 import { useState } from "react";
@@ -23,10 +22,14 @@ export default function ProfileScreen() {
       setRefreshExpired(true);
       clearAuth();
       await SecureStore.deleteItemAsync("loginData");
-      router.push("/(auth)/login");
-      setTimeout(() => setIsProcessing(false), 1000);
+
+      InteractionManager.runAfterInteractions(() => {
+        router.push("/(auth)/login");
+      });
     } catch (error) {
       console.log("Error when log out: ", error);
+    } finally {
+      setIsProcessing(false)
     }
   };
   if (!childProfile) return;
