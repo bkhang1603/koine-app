@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   Modal,
 } from "react-native";
-import { Foundation, MaterialIcons, Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppStore } from "@/components/app-provider";
@@ -23,7 +23,6 @@ import { useCreateCartItemMutation } from "@/queries/useCart";
 import CartButton from "@/components/CartButton";
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
-import HeaderWithBack from "@/components/HeaderWithBack";
 import { useProductReviews } from "@/queries/useProduct";
 
 // Menu options giống như trong HeaderWithBack
@@ -139,6 +138,9 @@ export default function ProductDetailScreen() {
       Alert.alert("Thông báo", "Thêm sản phẩm vào giỏ thành công", [
         {
           text: "Mua tiếp",
+          onPress: () => {
+            router.push("/(root)/product/product");
+          },
           style: "cancel",
         },
         {
@@ -208,13 +210,6 @@ export default function ProductDetailScreen() {
                 ) : (
                   <></>
                 )}
-              </Pressable>
-
-              <Pressable
-                className="w-10 h-10 items-center justify-center rounded-full bg-white/20"
-                onPress={() => setShowMenu(true)}
-              >
-                <MaterialIcons name="more-vert" size={22} color="white" />
               </Pressable>
             </View>
           </View>
@@ -736,13 +731,6 @@ export default function ProductDetailScreen() {
                   color="white"
                 />
               </Pressable>
-
-              <Pressable
-                className="w-10 h-10 items-center justify-center rounded-full bg-white/20"
-                onPress={() => setShowMenu(true)}
-              >
-                <MaterialIcons name="more-vert" size={22} color="white" />
-              </Pressable>
             </View>
           </View>
         </LinearGradient>
@@ -759,52 +747,6 @@ export default function ProductDetailScreen() {
             <Text className="text-white font-bold">Quay lại danh sách</Text>
           </Pressable>
         </View>
-
-        {/* Menu Dropdown */}
-        <Modal
-          visible={showMenu}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setShowMenu(false)}
-        >
-          <Pressable
-            className="flex-1 bg-black/50"
-            onPress={() => setShowMenu(false)}
-          >
-            <View
-              className="absolute top-16 right-4 bg-white rounded-2xl shadow-xl w-64"
-              style={{
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.25,
-                shadowRadius: 3.84,
-                elevation: 5,
-              }}
-            >
-              {MENU_OPTIONS.map((option, index) => (
-                <Pressable
-                  key={option.id}
-                  onPress={() => {
-                    setShowMenu(false);
-                    router.replace(option.route as any);
-                  }}
-                  className={`flex-row items-center p-4 ${
-                    index !== MENU_OPTIONS.length - 1
-                      ? "border-b border-gray-100"
-                      : ""
-                  }`}
-                >
-                  <MaterialIcons
-                    name={option.icon as any}
-                    size={24}
-                    color="#374151"
-                  />
-                  <Text className="ml-3 text-gray-700">{option.title}</Text>
-                </Pressable>
-              ))}
-            </View>
-          </Pressable>
-        </Modal>
       </View>
     );
   }

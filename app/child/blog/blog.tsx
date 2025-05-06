@@ -55,7 +55,6 @@ export default function ChildBlogScreen() {
   const token = accessToken?.accessToken;
   const profile = useAppStore((state) => state.profile);
   const insets = useSafeAreaInsets();
-  const [showMenu, setShowMenu] = useState(false);
 
   const notificationBadge = useAppStore((state) => state.notificationBadge);
   const {
@@ -150,12 +149,7 @@ export default function ChildBlogScreen() {
                   <></>
                 )}
               </Pressable>
-              <Pressable
-                className="w-10 h-10 bg-violet-400/50 rounded-full items-center justify-center"
-                onPress={() => setShowMenu(true)}
-              >
-                <MaterialIcons name="more-vert" size={22} color="white" />
-              </Pressable>
+
             </View>
           </View>
         </View>
@@ -454,51 +448,7 @@ export default function ChildBlogScreen() {
         </View>
       </ScrollView>
 
-      {/* Menu Dropdown */}
-      <Modal
-        visible={showMenu}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowMenu(false)}
-      >
-        <Pressable
-          className="flex-1 bg-black/50"
-          onPress={() => setShowMenu(false)}
-        >
-          <View
-            className="absolute top-20 right-4 bg-white rounded-2xl shadow-xl w-64"
-            style={{
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.25,
-              shadowRadius: 3.84,
-              elevation: 5,
-            }}
-          >
-            {MENU_OPTIONS.map((option, index) => (
-              <Pressable
-                key={option.id}
-                onPress={() => {
-                  setShowMenu(false);
-                  router.replace(option.route as any);
-                }}
-                className={`flex-row items-center p-4 ${
-                  index !== MENU_OPTIONS.length - 1
-                    ? "border-b border-gray-100"
-                    : ""
-                }`}
-              >
-                <MaterialIcons
-                  name={option.icon as any}
-                  size={24}
-                  color="#8B5CF6"
-                />
-                <Text className="ml-3 text-gray-700">{option.title}</Text>
-              </Pressable>
-            ))}
-          </View>
-        </Pressable>
-      </Modal>
+
     </View>
   );
 }

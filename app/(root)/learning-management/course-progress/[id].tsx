@@ -73,9 +73,15 @@ export default function CourseProgressScreen() {
 
       Alert.alert(
         "Xác nhận",
-        `Bạn có chắc chắn muốn ${childCourseProgress.data.isAccessibleByChild == true ? "ẩn" : "hiện"} khóa học?\n${
+        `Bạn có chắc chắn muốn ${
+          childCourseProgress.data.isAccessibleByChild == true ? "ẩn" : "hiện"
+        } khóa học?\n${
           account.userDetail.lastName + " " + account.userDetail.firstName
-        } ${childCourseProgress.data.isAccessibleByChild == true ? "sẽ không thấy khóa học này nữa" : "sẽ thấy khóa học này"}`,
+        } ${
+          childCourseProgress.data.isAccessibleByChild == true
+            ? "sẽ không thấy khóa học này nữa"
+            : "sẽ thấy khóa học này"
+        }`,
         [
           {
             text: "Hủy",
@@ -85,7 +91,11 @@ export default function CourseProgressScreen() {
             },
           },
           {
-            text: `${childCourseProgress.data.isAccessibleByChild == true ? "ẩn" : "hiện"}`,
+            text: `${
+              childCourseProgress.data.isAccessibleByChild == true
+                ? "ẩn"
+                : "hiện"
+            }`,
             style: "destructive",
             onPress: async () => {
               try {
@@ -94,13 +104,13 @@ export default function CourseProgressScreen() {
                   courseId: course.courseId,
                   isVisible: !course.isAccessibleByChild,
                 };
-                console.log(body)
+                console.log(body);
                 const res = await hide.mutateAsync({
                   token: token,
                   body: body,
                 });
                 if (res) {
-                  refetch()
+                  refetch();
                 }
               } catch (error) {
                 Alert.alert("Lỗi", `Thao tác thất bại ${error}`, [
@@ -275,7 +285,7 @@ export default function CourseProgressScreen() {
                               : "text-gray-900"
                           }`}
                         >
-                          Bài {index+1}: {lesson.lessonTitle}
+                          Bài {index + 1}: {lesson.lessonTitle}
                         </Text>
                         <View className="flex-row items-center mt-1">
                           <MaterialIcons

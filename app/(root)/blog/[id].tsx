@@ -301,7 +301,7 @@ export default function BlogDetailScreen() {
 
           <View className="flex-row items-center">
             <Pressable
-              className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
+              className="w-10 h-10 rounded-full mr-1 bg-white/20 items-center justify-center"
               onPress={() => router.push("/(root)/notifications/notifications")}
             >
               <MaterialIcons name="notifications" size={26} color="white" />

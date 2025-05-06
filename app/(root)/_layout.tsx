@@ -58,10 +58,6 @@ export default function RootLayout() {
           name="certificates/certificates"
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name="achievements/achievements"
-          options={{ headerShown: false }}
-        />
         <Stack.Screen name="blog/[id]" options={{ headerShown: false }} />
         <Stack.Screen
           name="learn/course/[courseId]"

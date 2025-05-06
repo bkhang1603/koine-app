@@ -116,68 +116,13 @@ export default function BlogScreen() {
               </Pressable>
             </View>
           </View>
-
-          {/* <Pressable
-                        className="flex-row items-center bg-white/20 rounded-xl p-3.5 mt-2"
-                        onPress={() => {
-                           
-                        }}
-                    >
-                        <MaterialIcons name="search" size={20} color="white" />
-                        <Text className="ml-2 text-white/80 flex-1">
-                            Tìm kiếm bài viết...
-                        </Text>
-                    </Pressable> */}
         </LinearGradient>
-
-        {/* Categories */}
-        {/* <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    className="mt-6 pl-5"
-                    contentContainerStyle={{ paddingRight: 20 }}
-                >
-                    {BLOG_CATEGORIES.map((category, index) => (
-                        <Pressable
-                            key={category}
-                            onPress={() => setSelectedCategory(category)}
-                            className={`px-4 py-2 rounded-xl mr-2 ${
-                                selectedCategory === category
-                                    ? "bg-blue-500"
-                                    : "bg-white border border-gray-200"
-                            } ${
-                                index === BLOG_CATEGORIES.length - 1
-                                    ? "mr-5"
-                                    : "mr-2"
-                            }`}
-                        >
-                            <Text
-                                className={
-                                    selectedCategory === category
-                                        ? "text-white font-medium"
-                                        : "text-gray-700"
-                                }
-                            >
-                                {category}
-                            </Text>
-                        </Pressable>
-                    ))}
-                </ScrollView> */}
 
         {/* Featured Post */}
         {featuredPost && (
           <View className="px-5 mt-8">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-xl font-bold">Bài viết nổi bật</Text>
-              {/* <Pressable
-                                onPress={() => {
-                                   
-                                }}
-                            >
-                                <Text className="text-blue-500 font-medium">
-                                    Xem tất cả
-                                </Text>
-                            </Pressable> */}
             </View>
             <Pressable
               className="bg-white rounded-3xl overflow-hidden"
@@ -276,15 +221,6 @@ export default function BlogScreen() {
         <View className="mt-8">
           <View className="px-5 mb-4 flex-row items-center justify-between">
             <Text className="text-xl font-bold">Bài viết gần đây</Text>
-            {/* <Pressable
-                            onPress={() => {
-                          
-                            }}
-                        >
-                            <Text className="text-blue-500 font-medium">
-                                Xem tất cả
-                            </Text>
-                        </Pressable> */}
           </View>
 
           <ScrollView

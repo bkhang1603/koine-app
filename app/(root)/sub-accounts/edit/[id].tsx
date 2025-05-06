@@ -15,10 +15,11 @@ import HeaderWithBack from "@/components/HeaderWithBack";
 import * as ImagePicker from "expo-image-picker";
 import { useUploadImage } from "@/queries/useS3";
 import { useAppStore } from "@/components/app-provider";
-import { useEditChildProfile } from "@/queries/useUser";
+import { useEditChildProfile, useMyChildCourses } from "@/queries/useUser";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
+import { useFocusEffect } from "expo-router";
 
 export default function EditSubAccountScreen() {
   const { id } = useLocalSearchParams();
@@ -28,6 +29,17 @@ export default function EditSubAccountScreen() {
   const myCourse = useAppStore((state) => state.myCourses);
   const token = accessToken == undefined ? "" : accessToken.accessToken;
   const editChild = useEditChildProfile();
+  if (!account) return null;
+  const {
+    data: childCourse,
+    isError,
+    isLoading,
+    refetch,
+  } = useMyChildCourses({ childId: account.id, token: token });
+
+  useFocusEffect(() => {
+    refetch();
+  });
 
   const nowUtc = new Date(); // Lấy thời gian hiện tại theo UTC
   const nowGmt7 = new Date(nowUtc.getTime() + 7 * 60 * 60 * 1000); // Cộng thêm 7 giờ để đúng với GMT+7
@@ -69,11 +81,6 @@ export default function EditSubAccountScreen() {
     );
   }
 
-  const childCourseLength =
-    myCourse?.data.details.filter((detail) =>
-      detail.assignedTo.some((assignee) => assignee.id === account.id)
-    ).length || 0;
-
   const [isUpdatable, setIsUpdatable] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -82,7 +89,9 @@ export default function EditSubAccountScreen() {
     account?.userDetail.firstName || ""
   );
   const [lastName, setLastName] = useState(account?.userDetail.lastName || "");
-  const [dob, setDob] = useState(convertToDisplay(account?.userDetail.dob) || "");
+  const [dob, setDob] = useState(
+    convertToDisplay(account?.userDetail.dob) || ""
+  );
   const [gender, setGender] = useState(
     account?.userDetail.gender || ("" as "MALE" | "FEMALE" | "OTHER")
   );
@@ -107,17 +116,16 @@ export default function EditSubAccountScreen() {
     return `${day}-${month}-${year}`;
   }
 
-  function convertToDisplay(dateStr: string): string{
+  function convertToDisplay(dateStr: string): string {
     const [year, month, day] = dateStr.split("-");
     return `${day}-${month}-${year}`;
   }
 
-  function display(dateStr: string): string{
+  function display(dateStr: string): string {
     const [month, day, year] = dateStr.split("-");
     return `${day}-${month}-${year}`;
   }
 
-  
   const [show, setShow] = useState(false);
 
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
@@ -192,8 +200,6 @@ export default function EditSubAccountScreen() {
     }
   };
 
-  // const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
   const handleUpdate = async () => {
     try {
       if (isProcessing || !isUpdatable) return;
@@ -239,6 +245,9 @@ export default function EditSubAccountScreen() {
           {
             text: "tắt",
             style: "cancel",
+            onPress: () => {
+              router.back();
+            },
           },
         ]);
         setIsProcessing(false);
@@ -262,22 +271,6 @@ export default function EditSubAccountScreen() {
       setIsProcessing(false);
     }
   };
-
-  // const handleDelete = () => {
-  //   try {
-  //     if (isProcessing) return;
-  //     setIsProcessing(true);
-
-  //     console.log("đang chạy api xóa");
-  //     setTimeout(() => {
-  //       setIsProcessing(false);
-  //     }, 2000);
-  //   } catch (error) {
-  //     //call api xóa con
-  //     // TODO: Delete account
-  //     router.back();
-  //   }
-  // };
 
   return (
     <View className="flex-1 bg-white">
@@ -403,38 +396,15 @@ export default function EditSubAccountScreen() {
             <Text className="font-bold mb-3">Thông tin học tập</Text>
             <View className="flex-row justify-between mb-2">
               <Text className="text-gray-600">Khóa học đang học</Text>
-              <Text className="font-medium">{childCourseLength}</Text>
+              <Text className="font-medium">
+                {childCourse?.data.courses?.length || 0}
+              </Text>
             </View>
             <View className="flex-row justify-between">
               <Text className="text-gray-600">Ngày tạo tài khoản</Text>
               <Text className="font-medium">{account.createdAtFormatted}</Text>
             </View>
           </View>
-
-          {/* Danger Zone */}
-          {/* <View className="mt-8">
-            <Text className="text-red-500 font-bold mb-3">Vùng nguy hiểm</Text>
-            <Pressable
-              className="border border-red-200 p-4 rounded-xl"
-              onPress={() => setShowDeleteConfirm(true)}
-            >
-              <View className="flex-row items-center">
-                <MaterialIcons
-                  name="delete-outline"
-                  size={24}
-                  color="#EF4444"
-                />
-                <View className="ml-3 flex-1">
-                  <Text className="text-red-500 font-medium">
-                    Xóa tài khoản
-                  </Text>
-                  <Text className="text-gray-500 text-sm mt-1">
-                    Hành động này không thể hoàn tác
-                  </Text>
-                </View>
-              </View>
-            </Pressable>
-          </View> */}
         </View>
       </ScrollView>
       {/* Bottom Bar */}
@@ -448,38 +418,6 @@ export default function EditSubAccountScreen() {
           <Text className="text-white font-bold text-center">Lưu thay đổi</Text>
         </Pressable>
       </View>
-      {/* Delete Confirmation Modal */}
-      {/* {showDeleteConfirm && (
-        <View className="absolute inset-0 bg-black/50 items-center justify-center">
-          <View className="bg-white m-4 p-4 rounded-2xl w-full max-w-sm">
-            <Text className="text-lg font-bold mb-2">
-              Xác nhận xóa tài khoản
-            </Text>
-            <Text className="text-gray-600 mb-4">
-              Bạn có chắc chắn muốn xóa tài khoản này? Tất cả dữ liệu học tập sẽ
-              bị mất.
-            </Text>
-            <View className="flex-row space-x-3">
-              <Pressable
-                className="flex-1 p-4 bg-gray-100 rounded-xl"
-                onPress={() => setShowDeleteConfirm(false)}
-              >
-                <Text className="text-center font-medium text-gray-700">
-                  Hủy
-                </Text>
-              </Pressable>
-              <Pressable
-                className={`${
-                  !isProcessing ? "bg-blue-500" : "bg-gray-500"
-                } p-4 rounded-xl mt-8`}
-                onPress={handleDelete}
-              >
-                <Text className="text-center font-medium text-white">Xóa</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      )} */}
     </View>
   );
 }

@@ -108,7 +108,7 @@ export default function CreateSubAccountScreen() {
             text: "Tắt",
             onPress: async () => {
               setIsProcessing(false);
-              router.push("/(tabs)/profile/profile");
+              router.push("/(root)/sub-accounts/sub-accounts");
             },
             style: "cancel",
           },

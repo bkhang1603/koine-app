@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import HeaderWithBack from "@/components/HeaderWithBack";
-import { MOCK_NOTIFICATIONS } from "@/constants/mock-data";
-import { router, useFocusEffect } from "expo-router";
+import { router } from "expo-router";
 import { useAppStore } from "@/components/app-provider";
 import {
   useMarkNotificationAsRead,
-  useMyNotification
+  useMyNotification,
 } from "@/queries/useNotification";
 import {
   GetMyAllNotificationResType,
@@ -66,7 +65,6 @@ export default function NotificationsScreen() {
       if (isProcessing) return;
       setProcessing(true);
       await markAsRead.mutateAsync(token);
-      console.log("xong")
     } catch (error) {
       console.log("Error ", error);
     } finally {
@@ -79,6 +77,31 @@ export default function NotificationsScreen() {
 
     return `${time} ${date}`;
   };
+
+  if (myNoti.length == 0) {
+    return (
+      <View className="flex-1 bg-white">
+        {/* // Tôi muốn returnTab sẽ trở về màn hình trước đó chứ không phải một màn hình cụ thể */}
+        <HeaderWithBack
+          title="Thông báo"
+          returnTabFunction={() => router.back()}
+          showMoreOptions={false}
+        />
+        <View className="flex-1 items-center justify-center p-4">
+          <MaterialIcons name="notifications" size={64} color="gray" />
+          <Text className="text-gray-500 text-lg mt-4 text-center">
+            Bạn chưa có thông báo
+          </Text>
+          <Pressable
+            className="mt-4 bg-blue-500 px-6 py-3 rounded-xl"
+            onPress={() => router.push("/(tabs)/home")}
+          >
+            <Text className="text-white font-bold">Quay về trang chủ</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 bg-white">
@@ -93,7 +116,7 @@ export default function NotificationsScreen() {
           markNotiRead();
         }}
         disabled={badge == 0 ? true : false}
-        className="self-end mt-1 mr-3 p-1 bg-slate-300 rounded-lg"
+        className="self-end mt-1 mr-3 bg-slate-300 rounded-lg"
       >
         <Text className="p-1 font-semibold">Đánh dấu đã đọc</Text>
       </Pressable>

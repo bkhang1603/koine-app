@@ -133,23 +133,25 @@ export default function ProfileScreen() {
             <View className="flex-1 bg-white/20 rounded-xl p-4 mr-2">
               <View className="flex-row items-center mb-1">
                 <MaterialIcons name="people" size={18} color="white" />
-                <Text className="text-white/90 ml-1 text-sm">
-                  Tài khoản con
-                </Text>
-              </View>
-              <Text className="text-white text-xl font-bold">
+                <Text className="text-white text-xl font-bold ml-3">
                 {childs?.length || 0}
               </Text>
+                
+              </View>
+              <Text className="text-white/90 ml-1 text-sm">
+                  Tài khoản con
+                </Text>
             </View>
 
             <View className="flex-1 bg-white/20 rounded-xl p-4 ml-2">
               <View className="flex-row items-center mb-1">
                 <MaterialIcons name="school" size={18} color="white" />
-                <Text className="text-white/90 ml-1 text-sm">Khóa học</Text>
-              </View>
-              <Text className="text-white text-xl font-bold">
+                <Text className="text-white text-xl font-bold ml-3">
                 {totalPurchased || 0}
               </Text>
+                
+              </View>
+              <Text className="text-white/90 ml-1 text-sm">Loại khóa học</Text>
             </View>
           </View>
         </LinearGradient>

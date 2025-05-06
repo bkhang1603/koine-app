@@ -126,14 +126,19 @@ export default function CourseDetailScreen() {
       Alert.alert("Thông báo", "Đăng kí thành công", [
         {
           text: "Khóa học của tôi",
-          onPress: async () => {
+          onPress: () => {
             router.push("/child/(tabs)/my-courses");
           },
           style: "cancel",
         },
       ]);
     } catch (error) {
-      console.error("Failed to assign course:", error);
+      Alert.alert("Lỗi", `Đăng kí thất bại ${error}`, [
+        {
+          text: "Tắt",
+          style: "cancel",
+        },
+      ]);
     }
   };
 

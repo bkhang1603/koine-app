@@ -176,12 +176,15 @@ export default function CourseDetailScreen() {
       Alert.alert("Thông báo", "Thêm khóa học vào giỏ thành công", [
         {
           text: "Mua tiếp",
+          onPress: () => {
+            router.push("/(tabs)/course/course");
+          },
           style: "cancel",
         },
         {
-          text: "Khóa học của tôi",
+          text: "Trang chủ",
           onPress: () => {
-            router.push("/(tabs)/my-courses/my-courses");
+            router.push("/(tabs)/home");
           },
           style: "destructive",
         },
@@ -208,15 +211,20 @@ export default function CourseDetailScreen() {
       });
       Alert.alert("Thông báo", "Đăng kí thành công", [
         {
-          text: "Trang chủ",
+          text: "Khóa học đã mua",
           onPress: async () => {
-            router.push("/(tabs)/home");
+            router.push("/(root)/purchased-courses/purchased-courses");
           },
           style: "cancel",
         },
       ]);
     } catch (error) {
-      console.error("Failed to enroll:", error);
+      Alert.alert("Lỗi", `Không đăng kí được ${error}`, [
+        {
+          text: "tắt",
+          style: "cancel",
+        },
+      ]);
     }
   };
 
@@ -273,10 +281,10 @@ export default function CourseDetailScreen() {
 
           <View className="flex-row items-center">
             <View className="mr-2">
-              <CartButton bgColor="bg-white/20" iconColor="white" />
+              <CartButton bgColor="bg-black/30" iconColor="white" />
             </View>
             <Pressable
-              className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
+              className="w-10 h-10 rounded-full bg-black/30 items-center justify-center"
               onPress={() => router.push("/(root)/notifications/notifications")}
             >
               <MaterialIcons name="notifications" size={26} color="white" />
