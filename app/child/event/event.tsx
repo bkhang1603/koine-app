@@ -77,7 +77,7 @@ export default function EventScreen() {
     }
   };
 
-  const isOpenable = (eventStartAt: string, duration: number): boolean => {
+  const isOpenable = (eventStartAt: Date, duration: number): boolean => {
     const now = new Date();
     // Chuyển giờ về GMT+7 (đảm bảo giờ giữ nguyên)
     const localTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
@@ -89,7 +89,7 @@ export default function EventScreen() {
     ); // chỉ mở khi trong khoảng startTime -> endDate
   };
 
-  const isClosed = (eventStartAt: string, duration: number): boolean => {
+  const isClosed = (eventStartAt: Date, duration: number): boolean => {
     const now = new Date();
     // Chuyển giờ về GMT+7 (đảm bảo giờ giữ nguyên)
     const localTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
@@ -98,34 +98,44 @@ export default function EventScreen() {
     return localTime.getTime() >= endDate.getTime(); // chỉ mở khi trong khoảng startTime -> endDate
   };
 
-  const formatStartAtDisplay = (startAtDisplay: string): string => {
-    // Tách phần thời gian và ngày
-    const [timePart, datePart] = startAtDisplay.split("-"); // "19:04:00", "09/04/2025"
-    const [hour, minute, second] = timePart.split(":").map(Number);
-    const [day, month, year] = datePart.split("/").map(Number);
+  // const formatStartAtDisplay = (startAtDisplay: string): string => {
+  //   // Tách phần thời gian và ngày
+  //   const [timePart, datePart] = startAtDisplay.split("-"); // "19:04:00", "09/04/2025"
+  //   const [hour, minute, second] = timePart.split(":").map(Number);
+  //   const [day, month, year] = datePart.split("/").map(Number);
 
-    // Tạo đối tượng Date (chú ý: tháng trong JS bắt đầu từ 0)
-    const date = new Date(year, month - 1, day, hour, minute, second);
+  //   // Tạo đối tượng Date (chú ý: tháng trong JS bắt đầu từ 0)
+  //   const date = new Date(year, month - 1, day, hour, minute, second);
 
-    // Trừ đi 7 giờ
-    date.setHours(date.getHours() - 7);
+  //   // Trừ đi 7 giờ
+  //   date.setHours(date.getHours() - 7);
 
-    // Format lại thành chuỗi "HH:mm:ss-DD/MM/YYYY"
-    const pad = (n: number): string => n.toString().padStart(2, "0");
-    const formatted = `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
-      date.getSeconds()
-    )}-${pad(date.getDate())}/${pad(
-      date.getMonth() + 1
-    )}/${date.getFullYear()}`;
+  //   // Format lại thành chuỗi "HH:mm:ss-DD/MM/YYYY"
+  //   const pad = (n: number): string => n.toString().padStart(2, "0");
+  //   const formatted = `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
+  //     date.getSeconds()
+  //   )}-${pad(date.getDate())}/${pad(
+  //     date.getMonth() + 1
+  //   )}/${date.getFullYear()}`;
 
-    return formatted;
-  };
+  //   return formatted;
+  // };
 
-  const formatStartAt = (startAt: string): string => {
-    //2025-04-09T05:04:00.000Z
+  const formatStartAt = (startAt: string): Date => {
     const startAtOTC = new Date(startAt);
     const startAtGMT7 = new Date(startAtOTC.getTime() + 7 * 3600 * 1000);
-    return startAtGMT7.toString();
+    return startAtGMT7;
+  };
+
+  const formatStartAtToDisplay = (startAt: string): string => {
+    const startAtOTC = new Date(startAt);
+    const startAtGMT7 = new Date(startAtOTC.getTime() + 7 * 60 * 60 * 1000);
+    const hours = String(startAtGMT7.getUTCHours()).padStart(2, "0");
+    const minutes = String(startAtGMT7.getUTCMinutes()).padStart(2, "0");
+    const day = String(startAtGMT7.getUTCDate()).padStart(2, "0");
+    const month = String(startAtGMT7.getUTCMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0
+    const year = startAtGMT7.getUTCFullYear();
+    return `${hours}:${minutes}-${day}/${month}/${year}`;
   };
 
   return (
@@ -155,7 +165,7 @@ export default function EventScreen() {
             </View>
             <View className="flex-row">
               <Pressable
-                className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
+                className="w-10 h-10 mr-1 rounded-full bg-white/20 items-center justify-center"
                 onPress={() => {
                   router.push("/child/notifications");
                 }}
@@ -332,7 +342,7 @@ export default function EventScreen() {
                             color="#6B7280"
                           />
                           <Text className="text-gray-600 ml-2 text-sm">
-                            {formatStartAtDisplay(event.startAtFormatted)}
+                            {formatStartAtToDisplay(event.startedAt)}
                           </Text>
                         </View>
 

@@ -33,7 +33,6 @@ export default function EventScreen() {
   useFocusEffect(() => {
     refetch();
   });
-
   const statusStyles = useMemo(
     () => ({
       OPENING: {
@@ -75,7 +74,7 @@ export default function EventScreen() {
     }
   };
 
-  const isOpenable = (eventStartAt: string, duration: number): boolean => {
+  const isOpenable = (eventStartAt: Date, duration: number): boolean => {
     const now = new Date();
     const localTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
     const startTime = new Date(eventStartAt);
@@ -86,7 +85,7 @@ export default function EventScreen() {
     );
   };
 
-  const isClosed = (eventStartAt: string, duration: number): boolean => {
+  const isClosed = (eventStartAt: Date, duration: number): boolean => {
     const now = new Date();
     const localTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
     const startTime = new Date(eventStartAt);
@@ -94,18 +93,23 @@ export default function EventScreen() {
     return localTime.getTime() >= endDate.getTime();
   };
 
-  const formatStartAtDisplay = (startAtDisplay: string): string => {
-    const [timePart, datePart] = startAtDisplay.split("-");
-    const [hour, minute] = timePart.split(":");
-    const [day, month, year] = datePart.split("/");
-    return `${hour}:${minute} - ${day}/${month}/${year}`;
-  };
-
-  const formatStartAt = (startAt: string): string => {
+  const formatStartAt = (startAt: string): Date => {
     const startAtOTC = new Date(startAt);
     const startAtGMT7 = new Date(startAtOTC.getTime() + 7 * 3600 * 1000);
-    return startAtGMT7.toString();
+    return startAtGMT7;
   };
+
+  const formatStartAtToDisplay = (startAt: string): string => {
+    const startAtOTC = new Date(startAt);
+    const startAtGMT7 = new Date(startAtOTC.getTime() + 7 * 60 * 60 * 1000);
+    const hours = String(startAtGMT7.getUTCHours()).padStart(2, "0");
+    const minutes = String(startAtGMT7.getUTCMinutes()).padStart(2, "0");
+    const day = String(startAtGMT7.getUTCDate()).padStart(2, "0");
+    const month = String(startAtGMT7.getUTCMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0
+    const year = startAtGMT7.getUTCFullYear();
+    return `${hours}:${minutes}-${day}/${month}/${year}`;
+  };
+  //start  2025-05-08T00:00:00.000Z
 
   const getEventStatus = (event: any) => {
     if (
@@ -148,7 +152,7 @@ export default function EventScreen() {
           </View>
 
           <Pressable
-            className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
+            className="w-10 h-10 mr-1 rounded-full bg-white/20 items-center justify-center"
             onPress={() => router.push("/(root)/notifications/notifications")}
           >
             <MaterialIcons name="notifications" size={26} color="white" />
@@ -229,7 +233,7 @@ export default function EventScreen() {
                       <View className="flex-row items-center">
                         <AntDesign name="calendar" size={16} color="#4B5563" />
                         <Text className="text-gray-700 ml-2">
-                          {formatStartAtDisplay(event.startAtFormatted)}
+                          {formatStartAtToDisplay(event.startedAt)}
                         </Text>
                       </View>
 
