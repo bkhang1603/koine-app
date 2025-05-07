@@ -38,17 +38,22 @@ export default function EventDetailUser() {
     }, [])
   );
 
-  const formatStartAtDisplay = (startAtDisplay: string): string => {
-    const [timePart, datePart] = startAtDisplay.split("-");
-    const [hour, minute] = timePart.split(":");
-    const [day, month, year] = datePart.split("/");
-    return `${hour}:${minute} - ${day}/${month}/${year}`;
-  };
 
-  const formatStartAt = (startAt: string): string => {
+  const formatStartAt = (startAt: string): Date => {
     const startAtOTC = new Date(startAt);
     const startAtGMT7 = new Date(startAtOTC.getTime() + 7 * 3600 * 1000);
-    return startAtGMT7.toString();
+    return startAtGMT7;
+  };
+
+  const formatStartAtToDisplay = (startAt: string): string => {
+    const startAtOTC = new Date(startAt);
+    const startAtGMT7 = new Date(startAtOTC.getTime() + 7 * 60 * 60 * 1000);
+    const hours = String(startAtGMT7.getUTCHours()).padStart(2, '0');
+    const minutes = String(startAtGMT7.getUTCMinutes()).padStart(2, '0');
+    const day = String(startAtGMT7.getUTCDate()).padStart(2, '0');
+    const month = String(startAtGMT7.getUTCMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
+    const year = startAtGMT7.getUTCFullYear();
+    return `${hours}:${minutes}-${day}/${month}/${year}`;
   };
 
   let eventDetail: EventDetailResType["data"] | null = null;
@@ -134,13 +139,14 @@ export default function EventDetailUser() {
     },
   } as const;
 
-  const isClosed = (eventStartAt: string, duration: number): boolean => {
+  const isClosed = (eventStartAt: Date, duration: number): boolean => {
     const now = new Date();
     const localTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
     const startTime = new Date(eventStartAt);
     const endDate = new Date(startTime.getTime() + duration * 1000);
     return localTime.getTime() >= endDate.getTime();
   };
+
 
   const getEventStatus = () => {
     if (
@@ -157,6 +163,8 @@ export default function EventDetailUser() {
       eventDetail?.status.toUpperCase() as keyof typeof statusStyles
     ];
   };
+
+  
 
   const htmlContent = `
   <html>
@@ -239,7 +247,7 @@ export default function EventDetailUser() {
           </View>
 
           <Pressable
-            className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
+            className="w-10 h-10 mr-1 rounded-full bg-white/20 items-center justify-center"
             onPress={() => router.push("/(root)/notifications/notifications")}
           >
             <MaterialIcons name="notifications" size={26} color="white" />
@@ -314,7 +322,7 @@ export default function EventDetailUser() {
                   <AntDesign name="calendar" size={16} color="#3b82f6" />
                 </View>
                 <Text className="text-gray-800 ml-3">
-                  {formatStartAtDisplay(eventDetail.startAtFormatted)}
+                  {formatStartAtToDisplay(eventDetail.startedAt)}
                 </Text>
               </View>
 
